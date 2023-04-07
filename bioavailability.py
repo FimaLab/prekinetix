@@ -2723,7 +2723,8 @@ else:
        df_PK_organs_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_name_organs)
        df_PK_organs_total_transpose=df_PK_organs_total.transpose()
 
-
+       index_blood = list_name_organs.index("Кровь")
+       st.write(index_blood)
        ###ft
        list_aucot_for_ft=[]
        list_columns_df_PK_organs_total_transpose=df_PK_organs_total_transpose.columns.tolist()
@@ -2738,7 +2739,7 @@ else:
            ft=i/df_PK_organs_total_transpose["Кровь"].loc['AUC0-t']
            list_ft.append(ft)
            list_ft_round.append(round(ft,2))
-       list_ft_round.insert(0, "-")
+       list_ft_round.insert(index_blood, "-")
 
 
        df_PK_organs_total_transpose.loc[ len(df_PK_organs_total_transpose.index )] = list_ft_round
