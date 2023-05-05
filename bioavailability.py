@@ -7,6 +7,7 @@ from sklearn.linear_model import LinearRegression
 import math
 import statistics  
 import seaborn as sns
+import statsmodels.api as sm
 
 
 
@@ -26,14 +27,14 @@ st.title('Добро пожаловать в приложение по расч�
 st.subheader('Какое исследование проводится?')
 
 option = st.selectbox('Выберите вид исследования',
-    ('Изучение абсолютной и относительной биодоступности препарата', 'Изучение фармакокинетики в органах животных'),disabled = False)
+    ('Изучение абсолютной и относительной биодоступности препарата', 'Изучение фармакокинетики в органах животных', 'Линейность дозирования'),disabled = False)
 
 
 if option == 'Изучение абсолютной и относительной биодоступности препарата':
     
     st.subheader('Единицы измерения концентрации')
     
-    measure_unit = st.text_input("Выберите единицы измерения концентрации")
+    measure_unit = st.text_input("Введите единицы измерения концентрации", key='Единицы измерения при изучении абсолютной и относительной биодоступности препарата')
 
     st.info('☝️ Ввести единицы измерения концентрации')
 
@@ -41,9 +42,9 @@ if option == 'Изучение абсолютной и относительно�
     st.title('Внутривенное введение субстанции')
 
     st.subheader('Загрузка файла внутривенного введения формата XLS')
-    uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения")
+    uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
 
-    dose_iv = st.text_input("Доза при внутривенном введении")
+    dose_iv = st.text_input("Доза при внутривенном введении", key='Доза при внутривенном введении при изучении абсолютной и относительной биодоступности препарата')
 
 
     if uploaded_file_1 and dose_iv and measure_unit is not None:
@@ -117,7 +118,7 @@ if option == 'Изучение абсолютной и относительно�
            plt.ylabel("Концентрация, "+measure_unit)
            st.pyplot(fig) 
 
-           st.subheader('График индивидуального фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения субстанции, № '+numer_animal)
+           st.subheader('График индивидуального фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения субстанции,  '+numer_animal)
 
 
         #в полулогарифмических координатах методом удаления точек
@@ -139,7 +140,7 @@ if option == 'Изучение абсолютной и относительно�
 
            st.pyplot(fig)
 
-           st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения субстанции, № '+numer_animal)
+           st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения субстанции,  '+numer_animal)
 
 
     # объединенные индивидуальные в линейных координатах
@@ -635,9 +636,9 @@ if option == 'Изучение абсолютной и относительно�
     st.title('Пероральное введение субстанции')
 
     st.subheader('Загрузка файла перорального введения субстанции формата XLS')
-    uploaded_file_2 = st.file_uploader("Выбрать файл перорального введения субстанции")
+    uploaded_file_2 = st.file_uploader("Выбрать файл перорального введения субстанции", key='Файл перорального введения субстанции при изучении абсолютной и относительной биодоступности препарата')
 
-    dose_po_sub = st.text_input("Доза при пероральном введении субстанции")
+    dose_po_sub = st.text_input("Доза при пероральном введении субстанции", key='Доза при пероральном введении субстанции при изучении абсолютной и относительной биодоступности препарата')
 
     if uploaded_file_2 and dose_po_sub and measure_unit is not None:
 
@@ -709,7 +710,7 @@ if option == 'Изучение абсолютной и относительно�
            plt.ylabel("Концентрация, "+measure_unit)
            st.pyplot(fig) 
 
-           st.subheader('График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения субстанции, № '+numer_animal)
+           st.subheader('График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения субстанции,  '+numer_animal)
 
 
         #в полулогарифмических координатах методом удаления точек
@@ -731,7 +732,7 @@ if option == 'Изучение абсолютной и относительно�
 
            st.pyplot(fig)
 
-           st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения субстанции, № '+numer_animal)
+           st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения субстанции,  '+numer_animal)
 
 
     # объединенные индивидуальные в линейных координатах
@@ -1263,9 +1264,9 @@ if option == 'Изучение абсолютной и относительно�
     st.title('Пероральное введение таблетки')
 
     st.subheader('Загрузка файла перорального введения таблетки формата XLS')
-    uploaded_file_3 = st.file_uploader("Выбрать файл перорального введения таблетки")
+    uploaded_file_3 = st.file_uploader("Выбрать файл перорального введения таблетки", key='Файл перорального введения таблетки при изучении абсолютной и относительной биодоступности препарата')
 
-    dose_po_tab = st.text_input("Доза при пероральном введении таблетки") 
+    dose_po_tab = st.text_input("Доза при пероральном введении таблетки", key='Доза при пероральном введении таблетки при изучении абсолютной и относительной биодоступности препарата') 
 
     if uploaded_file_3 and dose_po_tab and measure_unit is not None:
 
@@ -1337,7 +1338,7 @@ if option == 'Изучение абсолютной и относительно�
            plt.ylabel("Концентрация, "+measure_unit)
            st.pyplot(fig) 
 
-           st.subheader('График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения таблетки, № '+numer_animal)
+           st.subheader('График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения таблетки,  '+numer_animal)
 
 
         #в полулогарифмических координатах методом удаления точек
@@ -1359,7 +1360,7 @@ if option == 'Изучение абсолютной и относительно�
 
            st.pyplot(fig)
 
-           st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения таблетки, № '+numer_animal)
+           st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения таблетки,  '+numer_animal)
 
 
     # объединенные индивидуальные в линейных координатах
@@ -1998,7 +1999,7 @@ if option == 'Изучение абсолютной и относительно�
     st.title('Исследование экскреции с калом')
 
     st.subheader('Загрузка файла экскреции с калом формата XLS')
-    uploaded_file_4 = st.file_uploader("Выбрать файл экскреции с калом")
+    uploaded_file_4 = st.file_uploader("Выбрать файл экскреции с калом", key='Файл экскреции с калом изучения абсолютной и относительной биодоступности препарата')
 
     if uploaded_file_4 and measure_unit is not None:
 
@@ -2078,7 +2079,7 @@ if option == 'Изучение абсолютной и относительно�
     st.title('Исследование экскреции с мочой')
 
     st.subheader('Загрузка файла экскреции с мочой формата XLS')
-    uploaded_file_5 = st.file_uploader("Выбрать файл экскреции с мочой")
+    uploaded_file_5 = st.file_uploader("Выбрать файл экскреции с мочой", key='Файл экскреции с мочой изучения абсолютной и относительной биодоступности препарата')
 
     if uploaded_file_5 and measure_unit is not None:
 
@@ -2149,21 +2150,25 @@ if option == 'Изучение абсолютной и относительно�
     else:
        st.info('☝️ Загрузить XLS файл')
 
-else:
-#####################################################################    
+
+
+#####################################################################   
+
+if option == 'Изучение фармакокинетики в органах животных':
+    
    st.title('Исследование ФК параметров для органов животных')
 
-   measure_unit_org = st.text_input("Выберите единицы измерения концентрации")
+   measure_unit_org = st.text_input("Введите единицы измерения концентрации", key='Единицы измерения при изучении фармакокинетики в органах животных')
 
    st.info('☝️ Ввести единицы измерения концентрации')
 
-   dose_iv = st.text_input("Доза препарата")
+   dose = st.text_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных')
 
    st.info('☝️ Ввести дозу препарата')
 
-   file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True)
+   file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
 
-   if file_uploader and dose_iv and measure_unit_org is not None:
+   if file_uploader and dose and measure_unit_org is not None:
 
 
        list_name_organs=[]
@@ -2246,7 +2251,7 @@ else:
                plt.ylabel("Концентрация, "+measure_unit_org)
                st.pyplot(fig) 
 
-               st.subheader('График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"', № '+numer_animal)
+               st.subheader('График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"',  '+numer_animal)
 
 
             #в полулогарифмических координатах методом удаления точек
@@ -2268,7 +2273,7 @@ else:
 
                st.pyplot(fig)
 
-               st.subheader('График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"', № '+numer_animal)
+               st.subheader('График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"',  '+numer_animal)
 
 
         # объединенные индивидуальные в линейных координатах
@@ -2555,7 +2560,7 @@ else:
            list_cl=[]
 
            for i in list_auc0_inf:
-               cl = float(dose_iv)/i * 1000
+               cl = float(dose)/i * 1000
                list_cl.append(cl)
 
 
@@ -2724,7 +2729,6 @@ else:
        df_PK_organs_total_transpose=df_PK_organs_total.transpose()
 
        index_blood = list_name_organs.index("Кровь")
-       st.write(index_blood)
        ###ft
        list_aucot_for_ft=[]
        list_columns_df_PK_organs_total_transpose=df_PK_organs_total_transpose.columns.tolist()
@@ -2803,34 +2807,52 @@ else:
        ### в линейных координатах
 
        list_list_mean_conc=[]
+       list_list_std_conc=[]
        for i in list_df_for_mean_unround_for_graphics: 
            mean_conc_list=i.loc['mean'].tolist()
+           std_conc_list=i.loc['std'].tolist()
            list_list_mean_conc.append(mean_conc_list)
+           list_list_std_conc.append(std_conc_list)
+
+       list_name_organs_std=[]
+       for i in list_name_organs:
+        j= i + " std"
+        list_name_organs_std.append(j)
 
        df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_t_graph[0],index=list_name_organs)
        df_mean_conc_graph_1=df_mean_conc_graph.transpose()
+       df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_t_graph[0],index=list_name_organs_std)
+       df_std_conc_graph_1=df_std_conc_graph.transpose()
+       df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
+
+       list_colors=["black","red","blue","green","yellow","orange","purple","brown","coral","plum","tan","pink","grey"]
+       list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)    
 
        fig, ax = plt.subplots()
-       plt.plot(df_mean_conc_graph_1,marker='o',markersize=4.0,label=list_name_organs)
-       plt.xlabel("Время, ч")
-       plt.ylabel("Концентрация, "+measure_unit_org)
-       ax.legend(fontsize = 5)
+       for i,j,c in list_zip_mean_std_colors:
+            plt.errorbar(list(df_concat_mean_std.index),df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+            plt.xlabel("Время, ч")
+            plt.ylabel("Концентрация, "+ measure_unit_org)
+            ax.legend(fontsize = 5)
        st.pyplot(fig) 
-       st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в органах') 
+       st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в органах')
 
        ### в полулог. координатах
 
-       df_mean_conc_graph_1_without_0=df_mean_conc_graph_1.drop([0])
+       list_t_organs=list(df_concat_mean_std.index)
+       list_t_organs.remove(0)
+       df_concat_mean_std_without_0=df_concat_mean_std.drop([0])
+       list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)
 
        fig, ax = plt.subplots()
-       plt.plot(df_mean_conc_graph_1_without_0,marker='o',markersize=4.0,label=list_name_organs)
-       ax.set_yscale("log")
-       plt.xlabel("Время, ч")
-       plt.ylabel("Концентрация, "+measure_unit_org)
-       ax.legend(fontsize = 5)
-       st.pyplot(fig) 
+       for i,j,c in list_zip_mean_std_colors:
+            plt.errorbar(list_t_organs,df_concat_mean_std_without_0[i],yerr=df_concat_mean_std_without_0[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+            ax.set_yscale("log")
+            plt.xlabel("Время, ч")
+            plt.ylabel("Концентрация, "+ measure_unit_org)
+            ax.legend(fontsize = 5)
+       st.pyplot(fig)
        st.subheader('Сравнение фармакокинетических профилей (в полулогарифмических координатах) в органах') 
-
 
        ###построение диаграммы для тканевой доступности
 
@@ -2859,7 +2881,7 @@ else:
    st.title('Исследование экскреции с калом')
 
    st.subheader('Загрузка файла экскреции с калом формата XLS')
-   uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции с калом")
+   uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции с калом", key="Файл экскреции с калом при изучении фармакокинетики в органах животных")
 
    if uploaded_file_excrement and measure_unit_org is not None:
 
@@ -2939,7 +2961,7 @@ else:
    st.title('Исследование экскреции с мочой')
 
    st.subheader('Загрузка файла экскреции с мочой формата XLS')
-   uploaded_file_urine = st.file_uploader("Выбрать файл экскреции с мочой")
+   uploaded_file_urine = st.file_uploader("Выбрать файл экскреции с мочой", key="Файл экскреции с мочой при изучении фармакокинетики в органах животных")
 
    if uploaded_file_urine and measure_unit_org is not None:
 
@@ -2986,7 +3008,6 @@ else:
 
    ###########диаграмма    
 
-
       list_time = []
       for i in col_mapping:
           numer=float(i)
@@ -3009,3 +3030,717 @@ else:
 
    else:
       st.info('☝️ Загрузить XLS файл')
+
+################################################################################################
+
+if option == 'Линейность дозирования':
+
+   st.title('Исследование линейности дозирования')
+    
+   st.subheader('Единицы измерения концентрации')
+    
+   measure_unit_lin = st.text_input("Введите единицы измерения концентрации", key="Единицы измерения концентрации при исследовании линейности дозирования")
+
+   st.info('☝️ Ввести единицы измерения концентрации')
+
+   file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых дозировок(не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через '.'",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
+
+   if file_uploader and measure_unit_lin is not None:
+
+
+       list_name_doses=[]
+       list_df_unrounded=[]
+       list_df_for_mean_unround_for_graphics=[]
+       list_t_graph=[]
+
+       for i in file_uploader:
+           df = pd.read_excel(i)
+
+           file_name=i.name[10:-5]
+
+           st.subheader('Индивидуальные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin)
+           st.write(df)
+
+           st.subheader('Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin)
+           col_mapping = df.columns.tolist()
+           col_mapping.remove('Номер')
+
+           list_gmean=[]
+           list_cv=[] 
+           for i in col_mapping:
+
+               list_ser=df[i].tolist()
+
+               def g_mean(list_ser):
+                   a=np.log(list_ser)
+                   return np.exp(a.mean())
+               Gmean=g_mean(list_ser)
+               list_gmean.append(Gmean)
+
+               cv_std=lambda x: np.std(x, ddof= 1 )
+               cv_mean=lambda x: np.mean(x)
+               CV_std=cv_std(list_ser)
+
+               CV_mean=cv_mean(list_ser)
+
+               CV=round((CV_std/CV_mean * 100),2)
+               list_cv.append(CV)
+
+           df_averaged_concentrations=df.describe()
+           df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
+           df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
+           df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
+           df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
+           df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
+           df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+
+           df_index=df.set_index('Номер')
+           df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
+        
+           ##помещение фреймов с описательной статистикой в список для извлечения потом std для построения линиий ошибок
+           
+
+           df_concat_round=df_concat.round(2)
+           st.write(df_concat_round) 
+           ########### графики    
+           
+           
+           ######индивидуальные    
+
+           # в линейных координатах
+           count_row_df = len(df.axes[0])
+
+           list_time = []
+           for i in col_mapping:
+               numer=float(i)
+               list_time.append(numer)
+           list_t_graph.append(list_time) 
+
+           for r in range(0,count_row_df):
+
+               list_concentration=df.iloc[r].tolist()
+
+               numer_animal=list_concentration[0]
+
+               list_concentration.pop(0) #удаление номера животного
+
+               list_concentration = [float(v) for v in list_concentration]
+
+
+               fig, ax = plt.subplots()
+               plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+               plt.xlabel("Время, ч")
+               plt.ylabel("Концентрация, "+measure_unit_lin)
+               st.pyplot(fig) 
+
+               st.subheader('График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_lin+',  '+numer_animal)
+
+
+            #в полулогарифмических координатах методом удаления точек
+               count_for_0_1=len(list_concentration)
+               list_range_for_0_1=range(0,count_for_0_1)
+
+               list_time_0=[]
+               list_for_log_1=[]
+               for i in list_range_for_0_1:
+                   if list_concentration[i] !=0:
+                      list_for_log_1.append(list_concentration[i])
+                      list_time_0.append(list_time[i]) 
+
+               fig, ax = plt.subplots()
+               plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+               ax.set_yscale("log")
+               plt.xlabel("Время, ч")
+               plt.ylabel("Концентрация, "+measure_unit_lin)
+
+               st.pyplot(fig)
+
+               st.subheader('График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_lin+',  '+numer_animal)
+
+
+        # объединенные индивидуальные в линейных координатах
+
+           df_for_plot_conc=df.drop(['Номер'], axis=1)
+           df_for_plot_conc_1 = df_for_plot_conc.transpose()
+           list_numer_animal_for_plot=df['Номер'].tolist()
+
+           fig, ax = plt.subplots()
+
+           plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
+
+           ax.set_xlabel("Время, ч")
+           ax.set_ylabel("Концентрация, "+measure_unit_lin)
+           ax.legend()
+           st.pyplot(fig)
+
+           st.subheader("Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_lin)    
+        # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
+           df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
+
+
+           fig, ax = plt.subplots()
+
+           plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
+
+           ax.set_xlabel("Время, ч")
+           ax.set_ylabel("Концентрация, "+measure_unit_lin)
+           ax.set_yscale("log")
+           ax.legend()
+           st.pyplot(fig)
+
+           st.subheader("Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_lin)
+
+            ###усредненные    
+        # в линейных координатах
+           list_time = []
+           for i in col_mapping:
+               numer=float(i)
+               list_time.append(numer)
+
+
+           list_concentration=df_averaged_concentrations.loc['mean'].tolist()
+           err_y_1=df_averaged_concentrations.loc['std'].tolist()
+
+
+           fig, ax = plt.subplots()
+           plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+           plt.xlabel("Время, ч")
+           plt.ylabel("Концентрация, "+measure_unit_lin)
+           st.pyplot(fig) 
+
+           st.subheader('График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_lin)
+
+
+
+
+        #в полулогарифмических координатах
+           #для полулогарифм. посторим без нуля
+           list_time.remove(0)
+           list_concentration.remove(0)
+           err_y_1.remove(0) 
+
+
+           fig, ax = plt.subplots()
+           plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+           ax.set_yscale("log")
+           plt.xlabel("Время, ч")
+           plt.ylabel("Концентрация, "+measure_unit_lin)
+
+           st.pyplot(fig)
+
+           st.subheader('График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ measure_unit_lin)
+
+           ############### Параметры ФК
+
+           ###Cmax
+           df_without_numer=df.drop(['Номер'],axis=1)
+           count_row=df_without_numer.shape[0]
+           list_cmax=[]
+           for i in range(0,count_row):
+               cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
+               list_cmax.append(cmax)
+
+           ###Tmax   
+           list_Tmax=[]
+           for cmax in list_cmax:
+               for column in df.columns:
+                   for num, row in df.iterrows():
+                       if df.iloc[num][column] == cmax:
+                          list_Tmax.append(f"{column}")
+
+           list_Tmax_float=[]           
+           for i in list_Tmax:
+               Tmax=float(i)
+               list_Tmax_float.append(Tmax)
+
+
+
+           ###AUC0-t
+           list_AUC_0_T=[]
+           for i in range(0,count_row):
+               list_columns_T=[]
+               for column in df_without_numer.columns:
+                   list_columns_T.append(float(column))
+               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+               AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+               list_AUC_0_T.append(AUC_0_T)
+
+
+
+           ####Сmax/AUC0-t
+           list_Сmax_division_AUC0_t_for_division=zip(list_cmax,list_AUC_0_T)
+           list_Сmax_division_AUC0_t=[]
+           for i,j in list_Сmax_division_AUC0_t_for_division:
+                   list_Сmax_division_AUC0_t.append(i/j)
+
+
+           ####KEL
+           list_kel_total=[]
+           for i in range(0,count_row):
+               list_columns_T=[]
+               for column in df_without_numer.columns:
+                   list_columns_T.append(float(column))
+               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+               list_concentration.remove(0)
+               list_c=list_concentration
+
+               list_time=df_without_numer.columns.tolist()
+               list_time.remove(0) 
+
+               list_t=[]
+               for i in list_time:
+                   i=float(i)
+                   list_t.append(i)
+
+               #срез_без_cmax
+               max_value_c=max(list_c)
+               index_cmax=list_c.index(max_value_c)
+
+               list_c_without_cmax=list_c[index_cmax+1:]
+               list_t_without_cmax=list_t[index_cmax+1:]
+
+               #удаление всех нулей из массивов
+               list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
+
+
+               count_for_0_1=len(list_c_without_cmax)
+               list_range_for_0_1=range(0,count_for_0_1)
+
+               list_time_0=[]
+               list_conc_0=[]
+               for i in list_range_for_0_1:
+                   if list_c_without_cmax[i] !=0:
+                      list_conc_0.append(list_c_without_cmax[i])
+                      list_time_0.append(list_t_without_cmax[i]) 
+
+
+               n_points=len(list_conc_0)
+               list_n_points = range(0,n_points)
+
+               #создание списков с поочередно уменьщающемся кол, точек
+               list_for_kel_c=[]
+               for j in list_n_points:
+                   if j<n_points:
+                      list_c_new=list_conc_0[j:n_points]
+                      list_for_kel_c.append(list_c_new)
+               list_for_kel_c.pop(-1) #удаление списка с одной точкой
+               list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
+
+
+               list_for_kel_t=[]
+               for j in list_n_points:
+                   if j<n_points:
+                      list_t_new=list_time_0[j:n_points]
+                      list_for_kel_t.append(list_t_new)
+               list_for_kel_t.pop(-1) #удаление списка с одной точкой
+               list_for_kel_t.pop(-1) #удаление списка с двумя точками 
+
+
+               list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
+
+               list_kel=[]
+               list_r=[]
+               for i,j in list_ct_zip:
+
+                   n_points_r=len(i)
+
+                   np_c=np.asarray(i)
+                   np_t_1=np.asarray(j).reshape((-1,1))
+
+                   np_c_log=np.log(np_c)
+
+                   model = LinearRegression().fit(np_t_1,np_c_log)
+
+                   np_t=np.asarray(j)
+                   a=np.corrcoef(np_t, np_c_log)
+                   cor=((a[0])[1])
+                   r_sq=cor**2
+
+                   adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
+
+
+
+                   ########################################
+                   kel=abs(model.coef_[0])
+                   list_kel.append(kel)
+                   list_r.append(adjusted_r_sq)
+
+               #делаем срезы списоков до rmax
+               max_r=max(list_r)
+
+               index_max_r= list_r.index(max_r)
+
+
+               list_r1=list_r[:index_max_r]
+               list_kel1=list_kel[:index_max_r]
+
+               if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
+                  list_r1.append(list_r[index_max_r])
+                  list_kel1.append(list_kel[index_max_r])
+
+
+               number_elem_list_r1=len(list_r1)
+
+               list_range_kel=range(0,number_elem_list_r1) 
+
+               list_kel_total_1=[]
+               for i in list_range_kel:
+
+                   if len(list_r1)==1:
+                      list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1)))
+                      break 
+
+                   if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
+                      list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                      break #самая ранняя удовлетовряющая условию
+
+                   if len(list_kel_total_1) == 0:   
+                      list_kel_total_1.append(list_kel[index_max_r])
+
+               for i in list_kel_total_1:
+                   list_kel_total.append(i) 
+
+           ####T1/2
+           list_half_live=[]
+           for i in list_kel_total:
+               half_live=math.log(2)/i
+               list_half_live.append(half_live)
+
+
+           ###AUC0-inf 
+
+           list_auc0_inf=[] 
+
+           list_of_list_c=[]
+           for i in range(0,count_row):
+               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+               list_concentration.remove(0)
+               list_c = list_concentration
+               list_of_list_c.append(list_c)
+
+           list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
+
+               #AUCt-inf 
+           list_auc_t_inf=[]     
+           for i,j in list_zip_c_AUCt_inf:
+               auc_t_inf=j[-1]/i
+               list_auc_t_inf.append(auc_t_inf)
+
+           list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
+
+           for i,j in list_auc_t_inf_and_AUC_0_T_zip:
+               auc0_inf=i+j    
+               list_auc0_inf.append(auc0_inf)
+
+
+
+
+           ####CL
+           list_cl=[]
+
+           for i in list_auc0_inf:
+               cl = float(file_name)/i * 1000
+               list_cl.append(cl)
+
+
+           ####Vd
+           list_Vd=[]
+
+           list_zip_kel_cl=zip(list_kel_total,list_cl)
+
+           for i,j in list_zip_kel_cl:
+               Vd = j/i
+               list_Vd.append(Vd)
+
+
+           ###AUMC
+           list_AUMCO_inf=[]
+
+           list_AUMC0_t=[]
+
+           list_C_last=[]
+           list_T_last=[]
+           for i in range(0,count_row):
+               list_columns_T=[]
+               for column in df_without_numer.columns:
+                   list_columns_T.append(float(column))
+               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+               list_C_last.append(list_concentration[-1]) 
+               list_T_last.append(list_columns_T[-1]) 
+
+               list_len=len(list_concentration)
+
+               list_aumc_i=[]
+               for i in range(0,list_len):
+                   AUMC=(list_columns_T[i] - list_columns_T[i-1]) *  ((list_concentration[i] * list_columns_T[i] + list_concentration[i-1] * list_columns_T[i-1])/2)
+                   list_aumc_i.append(AUMC)
+
+               list_aumc_i.pop(0)
+
+               a=0
+               list_AUMC0_t_1=[]
+               for i in list_aumc_i:
+                   a+=i
+                   list_AUMC0_t_1.append(a)
+               list_AUMC0_t.append(list_AUMC0_t_1[-1])
+
+           list_zip_for_AUMC_inf=zip(list_kel_total,list_C_last,list_T_last)
+
+           list_AUMCt_inf=[]
+           for k,c,t in list_zip_for_AUMC_inf:
+               AUMCt_inf=c*t/k+c/(k*k)
+               list_AUMCt_inf.append(AUMCt_inf)
+
+
+           list_AUMC_zip=zip(list_AUMC0_t,list_AUMCt_inf)
+
+           for i,j in list_AUMC_zip:
+               AUMCO_inf=i+j
+               list_AUMCO_inf.append(AUMCO_inf)
+
+
+
+
+           ###MRT0-inf
+           list_MRT0_inf=[]
+
+           list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
+
+           for i,j in list_zip_AUMCO_inf_auc0_inf:
+               MRT0_inf=i/j
+               list_MRT0_inf.append(MRT0_inf)
+
+
+
+
+           ##################### Фрейм ФК параметров
+
+           ### пользовательский индекс
+           list_for_index=df["Номер"].tolist()
+
+           df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+
+           ###описательная статистика
+
+           col_mapping_PK = df_PK.columns.tolist()
+
+           list_gmean_PK=[]
+
+           list_cv_PK=[] 
+
+           for i in col_mapping_PK:
+
+               list_ser_PK=df_PK[i].tolist()
+
+               def g_mean(list_ser_PK):
+                   a=np.log(list_ser_PK)
+                   return np.exp(a.mean())
+               Gmean_PK=g_mean(list_ser_PK)
+               list_gmean_PK.append(Gmean_PK)
+
+               cv_std_PK=lambda x: np.std(x, ddof= 1 )
+               cv_mean_PK=lambda x: np.mean(x)
+               CV_std_PK=cv_std(list_ser_PK)
+
+               CV_mean_PK=cv_mean(list_ser_PK)
+
+               CV_PK=(CV_std_PK/CV_mean_PK * 100)
+               list_cv_PK.append(CV_PK)
+
+
+           df_averaged_concentrations_PK=df_PK.describe()
+           df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
+           df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
+           df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
+           df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
+           df_round_without_CV_PK=df_averaged_3_PK
+           df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
+           df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV"})
+
+
+           df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
+
+
+           ###округление описательной статистики и ФК параметров
+
+           series_Cmax=df_concat_PK_iv['Cmax'].round(2)
+           series_Tmax=df_concat_PK_iv['Tmax'].round(2)
+           series_MRT0_inf= df_concat_PK_iv['MRT0→∞'].round(3)
+           series_half_live= df_concat_PK_iv['T1/2'].round(2)
+           series_AUC0_t= df_concat_PK_iv['AUC0-t'].round(2)
+           series_AUC0_inf= df_concat_PK_iv['AUC0→∞'].round(2)
+           series_AUMC0_inf= df_concat_PK_iv['AUMC0-∞'].round(2)
+           series_Сmax_dev_AUC0_t= df_concat_PK_iv['Сmax/AUC0-t'].round(4)
+           series_Kel= df_concat_PK_iv['Kel'].round(4)
+           series_CL= df_concat_PK_iv['CL'].round(2)
+           series_Vd= df_concat_PK_iv['Vd'].round(1)
+
+           df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+
+           st.subheader('Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_lin)
+           st.write(df_total_PK_iv)
+
+           #создание списков фреймов, доз и т.д.
+
+
+           list_name_doses.append(file_name)
+           list_df_unrounded.append(df_concat_PK_iv)
+           list_df_for_mean_unround_for_graphics.append(df_concat)
+
+       list_list_PK_par_mean=[]
+       for i in list_df_unrounded: 
+           mean_сmax=i['Cmax'].loc['mean']
+           mean_tmax=i['Tmax'].loc['mean']
+           mean_mrt0inf=i['MRT0→∞'].loc['mean']
+           mean_thalf=i['T1/2'].loc['mean']
+           mean_auc0t=i['AUC0-t'].loc['mean']
+           mean_auc0inf=i['AUC0→∞'].loc['mean']
+           mean_aumc0inf=i['AUMC0-∞'].loc['mean']
+           mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
+           mean_kel=i['Kel'].loc['mean']
+           mean_cl=i['CL'].loc['mean']
+           mean_vd=i['Vd'].loc['mean']
+           list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
+       
+       list_name_doses_with_measure_unit=[]
+       for i in list_name_doses:
+        j= i + " " + measure_unit_lin
+        list_name_doses_with_measure_unit.append(j)
+
+       ### получение итогового фрейма ФК параметров доз
+       df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_name_doses_with_measure_unit)
+       df_PK_doses_total_transpose=df_PK_doses_total.transpose()
+
+       #округление фрейма df_PK_doses_total_transpose
+
+       df_doses_trans_trans=df_PK_doses_total_transpose.transpose()
+
+       series_Cmax=df_doses_trans_trans['Cmax'].tolist() 
+       series_Cmax=pd.Series([round(v,2) for v in series_Cmax])
+
+       series_Tmax=df_doses_trans_trans['Tmax'].tolist()       
+       series_Tmax=pd.Series([round(v,2) for v in series_Tmax]) 
+
+       series_MRT0_inf= df_doses_trans_trans['MRT0→∞'].tolist()   
+       series_MRT0_inf=pd.Series([round(v,3) for v in series_MRT0_inf])
+
+       series_half_live= df_doses_trans_trans['T1/2'].tolist()   
+       series_half_live=pd.Series([round(v,2) for v in series_half_live]) 
+
+       series_AUC0_t= df_doses_trans_trans['AUC0-t'].tolist()   
+       series_AUC0_t=pd.Series([round(v,2) for v in series_AUC0_t])
+
+       series_AUC0_inf= df_doses_trans_trans['AUC0→∞'].tolist()  
+       series_AUC0_inf=pd.Series([round(v,2) for v in series_AUC0_inf]) 
+
+       series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞'].tolist()   
+       series_AUMC0_inf=pd.Series([round(v,2) for v in series_AUMC0_inf])
+
+       series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t'].tolist()  
+       series_Сmax_dev_AUC0_t=pd.Series([round(v,4) for v in series_Сmax_dev_AUC0_t]) 
+
+       series_Kel= df_doses_trans_trans['Kel'].tolist()   
+       series_Kel=pd.Series([round(v,2) for v in series_Kel])
+
+       series_CL= df_doses_trans_trans['CL'].tolist()  
+       series_CL=pd.Series([round(v,2) for v in series_CL]) 
+
+       series_Vd= df_doses_trans_trans['Vd'].tolist()   
+       series_Vd=pd.Series([round(v,1) for v in series_Vd])
+
+       df_total_total_doses = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
+
+       df_total_total_doses.index=df_PK_doses_total_transpose.columns.tolist()
+       df_total_total_doses.columns=df_PK_doses_total_transpose.index.tolist() 
+
+       df_total_total_doses_total= df_total_total_doses.transpose()
+
+       st.subheader('Фармакокинетические параметры препарата в различных дозировках') 
+       st.write(df_total_total_doses_total)
+
+       ###построение графика "Фармакокинетический профиль в различных дозировках"
+
+       ### в линейных координатах
+       list_list_mean_conc=[]
+       list_list_std_conc=[]
+       for i in list_df_for_mean_unround_for_graphics: 
+           mean_conc_list=i.loc['mean'].tolist()
+           std_conc_list=i.loc['std'].tolist()
+           list_list_mean_conc.append(mean_conc_list)
+           list_list_std_conc.append(std_conc_list)
+
+       list_name_doses_with_measure_unit_std=[]
+       for i in list_name_doses_with_measure_unit:
+        j= i + " std"
+        list_name_doses_with_measure_unit_std.append(j)
+
+       df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_t_graph[0],index=list_name_doses_with_measure_unit)
+       df_mean_conc_graph_1=df_mean_conc_graph.transpose()
+       df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_t_graph[0],index=list_name_doses_with_measure_unit_std)
+       df_std_conc_graph_1=df_std_conc_graph.transpose()
+       df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
+
+       list_colors=["black","red","blue","green","yellow","orange","purple","brown","coral","plum","tan","pink","grey"]
+       list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
+
+       fig, ax = plt.subplots()
+       for i,j,c in list_zip_mean_std_colors:
+            plt.errorbar(list(df_concat_mean_std.index),df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+            plt.xlabel("Время, ч")
+            plt.ylabel("Концентрация, "+ measure_unit_lin)
+            ax.legend(fontsize = 8)
+       st.pyplot(fig) 
+       st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в различных дозировках') 
+
+       ### в полулог. координатах
+       
+       list_t_doses=list(df_concat_mean_std.index)
+       list_t_doses.remove(0)
+       df_concat_mean_std_without_0=df_concat_mean_std.drop([0])
+       list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
+
+       fig, ax = plt.subplots()
+       for i,j,c in list_zip_mean_std_colors:
+            plt.errorbar(list_t_doses,df_concat_mean_std_without_0[i],yerr=df_concat_mean_std_without_0[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+            ax.set_yscale("log")
+            plt.xlabel("Время, ч")
+            plt.ylabel("Концентрация, "+ measure_unit_lin)
+            ax.legend(fontsize = 8)
+       st.pyplot(fig)
+       st.subheader('Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках') 
+
+       #линейность
+
+       list_AUC0_inf_lin_mean=[]
+       for i in list_df_unrounded: 
+           mean_auc0inf=i['AUC0→∞'].loc['mean']
+           list_AUC0_inf_lin_mean.append(mean_auc0inf)
+
+       list_name_doses_lin_float=[]
+       for i in list_name_doses:
+        j= float(i)
+        list_name_doses_lin_float.append(j)
+       
+       df_for_lin = pd.DataFrame(list(zip(list_AUC0_inf_lin_mean,list_name_doses_lin_float)), columns =['AUC0→∞_mean', 'doses'])
+
+       doses = df_for_lin['doses']
+       AUC0_inf_mean = df_for_lin['AUC0→∞_mean']
+
+       doses = sm.add_constant(doses)
+       model = sm.OLS(AUC0_inf_mean, doses).fit()
+       predictions = model.predict(doses) 
+       print_model = model.summary()
+
+       ###график
+       fig, ax = plt.subplots()
+       sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
+       plt.xlabel("Дозировка, " +measure_unit_lin)
+       plt.ylabel("AUC0→∞, нг/мл*ч")
+       st.pyplot(fig) 
+
+       st.write(print_model)
+   else:
+      st.info('☝️ Загрузить XLS файл')
+      
