@@ -3738,9 +3738,32 @@ if option == 'Линейность дозирования':
        sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
        plt.xlabel("Дозировка, " +measure_unit_lin)
        plt.ylabel("AUC0→∞, нг/мл*ч")
+       plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
        st.pyplot(fig) 
+       st.subheader('Зависимость значений AUC0→∞ от величин вводимых доз. Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞') 
+       # параметры линейной регрессии
+       fig, ax = plt.subplots()
+       table_data_first=[
+        ["R²","F","Df Residuals","Df Model","p"],
+        ["%.3f" % round(model.rsquared,3), int(round(model.fvalue,0)),int(round(model.df_resid,0)),int(round(model.df_model,0)),"%.3f" % round(model.pvalues[1],3)]
+        ]
+       table = ax.table(cellText=table_data_first,cellLoc='left',bbox = [0, 0.7, 0.7, 0.1])
+   
+       table.set_fontsize (17)
+       table. scale (0.7,0.9)
+       plt.annotate('Model Fit Measures', xy =(0, 0.9),xytext =(0, 0.9),fontsize=10)
+       plt.annotate('Overall Model Test', xy =(0, 0.85),xytext =(0, 0.85),fontsize=10)
+       table_data_second=[
+        ['Predictor','Estimate','SE','t','p'],
+        ["Intercept","%.2f" % round(model.params[0],2),"%.3f" % round(model.HC2_se[0],3),"%.3f" % round(model.tvalues[0],3),"%.3f" % round(model.pvalues[0],3)],
+        ["B","%.2f" % round(model.params[1],2),"%.3f" % round(model.HC2_se[1],3),"%.3f" % round(model.tvalues[1],3),"%.3f" % round(model.pvalues[1],3)]
+        ]
+       table = ax.table(cellText=table_data_second,cellLoc='left',bbox = [0, 0.35, 0.7, 0.2])
 
-       st.write(print_model)
+       table.set_fontsize (17)
+       table. scale (0.7,0.9)
+       plt.annotate('Model Coefficients', xy =(0, 0.6),xytext =(0, 0.6),fontsize=10)
+       plt.axis('off')
+       st.pyplot(fig)   
    else:
       st.info('☝️ Загрузить XLS файл')
-      
