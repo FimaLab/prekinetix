@@ -8,6 +8,13 @@ import math
 import statistics  
 import seaborn as sns
 import statsmodels.api as sm
+import streamlit.components as stc
+import base64 
+import time
+
+
+from io import BytesIO
+from pyxlsb import open_workbook as open_xlsb
 
 
 
@@ -22,15 +29,45 @@ st.cache(suppress_st_warning=True)
 
 #C:\Users\Павел\AppData\Local\Programs\Python\Python310\Lib\site-packages путь ко всем пакетам
 
-st.title('Добро пожаловать в приложение по расчёту ФК параметров 👋')
+st.sidebar.title('Добро пожаловать в приложение по расчёту ФК параметров 📈')
 
-st.subheader('Какое исследование проводится?')
+st.sidebar.title('Меню')
 
-option = st.selectbox('Выберите вид исследования',
+st.sidebar.subheader('Какое исследование проводится?')
+
+option = st.sidebar.selectbox('Выберите вид исследования',
     ('Изучение абсолютной и относительной биодоступности препарата', 'Изучение фармакокинетики в органах животных', 'Линейность дозирования'),disabled = False)
 
+############### файл пример
+
+df_example_file = pd.read_excel("server_example_file.xlsx")
+
+def to_excel(df_example_file):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df_example_file.to_excel(writer, index=False, sheet_name='Sheet1')
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+    format1 = workbook.add_format({'num_format': '0.00'}) 
+    worksheet.set_column('A:A', None, format1)  
+    writer.save()
+    processed_data = output.getvalue()
+    return processed_data
+df_example_file_xlsx = to_excel(df_example_file)
+st.sidebar.download_button(label='📥 Cкачать пример заполнения файла', data=df_example_file_xlsx , file_name= 'example_file.xlsx')
+
+############ памятка
+
+text_contents = '''1)Оглавлять колонку с номерами животных должно слово «Номер» (в верхнем регистре).
+2)Знак «№» обязательно должен присутсвовать при указании номера животного, иначе приложение выдаст ошибку. 
+3) Не ставить в ячейки значений знак «-» в случае нулевого значения. Ставить число «0» для корректной работы приложения. 
+'''
+st.sidebar.download_button('Памятка заполения файла', text_contents)
+      
 
 if option == 'Изучение абсолютной и относительной биодоступности препарата':
+
+    st.title('Изучение абсолютной и относительной биодоступности препарата')
     
     st.subheader('Единицы измерения концентрации')
     
@@ -3761,4 +3798,4 @@ if option == 'Линейность дозирования':
        st.pyplot(fig)   
    else:
       st.info('☝️ Загрузить XLS файл')
-      
+
