@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from openpyxl import Workbook
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import math
@@ -11,8 +10,6 @@ import statsmodels.api as sm
 import streamlit.components as stc
 import base64 
 import time
-
-
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
 
@@ -49,7 +46,8 @@ def to_excel(df_example_file):
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
     format1 = workbook.add_format({'num_format': '0.00'}) 
-    worksheet.set_column('A:A', None, format1)  
+    worksheet.set_column('A:A', None, format1)
+    writer.save()  
     processed_data = output.getvalue()
     return processed_data
 df_example_file_xlsx = to_excel(df_example_file)
