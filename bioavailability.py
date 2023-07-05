@@ -121,6 +121,7 @@ if option == 'Изучение абсолютной и относительно�
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
 
+       ###визуализация фрейма с нулями после округления
        col_mapping = df_concat_round.columns.tolist()
 
        list_list_series=[]
@@ -284,14 +285,27 @@ if option == 'Изучение абсолютной и относительно�
                for num, row in df.iterrows():
                    if df.iloc[num][column] == cmax:
                       list_Tmax.append(f"{column}")
-
-       list_Tmax_float=[]           
+     
+       list_Tmax_float_before=[]           
        for i in list_Tmax:
            Tmax=float(i)
-           list_Tmax_float.append(Tmax)
-
-
-
+           list_Tmax_float_before.append(Tmax)
+       ###выявление наибольшей встречаемости Tmax
+       def most_frequent(list_Tmax_float_before):
+           counter = 0
+           num = list_Tmax_float_before[0]
+           for i in list_Tmax_float_before:
+               curr_frequency = list_Tmax_float_before.count(i)
+               if(curr_frequency > counter):
+                   counter = curr_frequency
+                   num = i
+           return num
+        
+       list_Tmax_float=[]
+       for i in list_Tmax_float_before:
+           i = most_frequent(list_Tmax_float_before)
+           list_Tmax_float.append(i)
+       
        ###AUC0-t
        list_AUC_0_T=[]
        for i in range(0,count_row):
@@ -303,14 +317,11 @@ if option == 'Изучение абсолютной и относительно�
            AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
            list_AUC_0_T.append(AUC_0_T)
 
-
-
        ####Сmax/AUC0-t
        list_Сmax_division_AUC0_t_for_division=zip(list_cmax,list_AUC_0_T)
        list_Сmax_division_AUC0_t=[]
        for i,j in list_Сmax_division_AUC0_t_for_division:
                list_Сmax_division_AUC0_t.append(i/j)
-
 
        ####KEL
        list_kel_total=[]
@@ -730,6 +741,7 @@ if option == 'Изучение абсолютной и относительно�
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
        
+       ###визуализация фрейма с нулями после округления
        col_mapping = df_concat_round.columns.tolist()
 
        list_list_series=[]
@@ -909,8 +921,6 @@ if option == 'Изучение абсолютной и относительно�
            list_cmax_2.append(list_cmax2)
        list_cmax_2=[x for l in list_cmax_2 for x in l]   
 
-
-
        ###Tmax
        list_Tmax_1=[]
        for cmax in list_cmax_1:
@@ -919,11 +929,25 @@ if option == 'Изучение абсолютной и относительно�
                    if df.iloc[num][column] == cmax:
                       list_Tmax_1.append(f"{column}")
 
-       list_Tmax_float_1=[]           
+       list_Tmax_float_before_1=[]           
        for i in list_Tmax_1:
            Tmax=float(i)
-           list_Tmax_float_1.append(Tmax)
-
+           list_Tmax_float_before_1.append(Tmax)
+       ###выявление наибольшей встречаемости Tmax
+       def most_frequent(list_Tmax_float_before_1):
+           counter = 0
+           num = list_Tmax_float_before_1[0]
+           for i in list_Tmax_float_before_1:
+               curr_frequency = list_Tmax_float_before_1.count(i)
+               if(curr_frequency > counter):
+                   counter = curr_frequency
+                   num = i
+           return num
+        
+       list_Tmax_float_1=[]
+       for i in list_Tmax_float_before_1:
+           i = most_frequent(list_Tmax_float_before_1)
+           list_Tmax_float_1.append(i)
 
        list_Tmax_2=[]
        for cmax in list_cmax_2:
@@ -932,12 +956,25 @@ if option == 'Изучение абсолютной и относительно�
                    if df.iloc[num][column] == cmax:
                       list_Tmax_2.append(f"{column}")
 
-       list_Tmax_float_2=[]           
+       list_Tmax_float_before_2=[]           
        for i in list_Tmax_2:
            Tmax=float(i)
-           list_Tmax_float_2.append(Tmax)   
-
-
+           list_Tmax_float_before_2.append(Tmax)
+       ###выявление наибольшей встречаемости Tmax
+       def most_frequent(list_Tmax_float_before_2):
+           counter = 0
+           num = list_Tmax_float_before_2[0]
+           for i in list_Tmax_float_before_2:
+               curr_frequency = list_Tmax_float_before_2.count(i)
+               if(curr_frequency > counter):
+                   counter = curr_frequency
+                   num = i
+           return num
+        
+       list_Tmax_float_2=[]
+       for i in list_Tmax_float_before_2:
+           i = most_frequent(list_Tmax_float_before_2)
+           list_Tmax_float_2.append(i)   
 
        ###AUC0-t
        list_AUC_0_T=[]
@@ -1376,6 +1413,7 @@ if option == 'Изучение абсолютной и относительно�
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
        
+       ###визуализация фрейма с нулями после округления
        col_mapping = df_concat_round.columns.tolist()
 
        list_list_series=[]
@@ -1552,9 +1590,6 @@ if option == 'Изучение абсолютной и относительно�
            list_cmax_2.append(list_cmax2)
        list_cmax_2=[x for l in list_cmax_2 for x in l]   
 
-
-
-
        ###Tmax
        list_Tmax_1=[]
        for cmax in list_cmax_1:
@@ -1563,11 +1598,25 @@ if option == 'Изучение абсолютной и относительно�
                    if df.iloc[num][column] == cmax:
                       list_Tmax_1.append(f"{column}")
 
-       list_Tmax_float_1=[]           
+       list_Tmax_float_before_1=[]           
        for i in list_Tmax_1:
            Tmax=float(i)
-           list_Tmax_float_1.append(Tmax)
-
+           list_Tmax_float_before_1.append(Tmax)
+       ###выявление наибольшей встречаемости Tmax
+       def most_frequent(list_Tmax_float_before_1):
+           counter = 0
+           num = list_Tmax_float_before_1[0]
+           for i in list_Tmax_float_before_1:
+               curr_frequency = list_Tmax_float_before_1.count(i)
+               if(curr_frequency > counter):
+                   counter = curr_frequency
+                   num = i
+           return num
+        
+       list_Tmax_float_1=[]
+       for i in list_Tmax_float_before_1:
+           i = most_frequent(list_Tmax_float_before_1)
+           list_Tmax_float_1.append(i)
 
        list_Tmax_2=[]
        for cmax in list_cmax_2:
@@ -1576,12 +1625,25 @@ if option == 'Изучение абсолютной и относительно�
                    if df.iloc[num][column] == cmax:
                       list_Tmax_2.append(f"{column}")
 
-       list_Tmax_float_2=[]           
+       list_Tmax_float_before_2=[]           
        for i in list_Tmax_2:
            Tmax=float(i)
-           list_Tmax_float_2.append(Tmax)   
-
-
+           list_Tmax_float_before_2.append(Tmax)
+       ###выявление наибольшей встречаемости Tmax
+       def most_frequent(list_Tmax_float_before_2):
+           counter = 0
+           num = list_Tmax_float_before_2[0]
+           for i in list_Tmax_float_before_2:
+               curr_frequency = list_Tmax_float_before_2.count(i)
+               if(curr_frequency > counter):
+                   counter = curr_frequency
+                   num = i
+           return num
+        
+       list_Tmax_float_2=[]
+       for i in list_Tmax_float_before_2:
+           i = most_frequent(list_Tmax_float_before_2)
+           list_Tmax_float_2.append(i)
 
        ###AUC0-t
        list_AUC_0_T=[]
@@ -2129,6 +2191,7 @@ if option == 'Изучение абсолютной и относительно�
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
        
+       ###визуализация фрейма с нулями после округления
        col_mapping = df_concat_round.columns.tolist()
 
        list_list_series=[]
@@ -2227,6 +2290,7 @@ if option == 'Изучение абсолютной и относительно�
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
        
+       ###визуализация фрейма с нулями после округления
        col_mapping = df_concat_round.columns.tolist()
 
        list_list_series=[]
@@ -2342,7 +2406,8 @@ if option == 'Изучение фармакокинетики в органах 
            df_index=df.set_index('Номер')
            df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
            df_concat_round=df_concat.round(2)
-
+           
+           ###визуализация фрейма с нулями после округления
            col_mapping = df_concat_round.columns.tolist()
 
            list_list_series=[]
@@ -2488,8 +2553,6 @@ if option == 'Изучение фармакокинетики в органах 
 
            st.subheader('График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")")
 
-
-
         ############### Параметры ФК
 
            ###Cmax
@@ -2507,13 +2570,26 @@ if option == 'Изучение фармакокинетики в органах 
                    for num, row in df.iterrows():
                        if df.iloc[num][column] == cmax:
                           list_Tmax.append(f"{column}")
-
-           list_Tmax_float=[]           
+         
+           list_Tmax_float_before=[]           
            for i in list_Tmax:
                Tmax=float(i)
-               list_Tmax_float.append(Tmax)
-
-
+               list_Tmax_float_before.append(Tmax)
+           ###выявление наибольшей встречаемости Tmax
+           def most_frequent(list_Tmax_float_before):
+               counter = 0
+               num = list_Tmax_float_before[0]
+               for i in list_Tmax_float_before:
+                   curr_frequency = list_Tmax_float_before.count(i)
+                   if(curr_frequency > counter):
+                       counter = curr_frequency
+                       num = i
+               return num
+            
+           list_Tmax_float=[]
+           for i in list_Tmax_float_before:
+               i = most_frequent(list_Tmax_float_before)
+               list_Tmax_float.append(i)
 
            ###AUC0-t
            list_AUC_0_T=[]
@@ -3065,6 +3141,7 @@ if option == 'Изучение фармакокинетики в органах 
       df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
       df_concat_round=df_concat.round(2)
       
+      ###визуализация фрейма с нулями после округления
       col_mapping = df_concat_round.columns.tolist()
 
       list_list_series=[]
@@ -3163,6 +3240,7 @@ if option == 'Изучение фармакокинетики в органах 
       df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
       df_concat_round=df_concat.round(2)
       
+      ###визуализация фрейма с нулями после округления
       col_mapping = df_concat_round.columns.tolist()
 
       list_list_series=[]
@@ -3278,6 +3356,7 @@ if option == 'Линейность дозирования':
 
            df_concat_round=df_concat.round(2)
            
+           ###визуализация фрейма с нулями после округления
            col_mapping = df_concat_round.columns.tolist()
 
            list_list_series=[]
@@ -3441,13 +3520,26 @@ if option == 'Линейность дозирования':
                    for num, row in df.iterrows():
                        if df.iloc[num][column] == cmax:
                           list_Tmax.append(f"{column}")
-
-           list_Tmax_float=[]           
+         
+           list_Tmax_float_before=[]           
            for i in list_Tmax:
                Tmax=float(i)
-               list_Tmax_float.append(Tmax)
-
-
+               list_Tmax_float_before.append(Tmax)
+           ###выявление наибольшей встречаемости Tmax
+           def most_frequent(list_Tmax_float_before):
+               counter = 0
+               num = list_Tmax_float_before[0]
+               for i in list_Tmax_float_before:
+                   curr_frequency = list_Tmax_float_before.count(i)
+                   if(curr_frequency > counter):
+                       counter = curr_frequency
+                       num = i
+               return num
+            
+           list_Tmax_float=[]
+           for i in list_Tmax_float_before:
+               i = most_frequent(list_Tmax_float_before)
+               list_Tmax_float.append(i)
 
            ###AUC0-t
            list_AUC_0_T=[]
