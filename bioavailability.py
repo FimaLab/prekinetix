@@ -13,8 +13,6 @@ import time
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
 
-
-
 st.cache(suppress_st_warning=True)
 
 #Для запуска приложения в консоле
@@ -108,7 +106,7 @@ if option == 'Изучение абсолютной и относительно�
 
            CV_mean=cv_mean(list_ser)
 
-           CV=round((CV_std/CV_mean * 100),2)
+           CV=CV_std/CV_mean * 100
            list_cv.append(CV)
 
        df_averaged_concentrations=df.describe()
@@ -122,7 +120,25 @@ if option == 'Изучение абсолютной и относительно�
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
-       st.write(df_concat_round) 
+
+       col_mapping = df_concat_round.columns.tolist()
+
+       list_list_series=[]
+       for i in col_mapping:
+           list_series = df_concat_round[i].tolist()
+            
+           list_series_round = []
+           for i in list_series:
+               value = "%.2f" % round(i,2)
+               list_series_round.append(value)
+                
+           list_list_series.append(list_series_round)
+
+       df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+       df_concat_round_str_transpose = df_concat_round_str.transpose()
+       df_concat_round_str_transpose.index.name = 'Номер'
+
+       st.write(df_concat_round_str_transpose) 
     ########### графики    
 
     ######индивидуальные    
@@ -699,7 +715,7 @@ if option == 'Изучение абсолютной и относительно�
            cv_mean=lambda x: np.mean(x)
            CV_std=cv_std(list_ser)
            CV_mean=cv_mean(list_ser)
-           CV=round((CV_std/CV_mean * 100),2)
+           CV=CV_std/CV_mean * 100
            list_cv.append(CV)
 
        df_averaged_concentrations=df.describe()
@@ -713,7 +729,25 @@ if option == 'Изучение абсолютной и относительно�
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
-       st.write(df_concat_round)
+       
+       col_mapping = df_concat_round.columns.tolist()
+
+       list_list_series=[]
+       for i in col_mapping:
+           list_series = df_concat_round[i].tolist()
+            
+           list_series_round = []
+           for i in list_series:
+               value = "%.2f" % round(i,2)
+               list_series_round.append(value)
+                
+           list_list_series.append(list_series_round)
+
+       df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+       df_concat_round_str_transpose = df_concat_round_str.transpose()
+       df_concat_round_str_transpose.index.name = 'Номер'
+       
+       st.write(df_concat_round_str_transpose)
 
     ########### графики    
 
@@ -1327,7 +1361,7 @@ if option == 'Изучение абсолютной и относительно�
            cv_mean=lambda x: np.mean(x)
            CV_std=cv_std(list_ser)
            CV_mean=cv_mean(list_ser)
-           CV=round((CV_std/CV_mean * 100),2)
+           CV=CV_std/CV_mean * 100
            list_cv.append(CV)
 
        df_averaged_concentrations=df.describe()
@@ -1341,7 +1375,25 @@ if option == 'Изучение абсолютной и относительно�
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
-       st.write(df_concat_round)
+       
+       col_mapping = df_concat_round.columns.tolist()
+
+       list_list_series=[]
+       for i in col_mapping:
+           list_series = df_concat_round[i].tolist()
+            
+           list_series_round = []
+           for i in list_series:
+               value = "%.2f" % round(i,2)
+               list_series_round.append(value)
+                
+           list_list_series.append(list_series_round)
+
+       df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+       df_concat_round_str_transpose = df_concat_round_str.transpose()
+       df_concat_round_str_transpose.index.name = 'Номер'
+       
+       st.write(df_concat_round_str_transpose)
 
     ########### графики    
 
@@ -2062,7 +2114,7 @@ if option == 'Изучение абсолютной и относительно�
 
            CV_mean=cv_mean(list_ser)
 
-           CV=round((CV_std/CV_mean * 100),2)
+           CV=CV_std/CV_mean * 100
            list_cv.append(CV)
 
        df_averaged_concentrations=df.describe()
@@ -2076,7 +2128,25 @@ if option == 'Изучение абсолютной и относительно�
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
-       st.write(df_concat_round)
+       
+       col_mapping = df_concat_round.columns.tolist()
+
+       list_list_series=[]
+       for i in col_mapping:
+           list_series = df_concat_round[i].tolist()
+            
+           list_series_round = []
+           for i in list_series:
+               value = "%.2f" % round(i,2)
+               list_series_round.append(value)
+                
+           list_list_series.append(list_series_round)
+
+       df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+       df_concat_round_str_transpose = df_concat_round_str.transpose()
+       df_concat_round_str_transpose.index.name = 'Номер'
+       
+       st.write(df_concat_round_str_transpose)
 
     ########### диаграмма    
 
@@ -2142,7 +2212,7 @@ if option == 'Изучение абсолютной и относительно�
 
            CV_mean=cv_mean(list_ser)
 
-           CV=round((CV_std/CV_mean * 100),2)
+           CV=CV_std/CV_mean * 100
            list_cv.append(CV)
 
        df_averaged_concentrations=df.describe()
@@ -2156,7 +2226,25 @@ if option == 'Изучение абсолютной и относительно�
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
        df_concat_round=df_concat.round(2)
-       st.write(df_concat_round)
+       
+       col_mapping = df_concat_round.columns.tolist()
+
+       list_list_series=[]
+       for i in col_mapping:
+           list_series = df_concat_round[i].tolist()
+            
+           list_series_round = []
+           for i in list_series:
+               value = "%.2f" % round(i,2)
+               list_series_round.append(value)
+                
+           list_list_series.append(list_series_round)
+
+       df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+       df_concat_round_str_transpose = df_concat_round_str.transpose()
+       df_concat_round_str_transpose.index.name = 'Номер'
+       
+       st.write(df_concat_round_str_transpose)
 
     ###########диаграмма    
 
@@ -2240,7 +2328,7 @@ if option == 'Изучение фармакокинетики в органах 
 
                CV_mean=cv_mean(list_ser)
 
-               CV=round((CV_std/CV_mean * 100),2)
+               CV=CV_std/CV_mean * 100
                list_cv.append(CV)
 
            df_averaged_concentrations=df.describe()
@@ -2254,7 +2342,25 @@ if option == 'Изучение фармакокинетики в органах 
            df_index=df.set_index('Номер')
            df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
            df_concat_round=df_concat.round(2)
-           st.write(df_concat_round) 
+
+           col_mapping = df_concat_round.columns.tolist()
+
+           list_list_series=[]
+           for i in col_mapping:
+               list_series = df_concat_round[i].tolist()
+                   
+               list_series_round = []
+               for i in list_series:
+                   value = "%.2f" % round(i,2)
+                   list_series_round.append(value)
+                       
+               list_list_series.append(list_series_round)
+
+           df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+           df_concat_round_str_transpose = df_concat_round_str.transpose()
+           df_concat_round_str_transpose.index.name = 'Номер'
+           
+           st.write(df_concat_round_str_transpose) 
            ########### графики    
 
            ######индивидуальные    
@@ -2944,7 +3050,7 @@ if option == 'Изучение фармакокинетики в органах 
  
           CV_mean=cv_mean(list_ser)
 
-          CV=round((CV_std/CV_mean * 100),2)
+          CV=CV_std/CV_mean * 100
           list_cv.append(CV)
 
       df_averaged_concentrations=df.describe()
@@ -2958,7 +3064,25 @@ if option == 'Изучение фармакокинетики в органах 
       df_index=df.set_index('Номер')
       df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
       df_concat_round=df_concat.round(2)
-      st.write(df_concat_round)
+      
+      col_mapping = df_concat_round.columns.tolist()
+
+      list_list_series=[]
+      for i in col_mapping:
+          list_series = df_concat_round[i].tolist()
+           
+          list_series_round = []
+          for i in list_series:
+              value = "%.2f" % round(i,2)
+              list_series_round.append(value)
+               
+          list_list_series.append(list_series_round)
+
+      df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+      df_concat_round_str_transpose = df_concat_round_str.transpose()
+      df_concat_round_str_transpose.index.name = 'Номер'
+       
+      st.write(df_concat_round_str_transpose)
 
       ########### диаграмма    
 
@@ -3024,7 +3148,7 @@ if option == 'Изучение фармакокинетики в органах 
 
           CV_mean=cv_mean(list_ser)
 
-          CV=round((CV_std/CV_mean * 100),2)
+          CV=CV_std/CV_mean * 100
           list_cv.append(CV)
 
       df_averaged_concentrations=df.describe()
@@ -3038,7 +3162,25 @@ if option == 'Изучение фармакокинетики в органах 
       df_index=df.set_index('Номер')
       df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
       df_concat_round=df_concat.round(2)
-      st.write(df_concat_round)
+      
+      col_mapping = df_concat_round.columns.tolist()
+
+      list_list_series=[]
+      for i in col_mapping:
+          list_series = df_concat_round[i].tolist()
+           
+          list_series_round = []
+          for i in list_series:
+              value = "%.2f" % round(i,2)
+              list_series_round.append(value)
+               
+          list_list_series.append(list_series_round)
+
+      df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+      df_concat_round_str_transpose = df_concat_round_str.transpose()
+      df_concat_round_str_transpose.index.name = 'Номер'
+      
+      st.write(df_concat_round_str_transpose)
 
    ###########диаграмма    
 
@@ -3117,7 +3259,7 @@ if option == 'Линейность дозирования':
 
                CV_mean=cv_mean(list_ser)
 
-               CV=round((CV_std/CV_mean * 100),2)
+               CV=CV_std/CV_mean * 100
                list_cv.append(CV)
 
            df_averaged_concentrations=df.describe()
@@ -3135,7 +3277,25 @@ if option == 'Линейность дозирования':
            
 
            df_concat_round=df_concat.round(2)
-           st.write(df_concat_round) 
+           
+           col_mapping = df_concat_round.columns.tolist()
+
+           list_list_series=[]
+           for i in col_mapping:
+               list_series = df_concat_round[i].tolist()
+                
+               list_series_round = []
+               for i in list_series:
+                   value = "%.2f" % round(i,2)
+                   list_series_round.append(value)
+                    
+               list_list_series.append(list_series_round)
+
+           df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+           df_concat_round_str_transpose = df_concat_round_str.transpose()
+           df_concat_round_str_transpose.index.name = 'Номер'
+           
+           st.write(df_concat_round_str_transpose)
            ########### графики    
            
            
