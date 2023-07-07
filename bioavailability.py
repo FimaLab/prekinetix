@@ -12,6 +12,8 @@ import base64
 import time
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
+import docx
+
 
 st.cache(suppress_st_warning=True)
 
@@ -59,8 +61,10 @@ text_contents = '''1)Оглавлять колонку с номерами жи�
 '''
 st.sidebar.download_button('Памятка заполнения 📄', text_contents)
       
-
 if option == 'Изучение абсолютной и относительной биодоступности препарата':
+    
+    #cписок для word-отчета
+    list_table_word=[]
 
     st.title('Изучение абсолютной и относительной биодоступности препарата')
     
@@ -138,8 +142,10 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
        df_concat_round_str_transpose = df_concat_round_str.transpose()
        df_concat_round_str_transpose.index.name = 'Номер'
-
+       
        st.write(df_concat_round_str_transpose) 
+
+       list_table_word.append(df_concat_round_str_transpose)
     ########### графики    
 
     ######индивидуальные    
@@ -481,9 +487,6 @@ if option == 'Изучение абсолютной и относительно�
            auc0_inf=i+j    
            list_auc0_inf.append(auc0_inf)
 
-
-
-
        ####CL
        list_cl=[]
 
@@ -547,9 +550,6 @@ if option == 'Изучение абсолютной и относительно�
        for i,j in list_AUMC_zip:
            AUMCO_inf=i+j
            list_AUMCO_inf.append(AUMCO_inf)
-
-
-
 
        ###MRT0-inf
        list_MRT0_inf=[]
@@ -659,6 +659,8 @@ if option == 'Изучение абсолютной и относительно�
        df_total_PK_iv.index.name = 'Номер'
        st.subheader('Фармакокинетические показатели в крови после внутривенного введения субстанции')
        st.write(df_total_PK_iv)
+       
+       list_table_word.append(df_total_PK_iv)
 
        ####получение интервала для средних ФК параметров
        list_PK_Cmax_not_round = df_PK['Cmax'].tolist()
@@ -792,6 +794,8 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str_transpose.index.name = 'Номер'
        
        st.write(df_concat_round_str_transpose)
+       
+       list_table_word.append(df_concat_round_str_transpose)
 
     ########### графики    
 
@@ -1361,6 +1365,8 @@ if option == 'Изучение абсолютной и относительно�
        df_total_PK_po_sub.index.name = 'Номер'
        st.subheader('Фармакокинетические показатели в крови после перорального введения субстанции')
        st.write(df_total_PK_po_sub)
+       
+       list_table_word.append(df_total_PK_po_sub)
 
        ####получение интервала для средних ФК параметров
        list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -1494,6 +1500,8 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str_transpose.index.name = 'Номер'
        
        st.write(df_concat_round_str_transpose)
+       
+       list_table_word.append(df_concat_round_str_transpose)
 
     ########### графики    
 
@@ -2060,6 +2068,8 @@ if option == 'Изучение абсолютной и относительно�
        df_total_PK_po_tab.index.name = 'Номер'
        st.subheader('Фармакокинетические показатели в крови после перорального введения таблетки')
        st.write(df_total_PK_po_tab)
+       
+       list_table_word.append(df_total_PK_po_tab)
 
        ####получение интервала для средних ФК параметров
        list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -2176,6 +2186,8 @@ if option == 'Изучение абсолютной и относительно�
         df_total_PK_mean = pd.DataFrame(list(zip(list_parametr_round_mean_h_iv,list_parametr_round_mean_h_po_sub,list_parametr_round_mean_h_po_tab)),columns=['Внутривенное введение субстанции','Пероральное введение субстанции','Пероральное введение таблетки'],index=list_index_for_df_total_PK_mean)
         df_total_PK_mean.index.name = 'Параметры, размерность'
         st.write(df_total_PK_mean)
+        
+        list_table_word.append(df_total_PK_mean)
 
     #####объединенные графики
 
@@ -2428,7 +2440,48 @@ if option == 'Изучение абсолютной и относительно�
     else:
        st.info('❕❗️❕ Загрузить XLS файл')
 
+   #####Создание word отчета 
+  
+    st.write(list_table_word)
 
+    doc = docx.Document()
+
+    for df in list_table_word:
+        name_columns = pd.DataFrame(df.columns.tolist()).T
+        # add columns
+        name_columns.columns = df.columns.tolist()
+        df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
+        # add indexes
+        total_name_index = df.index.name
+        list_index_names = df.index.tolist()
+        list_index_names.insert(0,total_name_index)
+        series_index_names=pd.Series(list_index_names, name=total_name_index)
+        df_series_index_names = series_index_names.to_frame()
+        
+        df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
+        
+        st.write(df_columns_indexes)
+
+        t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
+        # Add the body of the data frame
+        for i in range(df_columns_indexes.shape[0]):
+            row = t.add_row()
+            for j in range(df_columns_indexes.shape[1]):
+                cell = df_columns_indexes.iat[i, j]
+                row.cells[j].text = str(cell)
+
+        doc.add_paragraph('Adding space between tables')
+
+    bio = BytesIO()
+    doc.save(bio)
+    if doc:
+        st.download_button(
+            label="Cкачать Отчет 📄",
+            data=bio.getvalue(),
+            file_name="Report.docx",
+            mime="docx"
+        )
+    
 
 #####################################################################   
 
