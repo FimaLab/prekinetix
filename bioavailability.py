@@ -691,33 +691,33 @@ if option == 'Изучение абсолютной и относительно�
             list_parametr_mean_h_iv.append(func_mean_h)
 
 
-       list_mean_h_iv_Cmax_round=[round(v,2) for v in list_parametr_mean_h_iv[0]]
+       list_mean_h_iv_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[0]]
        parametr_round_mean_h_Cmax=str(list_mean_h_iv_Cmax_round[0]) +"±"+str(list_mean_h_iv_Cmax_round[1])
 
-       list_mean_h_iv_AUC0_t_round=[round(v,2) for v in list_parametr_mean_h_iv[1]] 
+       list_mean_h_iv_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[1]] 
        parametr_round_mean_h_AUC0_t=str(list_mean_h_iv_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_AUC0_t_round[1]) 
 
-       list_mean_h_iv_Kel_round=[round(v,4) for v in list_parametr_mean_h_iv[2]]
+       list_mean_h_iv_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_iv[2]]
        parametr_round_mean_h_Kel=str(list_mean_h_iv_Kel_round[0]) +"±"+str(list_mean_h_iv_Kel_round[1])
 
-       list_mean_h_iv_AUC0_inf_round= [round(v,2) for v in list_parametr_mean_h_iv[3]]
+       list_mean_h_iv_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[3]]
        parametr_round_mean_h_AUC0_inf=str(list_mean_h_iv_AUC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUC0_inf_round[1]) 
 
-       list_mean_h_iv_half_live_round=[round(v,2) for v in list_parametr_mean_h_iv[4]]
+       list_mean_h_iv_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[4]]
        parametr_round_mean_h_half_live=str(list_mean_h_iv_half_live_round[0]) +"±"+str(list_mean_h_iv_half_live_round[1])
 
-       list_mean_h_iv_AUMC0_inf_round=[round(v,2) for v in list_parametr_mean_h_iv[5]] 
+       list_mean_h_iv_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[5]] 
        parametr_round_mean_h_AUMC0_inf=str(list_mean_h_iv_AUMC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUMC0_inf_round[1]) 
 
-       list_mean_h_iv_MRT0_inf_round=[round(v,3) for v in list_parametr_mean_h_iv[6]]
+       list_mean_h_iv_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_iv[6]]
        parametr_round_mean_h_MRT0_inf=str(list_mean_h_iv_MRT0_inf_round[0]) +"±"+str(list_mean_h_iv_MRT0_inf_round[1])
 
-       list_mean_h_iv_Сmax_dev_AUC0_t_round=[round(v,4) for v in list_parametr_mean_h_iv[7]]
+       list_mean_h_iv_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_iv[7]]
        parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_iv_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_Сmax_dev_AUC0_t_round[1])
 
        list_parametr_round_mean_h_iv= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-       t_mean_iv = str(round(np.mean(list_PK_Tmax_not_round),2))     
+       t_mean_iv = str("%.2f" % round(np.mean(list_PK_Tmax_not_round),2))     
        list_parametr_round_mean_h_iv.insert(1,t_mean_iv)
 
 
@@ -1393,33 +1393,33 @@ if option == 'Изучение абсолютной и относительно�
             list_parametr_mean_h_po_sub.append(func_mean_h)
 
 
-       list_mean_h_po_sub_Cmax_round=[round(v,2) for v in list_parametr_mean_h_po_sub[0]]
+       list_mean_h_po_sub_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[0]]
        parametr_round_mean_h_Cmax=str(list_mean_h_po_sub_Cmax_round[0]) +"±"+str(list_mean_h_po_sub_Cmax_round[1])
 
-       list_mean_h_po_sub_AUC0_t_round=[round(v,2) for v in list_parametr_mean_h_po_sub[1]] 
+       list_mean_h_po_sub_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[1]] 
        parametr_round_mean_h_AUC0_t=str(list_mean_h_po_sub_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_t_round[1]) 
 
-       list_mean_h_po_sub_Kel_round=[round(v,4) for v in list_parametr_mean_h_po_sub[2]]
+       list_mean_h_po_sub_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_sub[2]]
        parametr_round_mean_h_Kel=str(list_mean_h_po_sub_Kel_round[0]) +"±"+str(list_mean_h_po_sub_Kel_round[1])
 
-       list_mean_h_po_sub_AUC0_inf_round= [round(v,2) for v in list_parametr_mean_h_po_sub[3]]
+       list_mean_h_po_sub_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[3]]
        parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_sub_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_inf_round[1]) 
 
-       list_mean_h_po_sub_half_live_round=[round(v,2) for v in list_parametr_mean_h_po_sub[4]]
+       list_mean_h_po_sub_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[4]]
        parametr_round_mean_h_half_live=str(list_mean_h_po_sub_half_live_round[0]) +"±"+str(list_mean_h_po_sub_half_live_round[1])
 
-       list_mean_h_po_sub_AUMC0_inf_round=[round(v,2) for v in list_parametr_mean_h_po_sub[5]] 
+       list_mean_h_po_sub_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[5]] 
        parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_sub_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUMC0_inf_round[1]) 
 
-       list_mean_h_po_sub_MRT0_inf_round=[round(v,3) for v in list_parametr_mean_h_po_sub[6]]
+       list_mean_h_po_sub_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_po_sub[6]]
        parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_sub_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_sub_MRT0_inf_round[1])
 
-       list_mean_h_po_sub_Сmax_dev_AUC0_t_round=[round(v,4) for v in list_parametr_mean_h_po_sub[7]]
+       list_mean_h_po_sub_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_sub[7]]
        parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[1])
 
        list_parametr_round_mean_h_po_sub= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-       t_mean_po_sub = str(round(np.mean(list_PK_Tmax_1_not_round),2))     
+       t_mean_po_sub = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
        list_parametr_round_mean_h_po_sub.insert(1,t_mean_po_sub)
 
 
@@ -2092,33 +2092,33 @@ if option == 'Изучение абсолютной и относительно�
             list_parametr_mean_h_po_tab.append(func_mean_h)
 
 
-       list_mean_h_po_tab_Cmax_round=[round(v,2) for v in list_parametr_mean_h_po_tab[0]]
+       list_mean_h_po_tab_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[0]]
        parametr_round_mean_h_Cmax=str(list_mean_h_po_tab_Cmax_round[0]) +"±"+str(list_mean_h_po_tab_Cmax_round[1])
 
-       list_mean_h_po_tab_AUC0_t_round=[round(v,2) for v in list_parametr_mean_h_po_tab[1]] 
+       list_mean_h_po_tab_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[1]] 
        parametr_round_mean_h_AUC0_t=str(list_mean_h_po_tab_AUC0_t_round[0]) +"±"+str(list_mean_h_po_tab_AUC0_t_round[1]) 
 
-       list_mean_h_po_tab_Kel_round=[round(v,4) for v in list_parametr_mean_h_po_tab[2]]
+       list_mean_h_po_tab_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_tab[2]]
        parametr_round_mean_h_Kel=str(list_mean_h_po_tab_Kel_round[0]) +"±"+str(list_mean_h_po_tab_Kel_round[1])
 
-       list_mean_h_po_tab_AUC0_inf_round= [round(v,2) for v in list_parametr_mean_h_po_tab[3]]
+       list_mean_h_po_tab_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[3]]
        parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_tab_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_tab_AUC0_inf_round[1]) 
 
-       list_mean_h_po_tab_half_live_round=[round(v,2) for v in list_parametr_mean_h_po_tab[4]]
+       list_mean_h_po_tab_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[4]]
        parametr_round_mean_h_half_live=str(list_mean_h_po_tab_half_live_round[0]) +"±"+str(list_mean_h_po_tab_half_live_round[1])
 
-       list_mean_h_po_tab_AUMC0_inf_round=[round(v,2) for v in list_parametr_mean_h_po_tab[5]] 
+       list_mean_h_po_tab_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[5]] 
        parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_tab_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_tab_AUMC0_inf_round[1]) 
 
-       list_mean_h_po_tab_MRT0_inf_round=[round(v,3) for v in list_parametr_mean_h_po_tab[6]]
+       list_mean_h_po_tab_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_po_tab[6]]
        parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_tab_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_tab_MRT0_inf_round[1])
 
-       list_mean_h_po_tab_Сmax_dev_AUC0_t_round=[round(v,4) for v in list_parametr_mean_h_po_tab[7]]
+       list_mean_h_po_tab_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_tab[7]]
        parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_tab_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_tab_Сmax_dev_AUC0_t_round[1])
 
        list_parametr_round_mean_h_po_tab= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-       t_mean_po_tab = str(round(np.mean(list_PK_Tmax_1_not_round),2))     
+       t_mean_po_tab = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
        list_parametr_round_mean_h_po_tab.insert(1,t_mean_po_tab)
 
     else:
@@ -2174,7 +2174,7 @@ if option == 'Изучение абсолютной и относительно�
 
 
         df_total_PK_mean = pd.DataFrame(list(zip(list_parametr_round_mean_h_iv,list_parametr_round_mean_h_po_sub,list_parametr_round_mean_h_po_tab)),columns=['Внутривенное введение субстанции','Пероральное введение субстанции','Пероральное введение таблетки'],index=list_index_for_df_total_PK_mean)
-
+        df_total_PK_mean.index.name = 'Параметры, размерность'
         st.write(df_total_PK_mean)
 
     #####объединенные графики
@@ -2861,16 +2861,12 @@ if option == 'Изучение фармакокинетики в органах 
                auc0_inf=i+j    
                list_auc0_inf.append(auc0_inf)
 
-
-
-
            ####CL
            list_cl=[]
 
            for i in list_auc0_inf:
                cl = float(dose)/i * 1000
                list_cl.append(cl)
-
 
            ####Vd
            list_Vd=[]
@@ -2880,7 +2876,6 @@ if option == 'Изучение фармакокинетики в органах 
            for i,j in list_zip_kel_cl:
                Vd = j/i
                list_Vd.append(Vd)
-
 
            ###AUMC
            list_AUMCO_inf=[]
@@ -2928,9 +2923,6 @@ if option == 'Изучение фармакокинетики в органах 
                AUMCO_inf=i+j
                list_AUMCO_inf.append(AUMCO_inf)
 
-
-
-
            ###MRT0-inf
            list_MRT0_inf=[]
 
@@ -2939,9 +2931,6 @@ if option == 'Изучение фармакокинетики в органах 
            for i,j in list_zip_AUMCO_inf_auc0_inf:
                MRT0_inf=i/j
                list_MRT0_inf.append(MRT0_inf)
-
-
-
 
            ##################### Фрейм ФК параметров
 
@@ -3067,7 +3056,7 @@ if option == 'Изучение фармакокинетики в органах 
        ### получение итогового фрейма ФК параметров органов
        df_PK_organs_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_name_organs)
        df_PK_organs_total_transpose=df_PK_organs_total.transpose()
-
+       
        index_blood = list_name_organs.index("Кровь")
        ###ft
        list_aucot_for_ft=[]
@@ -3082,7 +3071,7 @@ if option == 'Изучение фармакокинетики в органах 
        for i in list_aucot_for_ft:
            ft=i/df_PK_organs_total_transpose["Кровь"].loc['AUC0-t']
            list_ft.append(ft)
-           list_ft_round.append(round(ft,2))
+           list_ft_round.append("%.2f" % round(ft,2))
        list_ft_round.insert(index_blood, "-")
 
 
@@ -3097,37 +3086,37 @@ if option == 'Изучение фармакокинетики в органах 
 
 
        series_Cmax=df_organs_trans_trans['Cmax'].tolist() 
-       series_Cmax=pd.Series([round(v,2) for v in series_Cmax])
+       series_Cmax=pd.Series(["%.2f" % round(v,2) for v in series_Cmax])
 
        series_Tmax=df_organs_trans_trans['Tmax'].tolist()       
-       series_Tmax=pd.Series([round(v,2) for v in series_Tmax]) 
+       series_Tmax=pd.Series(["%.2f" % round(v,2) for v in series_Tmax]) 
 
        series_MRT0_inf= df_organs_trans_trans['MRT0→∞'].tolist()   
-       series_MRT0_inf=pd.Series([round(v,3) for v in series_MRT0_inf])
+       series_MRT0_inf=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_inf])
 
        series_half_live= df_organs_trans_trans['T1/2'].tolist()   
-       series_half_live=pd.Series([round(v,2) for v in series_half_live]) 
+       series_half_live=pd.Series(["%.2f" % round(v,2) for v in series_half_live]) 
 
        series_AUC0_t= df_organs_trans_trans['AUC0-t'].tolist()   
-       series_AUC0_t=pd.Series([round(v,2) for v in series_AUC0_t])
+       series_AUC0_t=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_t])
 
        series_AUC0_inf= df_organs_trans_trans['AUC0→∞'].tolist()  
-       series_AUC0_inf=pd.Series([round(v,2) for v in series_AUC0_inf]) 
+       series_AUC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_inf]) 
 
        series_AUMC0_inf= df_organs_trans_trans['AUMC0-∞'].tolist()   
-       series_AUMC0_inf=pd.Series([round(v,2) for v in series_AUMC0_inf])
+       series_AUMC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUMC0_inf])
 
        series_Сmax_dev_AUC0_t= df_organs_trans_trans['Сmax/AUC0-t'].tolist()  
-       series_Сmax_dev_AUC0_t=pd.Series([round(v,4) for v in series_Сmax_dev_AUC0_t]) 
+       series_Сmax_dev_AUC0_t=pd.Series(["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t]) 
 
        series_Kel= df_organs_trans_trans['Kel'].tolist()   
-       series_Kel=pd.Series([round(v,2) for v in series_Kel])
+       series_Kel=pd.Series(["%.4f" % round(v,4) for v in series_Kel])
 
        series_CL= df_organs_trans_trans['CL'].tolist()  
-       series_CL=pd.Series([round(v,2) for v in series_CL]) 
+       series_CL=pd.Series(["%.2f" % round(v,2) for v in series_CL]) 
 
        series_Vd= df_organs_trans_trans['Vd'].tolist()   
-       series_Vd=pd.Series([round(v,1) for v in series_Vd])
+       series_Vd=pd.Series(["%.1f" % round(v,1) for v in series_Vd])
 
        series_ft= df_organs_trans_trans['fт'].tolist() ##уже округлен
        series_ft=pd.Series(series_ft)
@@ -3138,7 +3127,7 @@ if option == 'Изучение фармакокинетики в органах 
        df_total_total_organs.columns=df_PK_organs_total_transpose.index.tolist() 
 
        df_total_total_organs_total= df_total_total_organs.transpose()
-
+       df_total_total_organs_total.index.name = 'Параметры, размерность'
        st.subheader('Фармакокинетические параметры в различных тканях') 
        st.write(df_total_total_organs_total)
 
@@ -4061,37 +4050,37 @@ if option == 'Линейность дозирования':
        df_doses_trans_trans=df_PK_doses_total_transpose.transpose()
 
        series_Cmax=df_doses_trans_trans['Cmax'].tolist() 
-       series_Cmax=pd.Series([round(v,2) for v in series_Cmax])
+       series_Cmax=pd.Series(["%.2f" % round(v,2) for v in series_Cmax])
 
        series_Tmax=df_doses_trans_trans['Tmax'].tolist()       
-       series_Tmax=pd.Series([round(v,2) for v in series_Tmax]) 
+       series_Tmax=pd.Series(["%.2f" % round(v,2) for v in series_Tmax]) 
 
        series_MRT0_inf= df_doses_trans_trans['MRT0→∞'].tolist()   
-       series_MRT0_inf=pd.Series([round(v,3) for v in series_MRT0_inf])
+       series_MRT0_inf=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_inf])
 
        series_half_live= df_doses_trans_trans['T1/2'].tolist()   
-       series_half_live=pd.Series([round(v,2) for v in series_half_live]) 
+       series_half_live=pd.Series(["%.2f" % round(v,2) for v in series_half_live]) 
 
        series_AUC0_t= df_doses_trans_trans['AUC0-t'].tolist()   
-       series_AUC0_t=pd.Series([round(v,2) for v in series_AUC0_t])
+       series_AUC0_t=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_t])
 
        series_AUC0_inf= df_doses_trans_trans['AUC0→∞'].tolist()  
-       series_AUC0_inf=pd.Series([round(v,2) for v in series_AUC0_inf]) 
+       series_AUC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_inf]) 
 
        series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞'].tolist()   
-       series_AUMC0_inf=pd.Series([round(v,2) for v in series_AUMC0_inf])
+       series_AUMC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUMC0_inf])
 
        series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t'].tolist()  
-       series_Сmax_dev_AUC0_t=pd.Series([round(v,4) for v in series_Сmax_dev_AUC0_t]) 
+       series_Сmax_dev_AUC0_t=pd.Series(["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t]) 
 
        series_Kel= df_doses_trans_trans['Kel'].tolist()   
-       series_Kel=pd.Series([round(v,2) for v in series_Kel])
+       series_Kel=pd.Series(["%.4f" % round(v,4) for v in series_Kel])
 
        series_CL= df_doses_trans_trans['CL'].tolist()  
-       series_CL=pd.Series([round(v,2) for v in series_CL]) 
+       series_CL=pd.Series(["%.2f" % round(v,2) for v in series_CL]) 
 
        series_Vd= df_doses_trans_trans['Vd'].tolist()   
-       series_Vd=pd.Series([round(v,1) for v in series_Vd])
+       series_Vd=pd.Series(["%.1f" % round(v,1) for v in series_Vd])
 
        df_total_total_doses = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
 
@@ -4099,7 +4088,7 @@ if option == 'Линейность дозирования':
        df_total_total_doses.columns=df_PK_doses_total_transpose.index.tolist() 
 
        df_total_total_doses_total= df_total_total_doses.transpose()
-
+       df_total_total_doses_total.index.name = 'Параметры, размерность'
        st.subheader('Фармакокинетические параметры препарата в различных дозировках') 
        st.write(df_total_total_doses_total)
 
