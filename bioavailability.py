@@ -13,6 +13,7 @@ import time
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
 import docx
+from docx.shared import Pt
 
 
 st.cache(suppress_st_warning=True)
@@ -63,7 +64,8 @@ st.sidebar.download_button('Памятка заполнения 📄', text_cont
       
 if option == 'Изучение абсолютной и относительной биодоступности препарата':
     
-    #cписок для word-отчета
+    #cписки для word-отчета
+    list_heading_word=[]
     list_table_word=[]
 
     st.title('Изучение абсолютной и относительной биодоступности препарата')
@@ -76,6 +78,7 @@ if option == 'Изучение абсолютной и относительно�
 
 
     st.title('Внутривенное введение субстанции')
+    
 
     st.subheader('Загрузка файла внутривенного введения формата XLS')
     uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
@@ -89,6 +92,9 @@ if option == 'Изучение абсолютной и относительно�
        st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения субстанции')
        st.write(df)
        st.subheader('Индивидуальные и усредненные значения концентраций в крови после внутривенного введения субстанции')
+       subheader_iv_describe_conc='Индивидуальные и усредненные значения концентраций в крови после внутривенного введения субстанции'
+       list_heading_word.append(subheader_iv_describe_conc)
+
        col_mapping = df.columns.tolist()
        col_mapping.remove('Номер')
 
@@ -657,7 +663,11 @@ if option == 'Изучение абсолютной и относительно�
 
        df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_iv.index.name = 'Номер'
+
        st.subheader('Фармакокинетические показатели в крови после внутривенного введения субстанции')
+       subheader_iv_describe_PK='Фармакокинетические показатели в крови после внутривенного введения субстанции'
+       list_heading_word.append(subheader_iv_describe_PK)
+
        st.write(df_total_PK_iv)
        
        list_table_word.append(df_total_PK_iv)
@@ -729,7 +739,7 @@ if option == 'Изучение абсолютной и относительно�
 
     ############################################################################################################### 
     st.title('Пероральное введение субстанции')
-
+    
     st.subheader('Загрузка файла перорального введения субстанции формата XLS')
     uploaded_file_2 = st.file_uploader("Выбрать файл перорального введения субстанции", key='Файл перорального введения субстанции при изучении абсолютной и относительной биодоступности препарата')
 
@@ -741,6 +751,9 @@ if option == 'Изучение абсолютной и относительно�
        st.subheader('Индивидуальные значения концентраций в крови после перорального введения субстанции')
        st.write(df)
        st.subheader('Индивидуальные и усредненные значения концентраций в крови после перорального введения субстанции')
+       subheader_po_sub_describe_conc='Индивидуальные и усредненные значения концентраций в крови после перорального введения субстанции'
+       list_heading_word.append(subheader_po_sub_describe_conc)
+
        col_mapping = df.columns.tolist()
        col_mapping.remove('Номер')
 
@@ -1364,6 +1377,10 @@ if option == 'Изучение абсолютной и относительно�
        df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_sub.index.name = 'Номер'
        st.subheader('Фармакокинетические показатели в крови после перорального введения субстанции')
+       subheader_po_sub_describe_PK='Фармакокинетические показатели в крови после перорального введения субстанции'
+       list_heading_word.append(subheader_po_sub_describe_PK)
+
+
        st.write(df_total_PK_po_sub)
        
        list_table_word.append(df_total_PK_po_sub)
@@ -1447,6 +1464,9 @@ if option == 'Изучение абсолютной и относительно�
        st.subheader('Индивидуальные значения концентраций в крови после перорального введения таблетки')
        st.write(df)
        st.subheader('Индивидуальные и усредненные значения концентраций в крови после перорального введения таблетки')
+       subheader_po_sub_describe_conc='Индивидуальные и усредненные значения концентраций в крови после перорального введения таблетки'
+       list_heading_word.append(subheader_po_sub_describe_conc)
+
        col_mapping = df.columns.tolist()
        col_mapping.remove('Номер')
 
@@ -2067,6 +2087,9 @@ if option == 'Изучение абсолютной и относительно�
        df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_tab.index.name = 'Номер'
        st.subheader('Фармакокинетические показатели в крови после перорального введения таблетки')
+       subheader_po_sub_describe_PK='Фармакокинетические показатели в крови после перорального введения таблетки'
+       list_heading_word.append(subheader_po_sub_describe_PK)
+
        st.write(df_total_PK_po_tab)
        
        list_table_word.append(df_total_PK_po_tab)
@@ -2142,6 +2165,9 @@ if option == 'Изучение абсолютной и относительно�
     if (uploaded_file_1 is not None) and (uploaded_file_2 is not None) and (uploaded_file_3 is not None) and (measure_unit is not None) and (dose_iv is not None) and (dose_po_sub is not None) and (dose_po_tab is not None) :
 
         st.subheader('Усредненные фармакокинетические параметры в крови после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки, а также абсолютная и относительная биодоступность')
+        
+        subheader_PK_total='Усредненные фармакокинетические параметры в крови после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки, а также абсолютная и относительная биодоступность'
+        list_heading_word.append(subheader_PK_total)
 
         AUCT_inf_mean_iv = df_concat_PK_iv["AUC0-t"].loc["mean"]
         AUCT_inf_mean_po_sub = df_concat_PK_po_sub["AUC0-t"].loc["mean"]
@@ -2314,6 +2340,8 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str_transpose.index.name = 'Номер'
        
        st.write(df_concat_round_str_transpose)
+       
+       list_table_word.append(df_concat_round_str_transpose)
 
     ########### диаграмма    
 
@@ -2414,6 +2442,8 @@ if option == 'Изучение абсолютной и относительно�
        
        st.write(df_concat_round_str_transpose)
 
+       list_table_word.append(df_concat_round_str_transpose)
+
     ###########диаграмма    
 
 
@@ -2441,12 +2471,20 @@ if option == 'Изучение абсолютной и относительно�
        st.info('❕❗️❕ Загрузить XLS файл')
 
    #####Создание word отчета 
-  
-    st.write(list_table_word)
+    
+    zip_heading_table = zip(list_heading_word,list_table_word)
 
     doc = docx.Document()
 
-    for df in list_table_word:
+    # Settings
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Times New Roman'
+    font.size = Pt(8)
+    
+    for heading, df in zip_heading_table:
+        doc.add_paragraph(heading)
+
         name_columns = pd.DataFrame(df.columns.tolist()).T
         # add columns
         name_columns.columns = df.columns.tolist()
@@ -2460,9 +2498,8 @@ if option == 'Изучение абсолютной и относительно�
         
         df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
         
-        st.write(df_columns_indexes)
-
         t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
+        t.style = 'TableGrid'
         # Add the body of the data frame
         for i in range(df_columns_indexes.shape[0]):
             row = t.add_row()
@@ -2470,13 +2507,11 @@ if option == 'Изучение абсолютной и относительно�
                 cell = df_columns_indexes.iat[i, j]
                 row.cells[j].text = str(cell)
 
-        doc.add_paragraph('Adding space between tables')
-
     bio = BytesIO()
     doc.save(bio)
     if doc:
         st.download_button(
-            label="Cкачать Отчет 📄",
+            label="Cкачать Отчет 📊",
             data=bio.getvalue(),
             file_name="Report.docx",
             mime="docx"
