@@ -3721,7 +3721,6 @@ if option == 'Линейность дозирования':
 
    if file_uploader and measure_unit_lin is not None:
 
-
        list_name_doses=[]
        list_df_unrounded=[]
        list_df_for_mean_unround_for_graphics=[]
@@ -3736,6 +3735,9 @@ if option == 'Линейность дозирования':
            st.write(df)
 
            st.subheader('Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin)
+           table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin
+           list_heading_word.append(table_heading)
+
            col_mapping = df.columns.tolist()
            col_mapping.remove('Номер')
 
@@ -3795,6 +3797,7 @@ if option == 'Линейность дозирования':
            df_concat_round_str_transpose.index.name = 'Номер'
            
            st.write(df_concat_round_str_transpose)
+           list_table_word.append(df_concat_round_str_transpose)
            ########### графики    
            
            
@@ -3825,9 +3828,10 @@ if option == 'Линейность дозирования':
                plt.xlabel("Время, ч")
                plt.ylabel("Концентрация, "+measure_unit_lin)
                st.pyplot(fig) 
-
+               list_graphics_word.append(fig)
                st.subheader('График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_lin+',  '+numer_animal)
-
+               graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_lin+',  '+numer_animal
+               list_heading_graphics_word.append(graphic) 
 
             #в полулогарифмических координатах методом удаления точек
                count_for_0_1=len(list_concentration)
@@ -3847,9 +3851,10 @@ if option == 'Линейность дозирования':
                plt.ylabel("Концентрация, "+measure_unit_lin)
 
                st.pyplot(fig)
-
+               list_graphics_word.append(fig)
                st.subheader('График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_lin+',  '+numer_animal)
-
+               graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_lin+',  '+numer_animal
+               list_heading_graphics_word.append(graphic) 
 
         # объединенные индивидуальные в линейных координатах
 
@@ -3865,8 +3870,11 @@ if option == 'Линейность дозирования':
            ax.set_ylabel("Концентрация, "+measure_unit_lin)
            ax.legend()
            st.pyplot(fig)
-
-           st.subheader("Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_lin)    
+           list_graphics_word.append(fig)
+           st.subheader("Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_lin)
+           graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_lin
+           list_heading_graphics_word.append(graphic) 
+    
         # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
            df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
 
@@ -3880,9 +3888,10 @@ if option == 'Линейность дозирования':
            ax.set_yscale("log")
            ax.legend()
            st.pyplot(fig)
-
+           list_graphics_word.append(fig)
            st.subheader("Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_lin)
-
+           graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_lin
+           list_heading_graphics_word.append(graphic) 
             ###усредненные    
         # в линейных координатах
            list_time = []
@@ -3900,9 +3909,10 @@ if option == 'Линейность дозирования':
            plt.xlabel("Время, ч")
            plt.ylabel("Концентрация, "+measure_unit_lin)
            st.pyplot(fig) 
-
+           list_graphics_word.append(fig)
            st.subheader('График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_lin)
-
+           graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_lin
+           list_heading_graphics_word.append(graphic)
 
 
 
@@ -3920,8 +3930,10 @@ if option == 'Линейность дозирования':
            plt.ylabel("Концентрация, "+measure_unit_lin)
 
            st.pyplot(fig)
-
+           list_graphics_word.append(fig)
            st.subheader('График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ measure_unit_lin)
+           graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ measure_unit_lin
+           list_heading_graphics_word.append(graphic)
 
            ############### Параметры ФК
 
@@ -4319,8 +4331,12 @@ if option == 'Линейность дозирования':
            df_total_PK_iv.index.name = 'Номер' 
 
            st.subheader('Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_lin)
-           st.write(df_total_PK_iv)
 
+           table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_lin
+           list_heading_word.append(table_heading)
+
+           st.write(df_total_PK_iv)
+           list_table_word.append(df_total_PK_iv)
            #создание списков фреймов, доз и т.д.
 
 
@@ -4397,8 +4413,12 @@ if option == 'Линейность дозирования':
        df_total_total_doses_total= df_total_total_doses.transpose()
        df_total_total_doses_total.index.name = 'Параметры, размерность'
        st.subheader('Фармакокинетические параметры препарата в различных дозировках') 
-       st.write(df_total_total_doses_total)
 
+       table_heading='Фармакокинетические параметры препарата в различных дозировках'
+       list_heading_word.append(table_heading)
+
+       st.write(df_total_total_doses_total)
+       list_table_word.append(df_total_total_doses_total)
        ###построение графика "Фармакокинетический профиль в различных дозировках"
 
        ### в линейных координатах
@@ -4431,7 +4451,11 @@ if option == 'Линейность дозирования':
             plt.ylabel("Концентрация, "+ measure_unit_lin)
             ax.legend(fontsize = 8)
        st.pyplot(fig) 
-       st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в различных дозировках') 
+       list_graphics_word.append(fig)
+
+       st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в различных дозировках')
+       graphic='Сравнение фармакокинетических профилей (в линейных координатах) в различных дозировках'
+       list_heading_graphics_word.append(graphic) 
 
        ### в полулог. координатах
        
@@ -4448,8 +4472,11 @@ if option == 'Линейность дозирования':
             plt.ylabel("Концентрация, "+ measure_unit_lin)
             ax.legend(fontsize = 8)
        st.pyplot(fig)
-       st.subheader('Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках') 
+       list_graphics_word.append(fig)
 
+       st.subheader('Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках') 
+       graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках'
+       list_heading_graphics_word.append(graphic)
        #линейность
 
        list_AUC0_inf_lin_mean=[]
@@ -4471,15 +4498,22 @@ if option == 'Линейность дозирования':
        model = sm.OLS(AUC0_inf_mean, doses).fit()
        predictions = model.predict(doses) 
        print_model = model.summary()
-
+       
+       st.subheader('Зависимость значений AUC0→∞ от величин вводимых доз')
+       graphic='Зависимость значений AUC0→∞ от величин вводимых доз'
+       list_heading_graphics_word.append(graphic) 
        ###график
        fig, ax = plt.subplots()
        sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
        plt.xlabel("Дозировка, " +measure_unit_lin)
        plt.ylabel("AUC0→∞, нг/мл*ч")
        plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
-       st.pyplot(fig) 
-       st.subheader('Зависимость значений AUC0→∞ от величин вводимых доз. Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞') 
+       st.pyplot(fig)
+       list_graphics_word.append(fig)
+
+       st.subheader('Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞')
+       graphic='Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞'
+       list_heading_graphics_word.append(graphic) 
        # параметры линейной регрессии
        fig, ax = plt.subplots()
        table_data_first=[
@@ -4497,7 +4531,85 @@ if option == 'Линейность дозирования':
        table = ax.table(cellText=table_data_second,cellLoc='left',bbox = [0, 0.35, 0.7, 0.2])
        plt.annotate('Model Coefficients', xy =(0, 0.6),xytext =(0, 0.6),fontsize=10)
        plt.axis('off')
-       st.pyplot(fig)   
+       st.pyplot(fig)
+       list_graphics_word.append(fig)
+
    else:
       st.info('❕❗️❕ Загрузить XLS файл')
+   
+#####Создание word отчета 
+   ### таблицы
+   zip_heading_table = zip(list_heading_word,list_table_word)
 
+   doc = docx.Document()
+
+   # Settings
+   style = doc.styles['Normal']
+   font = style.font
+   font.name = 'Times New Roman'
+   font.size = Pt(8)
+   
+   for heading, df in zip_heading_table:
+       doc.add_paragraph(heading)
+
+       name_columns = pd.DataFrame(df.columns.tolist()).T
+       # add columns
+       name_columns.columns = df.columns.tolist()
+       df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
+       # add indexes
+       total_name_index = df.index.name
+       list_index_names = df.index.tolist()
+       list_index_names.insert(0,total_name_index)
+       series_index_names=pd.Series(list_index_names, name=total_name_index)
+       df_series_index_names = series_index_names.to_frame()
+       
+       df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
+       
+       t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
+       t.style = 'TableGrid'
+       # Add the body of the data frame
+       for i in range(df_columns_indexes.shape[0]):
+           row = t.add_row()
+           for j in range(df_columns_indexes.shape[1]):
+               cell = df_columns_indexes.iat[i, j]
+               row.cells[j].text = str(cell)
+
+   bio = BytesIO()
+   doc.save(bio)
+   if doc:
+       st.download_button(
+           label="Cкачать таблицы 📃",
+           data=bio.getvalue(),
+           file_name="Таблицы.docx",
+           mime="docx"
+       )
+   
+   ### графики
+   zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
+   doc = docx.Document()
+
+   # Settings
+   style = doc.styles['Normal']
+   font = style.font
+   font.name = 'Times New Roman'
+   font.size = Pt(12)
+
+   buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
+   for fig, heading in zip_graphics_heading:
+       buf = BytesIO()
+       fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
+       fp = tempfile.NamedTemporaryFile() 
+       with open(f"{fp.name}.jpg",'wb') as ff:
+            ff.write(buf.getvalue()) 
+       doc.add_picture(buf)
+       doc.add_paragraph(heading)
+   
+   doc.save(buf)
+   if doc:
+       st.download_button(
+           label="Cкачать графики 📈",
+           data=buf.getvalue(),
+           file_name="Графики.docx",
+           mime="docx",
+           key = "graphics"
+       )
