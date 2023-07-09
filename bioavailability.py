@@ -12,7 +12,7 @@ import base64
 import time
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
-import docx
+from docx import Document
 from docx.shared import Pt
 import tempfile
 
@@ -2521,7 +2521,7 @@ if option == 'Изучение абсолютной и относительно�
     ### таблицы
     zip_heading_table = zip(list_heading_word,list_table_word)
 
-    doc = docx.Document()
+    doc = Document()
 
     # Settings
     style = doc.styles['Normal']
@@ -2566,7 +2566,7 @@ if option == 'Изучение абсолютной и относительно�
     
     ### графики
     zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-    doc = docx.Document()
+    doc = Document()
 
     # Settings
     style = doc.styles['Normal']
@@ -3625,7 +3625,7 @@ if option == 'Изучение фармакокинетики в органах 
    ### таблицы
    zip_heading_table = zip(list_heading_word,list_table_word)
 
-   doc = docx.Document()
+   doc = Document()
 
    # Settings
    style = doc.styles['Normal']
@@ -3670,7 +3670,7 @@ if option == 'Изучение фармакокинетики в органах 
    
    ### графики
    zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-   doc = docx.Document()
+   doc = Document()
 
    # Settings
    style = doc.styles['Normal']
@@ -4541,7 +4541,7 @@ if option == 'Линейность дозирования':
    ### таблицы
    zip_heading_table = zip(list_heading_word,list_table_word)
 
-   doc = docx.Document()
+   doc = Document()
 
    # Settings
    style = doc.styles['Normal']
@@ -4586,7 +4586,7 @@ if option == 'Линейность дозирования':
    
    ### графики
    zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-   doc = docx.Document()
+   doc = Document()
 
    # Settings
    style = doc.styles['Normal']
