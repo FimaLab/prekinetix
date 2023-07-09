@@ -204,8 +204,8 @@ if option == 'Изучение абсолютной и относительно�
            ax.set_yscale("log")
            plt.xlabel("Время, ч")
            plt.ylabel("Концентрация, "+measure_unit)
-
            st.pyplot(fig)
+           
            list_graphics_word.append(fig)
            st.subheader('График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения субстанции,  '+numer_animal)
            graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения субстанции,  '+numer_animal
@@ -2597,6 +2597,12 @@ if option == 'Изучение абсолютной и относительно�
 #####################################################################   
 
 if option == 'Изучение фармакокинетики в органах животных':
+   
+   #cписки для word-отчета
+   list_heading_word=[]
+   list_table_word=[]
+   list_graphics_word=[]
+   list_heading_graphics_word=[]
     
    st.title('Исследование ФК параметров для органов животных')
 
@@ -2627,6 +2633,8 @@ if option == 'Изучение фармакокинетики в органах 
            st.write(df)
 
            st.subheader('Индивидуальные и усредненные значения концентраций ' + "("+file_name+")")
+           table_heading='Индивидуальные и усредненные значения концентраций ' + "("+file_name+")"
+           list_heading_word.append(table_heading)
            col_mapping = df.columns.tolist()
            col_mapping.remove('Номер')
 
@@ -2681,7 +2689,8 @@ if option == 'Изучение фармакокинетики в органах 
            df_concat_round_str_transpose = df_concat_round_str.transpose()
            df_concat_round_str_transpose.index.name = 'Номер'
            
-           st.write(df_concat_round_str_transpose) 
+           st.write(df_concat_round_str_transpose)
+           list_table_word.append(df_concat_round_str_transpose) 
            ########### графики    
 
            ######индивидуальные    
@@ -2711,9 +2720,12 @@ if option == 'Изучение фармакокинетики в органах 
                plt.xlabel("Время, ч")
                plt.ylabel("Концентрация, "+measure_unit_org)
                st.pyplot(fig) 
+               list_graphics_word.append(fig)
 
                st.subheader('График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"',  '+numer_animal)
-
+               graphic='График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"',  '+numer_animal
+               list_heading_graphics_word.append(graphic)  
+               
 
             #в полулогарифмических координатах методом удаления точек
                count_for_0_1=len(list_concentration)
@@ -2733,10 +2745,12 @@ if option == 'Изучение фармакокинетики в органах 
                plt.ylabel("Концентрация, "+measure_unit_org)
 
                st.pyplot(fig)
+               list_graphics_word.append(fig)
 
                st.subheader('График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"',  '+numer_animal)
-
-
+               graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"',  '+numer_animal
+               list_heading_graphics_word.append(graphic) 
+ 
         # объединенные индивидуальные в линейных координатах
 
            df_for_plot_conc=df.drop(['Номер'], axis=1)
@@ -2751,8 +2765,11 @@ if option == 'Изучение фармакокинетики в органах 
            ax.set_ylabel("Концентрация, "+measure_unit_org)
            ax.legend()
            st.pyplot(fig)
+           list_graphics_word.append(fig)
 
-           st.subheader("Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")" )    
+           st.subheader("Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")" )
+           graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")"
+           list_heading_graphics_word.append(graphic)     
         # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
            df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
 
@@ -2766,9 +2783,11 @@ if option == 'Изучение фармакокинетики в органах 
            ax.set_yscale("log")
            ax.legend()
            st.pyplot(fig)
+           list_graphics_word.append(fig)
 
-           st.subheader("Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах " + "("+file_name+")" )
-
+           st.subheader("Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах " + "("+file_name+")")
+           graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах " + "("+file_name+")"
+           list_heading_graphics_word.append(graphic)
             ###усредненные    
         # в линейных координатах
            list_time = []
@@ -2786,8 +2805,11 @@ if option == 'Изучение фармакокинетики в органах 
            plt.xlabel("Время, ч")
            plt.ylabel("Концентрация, "+measure_unit_org)
            st.pyplot(fig) 
+           list_graphics_word.append(fig)
 
            st.subheader('График усредненного фармакокинетического профиля в линейных координатах ' + "("+file_name+")")
+           graphic='График усредненного фармакокинетического профиля в линейных координатах ' + "("+file_name+")"
+           list_heading_graphics_word.append(graphic)
 
 
 
@@ -2806,8 +2828,11 @@ if option == 'Изучение фармакокинетики в органах 
            plt.ylabel("Концентрация, "+measure_unit_org)
 
            st.pyplot(fig)
+           list_graphics_word.append(fig)
 
            st.subheader('График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")")
+           graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"
+           list_heading_graphics_word.append(graphic)
 
         ############### Параметры ФК
 
@@ -3193,8 +3218,12 @@ if option == 'Изучение фармакокинетики в органах 
            df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
            df_total_PK_iv.index.name = 'Номер'
            st.subheader('Фармакокинетические показатели ' + "("+file_name+")")
-           st.write(df_total_PK_iv)
+           table_heading='Фармакокинетические показатели ' + "("+file_name+")"
+           list_heading_word.append(table_heading)
 
+           st.write(df_total_PK_iv)
+           
+           list_table_word.append(df_total_PK_iv) 
            #создание списков фреймов, названий органов и т.д.
 
 
@@ -3292,8 +3321,11 @@ if option == 'Изучение фармакокинетики в органах 
 
        df_total_total_organs_total= df_total_total_organs.transpose()
        df_total_total_organs_total.index.name = 'Параметры, размерность'
-       st.subheader('Фармакокинетические параметры в различных тканях') 
+       st.subheader('Фармакокинетические параметры в различных тканях')
+       table_heading='Фармакокинетические параметры в различных тканях'
+       list_heading_word.append(table_heading) 
        st.write(df_total_total_organs_total)
+       list_table_word.append(df_total_total_organs_total) 
 
        ###построение графика "Фармакокинетический профиль в органах"
 
@@ -3328,7 +3360,11 @@ if option == 'Изучение фармакокинетики в органах 
             plt.ylabel("Концентрация, "+ measure_unit_org)
             ax.legend(fontsize = 5)
        st.pyplot(fig) 
+       list_graphics_word.append(fig)
+
        st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в органах')
+       graphic='Сравнение фармакокинетических профилей (в линейных координатах) в органах'
+       list_heading_graphics_word.append(graphic)
 
        ### в полулог. координатах
 
@@ -3345,7 +3381,11 @@ if option == 'Изучение фармакокинетики в органах 
             plt.ylabel("Концентрация, "+ measure_unit_org)
             ax.legend(fontsize = 5)
        st.pyplot(fig)
+       list_graphics_word.append(fig)
+
        st.subheader('Сравнение фармакокинетических профилей (в полулогарифмических координатах) в органах') 
+       graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в органах'
+       list_heading_graphics_word.append(graphic)
 
        ###построение диаграммы для тканевой доступности
 
@@ -3360,8 +3400,12 @@ if option == 'Изучение фармакокинетики в органах 
 
        ax.set_xticklabels(list_name_organs,fontdict={'fontsize': 6.0})
 
-       st.pyplot(fig) 
-       st.subheader('Тканевая доступность в органах') 
+       st.pyplot(fig)
+       list_graphics_word.append(fig)
+       
+       st.subheader('Тканевая доступность в органах')
+       graphic='Тканевая доступность в органах'
+       list_heading_graphics_word.append(graphic) 
 
         
    else:
@@ -3382,6 +3426,8 @@ if option == 'Изучение фармакокинетики в органах 
       st.subheader('Индивидуальные значения концентраций в кале')
       st.write(df)
       st.subheader('Индивидуальные и усредненные значения концентраций в кале')
+      table_heading='Индивидуальные и усредненные значения концентраций в кале'
+      list_heading_word.append(table_heading) 
       col_mapping = df.columns.tolist()
       col_mapping.remove('Номер')
 
@@ -3437,6 +3483,7 @@ if option == 'Изучение фармакокинетики в органах 
       df_concat_round_str_transpose.index.name = 'Номер'
        
       st.write(df_concat_round_str_transpose)
+      list_table_word.append(df_concat_round_str_transpose) 
 
       ########### диаграмма    
 
@@ -3459,8 +3506,12 @@ if option == 'Изучение фармакокинетики в органах 
       plt.xlabel("Время, ч")
       plt.ylabel("Концентрация, "+measure_unit_org)
 
-      st.pyplot(fig) 
-      st.subheader('Выведение с калом')    
+      st.pyplot(fig)
+      list_graphics_word.append(fig)
+
+      st.subheader('Выведение с калом')
+      graphic='Выведение с калом'
+      list_heading_graphics_word.append(graphic)    
 
 
    else:
@@ -3481,6 +3532,9 @@ if option == 'Изучение фармакокинетики в органах 
       st.subheader('Индивидуальные значения концентраций в моче')
       st.write(df)
       st.subheader('Индивидуальные и усредненные значения концентраций в моче')
+      table_heading='Индивидуальные и усредненные значения концентраций в моче'
+      list_heading_word.append(table_heading) 
+
       col_mapping = df.columns.tolist()
       col_mapping.remove('Номер')
 
@@ -3536,6 +3590,7 @@ if option == 'Изучение фармакокинетики в органах 
       df_concat_round_str_transpose.index.name = 'Номер'
       
       st.write(df_concat_round_str_transpose)
+      list_table_word.append(df_concat_round_str_transpose)
 
    ###########диаграмма    
 
@@ -3556,15 +3611,103 @@ if option == 'Изучение фармакокинетики в органах 
       plt.xlabel("Время, ч")
       plt.ylabel("Концентрация, "+measure_unit_org) 
 
-      st.pyplot(fig) 
-      st.subheader('Выведение с мочой') 
+      st.pyplot(fig)
+      list_graphics_word.append(fig)
+
+      st.subheader('Выведение с мочой')
+      graphic='Выведение с мочой'
+      list_heading_graphics_word.append(graphic) 
 
    else:
       st.info('❕❗️❕ Загрузить XLS файл')
 
+#####Создание word отчета 
+   ### таблицы
+   zip_heading_table = zip(list_heading_word,list_table_word)
+
+   doc = docx.Document()
+
+   # Settings
+   style = doc.styles['Normal']
+   font = style.font
+   font.name = 'Times New Roman'
+   font.size = Pt(8)
+   
+   for heading, df in zip_heading_table:
+       doc.add_paragraph(heading)
+
+       name_columns = pd.DataFrame(df.columns.tolist()).T
+       # add columns
+       name_columns.columns = df.columns.tolist()
+       df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
+       # add indexes
+       total_name_index = df.index.name
+       list_index_names = df.index.tolist()
+       list_index_names.insert(0,total_name_index)
+       series_index_names=pd.Series(list_index_names, name=total_name_index)
+       df_series_index_names = series_index_names.to_frame()
+       
+       df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
+       
+       t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
+       t.style = 'TableGrid'
+       # Add the body of the data frame
+       for i in range(df_columns_indexes.shape[0]):
+           row = t.add_row()
+           for j in range(df_columns_indexes.shape[1]):
+               cell = df_columns_indexes.iat[i, j]
+               row.cells[j].text = str(cell)
+
+   bio = BytesIO()
+   doc.save(bio)
+   if doc:
+       st.download_button(
+           label="Cкачать таблицы 📃",
+           data=bio.getvalue(),
+           file_name="Таблицы.docx",
+           mime="docx"
+       )
+   
+   ### графики
+   zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
+   doc = docx.Document()
+
+   # Settings
+   style = doc.styles['Normal']
+   font = style.font
+   font.name = 'Times New Roman'
+   font.size = Pt(12)
+
+   buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
+   for fig, heading in zip_graphics_heading:
+       buf = BytesIO()
+       fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
+       fp = tempfile.NamedTemporaryFile() 
+       with open(f"{fp.name}.jpg",'wb') as ff:
+            ff.write(buf.getvalue()) 
+       doc.add_picture(buf)
+       doc.add_paragraph(heading)
+   
+   doc.save(buf)
+   if doc:
+       st.download_button(
+           label="Cкачать графики 📈",
+           data=buf.getvalue(),
+           file_name="Графики.docx",
+           mime="docx",
+           key = "graphics"
+       )
+
+
 ################################################################################################
 
 if option == 'Линейность дозирования':
+   
+   #cписки для word-отчета
+   list_heading_word=[]
+   list_table_word=[]
+   list_graphics_word=[]
+   list_heading_graphics_word=[]
 
    st.title('Исследование линейности дозирования')
     
