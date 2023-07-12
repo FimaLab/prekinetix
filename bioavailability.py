@@ -128,7 +128,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
        df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
        df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-       df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+       df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -623,7 +623,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
        df_round_without_CV_PK=df_averaged_3_PK
        df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV"})
+       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
        df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
@@ -633,47 +633,47 @@ if option == 'Изучение абсолютной и относительно�
 
        series_Cmax=df_concat_PK_iv['Cmax']
        list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-       series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax')
+       series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
        series_Tmax=df_concat_PK_iv['Tmax']
        list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-       series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax')
+       series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
        series_MRT0_inf= df_concat_PK_iv['MRT0→∞']
        list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-       series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞')
+       series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
        series_half_live= df_concat_PK_iv['T1/2']
        list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-       series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2')
+       series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
        series_AUC0_t= df_concat_PK_iv['AUC0-t']
        list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-       series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t')
+       series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
 
        series_AUC0_inf= df_concat_PK_iv['AUC0→∞']
        list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-       series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞')
+       series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
 
        series_AUMC0_inf= df_concat_PK_iv['AUMC0-∞']
        list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-       series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞')
+       series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_iv['Сmax/AUC0-t']
        list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-       series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t')
+       series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
 
        series_Kel= df_concat_PK_iv['Kel']
        list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-       series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel')
+       series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
        series_CL= df_concat_PK_iv['CL']
        list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL')
+       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL ' +"("+"л/ч"+")")
 
        series_Vd= df_concat_PK_iv['Vd']
        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-       series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd')
+       series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
        df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_iv.index.name = 'Номер'
@@ -796,7 +796,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
        df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
        df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-       df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+       df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -1348,7 +1348,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
        df_round_without_CV_PK=df_averaged_3_PK
        df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV"})
+       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
        df_concat_PK_po_sub= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
@@ -1357,47 +1357,47 @@ if option == 'Изучение абсолютной и относительно�
 
        series_Cmax=df_concat_PK_po_sub['Cmax']
        list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-       series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Cmax')
+       series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
        series_Tmax=df_concat_PK_po_sub['Tmax']
        list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-       series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Tmax')
+       series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
        series_MRT0_inf= df_concat_PK_po_sub['MRT0→∞']
        list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-       series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='MRT0→∞')
+       series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
        series_half_live= df_concat_PK_po_sub['T1/2']
        list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-       series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_po_sub.index.tolist(), name='T1/2')
+       series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_po_sub.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
        series_AUC0_t= df_concat_PK_po_sub['AUC0-t']
        list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-       series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUC0-t')
+       series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
 
        series_AUC0_inf= df_concat_PK_po_sub['AUC0→∞']
        list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-       series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUC0→∞')
+       series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
 
        series_AUMC0_inf= df_concat_PK_po_sub['AUMC0-∞']
        list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-       series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUMC0-∞')
+       series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_po_sub['Сmax/AUC0-t']
        list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-       series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Сmax/AUC0-t')
+       series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
 
        series_Kel= df_concat_PK_po_sub['Kel']
        list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-       series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Kel')
+       series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
        series_CL= df_concat_PK_po_sub['CL']
        list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_sub.index.tolist(), name='CL')
+       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_sub.index.tolist(), name='CL ' +"("+"л/ч"+")")
 
        series_Vd= df_concat_PK_po_sub['Vd']
        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-       series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Vd')
+       series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
        df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_sub.index.name = 'Номер'
@@ -1520,7 +1520,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
        df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
        df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-       df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+       df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -2068,7 +2068,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
        df_round_without_CV_PK=df_averaged_3_PK
        df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV"})
+       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
        df_concat_PK_po_tab= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
@@ -2077,47 +2077,47 @@ if option == 'Изучение абсолютной и относительно�
 
        series_Cmax=df_concat_PK_po_tab['Cmax']
        list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-       series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Cmax')
+       series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
        series_Tmax=df_concat_PK_po_tab['Tmax']
        list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-       series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Tmax')
+       series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
        series_MRT0_inf= df_concat_PK_po_tab['MRT0→∞']
        list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-       series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='MRT0→∞')
+       series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
        series_half_live= df_concat_PK_po_tab['T1/2']
        list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-       series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_po_tab.index.tolist(), name='T1/2')
+       series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_po_tab.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
        series_AUC0_t= df_concat_PK_po_tab['AUC0-t']
        list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-       series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUC0-t')
+       series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
 
        series_AUC0_inf= df_concat_PK_po_tab['AUC0→∞']
        list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-       series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUC0→∞')
+       series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
 
        series_AUMC0_inf= df_concat_PK_po_tab['AUMC0-∞']
        list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-       series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUMC0-∞')
+       series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_po_tab['Сmax/AUC0-t']
        list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-       series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Сmax/AUC0-t')
+       series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
 
        series_Kel= df_concat_PK_po_tab['Kel']
        list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-       series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Kel')
+       series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
        series_CL= df_concat_PK_po_tab['CL']
        list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_tab.index.tolist(), name='CL')
+       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_tab.index.tolist(), name='CL ' +"("+"л/ч"+")")
 
        series_Vd= df_concat_PK_po_tab['Vd']
        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-       series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Vd')
+       series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
        df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_tab.index.name = 'Номер'
@@ -2231,8 +2231,8 @@ if option == 'Изучение абсолютной и относительно�
 
     ### итоговый фрейм по PK параметрам крови
 
-        list_index_for_df_total_PK_mean = ['Cmax','Tmax','AUC0-t','Kel','AUC0→∞','T1/2','AUMC0-∞','MRT0→∞','Сmax/AUC0-t',"F(абсолютная биодоступность),%","Относительная биодоступность,% (по сравнению с пероральным введением субстанции)"]
-
+        list_index_for_df_total_PK_mean = ['Cmax ' +"("+measure_unit+")",'Tmax ' +"("+"ч"+")",'AUC0-t '+"("+measure_unit+"×ч" +")",'Kel '+"("+"ч\u207B\u00B9"+")",'AUC0→∞ '+"("+measure_unit+"×ч" +")",'T1/2 '+"("+"ч"+")",'AUMC0-∞ '+"("+measure_unit+"×ч\u00B2"+")",'MRT0→∞ '+"("+"ч"+")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")","F(абсолютная биодоступность),%","Относительная биодоступность,% (по сравнению с пероральным введением субстанции)"]
+        
         #добавление значений биодоступности
         list_parametr_round_mean_h_iv.append("-")
         list_parametr_round_mean_h_iv.append("-")
@@ -2354,7 +2354,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
        df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
        df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-       df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+       df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -2460,7 +2460,7 @@ if option == 'Изучение абсолютной и относительно�
        df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
        df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
        df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-       df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+       df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
        df_index=df.set_index('Номер')
        df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -2606,17 +2606,19 @@ if option == 'Изучение фармакокинетики в органах 
     
    st.title('Исследование ФК параметров для органов животных')
 
-   measure_unit_org = st.text_input("Введите единицы измерения концентрации", key='Единицы измерения при изучении фармакокинетики в органах животных')
+   measure_unit_org_blood = st.text_input("Введите единицы измерения концентрации в крови", key='Единицы измерения при изучении фармакокинетики в органах животных в крови')
+
+   measure_unit_org_organs = st.text_input("Введите единицы измерения концентрации в органах", key='Единицы измерения при изучении фармакокинетики в органах животных в органах')
 
    st.info('❕❗️❕ Ввести единицы измерения концентрации')
 
    dose = st.text_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных')
-
+   
    st.info('❕❗️❕ Ввести дозу препарата')
 
    file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
 
-   if file_uploader and dose and measure_unit_org is not None:
+   if file_uploader and dose and measure_unit_org_blood and measure_unit_org_organs is not None:
 
 
        list_name_organs=[]
@@ -2665,7 +2667,7 @@ if option == 'Изучение фармакокинетики в органах 
            df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
            df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
            df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-           df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+           df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
            df_index=df.set_index('Номер')
            df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -2691,6 +2693,11 @@ if option == 'Изучение фармакокинетики в органах 
            
            st.write(df_concat_round_str_transpose)
            list_table_word.append(df_concat_round_str_transpose) 
+
+           if file_name == "Кровь":
+              measure_unit_org = measure_unit_org_blood
+           else:
+              measure_unit_org = measure_unit_org_organs
            ########### графики    
 
            ######индивидуальные    
@@ -2883,15 +2890,6 @@ if option == 'Изучение фармакокинетики в органах 
                AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
                list_AUC_0_T.append(AUC_0_T)
 
-
-
-           ####Сmax/AUC0-t
-           list_Сmax_division_AUC0_t_for_division=zip(list_cmax,list_AUC_0_T)
-           list_Сmax_division_AUC0_t=[]
-           for i,j in list_Сmax_division_AUC0_t_for_division:
-                   list_Сmax_division_AUC0_t.append(i/j)
-
-
            ####KEL
            list_kel_total=[]
            for i in range(0,count_row):
@@ -3050,22 +3048,6 @@ if option == 'Изучение фармакокинетики в органах 
                auc0_inf=i+j    
                list_auc0_inf.append(auc0_inf)
 
-           ####CL
-           list_cl=[]
-
-           for i in list_auc0_inf:
-               cl = float(dose)/i * 1000
-               list_cl.append(cl)
-
-           ####Vd
-           list_Vd=[]
-
-           list_zip_kel_cl=zip(list_kel_total,list_cl)
-
-           for i,j in list_zip_kel_cl:
-               Vd = j/i
-               list_Vd.append(Vd)
-
            ###AUMC
            list_AUMCO_inf=[]
 
@@ -3126,7 +3108,7 @@ if option == 'Изучение фармакокинетики в органах 
            ### пользовательский индекс
            list_for_index=df["Номер"].tolist()
 
-           df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+           df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_kel_total)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Kel'],index=list_for_index) 
 
            ###описательная статистика
 
@@ -3163,7 +3145,7 @@ if option == 'Изучение фармакокинетики в органах 
            df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
            df_round_without_CV_PK=df_averaged_3_PK
            df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-           df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV"})
+           df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
            df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
@@ -3173,49 +3155,37 @@ if option == 'Изучение фармакокинетики в органах 
 
            series_Cmax=df_concat_PK_iv['Cmax']
            list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-           series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax')
+           series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax ' +"("+measure_unit_org+")")
 
            series_Tmax=df_concat_PK_iv['Tmax']
            list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-           series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax')
+           series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
            series_MRT0_inf= df_concat_PK_iv['MRT0→∞']
            list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-           series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞')
+           series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
            series_half_live= df_concat_PK_iv['T1/2']
            list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-           series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2')
+           series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
            series_AUC0_t= df_concat_PK_iv['AUC0-t']
            list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-           series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t')
+           series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t '+"("+measure_unit_org+"×ч" +")")
 
            series_AUC0_inf= df_concat_PK_iv['AUC0→∞']
            list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-           series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞')
+           series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞ '+"("+measure_unit_org+"×ч" +")")
 
            series_AUMC0_inf= df_concat_PK_iv['AUMC0-∞']
            list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-           series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞')
-
-           series_Сmax_dev_AUC0_t= df_concat_PK_iv['Сmax/AUC0-t']
-           list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-           series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t')
+           series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_org+"×ч\u00B2" +")")
 
            series_Kel= df_concat_PK_iv['Kel']
            list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel')
+           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-           series_CL= df_concat_PK_iv['CL']
-           list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-           series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL')
-
-           series_Vd= df_concat_PK_iv['Vd']
-           list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-           series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd')
-
-           df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+           df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Kel], axis= 1) 
            df_total_PK_iv.index.name = 'Номер'
            st.subheader('Фармакокинетические показатели ' + "("+file_name+")")
            table_heading='Фармакокинетические показатели ' + "("+file_name+")"
@@ -3240,14 +3210,11 @@ if option == 'Изучение фармакокинетики в органах 
            mean_auc0t=i['AUC0-t'].loc['mean']
            mean_auc0inf=i['AUC0→∞'].loc['mean']
            mean_aumc0inf=i['AUMC0-∞'].loc['mean']
-           mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
            mean_kel=i['Kel'].loc['mean']
-           mean_cl=i['CL'].loc['mean']
-           mean_vd=i['Vd'].loc['mean']
-           list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
+           list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_kel])
 
        ### получение итогового фрейма ФК параметров органов
-       df_PK_organs_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_name_organs)
+       df_PK_organs_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Kel'],index=list_name_organs)
        df_PK_organs_total_transpose=df_PK_organs_total.transpose()
        
        index_blood = list_name_organs.index("Кровь")
@@ -3271,50 +3238,41 @@ if option == 'Изучение фармакокинетики в органах 
        df_PK_organs_total_transpose.loc[ len(df_PK_organs_total_transpose.index )] = list_ft_round
 
 
-       df_PK_organs_total_transpose.index=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd','fт']
+       df_PK_organs_total_transpose.index=['Cmax ' +"("+measure_unit_org_blood+")",'Tmax ' +"("+"ч"+")",'MRT0→∞ '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_org_blood+"×ч" +")",'AUC0→∞ '+"("+measure_unit_org_blood+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_org_blood+"×ч\u00B2" +")",'Kel '+"("+"ч\u207B\u00B9"+")",'fт']
 
        #округление фрейма df_PK_organs_total_transpose
 
        df_organs_trans_trans=df_PK_organs_total_transpose.transpose()
 
 
-       series_Cmax=df_organs_trans_trans['Cmax'].tolist() 
+       series_Cmax=df_organs_trans_trans['Cmax ' +"("+measure_unit_org_blood+")"].tolist() 
        series_Cmax=pd.Series(["%.2f" % round(v,2) for v in series_Cmax])
 
-       series_Tmax=df_organs_trans_trans['Tmax'].tolist()       
+       series_Tmax=df_organs_trans_trans['Tmax ' +"("+"ч"+")"].tolist()       
        series_Tmax=pd.Series(["%.2f" % round(v,2) for v in series_Tmax]) 
 
-       series_MRT0_inf= df_organs_trans_trans['MRT0→∞'].tolist()   
+       series_MRT0_inf= df_organs_trans_trans['MRT0→∞ '+"("+"ч"+")"].tolist()   
        series_MRT0_inf=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_inf])
 
-       series_half_live= df_organs_trans_trans['T1/2'].tolist()   
+       series_half_live= df_organs_trans_trans['T1/2 '+"("+"ч"+")"].tolist()   
        series_half_live=pd.Series(["%.2f" % round(v,2) for v in series_half_live]) 
 
-       series_AUC0_t= df_organs_trans_trans['AUC0-t'].tolist()   
+       series_AUC0_t= df_organs_trans_trans['AUC0-t '+"("+measure_unit_org_blood+"×ч" +")"].tolist()   
        series_AUC0_t=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_t])
 
-       series_AUC0_inf= df_organs_trans_trans['AUC0→∞'].tolist()  
+       series_AUC0_inf= df_organs_trans_trans['AUC0→∞ '+"("+measure_unit_org_blood+"×ч" +")"].tolist()  
        series_AUC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_inf]) 
 
-       series_AUMC0_inf= df_organs_trans_trans['AUMC0-∞'].tolist()   
+       series_AUMC0_inf= df_organs_trans_trans['AUMC0-∞ '+"("+measure_unit_org_blood+"×ч\u00B2" +")"].tolist()   
        series_AUMC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUMC0_inf])
-
-       series_Сmax_dev_AUC0_t= df_organs_trans_trans['Сmax/AUC0-t'].tolist()  
-       series_Сmax_dev_AUC0_t=pd.Series(["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t]) 
-
-       series_Kel= df_organs_trans_trans['Kel'].tolist()   
+ 
+       series_Kel= df_organs_trans_trans['Kel '+"("+"ч\u207B\u00B9"+")"].tolist()   
        series_Kel=pd.Series(["%.4f" % round(v,4) for v in series_Kel])
-
-       series_CL= df_organs_trans_trans['CL'].tolist()  
-       series_CL=pd.Series(["%.2f" % round(v,2) for v in series_CL]) 
-
-       series_Vd= df_organs_trans_trans['Vd'].tolist()   
-       series_Vd=pd.Series(["%.1f" % round(v,1) for v in series_Vd])
 
        series_ft= df_organs_trans_trans['fт'].tolist() ##уже округлен
        series_ft=pd.Series(series_ft)
 
-       df_total_total_organs = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd,series_ft], axis= 1 )
+       df_total_total_organs = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Kel,series_ft], axis= 1)
 
        df_total_total_organs.index=df_PK_organs_total_transpose.columns.tolist()
        df_total_total_organs.columns=df_PK_organs_total_transpose.index.tolist() 
@@ -3357,7 +3315,7 @@ if option == 'Изучение фармакокинетики в органах 
        for i,j,c in list_zip_mean_std_colors:
             plt.errorbar(list(df_concat_mean_std.index),df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
             plt.xlabel("Время, ч")
-            plt.ylabel("Концентрация, "+ measure_unit_org)
+            plt.ylabel("Концентрация, "+ measure_unit_org_blood)
             ax.legend(fontsize = 5)
        st.pyplot(fig) 
        list_graphics_word.append(fig)
@@ -3378,7 +3336,7 @@ if option == 'Изучение фармакокинетики в органах 
             plt.errorbar(list_t_organs,df_concat_mean_std_without_0[i],yerr=df_concat_mean_std_without_0[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
             ax.set_yscale("log")
             plt.xlabel("Время, ч")
-            plt.ylabel("Концентрация, "+ measure_unit_org)
+            plt.ylabel("Концентрация, "+ measure_unit_org_blood)
             ax.legend(fontsize = 5)
        st.pyplot(fig)
        list_graphics_word.append(fig)
@@ -3417,11 +3375,15 @@ if option == 'Изучение фармакокинетики в органах 
 
    st.title('Исследование экскреции с калом')
 
+   measure_unit_org_cal = st.text_input("Введите единицы измерения концентрации в кале", key='Единицы измерения при изучении фармакокинетики в органах животных в кале')
+
+   st.info('❕❗️❕ Ввести единицы измерения концентрации')
+
    st.subheader('Загрузка файла экскреции с калом формата XLS')
    uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции с калом", key="Файл экскреции с калом при изучении фармакокинетики в органах животных")
 
-   if uploaded_file_excrement and measure_unit_org is not None:
-
+   if uploaded_file_excrement and measure_unit_org_cal is not None:
+      
       df = pd.read_excel(uploaded_file_excrement)
       st.subheader('Индивидуальные значения концентраций в кале')
       st.write(df)
@@ -3458,7 +3420,7 @@ if option == 'Изучение фармакокинетики в органах 
       df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
       df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
       df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-      df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+      df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
       df_index=df.set_index('Номер')
       df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -3513,110 +3475,6 @@ if option == 'Изучение фармакокинетики в органах 
       graphic='Выведение с калом'
       list_heading_graphics_word.append(graphic)    
 
-
-   else:
-      st.info('❕❗️❕ Загрузить XLS файл')
-
-
-   #############моча
-
-
-   st.title('Исследование экскреции с мочой')
-
-   st.subheader('Загрузка файла экскреции с мочой формата XLS')
-   uploaded_file_urine = st.file_uploader("Выбрать файл экскреции с мочой", key="Файл экскреции с мочой при изучении фармакокинетики в органах животных")
-
-   if uploaded_file_urine and measure_unit_org is not None:
-
-      df = pd.read_excel(uploaded_file_urine)
-      st.subheader('Индивидуальные значения концентраций в моче')
-      st.write(df)
-      st.subheader('Индивидуальные и усредненные значения концентраций в моче')
-      table_heading='Индивидуальные и усредненные значения концентраций в моче'
-      list_heading_word.append(table_heading) 
-
-      col_mapping = df.columns.tolist()
-      col_mapping.remove('Номер')
-
-      list_gmean=[]
-      list_cv=[] 
-      for i in col_mapping:
-
-          list_ser=df[i].tolist()
-
-          def g_mean(list_ser):
-              a=np.log(list_ser)
-              return np.exp(a.mean())
-          Gmean=g_mean(list_ser)
-          list_gmean.append(Gmean)
-
-          cv_std=lambda x: np.std(x, ddof= 1 )
-          cv_mean=lambda x: np.mean(x)
-          CV_std=cv_std(list_ser)
-
-          CV_mean=cv_mean(list_ser)
-
-          CV=CV_std/CV_mean * 100
-          list_cv.append(CV)
-
-      df_averaged_concentrations=df.describe()
-      df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-      df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-      df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-      df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-      df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-      df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
-
-      df_index=df.set_index('Номер')
-      df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-      df_concat_round=df_concat.round(2)
-      
-      ###визуализация фрейма с нулями после округления
-      col_mapping = df_concat_round.columns.tolist()
-
-      list_list_series=[]
-      for i in col_mapping:
-          list_series = df_concat_round[i].tolist()
-           
-          list_series_round = []
-          for i in list_series:
-              value = "%.2f" % round(i,2)
-              list_series_round.append(value)
-               
-          list_list_series.append(list_series_round)
-
-      df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-      df_concat_round_str_transpose = df_concat_round_str.transpose()
-      df_concat_round_str_transpose.index.name = 'Номер'
-      
-      st.write(df_concat_round_str_transpose)
-      list_table_word.append(df_concat_round_str_transpose)
-
-   ###########диаграмма    
-
-      list_time = []
-      for i in col_mapping:
-          numer=float(i)
-          list_time.append(numer)
-
-      list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-
-      list_concentration.remove(0)
-      list_time.remove(0)
-
-
-
-      fig, ax = plt.subplots()
-      sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
-      plt.xlabel("Время, ч")
-      plt.ylabel("Концентрация, "+measure_unit_org) 
-
-      st.pyplot(fig)
-      list_graphics_word.append(fig)
-
-      st.subheader('Выведение с мочой')
-      graphic='Выведение с мочой'
-      list_heading_graphics_word.append(graphic) 
 
    else:
       st.info('❕❗️❕ Загрузить XLS файл')
@@ -3714,12 +3572,13 @@ if option == 'Линейность дозирования':
    st.subheader('Единицы измерения концентрации')
     
    measure_unit_lin = st.text_input("Введите единицы измерения концентрации", key="Единицы измерения концентрации при исследовании линейности дозирования")
+   measure_unit_dose_lin = st.text_input("Введите единицы измерения дозировки", key="Единицы измерения дозировки при исследовании линейности дозирования")
 
-   st.info('❕❗️❕ Ввести единицы измерения концентрации')
+   st.info('❕❗️❕ Ввести единицы измерения')
 
    file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых дозировок(не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через '.'",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
 
-   if file_uploader and measure_unit_lin is not None:
+   if file_uploader and measure_unit_lin and measure_unit_dose_lin is not None:
 
        list_name_doses=[]
        list_df_unrounded=[]
@@ -3768,7 +3627,7 @@ if option == 'Линейность дозирования':
            df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
            df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
            df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-           df_averaged_3 = df_averaged_3.rename(index={6 : "CV"})
+           df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
 
            df_index=df.set_index('Номер')
            df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
@@ -4275,7 +4134,7 @@ if option == 'Линейность дозирования':
            df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
            df_round_without_CV_PK=df_averaged_3_PK
            df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-           df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV"})
+           df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
            df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
@@ -4285,47 +4144,47 @@ if option == 'Линейность дозирования':
 
            series_Cmax=df_concat_PK_iv['Cmax']
            list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-           series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax')
+           series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax ' +"("+measure_unit_lin+")")
 
            series_Tmax=df_concat_PK_iv['Tmax']
            list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-           series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax')
+           series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
            series_MRT0_inf= df_concat_PK_iv['MRT0→∞']
            list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-           series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞')
+           series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
            series_half_live= df_concat_PK_iv['T1/2']
            list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-           series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2')
+           series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
            series_AUC0_t= df_concat_PK_iv['AUC0-t']
            list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-           series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t')
+           series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t '+"("+measure_unit_lin+"×ч" +")")
 
            series_AUC0_inf= df_concat_PK_iv['AUC0→∞']
            list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-           series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞')
+           series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞ '+"("+measure_unit_lin+"×ч" +")")
 
            series_AUMC0_inf= df_concat_PK_iv['AUMC0-∞']
            list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-           series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞')
+           series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")")
 
            series_Сmax_dev_AUC0_t= df_concat_PK_iv['Сmax/AUC0-t']
            list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-           series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t')
+           series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
 
            series_Kel= df_concat_PK_iv['Kel']
            list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel')
+           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
            series_CL= df_concat_PK_iv['CL']
            list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-           series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL')
+           series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL ' +"("+"л/ч"+")")
 
            series_Vd= df_concat_PK_iv['Vd']
            list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-           series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd')
+           series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
            df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
            df_total_PK_iv.index.name = 'Номер' 
@@ -4365,44 +4224,44 @@ if option == 'Линейность дозирования':
         list_name_doses_with_measure_unit.append(j)
 
        ### получение итогового фрейма ФК параметров доз
-       df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_name_doses_with_measure_unit)
+       df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin+")",'Tmax ' +"("+"ч"+")",'MRT0→∞ '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_lin+"×ч" +")",'AUC0→∞ '+"("+measure_unit_lin+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")",'Kel '+"("+"ч\u207B\u00B9"+")",'CL ' +"("+"л/ч"+")",'Vd ' +"("+"л/кг"+")"],index=list_name_doses_with_measure_unit)
        df_PK_doses_total_transpose=df_PK_doses_total.transpose()
 
        #округление фрейма df_PK_doses_total_transpose
 
        df_doses_trans_trans=df_PK_doses_total_transpose.transpose()
 
-       series_Cmax=df_doses_trans_trans['Cmax'].tolist() 
+       series_Cmax=df_doses_trans_trans['Cmax ' +"("+measure_unit_lin+")"].tolist() 
        series_Cmax=pd.Series(["%.2f" % round(v,2) for v in series_Cmax])
 
-       series_Tmax=df_doses_trans_trans['Tmax'].tolist()       
+       series_Tmax=df_doses_trans_trans['Tmax ' +"("+"ч"+")"].tolist()       
        series_Tmax=pd.Series(["%.2f" % round(v,2) for v in series_Tmax]) 
 
-       series_MRT0_inf= df_doses_trans_trans['MRT0→∞'].tolist()   
+       series_MRT0_inf= df_doses_trans_trans['MRT0→∞ '+"("+"ч"+")"].tolist()   
        series_MRT0_inf=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_inf])
 
-       series_half_live= df_doses_trans_trans['T1/2'].tolist()   
+       series_half_live= df_doses_trans_trans['T1/2 '+"("+"ч"+")"].tolist()   
        series_half_live=pd.Series(["%.2f" % round(v,2) for v in series_half_live]) 
 
-       series_AUC0_t= df_doses_trans_trans['AUC0-t'].tolist()   
+       series_AUC0_t= df_doses_trans_trans['AUC0-t '+"("+measure_unit_lin+"×ч" +")"].tolist()   
        series_AUC0_t=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_t])
 
-       series_AUC0_inf= df_doses_trans_trans['AUC0→∞'].tolist()  
+       series_AUC0_inf= df_doses_trans_trans['AUC0→∞ '+"("+measure_unit_lin+"×ч" +")"].tolist()  
        series_AUC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUC0_inf]) 
 
-       series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞'].tolist()   
+       series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")"].tolist()   
        series_AUMC0_inf=pd.Series(["%.2f" % round(v,2) for v in series_AUMC0_inf])
 
-       series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t'].tolist()  
+       series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")"].tolist()  
        series_Сmax_dev_AUC0_t=pd.Series(["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t]) 
 
-       series_Kel= df_doses_trans_trans['Kel'].tolist()   
+       series_Kel= df_doses_trans_trans['Kel '+"("+"ч\u207B\u00B9"+")"].tolist()   
        series_Kel=pd.Series(["%.4f" % round(v,4) for v in series_Kel])
 
-       series_CL= df_doses_trans_trans['CL'].tolist()  
+       series_CL= df_doses_trans_trans['CL ' +"("+"л/ч"+")"].tolist()  
        series_CL=pd.Series(["%.2f" % round(v,2) for v in series_CL]) 
 
-       series_Vd= df_doses_trans_trans['Vd'].tolist()   
+       series_Vd= df_doses_trans_trans['Vd ' +"("+"л/кг"+")"].tolist()   
        series_Vd=pd.Series(["%.1f" % round(v,1) for v in series_Vd])
 
        df_total_total_doses = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
@@ -4505,8 +4364,8 @@ if option == 'Линейность дозирования':
        ###график
        fig, ax = plt.subplots()
        sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
-       plt.xlabel("Дозировка, " +measure_unit_lin)
-       plt.ylabel("AUC0→∞, нг/мл*ч")
+       plt.xlabel("Дозировка, " +measure_unit_dose_lin)
+       plt.ylabel("AUC0→∞, "+ measure_unit_lin + "*ч")
        plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
        st.pyplot(fig)
        list_graphics_word.append(fig)
