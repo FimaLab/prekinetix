@@ -152,6 +152,20 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str_transpose = df_concat_round_str.transpose()
        df_concat_round_str_transpose.index.name = 'Номер'
        
+       ##изменение названий параметров описательной статистики
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+
        st.write(df_concat_round_str_transpose) 
 
        list_table_word.append(df_concat_round_str_transpose)
@@ -678,6 +692,20 @@ if option == 'Изучение абсолютной и относительно�
        df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_iv.index.name = 'Номер'
 
+       ##изменение названий параметров описательной статистики
+
+       df_total_PK_iv1=df_total_PK_iv.copy()
+       df_total_PK_iv1.iloc[-6,:],df_total_PK_iv1.iloc[-2,:]=df_total_PK_iv.iloc[-2,:],df_total_PK_iv.iloc[-6,:]
+
+       df_total_PK_iv=df_total_PK_iv1
+
+       df_total_PK_iv1=df_total_PK_iv.copy()
+       df_total_PK_iv1.iloc[-4,:],df_total_PK_iv1.iloc[-5,:]=df_total_PK_iv.iloc[-5,:],df_total_PK_iv.iloc[-4,:]
+
+       df_total_PK_iv=df_total_PK_iv1
+
+       df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+
        st.subheader('Фармакокинетические показатели в крови после внутривенного введения субстанции')
        table_heading='Фармакокинетические показатели в крови после внутривенного введения субстанции'
        list_heading_word.append(table_heading)
@@ -819,6 +847,20 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
        df_concat_round_str_transpose = df_concat_round_str.transpose()
        df_concat_round_str_transpose.index.name = 'Номер'
+
+       ##изменение названий параметров описательной статистики
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
        st.write(df_concat_round_str_transpose)
        
@@ -1401,6 +1443,21 @@ if option == 'Изучение абсолютной и относительно�
 
        df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_sub.index.name = 'Номер'
+
+       ##изменение названий параметров описательной статистики
+
+       df_total_PK_po_sub1=df_total_PK_po_sub.copy()
+       df_total_PK_po_sub1.iloc[-6,:],df_total_PK_po_sub1.iloc[-2,:]=df_total_PK_po_sub.iloc[-2,:],df_total_PK_po_sub.iloc[-6,:]
+
+       df_total_PK_po_sub=df_total_PK_po_sub1
+
+       df_total_PK_po_sub1=df_total_PK_po_sub.copy()
+       df_total_PK_po_sub1.iloc[-4,:],df_total_PK_po_sub1.iloc[-5,:]=df_total_PK_po_sub.iloc[-5,:],df_total_PK_po_sub.iloc[-4,:]
+
+       df_total_PK_po_sub=df_total_PK_po_sub1
+
+       df_total_PK_po_sub = df_total_PK_po_sub.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+
        st.subheader('Фармакокинетические показатели в крови после перорального введения субстанции')
        table_heading='Фармакокинетические показатели в крови после перорального введения субстанции'
        list_heading_word.append(table_heading)
@@ -1543,6 +1600,20 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
        df_concat_round_str_transpose = df_concat_round_str.transpose()
        df_concat_round_str_transpose.index.name = 'Номер'
+
+       ##изменение названий параметров описательной статистики
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
        st.write(df_concat_round_str_transpose)
        
@@ -2121,6 +2192,21 @@ if option == 'Изучение абсолютной и относительно�
 
        df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_tab.index.name = 'Номер'
+
+       ##изменение названий параметров описательной статистики
+
+       df_total_PK_po_tab1=df_total_PK_po_tab.copy()
+       df_total_PK_po_tab1.iloc[-6,:],df_total_PK_po_tab1.iloc[-2,:]=df_total_PK_po_tab.iloc[-2,:],df_total_PK_po_tab.iloc[-6,:]
+
+       df_total_PK_po_tab=df_total_PK_po_tab1
+
+       df_total_PK_po_tab1=df_total_PK_po_tab.copy()
+       df_total_PK_po_tab1.iloc[-4,:],df_total_PK_po_tab1.iloc[-5,:]=df_total_PK_po_tab.iloc[-5,:],df_total_PK_po_tab.iloc[-4,:]
+
+       df_total_PK_po_tab=df_total_PK_po_tab1
+
+       df_total_PK_po_tab = df_total_PK_po_tab.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+
        st.subheader('Фармакокинетические показатели в крови после перорального введения таблетки')
        table_heading='Фармакокинетические показатели в крови после перорального введения таблетки'
        list_heading_word.append(table_heading)
@@ -2377,6 +2463,20 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
        df_concat_round_str_transpose = df_concat_round_str.transpose()
        df_concat_round_str_transpose.index.name = 'Номер'
+
+       ##изменение названий параметров описательной статистики
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
        st.write(df_concat_round_str_transpose)
        
@@ -2483,6 +2583,20 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
        df_concat_round_str_transpose = df_concat_round_str.transpose()
        df_concat_round_str_transpose.index.name = 'Номер'
+
+       ##изменение названий параметров описательной статистики
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+       df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+       df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+       df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
        st.write(df_concat_round_str_transpose)
 
@@ -2690,6 +2804,20 @@ if option == 'Изучение фармакокинетики в органах 
            df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
            df_concat_round_str_transpose = df_concat_round_str.transpose()
            df_concat_round_str_transpose.index.name = 'Номер'
+
+           ##изменение названий параметров описательной статистики
+
+           df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+           df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+           df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+           df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+           df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+           df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+           df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
            
            st.write(df_concat_round_str_transpose)
            list_table_word.append(df_concat_round_str_transpose) 
@@ -3187,6 +3315,21 @@ if option == 'Изучение фармакокинетики в органах 
 
            df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Kel], axis= 1) 
            df_total_PK_iv.index.name = 'Номер'
+
+           ##изменение названий параметров описательной статистики
+
+           df_total_PK_iv1=df_total_PK_iv.copy()
+           df_total_PK_iv1.iloc[-6,:],df_total_PK_iv1.iloc[-2,:]=df_total_PK_iv.iloc[-2,:],df_total_PK_iv.iloc[-6,:]
+
+           df_total_PK_iv=df_total_PK_iv1
+
+           df_total_PK_iv1=df_total_PK_iv.copy()
+           df_total_PK_iv1.iloc[-4,:],df_total_PK_iv1.iloc[-5,:]=df_total_PK_iv.iloc[-5,:],df_total_PK_iv.iloc[-4,:]
+
+           df_total_PK_iv=df_total_PK_iv1
+
+           df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+
            st.subheader('Фармакокинетические показатели ' + "("+file_name+")")
            table_heading='Фармакокинетические показатели ' + "("+file_name+")"
            list_heading_word.append(table_heading)
@@ -3443,6 +3586,20 @@ if option == 'Изучение фармакокинетики в органах 
       df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
       df_concat_round_str_transpose = df_concat_round_str.transpose()
       df_concat_round_str_transpose.index.name = 'Номер'
+
+      ##изменение названий параметров описательной статистики
+
+      df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+      df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+      df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+      df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+      df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+      df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+      df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
       st.write(df_concat_round_str_transpose)
       list_table_word.append(df_concat_round_str_transpose) 
@@ -3654,6 +3811,20 @@ if option == 'Линейность дозирования':
            df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
            df_concat_round_str_transpose = df_concat_round_str.transpose()
            df_concat_round_str_transpose.index.name = 'Номер'
+
+           ##изменение названий параметров описательной статистики
+
+           df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+           df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+           df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+           df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+           df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+           df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+           df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
            
            st.write(df_concat_round_str_transpose)
            list_table_word.append(df_concat_round_str_transpose)
@@ -4187,7 +4358,21 @@ if option == 'Линейность дозирования':
            series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
            df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
-           df_total_PK_iv.index.name = 'Номер' 
+           df_total_PK_iv.index.name = 'Номер'
+
+           ##изменение названий параметров описательной статистики
+
+           df_total_PK_iv1=df_total_PK_iv.copy()
+           df_total_PK_iv1.iloc[-6,:],df_total_PK_iv1.iloc[-2,:]=df_total_PK_iv.iloc[-2,:],df_total_PK_iv.iloc[-6,:]
+
+           df_total_PK_iv=df_total_PK_iv1
+
+           df_total_PK_iv1=df_total_PK_iv.copy()
+           df_total_PK_iv1.iloc[-4,:],df_total_PK_iv1.iloc[-5,:]=df_total_PK_iv.iloc[-5,:],df_total_PK_iv.iloc[-4,:]
+
+           df_total_PK_iv=df_total_PK_iv1
+
+           df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index') 
 
            st.subheader('Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_lin)
 
