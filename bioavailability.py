@@ -326,25 +326,10 @@ if option == 'Изучение абсолютной и относительно�
                    if df.iloc[num][column] == cmax:
                       list_Tmax.append(f"{column}")
      
-       list_Tmax_float_before=[]           
+       list_Tmax_float=[]           
        for i in list_Tmax:
            Tmax=float(i)
-           list_Tmax_float_before.append(Tmax)
-       ###выявление наибольшей встречаемости Tmax
-       def most_frequent(list_Tmax_float_before):
-           counter = 0
-           num = list_Tmax_float_before[0]
-           for i in list_Tmax_float_before:
-               curr_frequency = list_Tmax_float_before.count(i)
-               if(curr_frequency > counter):
-                   counter = curr_frequency
-                   num = i
-           return num
-        
-       list_Tmax_float=[]
-       for i in list_Tmax_float_before:
-           i = most_frequent(list_Tmax_float_before)
-           list_Tmax_float.append(i)
+           list_Tmax_float.append(Tmax)
        
        ###AUC0-t
        list_AUC_0_T=[]
@@ -1037,33 +1022,18 @@ if option == 'Изучение абсолютной и относительно�
            list_cmax_2.append(list_cmax2)
        list_cmax_2=[x for l in list_cmax_2 for x in l]   
 
-       ###Tmax
+       ###Tmax   
        list_Tmax_1=[]
        for cmax in list_cmax_1:
            for column in df.columns:
                for num, row in df.iterrows():
                    if df.iloc[num][column] == cmax:
                       list_Tmax_1.append(f"{column}")
-
-       list_Tmax_float_before_1=[]           
+     
+       list_Tmax_float_1=[]           
        for i in list_Tmax_1:
            Tmax=float(i)
-           list_Tmax_float_before_1.append(Tmax)
-       ###выявление наибольшей встречаемости Tmax
-       def most_frequent(list_Tmax_float_before_1):
-           counter = 0
-           num = list_Tmax_float_before_1[0]
-           for i in list_Tmax_float_before_1:
-               curr_frequency = list_Tmax_float_before_1.count(i)
-               if(curr_frequency > counter):
-                   counter = curr_frequency
-                   num = i
-           return num
-        
-       list_Tmax_float_1=[]
-       for i in list_Tmax_float_before_1:
-           i = most_frequent(list_Tmax_float_before_1)
-           list_Tmax_float_1.append(i)
+           list_Tmax_float_1.append(Tmax)
 
        list_Tmax_2=[]
        for cmax in list_cmax_2:
@@ -1071,26 +1041,11 @@ if option == 'Изучение абсолютной и относительно�
                for num, row in df.iterrows():
                    if df.iloc[num][column] == cmax:
                       list_Tmax_2.append(f"{column}")
-
-       list_Tmax_float_before_2=[]           
+     
+       list_Tmax_float_2=[]           
        for i in list_Tmax_2:
            Tmax=float(i)
-           list_Tmax_float_before_2.append(Tmax)
-       ###выявление наибольшей встречаемости Tmax
-       def most_frequent(list_Tmax_float_before_2):
-           counter = 0
-           num = list_Tmax_float_before_2[0]
-           for i in list_Tmax_float_before_2:
-               curr_frequency = list_Tmax_float_before_2.count(i)
-               if(curr_frequency > counter):
-                   counter = curr_frequency
-                   num = i
-           return num
-        
-       list_Tmax_float_2=[]
-       for i in list_Tmax_float_before_2:
-           i = most_frequent(list_Tmax_float_before_2)
-           list_Tmax_float_2.append(i)   
+           list_Tmax_float_2.append(Tmax)  
 
        ###AUC0-t
        list_AUC_0_T=[]
@@ -1786,33 +1741,18 @@ if option == 'Изучение абсолютной и относительно�
            list_cmax_2.append(list_cmax2)
        list_cmax_2=[x for l in list_cmax_2 for x in l]   
 
-       ###Tmax
+       ###Tmax   
        list_Tmax_1=[]
        for cmax in list_cmax_1:
            for column in df.columns:
                for num, row in df.iterrows():
                    if df.iloc[num][column] == cmax:
                       list_Tmax_1.append(f"{column}")
-
-       list_Tmax_float_before_1=[]           
+     
+       list_Tmax_float_1=[]           
        for i in list_Tmax_1:
            Tmax=float(i)
-           list_Tmax_float_before_1.append(Tmax)
-       ###выявление наибольшей встречаемости Tmax
-       def most_frequent(list_Tmax_float_before_1):
-           counter = 0
-           num = list_Tmax_float_before_1[0]
-           for i in list_Tmax_float_before_1:
-               curr_frequency = list_Tmax_float_before_1.count(i)
-               if(curr_frequency > counter):
-                   counter = curr_frequency
-                   num = i
-           return num
-        
-       list_Tmax_float_1=[]
-       for i in list_Tmax_float_before_1:
-           i = most_frequent(list_Tmax_float_before_1)
-           list_Tmax_float_1.append(i)
+           list_Tmax_float_1.append(Tmax)
 
        list_Tmax_2=[]
        for cmax in list_cmax_2:
@@ -1820,26 +1760,11 @@ if option == 'Изучение абсолютной и относительно�
                for num, row in df.iterrows():
                    if df.iloc[num][column] == cmax:
                       list_Tmax_2.append(f"{column}")
-
-       list_Tmax_float_before_2=[]           
+     
+       list_Tmax_float_2=[]           
        for i in list_Tmax_2:
            Tmax=float(i)
-           list_Tmax_float_before_2.append(Tmax)
-       ###выявление наибольшей встречаемости Tmax
-       def most_frequent(list_Tmax_float_before_2):
-           counter = 0
-           num = list_Tmax_float_before_2[0]
-           for i in list_Tmax_float_before_2:
-               curr_frequency = list_Tmax_float_before_2.count(i)
-               if(curr_frequency > counter):
-                   counter = curr_frequency
-                   num = i
-           return num
-        
-       list_Tmax_float_2=[]
-       for i in list_Tmax_float_before_2:
-           i = most_frequent(list_Tmax_float_before_2)
-           list_Tmax_float_2.append(i)
+           list_Tmax_float_2.append(Tmax)  
 
        ###AUC0-t
        list_AUC_0_T=[]
@@ -2987,25 +2912,10 @@ if option == 'Изучение фармакокинетики в органах 
                        if df.iloc[num][column] == cmax:
                           list_Tmax.append(f"{column}")
          
-           list_Tmax_float_before=[]           
+           list_Tmax_float=[]           
            for i in list_Tmax:
                Tmax=float(i)
-               list_Tmax_float_before.append(Tmax)
-           ###выявление наибольшей встречаемости Tmax
-           def most_frequent(list_Tmax_float_before):
-               counter = 0
-               num = list_Tmax_float_before[0]
-               for i in list_Tmax_float_before:
-                   curr_frequency = list_Tmax_float_before.count(i)
-                   if(curr_frequency > counter):
-                       counter = curr_frequency
-                       num = i
-               return num
-            
-           list_Tmax_float=[]
-           for i in list_Tmax_float_before:
-               i = most_frequent(list_Tmax_float_before)
-               list_Tmax_float.append(i)
+               list_Tmax_float.append(Tmax)
 
            ###AUC0-t
            list_AUC_0_T=[]
@@ -3983,25 +3893,10 @@ if option == 'Линейность дозирования':
                        if df.iloc[num][column] == cmax:
                           list_Tmax.append(f"{column}")
          
-           list_Tmax_float_before=[]           
+           list_Tmax_float=[]           
            for i in list_Tmax:
                Tmax=float(i)
-               list_Tmax_float_before.append(Tmax)
-           ###выявление наибольшей встречаемости Tmax
-           def most_frequent(list_Tmax_float_before):
-               counter = 0
-               num = list_Tmax_float_before[0]
-               for i in list_Tmax_float_before:
-                   curr_frequency = list_Tmax_float_before.count(i)
-                   if(curr_frequency > counter):
-                       counter = curr_frequency
-                       num = i
-               return num
-            
-           list_Tmax_float=[]
-           for i in list_Tmax_float_before:
-               i = most_frequent(list_Tmax_float_before)
-               list_Tmax_float.append(i)
+               list_Tmax_float.append(Tmax)
 
            ###AUC0-t
            list_AUC_0_T=[]
