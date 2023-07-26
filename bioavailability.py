@@ -374,9 +374,6 @@ if option == 'Изучение абсолютной и относительно�
            list_t_without_cmax=list_t[index_cmax+1:]
 
            #удаление всех нулей из массивов
-           list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
-
-
            count_for_0_1=len(list_c_without_cmax)
            list_range_for_0_1=range(0,count_for_0_1)
 
@@ -386,7 +383,7 @@ if option == 'Изучение абсолютной и относительно�
                if list_c_without_cmax[i] !=0:
                   list_conc_0.append(list_c_without_cmax[i])
                   list_time_0.append(list_t_without_cmax[i]) 
-
+           ################################
 
            n_points=len(list_conc_0)
            list_n_points = range(0,n_points)
@@ -400,7 +397,6 @@ if option == 'Изучение абсолютной и относительно�
            list_for_kel_c.pop(-1) #удаление списка с одной точкой
            list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
 
-
            list_for_kel_t=[]
            for j in list_n_points:
                if j<n_points:
@@ -408,7 +404,6 @@ if option == 'Изучение абсолютной и относительно�
                   list_for_kel_t.append(list_t_new)
            list_for_kel_t.pop(-1) #удаление списка с одной точкой
            list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
 
            list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
 
@@ -432,8 +427,6 @@ if option == 'Изучение абсолютной и относительно�
 
                adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
-
-
                ########################################
                kel=abs(model.coef_[0])
                list_kel.append(kel)
@@ -444,14 +437,8 @@ if option == 'Изучение абсолютной и относительно�
 
            index_max_r= list_r.index(max_r)
 
-
-           list_r1=list_r[:index_max_r]
-           list_kel1=list_kel[:index_max_r]
-
-           if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
-              list_r1.append(list_r[index_max_r])
-              list_kel1.append(list_kel[index_max_r])
-
+           list_r1=list_r
+           list_kel1=list_kel
 
            number_elem_list_r1=len(list_r1)
 
@@ -460,16 +447,9 @@ if option == 'Изучение абсолютной и относительно�
            list_kel_total_1=[]
            for i in list_range_kel:
 
-               if len(list_r1)==1:
-                  list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1)))
-                  break 
-
-               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
-                  list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                  list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
                   break #самая ранняя удовлетовряющая условию
-
-               if len(list_kel_total_1) == 0:   
-                  list_kel_total_1.append(list_kel[index_max_r])
 
            for i in list_kel_total_1:
                list_kel_total.append(i) 
@@ -1092,9 +1072,6 @@ if option == 'Изучение абсолютной и относительно�
            list_t_without_cmax=list_t[index_cmax+1:]
 
            #удаление всех нулей из массивов
-           list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
-
-
            count_for_0_1=len(list_c_without_cmax)
            list_range_for_0_1=range(0,count_for_0_1)
 
@@ -1104,7 +1081,7 @@ if option == 'Изучение абсолютной и относительно�
                if list_c_without_cmax[i] !=0:
                   list_conc_0.append(list_c_without_cmax[i])
                   list_time_0.append(list_t_without_cmax[i]) 
-
+           ################################
 
            n_points=len(list_conc_0)
            list_n_points = range(0,n_points)
@@ -1118,7 +1095,6 @@ if option == 'Изучение абсолютной и относительно�
            list_for_kel_c.pop(-1) #удаление списка с одной точкой
            list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
 
-
            list_for_kel_t=[]
            for j in list_n_points:
                if j<n_points:
@@ -1126,7 +1102,6 @@ if option == 'Изучение абсолютной и относительно�
                   list_for_kel_t.append(list_t_new)
            list_for_kel_t.pop(-1) #удаление списка с одной точкой
            list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
 
            list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
 
@@ -1150,8 +1125,6 @@ if option == 'Изучение абсолютной и относительно�
 
                adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
-
-
                ########################################
                kel=abs(model.coef_[0])
                list_kel.append(kel)
@@ -1162,14 +1135,8 @@ if option == 'Изучение абсолютной и относительно�
 
            index_max_r= list_r.index(max_r)
 
-
-           list_r1=list_r[:index_max_r]
-           list_kel1=list_kel[:index_max_r]
-
-           if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
-              list_r1.append(list_r[index_max_r])
-              list_kel1.append(list_kel[index_max_r])
-
+           list_r1=list_r
+           list_kel1=list_kel
 
            number_elem_list_r1=len(list_r1)
 
@@ -1178,16 +1145,9 @@ if option == 'Изучение абсолютной и относительно�
            list_kel_total_1=[]
            for i in list_range_kel:
 
-               if len(list_r1)==1:
-                  list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1)))
-                  break 
-
-               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
-                  list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                  list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
                   break #самая ранняя удовлетовряющая условию
-
-               if len(list_kel_total_1) == 0:   
-                  list_kel_total_1.append(list_kel[index_max_r])
 
            for i in list_kel_total_1:
                list_kel_total.append(i) 
@@ -1356,9 +1316,17 @@ if option == 'Изучение абсолютной и относительно�
        list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
+       series_Cmax_2=df_concat_PK_po_sub['Cmax(2)']
+       list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
+       series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_po_sub.index.tolist(), name='Cmax(2) ' +"("+measure_unit+")")
+
        series_Tmax=df_concat_PK_po_sub['Tmax']
        list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
        series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Tmax ' +"("+"ч"+")")
+
+       series_Tmax_2=df_concat_PK_po_sub['Tmax(2)']
+       list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
+       series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_po_sub.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
 
        series_MRT0_inf= df_concat_PK_po_sub['MRT0→∞']
        list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
@@ -1396,7 +1364,7 @@ if option == 'Изучение абсолютной и относительно�
        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
        series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
-       df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+       df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_sub.index.name = 'Номер'
 
        ##изменение названий параметров описательной статистики
@@ -1811,9 +1779,6 @@ if option == 'Изучение абсолютной и относительно�
            list_t_without_cmax=list_t[index_cmax+1:]
 
            #удаление всех нулей из массивов
-           list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
-
-
            count_for_0_1=len(list_c_without_cmax)
            list_range_for_0_1=range(0,count_for_0_1)
 
@@ -1823,7 +1788,7 @@ if option == 'Изучение абсолютной и относительно�
                if list_c_without_cmax[i] !=0:
                   list_conc_0.append(list_c_without_cmax[i])
                   list_time_0.append(list_t_without_cmax[i]) 
-
+           ################################
 
            n_points=len(list_conc_0)
            list_n_points = range(0,n_points)
@@ -1837,7 +1802,6 @@ if option == 'Изучение абсолютной и относительно�
            list_for_kel_c.pop(-1) #удаление списка с одной точкой
            list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
 
-
            list_for_kel_t=[]
            for j in list_n_points:
                if j<n_points:
@@ -1845,7 +1809,6 @@ if option == 'Изучение абсолютной и относительно�
                   list_for_kel_t.append(list_t_new)
            list_for_kel_t.pop(-1) #удаление списка с одной точкой
            list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
 
            list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
 
@@ -1869,8 +1832,6 @@ if option == 'Изучение абсолютной и относительно�
 
                adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
-
-
                ########################################
                kel=abs(model.coef_[0])
                list_kel.append(kel)
@@ -1881,14 +1842,8 @@ if option == 'Изучение абсолютной и относительно�
 
            index_max_r= list_r.index(max_r)
 
-
-           list_r1=list_r[:index_max_r]
-           list_kel1=list_kel[:index_max_r]
-
-           if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
-              list_r1.append(list_r[index_max_r])
-              list_kel1.append(list_kel[index_max_r])
-
+           list_r1=list_r
+           list_kel1=list_kel
 
            number_elem_list_r1=len(list_r1)
 
@@ -1897,16 +1852,9 @@ if option == 'Изучение абсолютной и относительно�
            list_kel_total_1=[]
            for i in list_range_kel:
 
-               if len(list_r1)==1:
-                  list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1)))
-                  break 
-
-               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
-                  list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                  list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
                   break #самая ранняя удовлетовряющая условию
-
-               if len(list_kel_total_1) == 0:   
-                  list_kel_total_1.append(list_kel[index_max_r])
 
            for i in list_kel_total_1:
                list_kel_total.append(i) 
@@ -2075,9 +2023,17 @@ if option == 'Изучение абсолютной и относительно�
        list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
+       series_Cmax_2=df_concat_PK_po_tab['Cmax(2)']
+       list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
+       series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_po_tab.index.tolist(), name='Cmax(2) ' +"("+measure_unit+")")
+
        series_Tmax=df_concat_PK_po_tab['Tmax']
        list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
        series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Tmax ' +"("+"ч"+")")
+
+       series_Tmax_2=df_concat_PK_po_tab['Tmax(2)']
+       list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
+       series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_po_tab.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
 
        series_MRT0_inf= df_concat_PK_po_tab['MRT0→∞']
        list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
@@ -2115,7 +2071,7 @@ if option == 'Изучение абсолютной и относительно�
        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
        series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Vd ' +"("+"л/кг"+")")
 
-       df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+       df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
        df_total_PK_po_tab.index.name = 'Номер'
 
        ##изменение названий параметров описательной статистики
@@ -2954,9 +2910,6 @@ if option == 'Изучение фармакокинетики в органах 
                list_t_without_cmax=list_t[index_cmax+1:]
 
                #удаление всех нулей из массивов
-               list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
-
-
                count_for_0_1=len(list_c_without_cmax)
                list_range_for_0_1=range(0,count_for_0_1)
 
@@ -2966,7 +2919,7 @@ if option == 'Изучение фармакокинетики в органах 
                    if list_c_without_cmax[i] !=0:
                       list_conc_0.append(list_c_without_cmax[i])
                       list_time_0.append(list_t_without_cmax[i]) 
-
+               ################################
 
                n_points=len(list_conc_0)
                list_n_points = range(0,n_points)
@@ -2980,7 +2933,6 @@ if option == 'Изучение фармакокинетики в органах 
                list_for_kel_c.pop(-1) #удаление списка с одной точкой
                list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
 
-
                list_for_kel_t=[]
                for j in list_n_points:
                    if j<n_points:
@@ -2988,7 +2940,6 @@ if option == 'Изучение фармакокинетики в органах 
                       list_for_kel_t.append(list_t_new)
                list_for_kel_t.pop(-1) #удаление списка с одной точкой
                list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
 
                list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
 
@@ -3012,8 +2963,6 @@ if option == 'Изучение фармакокинетики в органах 
 
                    adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
-
-
                    ########################################
                    kel=abs(model.coef_[0])
                    list_kel.append(kel)
@@ -3024,14 +2973,8 @@ if option == 'Изучение фармакокинетики в органах 
 
                index_max_r= list_r.index(max_r)
 
-
-               list_r1=list_r[:index_max_r]
-               list_kel1=list_kel[:index_max_r]
-
-               if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
-                  list_r1.append(list_r[index_max_r])
-                  list_kel1.append(list_kel[index_max_r])
-
+               list_r1=list_r
+               list_kel1=list_kel
 
                number_elem_list_r1=len(list_r1)
 
@@ -3040,16 +2983,9 @@ if option == 'Изучение фармакокинетики в органах 
                list_kel_total_1=[]
                for i in list_range_kel:
 
-                   if len(list_r1)==1:
-                      list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1)))
-                      break 
-
-                   if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
-                      list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                   if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                      list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
                       break #самая ранняя удовлетовряющая условию
-
-                   if len(list_kel_total_1) == 0:   
-                      list_kel_total_1.append(list_kel[index_max_r])
 
                for i in list_kel_total_1:
                    list_kel_total.append(i) 
@@ -3944,9 +3880,6 @@ if option == 'Линейность дозирования':
                list_t_without_cmax=list_t[index_cmax+1:]
 
                #удаление всех нулей из массивов
-               list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
-
-
                count_for_0_1=len(list_c_without_cmax)
                list_range_for_0_1=range(0,count_for_0_1)
 
@@ -3956,7 +3889,7 @@ if option == 'Линейность дозирования':
                    if list_c_without_cmax[i] !=0:
                       list_conc_0.append(list_c_without_cmax[i])
                       list_time_0.append(list_t_without_cmax[i]) 
-
+               ################################
 
                n_points=len(list_conc_0)
                list_n_points = range(0,n_points)
@@ -3970,7 +3903,6 @@ if option == 'Линейность дозирования':
                list_for_kel_c.pop(-1) #удаление списка с одной точкой
                list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
 
-
                list_for_kel_t=[]
                for j in list_n_points:
                    if j<n_points:
@@ -3978,7 +3910,6 @@ if option == 'Линейность дозирования':
                       list_for_kel_t.append(list_t_new)
                list_for_kel_t.pop(-1) #удаление списка с одной точкой
                list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
 
                list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
 
@@ -4002,8 +3933,6 @@ if option == 'Линейность дозирования':
 
                    adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
-
-
                    ########################################
                    kel=abs(model.coef_[0])
                    list_kel.append(kel)
@@ -4014,14 +3943,8 @@ if option == 'Линейность дозирования':
 
                index_max_r= list_r.index(max_r)
 
-
-               list_r1=list_r[:index_max_r]
-               list_kel1=list_kel[:index_max_r]
-
-               if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
-                  list_r1.append(list_r[index_max_r])
-                  list_kel1.append(list_kel[index_max_r])
-
+               list_r1=list_r
+               list_kel1=list_kel
 
                number_elem_list_r1=len(list_r1)
 
@@ -4030,16 +3953,9 @@ if option == 'Линейность дозирования':
                list_kel_total_1=[]
                for i in list_range_kel:
 
-                   if len(list_r1)==1:
-                      list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1)))
-                      break 
-
-                   if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
-                      list_kel_total_1.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                   if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                      list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
                       break #самая ранняя удовлетовряющая условию
-
-                   if len(list_kel_total_1) == 0:   
-                      list_kel_total_1.append(list_kel[index_max_r])
 
                for i in list_kel_total_1:
                    list_kel_total.append(i) 
