@@ -10,14 +10,13 @@ import scipy as sci
 
 ##########################################
 
-df=pd.read_excel("C:/Users/Павел/OneDrive/Рабочий стол/Проекты 2023 для валидации приложения/Ибупрофен/Папка с исходными данными/Ибупрофен_T.xlsx")
+df=pd.read_excel("C:/Users/Павел/OneDrive/Рабочий стол/Проекты 2023 для валидации приложения/Этравирин/Папка с исходными данными/Этравирин_T.xlsx")
 list_columns=df.columns.tolist()
 list_columns.remove("Номер")
 list_range_df = range(0,df.shape[0])
 
 list_kel_total_visual= []
 for i in list_range_df: 
-    
     
     list_iloc=df.iloc[i].tolist()
     list_iloc.pop(0)
@@ -35,8 +34,6 @@ for i in list_range_df:
     
     
     #удаление всех нулей из массивов
-    list_zip_list_t_list_c=zip(list_t_without_cmax,list_c_without_cmax)
-    
     
     count_for_0_1=len(list_c_without_cmax)
     list_range_for_0_1=range(0,count_for_0_1)
@@ -47,6 +44,7 @@ for i in list_range_df:
         if list_c_without_cmax[i] !=0:
            list_conc_0.append(list_c_without_cmax[i])
            list_time_0.append(list_t_without_cmax[i]) 
+    ###############################################
     
     
     n_points=len(list_conc_0)
@@ -101,9 +99,9 @@ for i in list_range_df:
         list_kel.append(kel)
         list_r.append(adjusted_r_sq)
         
-        fig, ax = plt.subplots()
-        plt.plot(np_t,np_c_log)
-        plt.show(fig)
+        #fig, ax = plt.subplots()
+        #plt.plot(np_t,np_c_log)
+        #plt.show(fig)
     
     
     #делаем срезы списоков до rmax
@@ -112,12 +110,8 @@ for i in list_range_df:
     index_max_r= list_r.index(max_r)
     
     
-    list_r1=list_r[:index_max_r]
-    list_kel1=list_kel[:index_max_r]
-    
-    if len(list_r1) == 0: #для случаев когда остается одна точка и срез некорректен
-       list_r1.append(list_r[index_max_r])
-       list_kel1.append(list_kel[index_max_r])
+    list_r1=list_r
+    list_kel1=list_kel
     
     number_elem_list_r1=len(list_r1)
     
@@ -128,23 +122,16 @@ for i in list_range_df:
     list_kel_total=[]
     for i in list_range_kel:
         
-        if len(list_r1)==1:
-           list_kel_total.append(list_kel1[i]*math.log(math.exp(1)))
-           break 
-        
         if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева от rmax
            list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
            break #самая ранняя удовлетовряющая условию
         
-        if len(list_kel_total) == 0:   
-           list_kel_total.append(list_kel[index_max_r])
        
     list_kel_total_visual.append(round(list_kel_total[0],4))
     
 
-
 ###сверяем с ОА
-df_oleg=pd.read_excel("C:/Users/Павел/OneDrive/Рабочий стол/Проекты 2023 для валидации приложения/Ибупрофен/Папка с исходными данными/kel_T.xlsx")
+df_oleg=pd.read_excel("C:/Users/Павел/OneDrive/Рабочий стол/Проекты 2023 для валидации приложения/Этравирин/Папка с исходными данными/kel_T.xlsx")
 
 list_oleg=df_oleg['T'].tolist()
 
