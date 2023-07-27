@@ -106,6 +106,7 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+           list_ser_cv = list_ser#нужно с нулями для CV
 
            #убрать нули, т.к нули будут давать нулевое gmean
            count_for_range_ser=len(list_ser)
@@ -124,12 +125,14 @@ if option == 'Изучение абсолютной и относительно�
                return np.exp(a.mean())
            Gmean=g_mean(list_ser)
            list_gmean.append(Gmean)
+           
+           ####CV
 
            cv_std=lambda x: np.std(x, ddof= 1 )
            cv_mean=lambda x: np.mean(x)
-           CV_std=cv_std(list_ser)
+           CV_std=cv_std(list_ser_cv)
 
-           CV_mean=cv_mean(list_ser)
+           CV_mean=cv_mean(list_ser_cv)
 
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
@@ -139,7 +142,7 @@ if option == 'Изучение абсолютной и относительно�
        list_gmean.insert(0,0)
        list_cv.pop(0)
        list_cv.insert(0,0)
-
+       
        df_averaged_concentrations=df.describe()
        df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
        df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
@@ -792,6 +795,7 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+           list_ser_cv = list_ser#нужно с нулями для CV
 
            #убрать нули, т.к нули будут давать нулевое gmean
            count_for_range_ser=len(list_ser)
@@ -812,8 +816,8 @@ if option == 'Изучение абсолютной и относительно�
 
            cv_std=lambda x: np.std(x, ddof= 1 )
            cv_mean=lambda x: np.mean(x)
-           CV_std=cv_std(list_ser)
-           CV_mean=cv_mean(list_ser)
+           CV_std=cv_std(list_ser_cv)
+           CV_mean=cv_mean(list_ser_cv)
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
        
@@ -1521,6 +1525,7 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+           list_ser_cv = list_ser#нужно с нулями для CV
 
            #убрать нули, т.к нули будут давать нулевое gmean
            count_for_range_ser=len(list_ser)
@@ -1541,8 +1546,8 @@ if option == 'Изучение абсолютной и относительно�
 
            cv_std=lambda x: np.std(x, ddof= 1 )
            cv_mean=lambda x: np.mean(x)
-           CV_std=cv_std(list_ser)
-           CV_mean=cv_mean(list_ser)
+           CV_std=cv_std(list_ser_cv)
+           CV_mean=cv_mean(list_ser_cv)
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
        
@@ -2361,6 +2366,7 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+           list_ser_cv = list_ser#нужно с нулями для CV
 
            #убрать нули, т.к нули будут давать нулевое gmean
            count_for_range_ser=len(list_ser)
@@ -2381,9 +2387,9 @@ if option == 'Изучение абсолютной и относительно�
 
            cv_std=lambda x: np.std(x, ddof= 1 )
            cv_mean=lambda x: np.mean(x)
-           CV_std=cv_std(list_ser)
+           CV_std=cv_std(list_ser_cv)
 
-           CV_mean=cv_mean(list_ser)
+           CV_mean=cv_mean(list_ser_cv)
 
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
@@ -2502,6 +2508,7 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+           list_ser_cv = list_ser#нужно с нулями для CV
 
            #убрать нули, т.к нули будут давать нулевое gmean
            count_for_range_ser=len(list_ser)
@@ -2522,9 +2529,9 @@ if option == 'Изучение абсолютной и относительно�
 
            cv_std=lambda x: np.std(x, ddof= 1 )
            cv_mean=lambda x: np.mean(x)
-           CV_std=cv_std(list_ser)
+           CV_std=cv_std(list_ser_cv)
 
-           CV_mean=cv_mean(list_ser)
+           CV_mean=cv_mean(list_ser_cv)
 
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
@@ -2744,6 +2751,7 @@ if option == 'Изучение фармакокинетики в органах 
            for i in col_mapping:
 
                list_ser=df[i].tolist()
+               list_ser_cv = list_ser#нужно с нулями для CV
 
                #убрать нули, т.к нули будут давать нулевое gmean
                count_for_range_ser=len(list_ser)
@@ -2764,9 +2772,9 @@ if option == 'Изучение фармакокинетики в органах 
 
                cv_std=lambda x: np.std(x, ddof= 1 )
                cv_mean=lambda x: np.mean(x)
-               CV_std=cv_std(list_ser)
+               CV_std=cv_std(list_ser_cv)
 
-               CV_mean=cv_mean(list_ser)
+               CV_mean=cv_mean(list_ser_cv)
 
                CV=CV_std/CV_mean * 100
                list_cv.append(CV)
@@ -3512,6 +3520,7 @@ if option == 'Изучение фармакокинетики в органах 
       for i in col_mapping:
 
           list_ser=df[i].tolist()
+          list_ser_cv = list_ser#нужно с нулями для CV
 
           #убрать нули, т.к нули будут давать нулевое gmean
           count_for_range_ser=len(list_ser)
@@ -3532,9 +3541,9 @@ if option == 'Изучение фармакокинетики в органах 
 
           cv_std=lambda x: np.std(x, ddof= 1 )
           cv_mean=lambda x: np.mean(x)
-          CV_std=cv_std(list_ser)
+          CV_std=cv_std(list_ser_cv)
  
-          CV_mean=cv_mean(list_ser)
+          CV_mean=cv_mean(list_ser_cv)
 
           CV=CV_std/CV_mean * 100
           list_cv.append(CV)
@@ -3754,6 +3763,7 @@ if option == 'Линейность дозирования':
            for i in col_mapping:
 
                list_ser=df[i].tolist()
+               list_ser_cv = list_ser#нужно с нулями для CV
 
                #убрать нули, т.к нули будут давать нулевое gmean
                count_for_range_ser=len(list_ser)
@@ -3771,12 +3781,13 @@ if option == 'Линейность дозирования':
                    return np.exp(a.mean())
                Gmean=g_mean(list_ser)
                list_gmean.append(Gmean)
+               
 
                cv_std=lambda x: np.std(x, ddof= 1 )
                cv_mean=lambda x: np.mean(x)
-               CV_std=cv_std(list_ser)
+               CV_std=cv_std(list_ser_cv)
 
-               CV_mean=cv_mean(list_ser)
+               CV_mean=cv_mean(list_ser_cv)
 
                CV=CV_std/CV_mean * 100
                list_cv.append(CV)
@@ -3786,6 +3797,7 @@ if option == 'Линейность дозирования':
            list_gmean.insert(0,0)
            list_cv.pop(0)
            list_cv.insert(0,0)
+           
 
            df_averaged_concentrations=df.describe()
            df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
