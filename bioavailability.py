@@ -165,6 +165,11 @@ if option == 'Изучение абсолютной и относительно�
        df_concat_round_str_transpose=df_concat_round_str_transpose1
 
        df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+       
+
+       #округление времени в качестве названий стоблцов
+       list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+       df_concat_round_str_transpose.columns = list_time_round
 
        st.write(df_concat_round_str_transpose) 
 
@@ -827,6 +832,10 @@ if option == 'Изучение абсолютной и относительно�
 
        df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
+       #округление времени в качестве названий стоблцов
+       list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+       df_concat_round_str_transpose.columns = list_time_round
+
        st.write(df_concat_round_str_transpose)
        
        list_table_word.append(df_concat_round_str_transpose)
@@ -1535,6 +1544,10 @@ if option == 'Изучение абсолютной и относительно�
 
        df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
+       #округление времени в качестве названий стоблцов
+       list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+       df_concat_round_str_transpose.columns = list_time_round
+
        st.write(df_concat_round_str_transpose)
        
        list_table_word.append(df_concat_round_str_transpose)
@@ -2356,6 +2369,10 @@ if option == 'Изучение абсолютной и относительно�
 
        df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
+       #округление времени в качестве названий стоблцов
+       list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+       df_concat_round_str_transpose.columns = list_time_round
+
        st.write(df_concat_round_str_transpose)
        
        list_table_word.append(df_concat_round_str_transpose)
@@ -2476,6 +2493,10 @@ if option == 'Изучение абсолютной и относительно�
 
        df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
        
+       #округление времени в качестве названий стоблцов
+       list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+       df_concat_round_str_transpose.columns = list_time_round
+
        st.write(df_concat_round_str_transpose)
 
        list_table_word.append(df_concat_round_str_transpose)
@@ -2697,6 +2718,10 @@ if option == 'Изучение фармакокинетики в органах 
 
            df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
            
+           #округление времени в качестве названий стоблцов
+           list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+           df_concat_round_str_transpose.columns = list_time_round
+
            st.write(df_concat_round_str_transpose)
            list_table_word.append(df_concat_round_str_transpose) 
 
@@ -3443,7 +3468,11 @@ if option == 'Изучение фармакокинетики в органах 
       df_concat_round_str_transpose=df_concat_round_str_transpose1
 
       df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-       
+      
+      #округление времени в качестве названий стоблцов
+      list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+      df_concat_round_str_transpose.columns = list_time_round
+
       st.write(df_concat_round_str_transpose)
       list_table_word.append(df_concat_round_str_transpose) 
 
@@ -3669,6 +3698,10 @@ if option == 'Линейность дозирования':
 
            df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
            
+           #округление времени в качестве названий стоблцов
+           list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+           df_concat_round_str_transpose.columns = list_time_round
+
            st.write(df_concat_round_str_transpose)
            list_table_word.append(df_concat_round_str_transpose)
            ########### графики    
