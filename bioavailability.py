@@ -118,6 +118,7 @@ if option == 'Изучение абсолютной и относительно�
 
            list_ser = list_ser_without_0
 
+
            def g_mean(list_ser):
                a=np.log(list_ser)
                return np.exp(a.mean())
@@ -132,6 +133,12 @@ if option == 'Изучение абсолютной и относительно�
 
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
+           
+       #для устранения None из фрейма
+       list_gmean.pop(0)
+       list_gmean.insert(0,0)
+       list_cv.pop(0)
+       list_cv.insert(0,0)
 
        df_averaged_concentrations=df.describe()
        df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -809,6 +816,12 @@ if option == 'Изучение абсолютной и относительно�
            CV_mean=cv_mean(list_ser)
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
+       
+       #для устранения None из фрейма
+       list_gmean.pop(0)
+       list_gmean.insert(0,0)
+       list_cv.pop(0)
+       list_cv.insert(0,0)
 
        df_averaged_concentrations=df.describe()
        df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -1532,6 +1545,12 @@ if option == 'Изучение абсолютной и относительно�
            CV_mean=cv_mean(list_ser)
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
+       
+       #для устранения None из фрейма
+       list_gmean.pop(0)
+       list_gmean.insert(0,0)
+       list_cv.pop(0)
+       list_cv.insert(0,0)
 
        df_averaged_concentrations=df.describe()
        df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -2368,6 +2387,12 @@ if option == 'Изучение абсолютной и относительно�
 
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
+       
+       #для устранения None из фрейма
+       list_gmean.pop(0)
+       list_gmean.insert(0,0)
+       list_cv.pop(0)
+       list_cv.insert(0,0)
 
        df_averaged_concentrations=df.describe()
        df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -2503,6 +2528,12 @@ if option == 'Изучение абсолютной и относительно�
 
            CV=CV_std/CV_mean * 100
            list_cv.append(CV)
+       
+       #для устранения None из фрейма
+       list_gmean.pop(0)
+       list_gmean.insert(0,0)
+       list_cv.pop(0)
+       list_cv.insert(0,0)
 
        df_averaged_concentrations=df.describe()
        df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -2739,6 +2770,12 @@ if option == 'Изучение фармакокинетики в органах 
 
                CV=CV_std/CV_mean * 100
                list_cv.append(CV)
+           
+           #для устранения None из фрейма
+           list_gmean.pop(0)
+           list_gmean.insert(0,0)
+           list_cv.pop(0)
+           list_cv.insert(0,0)
 
            df_averaged_concentrations=df.describe()
            df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -3501,6 +3538,12 @@ if option == 'Изучение фармакокинетики в органах 
 
           CV=CV_std/CV_mean * 100
           list_cv.append(CV)
+      
+      #для устранения None из фрейма
+      list_gmean.pop(0)
+      list_gmean.insert(0,0)
+      list_cv.pop(0)
+      list_cv.insert(0,0)
 
       df_averaged_concentrations=df.describe()
       df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
@@ -3737,6 +3780,12 @@ if option == 'Линейность дозирования':
 
                CV=CV_std/CV_mean * 100
                list_cv.append(CV)
+           
+           #для устранения None из фрейма
+           list_gmean.pop(0)
+           list_gmean.insert(0,0)
+           list_cv.pop(0)
+           list_cv.insert(0,0)
 
            df_averaged_concentrations=df.describe()
            df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
