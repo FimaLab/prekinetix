@@ -107,6 +107,17 @@ if option == 'Изучение абсолютной и относительно�
 
            list_ser=df[i].tolist()
 
+           #убрать нули, т.к нули будут давать нулевое gmean
+           count_for_range_ser=len(list_ser)
+           list_range_ser=range(0,count_for_range_ser)
+           
+           list_ser_without_0=[]
+           for i in list_range_ser:
+               if list_ser[i] !=0:
+                  list_ser_without_0.append(list_ser[i])
+
+           list_ser = list_ser_without_0
+
            def g_mean(list_ser):
                a=np.log(list_ser)
                return np.exp(a.mean())
@@ -774,6 +785,17 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+
+           #убрать нули, т.к нули будут давать нулевое gmean
+           count_for_range_ser=len(list_ser)
+           list_range_ser=range(0,count_for_range_ser)
+           
+           list_ser_without_0=[]
+           for i in list_range_ser:
+               if list_ser[i] !=0:
+                  list_ser_without_0.append(list_ser[i])
+
+           list_ser = list_ser_without_0
 
            def g_mean(list_ser):
                a=np.log(list_ser)
@@ -1486,6 +1508,17 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+
+           #убрать нули, т.к нули будут давать нулевое gmean
+           count_for_range_ser=len(list_ser)
+           list_range_ser=range(0,count_for_range_ser)
+           
+           list_ser_without_0=[]
+           for i in list_range_ser:
+               if list_ser[i] !=0:
+                  list_ser_without_0.append(list_ser[i])
+
+           list_ser = list_ser_without_0
 
            def g_mean(list_ser):
                a=np.log(list_ser)
@@ -2310,6 +2343,17 @@ if option == 'Изучение абсолютной и относительно�
 
            list_ser=df[i].tolist()
 
+           #убрать нули, т.к нули будут давать нулевое gmean
+           count_for_range_ser=len(list_ser)
+           list_range_ser=range(0,count_for_range_ser)
+           
+           list_ser_without_0=[]
+           for i in list_range_ser:
+               if list_ser[i] !=0:
+                  list_ser_without_0.append(list_ser[i])
+
+           list_ser = list_ser_without_0
+
            def g_mean(list_ser):
                a=np.log(list_ser)
                return np.exp(a.mean())
@@ -2433,6 +2477,17 @@ if option == 'Изучение абсолютной и относительно�
        for i in col_mapping:
 
            list_ser=df[i].tolist()
+
+           #убрать нули, т.к нули будут давать нулевое gmean
+           count_for_range_ser=len(list_ser)
+           list_range_ser=range(0,count_for_range_ser)
+           
+           list_ser_without_0=[]
+           for i in list_range_ser:
+               if list_ser[i] !=0:
+                  list_ser_without_0.append(list_ser[i])
+
+           list_ser = list_ser_without_0
 
            def g_mean(list_ser):
                a=np.log(list_ser)
@@ -2658,6 +2713,17 @@ if option == 'Изучение фармакокинетики в органах 
            for i in col_mapping:
 
                list_ser=df[i].tolist()
+
+               #убрать нули, т.к нули будут давать нулевое gmean
+               count_for_range_ser=len(list_ser)
+               list_range_ser=range(0,count_for_range_ser)
+               
+               list_ser_without_0=[]
+               for i in list_range_ser:
+                   if list_ser[i] !=0:
+                      list_ser_without_0.append(list_ser[i])
+
+               list_ser = list_ser_without_0
 
                def g_mean(list_ser):
                    a=np.log(list_ser)
@@ -3410,6 +3476,17 @@ if option == 'Изучение фармакокинетики в органах 
 
           list_ser=df[i].tolist()
 
+          #убрать нули, т.к нули будут давать нулевое gmean
+          count_for_range_ser=len(list_ser)
+          list_range_ser=range(0,count_for_range_ser)
+          
+          list_ser_without_0=[]
+          for i in list_range_ser:
+              if list_ser[i] !=0:
+                 list_ser_without_0.append(list_ser[i])
+
+          list_ser = list_ser_without_0
+
           def g_mean(list_ser):
               a=np.log(list_ser)
               return np.exp(a.mean())
@@ -3634,6 +3711,17 @@ if option == 'Линейность дозирования':
            for i in col_mapping:
 
                list_ser=df[i].tolist()
+
+               #убрать нули, т.к нули будут давать нулевое gmean
+               count_for_range_ser=len(list_ser)
+               list_range_ser=range(0,count_for_range_ser)
+               
+               list_ser_without_0=[]
+               for i in list_range_ser:
+                   if list_ser[i] !=0:
+                      list_ser_without_0.append(list_ser[i])
+
+               list_ser = list_ser_without_0
 
                def g_mean(list_ser):
                    a=np.log(list_ser)
