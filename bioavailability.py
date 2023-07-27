@@ -1186,7 +1186,6 @@ if option == 'Изучение абсолютной и относительно�
            list_auc0_inf.append(auc0_inf)
 
 
-
        ####CL
        list_cl=[]
 
@@ -1251,9 +1250,6 @@ if option == 'Изучение абсолютной и относительно�
            AUMCO_inf=i+j
            list_AUMCO_inf.append(AUMCO_inf)
 
-
-
-
        ###MRT0-inf
        list_MRT0_inf=[]
 
@@ -1263,12 +1259,12 @@ if option == 'Изучение абсолютной и относительно�
            MRT0_inf=i/j
            list_MRT0_inf.append(MRT0_inf)
 
-
        ##################### Фрейм ФК параметров
 
        ### пользовательский индекс
-       list_for_index=df["Номер"].tolist() 
-       df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax', 'Cmax(2)','Tmax(2)', 'MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+       ### пользовательский индекс
+       list_for_index=df["Номер"].tolist()
+       df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
 
        ###описательная статистика
 
@@ -1299,6 +1295,7 @@ if option == 'Изучение абсолютной и относительно�
 
 
        df_averaged_concentrations_PK=df_PK.describe()
+
        df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
        df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
        df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
