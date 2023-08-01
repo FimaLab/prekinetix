@@ -17,9 +17,6 @@ from docx.shared import Pt
 import tempfile
 import os
 
-
-st.cache(suppress_st_warning=True)
-
 #Для запуска приложения в консоле
 #cd C:\Users\Павел\OneDrive\Worktable\pyt\Bioavailability
 #активировать среду my_env_name\scripts\activate
@@ -28,6 +25,19 @@ st.cache(suppress_st_warning=True)
 #для просмотра измененного кода нужно обязательно сохранять файл .py и перезагружать вкладку
 
 #C:\Users\Павел\AppData\Local\Programs\Python\Python310\Lib\site-packages путь ко всем пакетам
+
+
+###########################################################
+#область глобальных функций
+
+#сохранение загружаемых файлов 
+def save_uploadedfile(uploadedfile):
+    with open(os.path.join("Папка для сохранения файлов",uploadedfile.name),"wb") as f:
+       f.write(uploadedfile.getbuffer())
+    return st.success("Файл загружен")
+
+
+#############################################################
 
 st.sidebar.title('Добро пожаловать в приложение по расчёту ФК параметров 📈')
 
@@ -65,9 +75,9 @@ text_contents = '''1)Оглавлять колонку с номерами жи�
 st.sidebar.download_button('Памятка заполнения 📄', text_contents)
       
 if option == 'Изучение абсолютной и относительной биодоступности препарата':
-
+ 
     panel = st.radio(
-        "Панель управления",
+        "⚙️Панель управления",
         ("Загрузка файлов", "Таблицы","Графики"),
         horizontal=True, key= "Загрузка файлов - Изучение абсолютной и относительной биодоступности препарата"
     )
@@ -97,32 +107,21 @@ if option == 'Изучение абсолютной и относительно�
 
        st.info('❕❗️❕ Ввести единицы измерения концентрации')
 
-
        st.title('Внутривенное введение субстанции')
        
        st.subheader('Загрузка файла внутривенного введения формата XLSX')
        uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
        
-       def save_uploadedfile(uploadedfile):
-           with open(os.path.join("Папка для сохранения файлов",uploadedfile.name),"wb") as f:
-              f.write(uploadedfile.getbuffer())
-           return st.success("Файл загружен".format(uploadedfile.name))
-       
-       def load_file_with_git(uploadedfile):
-           df_file = pd.read_excel(os.path.join("Папка для сохранения файлов",uploadedfile.name))
-           return df_file
-       
+       #сохранение файла
        if uploaded_file_1 is not None:
           save_uploadedfile(uploaded_file_1)
           st.session_state["uploaded_file_1"] = uploaded_file_1.name
-          
-       
           
        dose_iv = st.text_input("Доза при внутривенном введении", key='Доза при внутривенном введении при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_iv"])
        
        st.session_state["dose_iv"] = dose_iv
 
-       if "uploaded_file_1" in st.session_state and dose_iv and measure_unit is not None:
+       if "uploaded_file_1" in st.session_state and dose_iv and measure_unit:
           df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"])) 
           st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения субстанции')
           st.write(df)
@@ -799,14 +798,19 @@ if option == 'Изучение абсолютной и относительно�
        
        st.subheader('Загрузка файла перорального введения субстанции формата XLSX')
        uploaded_file_2 = st.file_uploader("Выбрать файл перорального введения субстанции", key='Файл перорального введения субстанции при изучении абсолютной и относительной биодоступности препарата')
+       
+       #сохранение файла
+       if uploaded_file_2 is not None:
+          save_uploadedfile(uploaded_file_2)
+          st.session_state["uploaded_file_2"] = uploaded_file_2.name
 
        dose_po_sub = st.text_input("Доза при пероральном введении субстанции", key='Доза при пероральном введении субстанции при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_po_sub"])
        
        st.session_state["dose_po_sub"] = dose_po_sub
 
-       if uploaded_file_2 and dose_po_sub and measure_unit is not None:
+       if "uploaded_file_2" in st.session_state and dose_po_sub and measure_unit:
 
-          df = pd.read_excel(uploaded_file_2)
+          df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
           st.subheader('Индивидуальные значения концентраций в крови после перорального введения субстанции')
           st.write(df)
 
@@ -1522,14 +1526,19 @@ if option == 'Изучение абсолютной и относительно�
 
        st.subheader('Загрузка файла перорального введения таблетки формата XLSX')
        uploaded_file_3 = st.file_uploader("Выбрать файл перорального введения таблетки", key='Файл перорального введения таблетки при изучении абсолютной и относительной биодоступности препарата')
+       
+       #сохранение файла
+       if uploaded_file_3 is not None:
+          save_uploadedfile(uploaded_file_3)
+          st.session_state["uploaded_file_3"] = uploaded_file_3.name
 
        dose_po_tab = st.text_input("Доза при пероральном введении таблетки", key='Доза при пероральном введении таблетки при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_po_tab"]) 
        
        st.session_state["dose_po_tab"] = dose_po_tab
 
-       if uploaded_file_3 and dose_po_tab and measure_unit is not None:
+       if "uploaded_file_3" in st.session_state and dose_po_tab and measure_unit:
 
-          df = pd.read_excel(uploaded_file_3)
+          df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_3"]))
           st.subheader('Индивидуальные значения концентраций в крови после перорального введения таблетки')
           st.write(df)
 
@@ -2242,7 +2251,7 @@ if option == 'Изучение абсолютной и относительно�
 
        ###Биодоступность
 
-       if (uploaded_file_1 is not None) and (uploaded_file_2 is not None) and (uploaded_file_3 is not None) and (measure_unit is not None) and (dose_iv is not None) and (dose_po_sub is not None) and (dose_po_tab is not None) :
+       if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab :
            
            table_heading='Усредненные фармакокинетические параметры в крови после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки, а также абсолютная и относительная биодоступность'
            list_heading_word.append(table_heading)
@@ -2259,9 +2268,9 @@ if option == 'Изучение абсолютной и относительно�
            #относительная биодоступность
            RF_po_sub_tab=round((AUCT_inf_mean_po_tab*float(dose_po_sub))/(AUCT_inf_mean_po_sub*float(dose_po_tab))*100,2)
 
-           df_intravenous_substance = pd.read_excel(uploaded_file_1)
-           df_oral_substance = pd.read_excel(uploaded_file_2)
-           df_oral_pill = pd.read_excel(uploaded_file_3)
+           df_intravenous_substance = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
+           df_oral_substance = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
+           df_oral_pill = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_3"]))
 
            df_averaged_concentrations_intravenous_substance=df_intravenous_substance.describe()
            list_concentration__intravenous_substance=df_averaged_concentrations_intravenous_substance.loc['mean'].tolist()
@@ -2357,10 +2366,14 @@ if option == 'Изучение абсолютной и относительно�
 
        st.subheader('Загрузка файла экскреции с калом формата XLSX')
        uploaded_file_4 = st.file_uploader("Выбрать файл экскреции с калом", key='Файл экскреции с калом изучения абсолютной и относительной биодоступности препарата')
+       
+       if uploaded_file_4 is not None:
+          save_uploadedfile(uploaded_file_4)
+          st.session_state["uploaded_file_4"] = uploaded_file_4.name
 
-       if uploaded_file_4 and measure_unit is not None:
+       if "uploaded_file_4" in st.session_state and measure_unit:
 
-          df = pd.read_excel(uploaded_file_4)
+          df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_4"]))
           st.subheader('Индивидуальные значения концентраций в кале')
           st.write(df)
 
@@ -2496,10 +2509,14 @@ if option == 'Изучение абсолютной и относительно�
 
        st.subheader('Загрузка файла экскреции с мочой формата XLSX')
        uploaded_file_5 = st.file_uploader("Выбрать файл экскреции с мочой", key='Файл экскреции с мочой изучения абсолютной и относительной биодоступности препарата')
+       
+       if uploaded_file_5 is not None:
+          save_uploadedfile(uploaded_file_5)
+          st.session_state["uploaded_file_5"] = uploaded_file_5.name
 
-       if uploaded_file_5 and measure_unit is not None:
+       if "uploaded_file_5" in st.session_state and measure_unit:
 
-          df = pd.read_excel(uploaded_file_5)
+          df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_5"]))
           st.subheader('Индивидуальные значения концентраций в моче')
           st.write(df)
           
@@ -2780,7 +2797,7 @@ if option == 'Изучение фармакокинетики в органах 
 
    file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
 
-   if file_uploader and dose and measure_unit_org_blood and measure_unit_org_organs is not None:
+   if file_uploader and dose and measure_unit_org_blood and measure_unit_org_organs:
 
 
        list_name_organs=[]
@@ -3560,7 +3577,7 @@ if option == 'Изучение фармакокинетики в органах 
    st.subheader('Загрузка файла экскреции с калом формата XLSX')
    uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции с калом", key="Файл экскреции с калом при изучении фармакокинетики в органах животных")
 
-   if uploaded_file_excrement and measure_unit_org_cal is not None:
+   if uploaded_file_excrement and measure_unit_org_cal:
       
       df = pd.read_excel(uploaded_file_excrement)
       st.subheader('Индивидуальные значения концентраций в кале')
@@ -3792,7 +3809,7 @@ if option == 'Линейность дозирования':
 
    file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых дозировок(не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через '.'",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
 
-   if file_uploader and measure_unit_lin and measure_unit_dose_lin is not None:
+   if file_uploader and measure_unit_lin and measure_unit_dose_lin:
 
        list_name_doses=[]
        list_df_unrounded=[]
