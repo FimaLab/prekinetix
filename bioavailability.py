@@ -104,12 +104,12 @@ if option == 'Изучение абсолютной и относительно�
        uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
        
        def save_uploadedfile(uploadedfile):
-           with open(os.path.join("Папка для сохранения загружаемых файлов",uploadedfile.name),"wb") as f:
+           with open(os.path.join("Папка для сохранения файлов",uploadedfile.name),"wb") as f:
               f.write(uploadedfile.getbuffer())
            return st.success("Файл загружен".format(uploadedfile.name))
        
        def load_file_with_git(uploadedfile):
-           df_file = pd.read_excel(os.path.join("Папка для сохранения загружаемых файлов",uploadedfile.name))
+           df_file = pd.read_excel(os.path.join("Папка для сохранения файлов",uploadedfile.name))
            return df_file
        
        if uploaded_file_1 is not None:
@@ -123,7 +123,7 @@ if option == 'Изучение абсолютной и относительно�
        st.session_state["dose_iv"] = dose_iv
 
        if "uploaded_file_1" in st.session_state and dose_iv and measure_unit is not None:
-          df = pd.read_excel(os.path.join("Папка для сохранения загружаемых файлов",st.session_state["uploaded_file_1"])) 
+          df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"])) 
           st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения субстанции')
           st.write(df)
           
