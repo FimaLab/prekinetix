@@ -2755,23 +2755,23 @@ if option == 'Изучение абсолютной и относительно�
           list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
           
           for i in list_range_count_graphics_for_visual:
-              if list_heading_graphics_word[i] != "Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после внутривенного введения субстанции" and list_heading_graphics_word[i] != "Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения субстанции" and list_heading_graphics_word[i] != "График усредненного фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения субстанции" and list_heading_graphics_word[i] != "График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения субстанции" and list_heading_graphics_word[i] != "Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после перорального введения субстанции" and list_heading_graphics_word[i] != "Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения субстанции" and list_heading_graphics_word[i] != "График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения субстанции" and list_heading_graphics_word[i] != "График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения субстанции" and list_heading_graphics_word[i] != "Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после перорального введения таблетки" and list_heading_graphics_word[i] != "Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения таблетки" and list_heading_graphics_word[i] != "График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения таблетки" and list_heading_graphics_word[i] != "График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения таблетки" and list_heading_graphics_word[i] != "Сравнение фармакокинетических профилей (в линейных координатах) после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки" and list_heading_graphics_word[i] != "Сравнение фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки" and list_heading_graphics_word[i] != "Выведение с калом" and list_heading_graphics_word[i] != "Выведение с мочой": 
+              if list_heading_graphics_word[i].__contains__("индивидуального"): 
                  if type_graphics == 'Индивидуальные фармакокинетические профили':
                     st.pyplot(list_graphics_word[i])
                     st.subheader(list_heading_graphics_word[i])
-              if list_heading_graphics_word[i] == "Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после внутривенного введения субстанции" or  list_heading_graphics_word[i] == "Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения субстанции" or list_heading_graphics_word[i] == "Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после перорального введения субстанции" or list_heading_graphics_word[i] == "Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения субстанции" or list_heading_graphics_word[i] == "Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после перорального введения таблетки" or  list_heading_graphics_word[i] == "Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения таблетки":   
+              if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
                  if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
                     st.pyplot(list_graphics_word[i])
                     st.subheader(list_heading_graphics_word[i])
-              if list_heading_graphics_word[i] == "График усредненного фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения субстанции" or list_heading_graphics_word[i] == "График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения субстанции" or list_heading_graphics_word[i] == "График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения субстанции" or list_heading_graphics_word[i] == "График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения субстанции" or list_heading_graphics_word[i] == "График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения таблетки" or list_heading_graphics_word[i] == "График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения таблетки":
+              if list_heading_graphics_word[i].__contains__("усредненного"):
                  if type_graphics == 'Графики усредненного фармакокинетического профиля':
                     st.pyplot(list_graphics_word[i])
                     st.subheader(list_heading_graphics_word[i])
-              if list_heading_graphics_word[i] == "Сравнение фармакокинетических профилей (в линейных координатах) после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки" or list_heading_graphics_word[i] == "Сравнение фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки":
+              if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
                  if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
                     st.pyplot(list_graphics_word[i])
                     st.subheader(list_heading_graphics_word[i])
-              if list_heading_graphics_word[i] == "Выведение с калом" or list_heading_graphics_word[i] == "Выведение с мочой":
+              if list_heading_graphics_word[i].__contains__("Выведение"):
                  if type_graphics == 'Диаграммы экскреции':
                     st.pyplot(list_graphics_word[i])
                     st.subheader(list_heading_graphics_word[i])
@@ -2848,7 +2848,6 @@ if option == 'Изучение фармакокинетики в органах 
               st.subheader('Индивидуальные значения концентраций ' + "("+file_name+")")
               st.write(df)
 
-              st.subheader('Индивидуальные и усредненные значения концентраций ' + "("+file_name+")")
               table_heading='Индивидуальные и усредненные значения концентраций ' + "("+file_name+")"
               list_heading_word.append(table_heading)
               col_mapping = df.columns.tolist()
@@ -2941,7 +2940,6 @@ if option == 'Изучение фармакокинетики в органах 
               list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
               df_concat_round_str_transpose.columns = list_time_round
 
-              st.write(df_concat_round_str_transpose)
               list_table_word.append(df_concat_round_str_transpose) 
 
               if file_name == "Кровь":
@@ -2976,10 +2974,9 @@ if option == 'Изучение фармакокинетики в органах 
                   plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
                   plt.xlabel("Время, ч")
                   plt.ylabel("Концентрация, "+measure_unit_org)
-                  st.pyplot(fig) 
+   
                   list_graphics_word.append(fig)
 
-                  st.subheader('График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"',  '+numer_animal)
                   graphic='График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"',  '+numer_animal
                   list_heading_graphics_word.append(graphic)  
                   
@@ -3001,10 +2998,9 @@ if option == 'Изучение фармакокинетики в органах 
                   plt.xlabel("Время, ч")
                   plt.ylabel("Концентрация, "+measure_unit_org)
 
-                  st.pyplot(fig)
+                  
                   list_graphics_word.append(fig)
 
-                  st.subheader('График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"',  '+numer_animal)
                   graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"',  '+numer_animal
                   list_heading_graphics_word.append(graphic) 
     
@@ -3021,10 +3017,9 @@ if option == 'Изучение фармакокинетики в органах 
               ax.set_xlabel("Время, ч")
               ax.set_ylabel("Концентрация, "+measure_unit_org)
               ax.legend()
-              st.pyplot(fig)
+              
               list_graphics_word.append(fig)
 
-              st.subheader("Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")" )
               graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")"
               list_heading_graphics_word.append(graphic)     
            # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
@@ -3039,10 +3034,9 @@ if option == 'Изучение фармакокинетики в органах 
               ax.set_ylabel("Концентрация, "+measure_unit_org)
               ax.set_yscale("log")
               ax.legend()
-              st.pyplot(fig)
+              
               list_graphics_word.append(fig)
 
-              st.subheader("Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах " + "("+file_name+")")
               graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах " + "("+file_name+")"
               list_heading_graphics_word.append(graphic)
                ###усредненные    
@@ -3061,10 +3055,9 @@ if option == 'Изучение фармакокинетики в органах 
               plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
               plt.xlabel("Время, ч")
               plt.ylabel("Концентрация, "+measure_unit_org)
-              st.pyplot(fig) 
+              
               list_graphics_word.append(fig)
 
-              st.subheader('График усредненного фармакокинетического профиля в линейных координатах ' + "("+file_name+")")
               graphic='График усредненного фармакокинетического профиля в линейных координатах ' + "("+file_name+")"
               list_heading_graphics_word.append(graphic)
 
@@ -3084,10 +3077,9 @@ if option == 'Изучение фармакокинетики в органах 
               plt.xlabel("Время, ч")
               plt.ylabel("Концентрация, "+measure_unit_org)
 
-              st.pyplot(fig)
+              
               list_graphics_word.append(fig)
 
-              st.subheader('График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")")
               graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"
               list_heading_graphics_word.append(graphic)
 
@@ -3417,11 +3409,8 @@ if option == 'Изучение фармакокинетики в органах 
 
               df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
 
-              st.subheader('Фармакокинетические показатели ' + "("+file_name+")")
               table_heading='Фармакокинетические показатели ' + "("+file_name+")"
               list_heading_word.append(table_heading)
-
-              st.write(df_total_PK_iv)
               
               list_table_word.append(df_total_PK_iv) 
               #создание списков фреймов, названий органов и т.д.
@@ -3509,10 +3498,10 @@ if option == 'Изучение фармакокинетики в органах 
 
           df_total_total_organs_total= df_total_total_organs.transpose()
           df_total_total_organs_total.index.name = 'Параметры, размерность'
-          st.subheader('Фармакокинетические параметры в различных тканях')
+
           table_heading='Фармакокинетические параметры в различных тканях'
           list_heading_word.append(table_heading) 
-          st.write(df_total_total_organs_total)
+
           list_table_word.append(df_total_total_organs_total) 
 
           ###построение графика "Фармакокинетический профиль в органах"
@@ -3547,10 +3536,9 @@ if option == 'Изучение фармакокинетики в органах 
                plt.xlabel("Время, ч")
                plt.ylabel("Концентрация, "+ measure_unit_org_blood)
                ax.legend(fontsize = 5)
-          st.pyplot(fig) 
+          
           list_graphics_word.append(fig)
 
-          st.subheader('Сравнение фармакокинетических профилей (в линейных координатах) в органах')
           graphic='Сравнение фармакокинетических профилей (в линейных координатах) в органах'
           list_heading_graphics_word.append(graphic)
 
@@ -3568,10 +3556,9 @@ if option == 'Изучение фармакокинетики в органах 
                plt.xlabel("Время, ч")
                plt.ylabel("Концентрация, "+ measure_unit_org_blood)
                ax.legend(fontsize = 5)
-          st.pyplot(fig)
+          
           list_graphics_word.append(fig)
 
-          st.subheader('Сравнение фармакокинетических профилей (в полулогарифмических координатах) в органах') 
           graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в органах'
           list_heading_graphics_word.append(graphic)
 
@@ -3588,10 +3575,8 @@ if option == 'Изучение фармакокинетики в органах 
 
           ax.set_xticklabels(list_name_organs,fontdict={'fontsize': 6.0})
 
-          st.pyplot(fig)
           list_graphics_word.append(fig)
           
-          st.subheader('Тканевая доступность в органах')
           graphic='Тканевая доступность в органах'
           list_heading_graphics_word.append(graphic) 
 
@@ -3605,19 +3590,28 @@ if option == 'Изучение фармакокинетики в органах 
 
       st.title('Исследование экскреции с калом')
 
-      measure_unit_org_cal = st.text_input("Введите единицы измерения концентрации в кале", key='Единицы измерения при изучении фармакокинетики в органах животных в кале')
+      if "measure_unit_org_cal" not in st.session_state:   
+       st.session_state["measure_unit_org_cal"] = ""
+
+      measure_unit_org_cal = st.text_input("Введите единицы измерения концентрации в кале", key='Единицы измерения при изучении фармакокинетики в органах животных в кале', value = st.session_state["measure_unit_org_cal"])
+       
+      st.session_state["measure_unit_org_cal"] = measure_unit_org_cal
 
       st.info('❕❗️❕ Ввести единицы измерения концентрации')
 
       st.subheader('Загрузка файла экскреции с калом формата XLSX')
       uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции с калом", key="Файл экскреции с калом при изучении фармакокинетики в органах животных")
+      
+      if uploaded_file_excrement is not None:
+          save_uploadedfile(uploaded_file_excrement)
+          st.session_state["uploaded_file_excrement"] = uploaded_file_excrement.name
 
-      if uploaded_file_excrement and measure_unit_org_cal:
+      if "uploaded_file_excrement" in st.session_state and measure_unit_org_cal:
          
-         df = pd.read_excel(uploaded_file_excrement)
+         df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_excrement"]))
          st.subheader('Индивидуальные значения концентраций в кале')
          st.write(df)
-         st.subheader('Индивидуальные и усредненные значения концентраций в кале')
+
          table_heading='Индивидуальные и усредненные значения концентраций в кале'
          list_heading_word.append(table_heading) 
          col_mapping = df.columns.tolist()
@@ -3710,7 +3704,6 @@ if option == 'Изучение фармакокинетики в органах 
          list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
          df_concat_round_str_transpose.columns = list_time_round
 
-         st.write(df_concat_round_str_transpose)
          list_table_word.append(df_concat_round_str_transpose) 
 
          ########### диаграмма    
@@ -3732,96 +3725,151 @@ if option == 'Изучение фармакокинетики в органах 
 
          sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
          plt.xlabel("Время, ч")
-         plt.ylabel("Концентрация, "+measure_unit_org)
+         plt.ylabel("Концентрация, "+measure_unit_org_cal)
 
-         st.pyplot(fig)
          list_graphics_word.append(fig)
 
-         st.subheader('Выведение с калом')
          graphic='Выведение с калом'
          list_heading_graphics_word.append(graphic)    
 
 
       else:
          st.info('❕❗️❕ Загрузить XLSX файл')
+      
+      ###сохранение состояния 
+      st.session_state["list_heading_word"] = list_heading_word
+      st.session_state["list_table_word"] = list_table_word
+      st.session_state["list_graphics_word"] = list_graphics_word
+      st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
 
-#####Создание word отчета 
-   ### таблицы
-   zip_heading_table = zip(list_heading_word,list_table_word)
 
-   doc = Document()
+#####Создание word отчета
+   if panel == "Таблицы": 
 
-   # Settings
-   style = doc.styles['Normal']
-   font = style.font
-   font.name = 'Times New Roman'
-   font.size = Pt(8)
-   
-   for heading, df in zip_heading_table:
-       doc.add_paragraph(heading)
+      list_heading_word = st.session_state["list_heading_word"]
+      list_table_word = st.session_state["list_table_word"]
 
-       name_columns = pd.DataFrame(df.columns.tolist()).T
-       # add columns
-       name_columns.columns = df.columns.tolist()
-       df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
-       # add indexes
-       total_name_index = df.index.name
-       list_index_names = df.index.tolist()
-       list_index_names.insert(0,total_name_index)
-       series_index_names=pd.Series(list_index_names, name=total_name_index)
-       df_series_index_names = series_index_names.to_frame()
-       
-       df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
-       
-       t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
-       t.style = 'TableGrid'
-       # Add the body of the data frame
-       for i in range(df_columns_indexes.shape[0]):
-           row = t.add_row()
-           for j in range(df_columns_indexes.shape[1]):
-               cell = df_columns_indexes.iat[i, j]
-               row.cells[j].text = str(cell)
+      ### таблицы
+      zip_heading_table = zip(list_heading_word,list_table_word)
 
-   bio = BytesIO()
-   doc.save(bio)
-   if doc:
-       st.download_button(
-           label="Сохранить таблицы 📃",
-           data=bio.getvalue(),
-           file_name="Таблицы.docx",
-           mime="docx"
-       )
-   
-   ### графики
-   zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-   doc = Document()
+      doc = Document()
 
-   # Settings
-   style = doc.styles['Normal']
-   font = style.font
-   font.name = 'Times New Roman'
-   font.size = Pt(12)
+      # Settings
+      style = doc.styles['Normal']
+      font = style.font
+      font.name = 'Times New Roman'
+      font.size = Pt(8)
+      
+      for heading, df in zip_heading_table:
+          doc.add_paragraph(heading)
 
-   buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
-   for fig, heading in zip_graphics_heading:
-       buf = BytesIO()
-       fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
-       fp = tempfile.NamedTemporaryFile() 
-       with open(f"{fp.name}.jpg",'wb') as ff:
-            ff.write(buf.getvalue()) 
-       doc.add_picture(buf)
-       doc.add_paragraph(heading)
-   
-   doc.save(buf)
-   if doc:
-       st.download_button(
-           label="Сохранить графики 📈",
-           data=buf.getvalue(),
-           file_name="Графики.docx",
-           mime="docx",
-           key = "graphics"
-       )
+          name_columns = pd.DataFrame(df.columns.tolist()).T
+          # add columns
+          name_columns.columns = df.columns.tolist()
+          df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
+          # add indexes
+          total_name_index = df.index.name
+          list_index_names = df.index.tolist()
+          list_index_names.insert(0,total_name_index)
+          series_index_names=pd.Series(list_index_names, name=total_name_index)
+          df_series_index_names = series_index_names.to_frame()
+          
+          df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
+          
+          t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
+          t.style = 'TableGrid'
+          # Add the body of the data frame
+          for i in range(df_columns_indexes.shape[0]):
+              row = t.add_row()
+              for j in range(df_columns_indexes.shape[1]):
+                  cell = df_columns_indexes.iat[i, j]
+                  row.cells[j].text = str(cell)
 
+      bio = BytesIO()
+      doc.save(bio)
+      if doc:
+          st.download_button(
+              label="Сохранить таблицы 📃",
+              data=bio.getvalue(),
+              file_name="Таблицы.docx",
+              mime="docx"
+          )
+
+      zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
+      #####визуализация
+      for heading, df in zip_heading_table:
+          st.subheader(heading)
+          st.write(df)
+
+   if panel == "Графики":
+
+      list_graphics_word = st.session_state["list_graphics_word"]
+      list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+
+      ### графики
+      zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
+      doc = Document()
+
+      # Settings
+      style = doc.styles['Normal']
+      font = style.font
+      font.name = 'Times New Roman'
+      font.size = Pt(12)
+
+      buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
+      for fig, heading in zip_graphics_heading:
+          buf = BytesIO()
+          fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
+          fp = tempfile.NamedTemporaryFile() 
+          with open(f"{fp.name}.jpg",'wb') as ff:
+               ff.write(buf.getvalue()) 
+          doc.add_picture(buf)
+          doc.add_paragraph(heading)
+      
+      doc.save(buf)
+      if doc:
+          st.download_button(
+              label="Сохранить графики 📈",
+              data=buf.getvalue(),
+              file_name="Графики.docx",
+              mime="docx",
+              key = "graphics"
+          )
+      
+      #######визуализация
+
+      #классификация графиков по кнопкам
+      type_graphics = st.selectbox('Выберите вид графиков',
+('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей в органах", "Тканевая доступность в органах", "Диаграммы экскреции"),disabled = False, key = "Вид графика - ИО" )
+
+      count_graphics_for_visual = len(list_heading_graphics_word)
+      list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+      
+      for i in list_range_count_graphics_for_visual:
+          if list_heading_graphics_word[i].__contains__("индивидуального"): 
+             if type_graphics == 'Индивидуальные фармакокинетические профили':
+                st.pyplot(list_graphics_word[i])
+                st.subheader(list_heading_graphics_word[i])
+          if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+             if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                st.pyplot(list_graphics_word[i])
+                st.subheader(list_heading_graphics_word[i])
+          if list_heading_graphics_word[i].__contains__("усредненного"):
+             if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                st.pyplot(list_graphics_word[i])
+                st.subheader(list_heading_graphics_word[i])
+          if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
+             if type_graphics == 'Сравнение фармакокинетических профилей в органах':
+                st.pyplot(list_graphics_word[i])
+                st.subheader(list_heading_graphics_word[i])
+          if list_heading_graphics_word[i].__contains__("Тканевая"):
+             if type_graphics == 'Тканевая доступность в органах':
+                st.pyplot(list_graphics_word[i])
+                st.subheader(list_heading_graphics_word[i])
+          if list_heading_graphics_word[i].__contains__("Выведение"):
+             if type_graphics == 'Диаграммы экскреции':
+                st.pyplot(list_graphics_word[i])
+                st.subheader(list_heading_graphics_word[i])
 
 ################################################################################################
 
