@@ -576,6 +576,7 @@ if option == 'Изучение абсолютной и относительно�
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
               list_concentration.remove(0)
               list_c = list_concentration
+              list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
               list_of_list_c.append(list_c)
 
           list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
@@ -583,7 +584,11 @@ if option == 'Изучение абсолютной и относительно�
               #AUCt-inf 
           list_auc_t_inf=[]     
           for i,j in list_zip_c_AUCt_inf:
-              auc_t_inf=j[-1]/i
+              for clast in j:
+                  if clast != 0:
+                     clast_true=clast
+                     break
+              auc_t_inf=clast_true/i
               list_auc_t_inf.append(auc_t_inf)
 
           list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
@@ -713,6 +718,7 @@ if option == 'Изучение абсолютной и относительно�
 
           df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
           
+          st.write(df_concat_PK_iv)
 
           ###округление описательной статистики и ФК параметров
 
@@ -1333,7 +1339,8 @@ if option == 'Изучение абсолютной и относительно�
           for i in range(0,count_row):
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
               list_concentration.remove(0)
-              list_c=list_concentration
+              list_c = list_concentration
+              list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
               list_of_list_c.append(list_c)
 
           list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
@@ -1341,13 +1348,17 @@ if option == 'Изучение абсолютной и относительно�
               #AUCt-inf 
           list_auc_t_inf=[]     
           for i,j in list_zip_c_AUCt_inf:
-              auc_t_inf=j[-1]/i
+              for clast in j:
+                  if clast != 0:
+                     clast_true=clast
+                     break
+              auc_t_inf=clast_true/i
               list_auc_t_inf.append(auc_t_inf)
 
           list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
 
           for i,j in list_auc_t_inf_and_AUC_0_T_zip:
-              auc0_inf=i+j   
+              auc0_inf=i+j    
               list_auc0_inf.append(auc0_inf)
 
 
@@ -2101,7 +2112,8 @@ if option == 'Изучение абсолютной и относительно�
           for i in range(0,count_row):
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
               list_concentration.remove(0)
-              list_c=list_concentration
+              list_c = list_concentration
+              list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
               list_of_list_c.append(list_c)
 
           list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
@@ -2109,13 +2121,17 @@ if option == 'Изучение абсолютной и относительно�
               #AUCt-inf 
           list_auc_t_inf=[]     
           for i,j in list_zip_c_AUCt_inf:
-              auc_t_inf=j[-1]/i
+              for clast in j:
+                  if clast != 0:
+                     clast_true=clast
+                     break
+              auc_t_inf=clast_true/i
               list_auc_t_inf.append(auc_t_inf)
 
           list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
 
           for i,j in list_auc_t_inf_and_AUC_0_T_zip:
-              auc0_inf=i+j   
+              auc0_inf=i+j    
               list_auc0_inf.append(auc0_inf)
 
 
@@ -3421,6 +3437,7 @@ if option == 'Изучение фармакокинетики в органах 
                   list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
                   list_concentration.remove(0)
                   list_c = list_concentration
+                  list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
                   list_of_list_c.append(list_c)
 
               list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
@@ -3428,7 +3445,11 @@ if option == 'Изучение фармакокинетики в органах 
                   #AUCt-inf 
               list_auc_t_inf=[]     
               for i,j in list_zip_c_AUCt_inf:
-                  auc_t_inf=j[-1]/i
+                  for clast in j:
+                      if clast != 0:
+                         clast_true=clast
+                         break
+                  auc_t_inf=clast_true/i
                   list_auc_t_inf.append(auc_t_inf)
 
               list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
@@ -4569,6 +4590,7 @@ if option == 'Линейность дозирования':
                   list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
                   list_concentration.remove(0)
                   list_c = list_concentration
+                  list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
                   list_of_list_c.append(list_c)
 
               list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
@@ -4576,7 +4598,11 @@ if option == 'Линейность дозирования':
                   #AUCt-inf 
               list_auc_t_inf=[]     
               for i,j in list_zip_c_AUCt_inf:
-                  auc_t_inf=j[-1]/i
+                  for clast in j:
+                      if clast != 0:
+                         clast_true=clast
+                         break
+                  auc_t_inf=clast_true/i
                   list_auc_t_inf.append(auc_t_inf)
 
               list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
@@ -4584,9 +4610,6 @@ if option == 'Линейность дозирования':
               for i,j in list_auc_t_inf_and_AUC_0_T_zip:
                   auc0_inf=i+j    
                   list_auc0_inf.append(auc0_inf)
-
-
-
 
               ####CL
               list_cl=[]
