@@ -111,15 +111,15 @@ if option == 'Изучение абсолютной и относительно�
        st.info('❕❗️❕ Ввести единицы измерения концентрации')
        
        #cостояние радио-кнопки "method_auc"
-       if "index_method_auc" not in st.session_state:
-           st.session_state["index_method_auc"] = 0
+       if "index_method_auc - ИБ" not in st.session_state:
+           st.session_state["index_method_auc - ИБ"] = 0
 
-       method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t", index = st.session_state["index_method_auc"])
+       method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - ИБ", index = st.session_state["index_method_auc - ИБ"])
        
-       if st.session_state["Метод подсчёта AUC0-t"] == 'linear':
-          st.session_state["index_method_auc"] = 0
-       if st.session_state["Метод подсчёта AUC0-t"] == "linear-up/log-down":
-          st.session_state["index_method_auc"] = 1
+       if st.session_state["Метод подсчёта AUC0-t - ИБ"] == 'linear':
+          st.session_state["index_method_auc - ИБ"] = 0
+       if st.session_state["Метод подсчёта AUC0-t - ИБ"] == "linear-up/log-down":
+          st.session_state["index_method_auc - ИБ"] = 1
 
        st.title('Внутривенное введение субстанции')
        
@@ -1155,15 +1155,54 @@ if option == 'Изучение абсолютной и относительно�
 
           ###AUC0-t
           list_AUC_0_T=[]
-          for i in range(0,count_row):
-              list_columns_T=[]
-              for column in df_without_numer.columns:
-                  list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
-              AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
-              list_AUC_0_T.append(AUC_0_T)
+          if method_auc == 'linear':
+             for i in range(0,count_row):
+                 list_columns_T=[]
+                 for column in df_without_numer.columns:
+                     list_columns_T.append(float(column))
+                 list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                 
+                 AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+                 list_AUC_0_T.append(AUC_0_T)
+          if method_auc == 'linear-up/log-down':
+             for i in range(0,count_row):
+                 list_columns_T=[]
+                 for column in df_without_numer.columns:
+                     list_columns_T.append(float(column))
+                 list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                 
+                 list_c = list_concentration
+                 list_t = list_columns_T
+                 
+                 cmax=max(list_c)
+                 cmax_index = list_c.index(cmax)
+                 ### cmax должна быть и в нисходящей и в восходящей части 
+                 list_before_cmax_с=list_c[:cmax_index+1]
+                 list_after_cmax_с=list_c[cmax_index:]
+                 list_before_cmax_t=list_t[:cmax_index+1]
+                 list_after_cmax_t=list_t[cmax_index:]
+                 
+                 ####восходящая часть
+                 AUC_0_T_before=np.trapz(list_before_cmax_с,x=list_before_cmax_t)
+                 
+                 #####нисходящая (название файла .py неверное)
+                 count_i = len(list_after_cmax_с)
 
-
+                 list_range= range(0,count_i)
+                 list_AUC_0_T_after=[]
+                 AUC_0_T=0
+                 b=0
+                 for i in list_range:
+                     if b<count_i-1:
+                         AUC_0_T+=(list_after_cmax_t[i+1]-list_after_cmax_t[i])/(np.log(np.asarray(list_after_cmax_с[i])/np.asarray(list_after_cmax_с[i+1]))) *(list_after_cmax_с[i]-list_after_cmax_с[i+1])
+                         b+=1
+                         list_AUC_0_T_after.append(AUC_0_T)
+                         
+                 AUC_0_T_after = list_AUC_0_T_after[-1]
+                 
+                 AUC_O_T = AUC_0_T_before + AUC_0_T_after
+                 
+                 list_AUC_0_T.append(AUC_O_T)
 
           ####Сmax/AUC0-t
           list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1,list_AUC_0_T)
@@ -1881,13 +1920,54 @@ if option == 'Изучение абсолютной и относительно�
 
           ###AUC0-t
           list_AUC_0_T=[]
-          for i in range(0,count_row):
-              list_columns_T=[]
-              for column in df_without_numer.columns:
-                  list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
-              AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
-              list_AUC_0_T.append(AUC_0_T)
+          if method_auc == 'linear':
+             for i in range(0,count_row):
+                 list_columns_T=[]
+                 for column in df_without_numer.columns:
+                     list_columns_T.append(float(column))
+                 list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                 
+                 AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+                 list_AUC_0_T.append(AUC_0_T)
+          if method_auc == 'linear-up/log-down':
+             for i in range(0,count_row):
+                 list_columns_T=[]
+                 for column in df_without_numer.columns:
+                     list_columns_T.append(float(column))
+                 list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                 
+                 list_c = list_concentration
+                 list_t = list_columns_T
+                 
+                 cmax=max(list_c)
+                 cmax_index = list_c.index(cmax)
+                 ### cmax должна быть и в нисходящей и в восходящей части 
+                 list_before_cmax_с=list_c[:cmax_index+1]
+                 list_after_cmax_с=list_c[cmax_index:]
+                 list_before_cmax_t=list_t[:cmax_index+1]
+                 list_after_cmax_t=list_t[cmax_index:]
+                 
+                 ####восходящая часть
+                 AUC_0_T_before=np.trapz(list_before_cmax_с,x=list_before_cmax_t)
+                 
+                 #####нисходящая (название файла .py неверное)
+                 count_i = len(list_after_cmax_с)
+
+                 list_range= range(0,count_i)
+                 list_AUC_0_T_after=[]
+                 AUC_0_T=0
+                 b=0
+                 for i in list_range:
+                     if b<count_i-1:
+                         AUC_0_T+=(list_after_cmax_t[i+1]-list_after_cmax_t[i])/(np.log(np.asarray(list_after_cmax_с[i])/np.asarray(list_after_cmax_с[i+1]))) *(list_after_cmax_с[i]-list_after_cmax_с[i+1])
+                         b+=1
+                         list_AUC_0_T_after.append(AUC_0_T)
+                         
+                 AUC_0_T_after = list_AUC_0_T_after[-1]
+                 
+                 AUC_O_T = AUC_0_T_before + AUC_0_T_after
+                 
+                 list_AUC_0_T.append(AUC_O_T)
 
 
 
@@ -2842,8 +2922,8 @@ if option == 'Изучение фармакокинетики в органах 
       st.session_state["measure_unit_org_blood"] = ""
    if "measure_unit_org_organs" not in st.session_state:
       st.session_state["measure_unit_org_organs"] = ""
-   if "dose" not in st.session_state:
-      st.session_state["dose"] = ""
+   if "dose_org" not in st.session_state:
+      st.session_state["dose_org"] = ""
 
    #cписки для word-отчета
    list_heading_word=[]
@@ -2865,11 +2945,22 @@ if option == 'Изучение фармакокинетики в органах 
 
       st.info('❕❗️❕ Ввести единицы измерения концентрации')
 
-      dose = st.text_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных', value = st.session_state["dose"])
+      dose = st.text_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных', value = st.session_state["dose_org"])
       
-      st.session_state["dose"] = dose
+      st.session_state["dose_org"] = dose
 
       st.info('❕❗️❕ Ввести дозу препарата')
+
+      #cостояние радио-кнопки "method_auc"
+      if "index_method_auc - ИО" not in st.session_state:
+          st.session_state["index_method_auc - ИО"] = 0
+
+      method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - ИО", index = st.session_state["index_method_auc - ИО"])
+      
+      if st.session_state["Метод подсчёта AUC0-t - ИО"] == 'linear':
+         st.session_state["index_method_auc - ИО"] = 0
+      if st.session_state["Метод подсчёта AUC0-t - ИО"] == "linear-up/log-down":
+         st.session_state["index_method_auc - ИО"] = 1
 
       file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
       
@@ -2879,19 +2970,19 @@ if option == 'Изучение фармакокинетики в органах 
              save_uploadedfile(i)
              st.session_state[str(i.name)] = i.name
       
-      list_keys_file = []
+      list_keys_file_org = []
       for i in st.session_state.keys():
-          if i.__contains__("xlsx"):
-             list_keys_file.append(i)
+          if i.__contains__("xlsx") and (not i.__contains__("Дозировка")):### чтобы не перекрывалось с lin
+             list_keys_file_org.append(i)
 
-      if (list_keys_file != []) and dose and measure_unit_org_blood and measure_unit_org_organs:
+      if (list_keys_file_org != []) and dose and measure_unit_org_blood and measure_unit_org_organs:
 
           list_name_organs=[]
           list_df_unrounded=[]
           list_df_for_mean_unround_for_graphics=[]
           list_t_graph=[]
 
-          for i in list_keys_file:
+          for i in list_keys_file_org:
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
 
               file_name=st.session_state[i][:-5]
@@ -3159,14 +3250,54 @@ if option == 'Изучение фармакокинетики в органах 
 
               ###AUC0-t
               list_AUC_0_T=[]
-              for i in range(0,count_row):
-                  list_columns_T=[]
-                  for column in df_without_numer.columns:
-                      list_columns_T.append(float(column))
-                  list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              if method_auc == 'linear':
+                 for i in range(0,count_row):
+                     list_columns_T=[]
+                     for column in df_without_numer.columns:
+                         list_columns_T.append(float(column))
+                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                     
+                     AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+                     list_AUC_0_T.append(AUC_0_T)
+              if method_auc == 'linear-up/log-down':
+                 for i in range(0,count_row):
+                     list_columns_T=[]
+                     for column in df_without_numer.columns:
+                         list_columns_T.append(float(column))
+                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                     
+                     list_c = list_concentration
+                     list_t = list_columns_T
+                     
+                     cmax=max(list_c)
+                     cmax_index = list_c.index(cmax)
+                     ### cmax должна быть и в нисходящей и в восходящей части 
+                     list_before_cmax_с=list_c[:cmax_index+1]
+                     list_after_cmax_с=list_c[cmax_index:]
+                     list_before_cmax_t=list_t[:cmax_index+1]
+                     list_after_cmax_t=list_t[cmax_index:]
+                     
+                     ####восходящая часть
+                     AUC_0_T_before=np.trapz(list_before_cmax_с,x=list_before_cmax_t)
+                     
+                     #####нисходящая (название файла .py неверное)
+                     count_i = len(list_after_cmax_с)
 
-                  AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
-                  list_AUC_0_T.append(AUC_0_T)
+                     list_range= range(0,count_i)
+                     list_AUC_0_T_after=[]
+                     AUC_0_T=0
+                     b=0
+                     for i in list_range:
+                         if b<count_i-1:
+                             AUC_0_T+=(list_after_cmax_t[i+1]-list_after_cmax_t[i])/(np.log(np.asarray(list_after_cmax_с[i])/np.asarray(list_after_cmax_с[i+1]))) *(list_after_cmax_с[i]-list_after_cmax_с[i+1])
+                             b+=1
+                             list_AUC_0_T_after.append(AUC_0_T)
+                             
+                     AUC_0_T_after = list_AUC_0_T_after[-1]
+                     
+                     AUC_O_T = AUC_0_T_before + AUC_0_T_after
+                     
+                     list_AUC_0_T.append(AUC_O_T)
 
               ####KEL
               list_kel_total=[]
@@ -3958,7 +4089,18 @@ if option == 'Линейность дозирования':
 
       st.info('❕❗️❕ Ввести единицы измерения')
 
-      file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых дозировок(не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через '.'",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
+      #cостояние радио-кнопки "method_auc"
+      if "index_method_auc - ЛД" not in st.session_state:
+          st.session_state["index_method_auc - ЛД"] = 0
+
+      method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - ЛД", index = st.session_state["index_method_auc - ЛД"])
+      
+      if st.session_state["Метод подсчёта AUC0-t - ЛД"] == 'linear':
+         st.session_state["index_method_auc - ЛД"] = 0
+      if st.session_state["Метод подсчёта AUC0-t - ЛД"] == "linear-up/log-down":
+         st.session_state["index_method_auc - ЛД"] = 1
+
+      file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых дозировок(не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через '.' Слово 'Дозировка' в верхнем регистре обязательно",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
       
       ###сохранение файла
       if file_uploader is not None:
@@ -3966,19 +4108,19 @@ if option == 'Линейность дозирования':
              save_uploadedfile(i)
              st.session_state[str(i.name)] = i.name
       
-      list_keys_file = []
+      list_keys_file_lin = []
       for i in st.session_state.keys():
-          if i.__contains__("xlsx"):
-             list_keys_file.append(i)
+          if i.__contains__("xlsx") and i.__contains__("Дозировка"): ###слово дозировка нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла
+             list_keys_file_lin.append(i)
 
-      if (list_keys_file != []) and measure_unit_lin and measure_unit_dose_lin:
+      if (list_keys_file_lin != []) and measure_unit_lin and measure_unit_dose_lin:
 
           list_name_doses=[]
           list_df_unrounded=[]
           list_df_for_mean_unround_for_graphics=[]
           list_t_graph=[]
 
-          for i in list_keys_file:
+          for i in list_keys_file_lin:
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
 
               file_name=i[10:-5]
@@ -4247,14 +4389,54 @@ if option == 'Линейность дозирования':
 
               ###AUC0-t
               list_AUC_0_T=[]
-              for i in range(0,count_row):
-                  list_columns_T=[]
-                  for column in df_without_numer.columns:
-                      list_columns_T.append(float(column))
-                  list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              if method_auc == 'linear':
+                 for i in range(0,count_row):
+                     list_columns_T=[]
+                     for column in df_without_numer.columns:
+                         list_columns_T.append(float(column))
+                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                     
+                     AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+                     list_AUC_0_T.append(AUC_0_T)
+              if method_auc == 'linear-up/log-down':
+                 for i in range(0,count_row):
+                     list_columns_T=[]
+                     for column in df_without_numer.columns:
+                         list_columns_T.append(float(column))
+                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                     
+                     list_c = list_concentration
+                     list_t = list_columns_T
+                     
+                     cmax=max(list_c)
+                     cmax_index = list_c.index(cmax)
+                     ### cmax должна быть и в нисходящей и в восходящей части 
+                     list_before_cmax_с=list_c[:cmax_index+1]
+                     list_after_cmax_с=list_c[cmax_index:]
+                     list_before_cmax_t=list_t[:cmax_index+1]
+                     list_after_cmax_t=list_t[cmax_index:]
+                     
+                     ####восходящая часть
+                     AUC_0_T_before=np.trapz(list_before_cmax_с,x=list_before_cmax_t)
+                     
+                     #####нисходящая (название файла .py неверное)
+                     count_i = len(list_after_cmax_с)
 
-                  AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
-                  list_AUC_0_T.append(AUC_0_T)
+                     list_range= range(0,count_i)
+                     list_AUC_0_T_after=[]
+                     AUC_0_T=0
+                     b=0
+                     for i in list_range:
+                         if b<count_i-1:
+                             AUC_0_T+=(list_after_cmax_t[i+1]-list_after_cmax_t[i])/(np.log(np.asarray(list_after_cmax_с[i])/np.asarray(list_after_cmax_с[i+1]))) *(list_after_cmax_с[i]-list_after_cmax_с[i+1])
+                             b+=1
+                             list_AUC_0_T_after.append(AUC_0_T)
+                             
+                     AUC_0_T_after = list_AUC_0_T_after[-1]
+                     
+                     AUC_O_T = AUC_0_T_before + AUC_0_T_after
+                     
+                     list_AUC_0_T.append(AUC_O_T)
 
 
 
