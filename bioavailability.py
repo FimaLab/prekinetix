@@ -300,6 +300,7 @@ if option == 'Изучение абсолютной и относительно�
           df_for_plot_conc=df.drop(['Номер'], axis=1)
           df_for_plot_conc_1 = df_for_plot_conc.transpose()
           list_numer_animal_for_plot=df['Номер'].tolist()
+          count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
           fig, ax = plt.subplots()
 
@@ -307,15 +308,18 @@ if option == 'Изучение абсолютной и относительно�
 
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
-          ax.legend()
-          
+          if count_numer_animal > 20:
+             ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+          else:
+             ax.legend(bbox_to_anchor=(1, 1))
+             
           list_graphics_word.append(fig)
 
           graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после внутривенного введения субстанции"
           list_heading_graphics_word.append(graphic)    
        # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
           df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
-
+          
 
           fig, ax = plt.subplots()
 
@@ -324,7 +328,10 @@ if option == 'Изучение абсолютной и относительно�
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
           ax.set_yscale("log")
-          ax.legend()
+          if count_numer_animal > 20:
+             ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+          else:
+             ax.legend(bbox_to_anchor=(1, 1))
           
           list_graphics_word.append(fig)
 
@@ -763,7 +770,6 @@ if option == 'Изучение абсолютной и относительно�
 
 
           df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
-          
 
           ###округление описательной статистики и ФК параметров
 
@@ -1072,6 +1078,7 @@ if option == 'Изучение абсолютной и относительно�
           df_for_plot_conc=df.drop(['Номер'], axis=1)
           df_for_plot_conc_1 = df_for_plot_conc.transpose()
           list_numer_animal_for_plot=df['Номер'].tolist()
+          count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
           fig, ax = plt.subplots()
 
@@ -1079,7 +1086,10 @@ if option == 'Изучение абсолютной и относительно�
 
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
-          ax.legend()
+          if count_numer_animal > 20:
+             ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+          else:
+             ax.legend(bbox_to_anchor=(1, 1))
 
           list_graphics_word.append(fig) 
 
@@ -1096,7 +1106,10 @@ if option == 'Изучение абсолютной и относительно�
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
           ax.set_yscale("log")
-          ax.legend()
+          if count_numer_animal > 20:
+             ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+          else:
+             ax.legend(bbox_to_anchor=(1, 1))
 
           list_graphics_word.append(fig) 
    
@@ -1890,6 +1903,7 @@ if option == 'Изучение абсолютной и относительно�
           df_for_plot_conc=df.drop(['Номер'], axis=1)
           df_for_plot_conc_1 = df_for_plot_conc.transpose()
           list_numer_animal_for_plot=df['Номер'].tolist()
+          count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
           fig, ax = plt.subplots()
 
@@ -1897,7 +1911,10 @@ if option == 'Изучение абсолютной и относительно�
 
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
-          ax.legend()
+          if count_numer_animal > 20:
+             ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+          else:
+             ax.legend(bbox_to_anchor=(1, 1))
 
           list_graphics_word.append(fig) 
 
@@ -1914,7 +1931,10 @@ if option == 'Изучение абсолютной и относительно�
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
           ax.set_yscale("log")
-          ax.legend()
+          if count_numer_animal > 20:
+             ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+          else:
+             ax.legend(bbox_to_anchor=(1, 1))
 
           list_graphics_word.append(fig) 
 
@@ -3304,6 +3324,7 @@ if option == 'Изучение фармакокинетики в органах 
               df_for_plot_conc=df.drop(['Номер'], axis=1)
               df_for_plot_conc_1 = df_for_plot_conc.transpose()
               list_numer_animal_for_plot=df['Номер'].tolist()
+              count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
               fig, ax = plt.subplots()
 
@@ -3311,7 +3332,10 @@ if option == 'Изучение фармакокинетики в органах 
 
               ax.set_xlabel("Время, ч")
               ax.set_ylabel("Концентрация, "+measure_unit_org)
-              ax.legend()
+              if count_numer_animal > 20:
+                 ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+              else:
+                 ax.legend(bbox_to_anchor=(1, 1))
               
               list_graphics_word.append(fig)
 
@@ -3328,7 +3352,10 @@ if option == 'Изучение фармакокинетики в органах 
               ax.set_xlabel("Время, ч")
               ax.set_ylabel("Концентрация, "+measure_unit_org)
               ax.set_yscale("log")
-              ax.legend()
+              if count_numer_animal > 20:
+                 ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+              else:
+                 ax.legend(bbox_to_anchor=(1, 1))
               
               list_graphics_word.append(fig)
 
@@ -4495,6 +4522,7 @@ if option == 'Линейность дозирования':
               df_for_plot_conc=df.drop(['Номер'], axis=1)
               df_for_plot_conc_1 = df_for_plot_conc.transpose()
               list_numer_animal_for_plot=df['Номер'].tolist()
+              count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
               fig, ax = plt.subplots()
 
@@ -4502,7 +4530,10 @@ if option == 'Линейность дозирования':
 
               ax.set_xlabel("Время, ч")
               ax.set_ylabel("Концентрация, "+measure_unit_lin)
-              ax.legend()
+              if count_numer_animal > 20:
+                 ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+              else:
+                 ax.legend(bbox_to_anchor=(1, 1))
               
               list_graphics_word.append(fig)
               
@@ -4520,7 +4551,10 @@ if option == 'Линейность дозирования':
               ax.set_xlabel("Время, ч")
               ax.set_ylabel("Концентрация, "+measure_unit_lin)
               ax.set_yscale("log")
-              ax.legend()
+              if count_numer_animal > 20:
+                 ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+              else:
+                 ax.legend(bbox_to_anchor=(1, 1))
               
               list_graphics_word.append(fig)
               
