@@ -253,6 +253,8 @@ if option == 'Изучение абсолютной и относительно�
               numer=float(i)
               list_time.append(numer)
 
+          list_time.remove(0) ###т.к. внутривенное
+
           for r in range(0,count_row_df):
 
               list_concentration=df.iloc[r].tolist()
@@ -262,6 +264,8 @@ if option == 'Изучение абсолютной и относительно�
               list_concentration.pop(0) #удаление номера животного
 
               list_concentration = [float(v) for v in list_concentration]
+
+              list_concentration.remove(0) ###т.к. внутривенное
 
               fig, ax = plt.subplots()
               plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
@@ -301,6 +305,9 @@ if option == 'Изучение абсолютной и относительно�
 
           df_for_plot_conc=df.drop(['Номер'], axis=1)
           df_for_plot_conc_1 = df_for_plot_conc.transpose()
+
+          df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
+
           list_numer_animal_for_plot=df['Номер'].tolist()
           count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
@@ -308,11 +315,11 @@ if option == 'Изучение абсолютной и относительно�
           for i in range(0,500):
               hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
               list_color.append(hexadecimal)
-
+          
           fig, ax = plt.subplots()
          
           ax.set_prop_cycle(cycler(color=list_color))
-
+         
           plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
           
           ax.set_xlabel("Время, ч")
@@ -358,8 +365,11 @@ if option == 'Изучение абсолютной и относительно�
 
           list_concentration=df_averaged_concentrations.loc['mean'].tolist()
           err_y_1=df_averaged_concentrations.loc['std'].tolist()
-
-
+          
+          list_time.remove(0) ###т.к. внутривенное
+          list_concentration.remove(0)
+          err_y_1.remove(0) 
+          
           fig, ax = plt.subplots()
           plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
           plt.xlabel("Время, ч")
@@ -373,10 +383,7 @@ if option == 'Изучение абсолютной и относительно�
 
 
        #в полулогарифмических координатах
-          #для полулогарифм. посторим без нуля
-          list_time.remove(0)
-          list_concentration.remove(0)
-          err_y_1.remove(0) 
+          #для полулогарифм. построим без нуля (ноль уже удален)
 
 
           fig, ax = plt.subplots()
@@ -2648,16 +2655,24 @@ if option == 'Изучение абсолютной и относительно�
            err_y_1=df_averaged_concentrations_intravenous_substance.loc['std'].tolist()
            err_y_2=df_averaged_concentrations_oral_substance.loc['std'].tolist()
            err_y_3=df_averaged_concentrations_oral_pill.loc['std'].tolist()
+           
+           df_total_injection = pd.DataFrame(list(zip(list_concentration__intravenous_substance, list_concentration__oral_substance, list_concentration__oral_pill)),columns =['внутривенное введение','пероральное введение субстанции','пероральное введение таблетки'])
+           df_total_injection.loc[df_total_injection["внутривенное введение"] == 0, "внутривенное введение"] = np.nan #т.к. внутривенное введение
+           
+           df_total_error = pd.DataFrame(list(zip(err_y_1, err_y_2, err_y_3)),columns =['внутривенное введение','пероральное введение субстанции','пероральное введение таблетки'])
+           df_total_error.loc[df_total_injection["внутривенное введение"] == 0, "внутривенное введение"] = np.nan #т.к. внутривенное введение
+           list_name_injection = ['внутривенное введение','пероральное введение субстанции','пероральное введение таблетки']
+           list_name_colors = ["black","red","blue"]
+           zip_injection_colors_error = zip(list_name_injection,list_name_colors)
+
 
            fig, ax = plt.subplots()
-
-           plt.errorbar(list_time,list_concentration__intravenous_substance,yerr=err_y_1,color= "black", marker='o',markersize=4.0,markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'внутривенное введение')
-           plt.errorbar(list_time,list_concentration__oral_substance,yerr=err_y_2,color= "red", marker='o',markersize=4.0,markeredgecolor="red",markerfacecolor="red",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'пероральное введение субстанции')
-           plt.errorbar(list_time,list_concentration__oral_pill,yerr=err_y_3,color= "blue", marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'пероральное введение таблетки')
-
-           ax.set_xlabel("Время, ч")
-           ax.set_ylabel("Концентрация, "+measure_unit)
-           ax.legend()
+           
+           for injection,color in zip_injection_colors_error:
+               plt.errorbar(list_time,df_total_injection[injection],yerr=df_total_error[injection],color= color, marker='o',markersize=4.0,markeredgecolor=color,markerfacecolor=color,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = injection)
+               ax.set_xlabel("Время, ч")
+               ax.set_ylabel("Концентрация, "+measure_unit)
+               ax.legend()
 
            list_graphics_word.append(fig) 
 
@@ -2665,11 +2680,11 @@ if option == 'Изучение абсолютной и относительно�
            list_heading_graphics_word.append(graphic) 
        ### в полулогарифмических координатах
            list_time.remove(0)
-
+          
            list_concentration__intravenous_substance.remove(0)
            list_concentration__oral_substance.remove(0)
            list_concentration__oral_pill.remove(0)
-
+           
            err_y_1.remove(0)
            err_y_2.remove(0) 
            err_y_3.remove(0) 
