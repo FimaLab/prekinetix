@@ -16,6 +16,8 @@ from docx import Document
 from docx.shared import Pt
 import tempfile
 import os
+import random
+from cycler import cycler
 
 #Для запуска приложения в консоле
 #cd C:\Users\Павел\OneDrive\Worktable\pyt\Bioavailability
@@ -302,10 +304,17 @@ if option == 'Изучение абсолютной и относительно�
           list_numer_animal_for_plot=df['Номер'].tolist()
           count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
+          list_color = [] ## генерация 500 цветов
+          for i in range(0,500):
+              hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+              list_color.append(hexadecimal)
+
           fig, ax = plt.subplots()
+         
+          ax.set_prop_cycle(cycler(color=list_color))
 
           plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
+          
           ax.set_xlabel("Время, ч")
           ax.set_ylabel("Концентрация, "+measure_unit)
           if count_numer_animal > 20:
@@ -322,6 +331,8 @@ if option == 'Изучение абсолютной и относительно�
           
 
           fig, ax = plt.subplots()
+          
+          ax.set_prop_cycle(cycler(color=list_color))
 
           plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -1079,8 +1090,14 @@ if option == 'Изучение абсолютной и относительно�
           df_for_plot_conc_1 = df_for_plot_conc.transpose()
           list_numer_animal_for_plot=df['Номер'].tolist()
           count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
+          list_color = [] ## генерация 500 цветов
+          for i in range(0,500):
+              hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+              list_color.append(hexadecimal)
 
           fig, ax = plt.subplots()
+          
+          ax.set_prop_cycle(cycler(color=list_color))
 
           plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -1100,6 +1117,8 @@ if option == 'Изучение абсолютной и относительно�
 
 
           fig, ax = plt.subplots()
+          
+          ax.set_prop_cycle(cycler(color=list_color))
 
           plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -1904,8 +1923,14 @@ if option == 'Изучение абсолютной и относительно�
           df_for_plot_conc_1 = df_for_plot_conc.transpose()
           list_numer_animal_for_plot=df['Номер'].tolist()
           count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
+          list_color = [] ## генерация 500 цветов
+          for i in range(0,500):
+              hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+              list_color.append(hexadecimal)
 
           fig, ax = plt.subplots()
+
+          ax.set_prop_cycle(cycler(color=list_color))
 
           plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -1925,6 +1950,8 @@ if option == 'Изучение абсолютной и относительно�
 
 
           fig, ax = plt.subplots()
+         
+          ax.set_prop_cycle(cycler(color=list_color))
 
           plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -3325,8 +3352,14 @@ if option == 'Изучение фармакокинетики в органах 
               df_for_plot_conc_1 = df_for_plot_conc.transpose()
               list_numer_animal_for_plot=df['Номер'].tolist()
               count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
+              list_color = [] ## генерация 500 цветов
+              for i in range(0,500):
+                  hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+                  list_color.append(hexadecimal)
 
               fig, ax = plt.subplots()
+              
+              ax.set_prop_cycle(cycler(color=list_color))
 
               plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -3346,6 +3379,8 @@ if option == 'Изучение фармакокинетики в органах 
 
 
               fig, ax = plt.subplots()
+
+              ax.set_prop_cycle(cycler(color=list_color))
 
               plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -3940,7 +3975,11 @@ if option == 'Изучение фармакокинетики в органах 
           df_std_conc_graph_1=df_std_conc_graph.transpose()
           df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
 
-          list_colors=["black","red","blue","green","yellow","orange","purple","brown","coral","plum","tan","pink","grey"]
+          list_colors = [] ## генерация 500 цветов
+          for i in range(0,500):
+              hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+              list_colors.append(hexadecimal)
+          
           list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)    
 
           fig, ax = plt.subplots()
@@ -4523,8 +4562,14 @@ if option == 'Линейность дозирования':
               df_for_plot_conc_1 = df_for_plot_conc.transpose()
               list_numer_animal_for_plot=df['Номер'].tolist()
               count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
+              list_color = [] ## генерация 500 цветов
+              for i in range(0,500):
+                  hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+                  list_color.append(hexadecimal)
 
               fig, ax = plt.subplots()
+
+              ax.set_prop_cycle(cycler(color=list_color))
 
               plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -4545,6 +4590,8 @@ if option == 'Линейность дозирования':
 
 
               fig, ax = plt.subplots()
+
+              ax.set_prop_cycle(cycler(color=list_color))
 
               plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
 
@@ -5168,7 +5215,11 @@ if option == 'Линейность дозирования':
           df_std_conc_graph_1=df_std_conc_graph.transpose()
           df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
 
-          list_colors=["black","red","blue","green","yellow","orange","purple","brown","coral","plum","tan","pink","grey"]
+          list_colors = [] ## генерация 500 цветов
+          for i in range(0,500):
+              hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+              list_colors.append(hexadecimal)
+              
           list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
           fig, ax = plt.subplots()
