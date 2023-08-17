@@ -699,6 +699,28 @@ if option == 'Изучение абсолютной и относительно�
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
+              ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+              cmax = max(list_concentration)
+              index_cmax = list_concentration.index(cmax)
+              list_before_cmax = list_concentration[0:index_cmax]
+              list_after_cmax = list_concentration[index_cmax:]
+              list_before_cmax_t = list_columns_T[0:index_cmax]
+              list_after_cmax_t = list_columns_T[index_cmax:]
+
+              count_list_concentration = len(list_after_cmax)
+              list_range_for_remove_0 = range(0,count_list_concentration)
+
+              list_conc_without_0=[]
+              list_t_without_0=[]
+              for i in list_range_for_remove_0:
+                  if list_after_cmax[i] !=0:
+                     list_conc_without_0.append(list_after_cmax[i])
+                     list_t_without_0.append(list_after_cmax_t[i])
+
+              list_concentration = list_before_cmax + list_conc_without_0
+              list_columns_T = list_before_cmax_t + list_t_without_0
+              ######################
+
               list_C_last.append(list_concentration[-1]) 
               list_T_last.append(list_columns_T[-1]) 
 
@@ -747,7 +769,7 @@ if option == 'Изучение абсолютной и относительно�
           ### пользовательский индекс
           list_for_index=df["Номер"].tolist()
 
-          df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+          df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
           
           ###описательная статистика
 
@@ -827,13 +849,13 @@ if option == 'Изучение абсолютной и относительно�
           list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-          series_CL= df_concat_PK_iv['CL']
+          series_CL= df_concat_PK_iv['CL/F']
           list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-          series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL ' +"("+"л/ч"+")")
+          series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
-          series_Vd= df_concat_PK_iv['Vd']
+          series_Vd= df_concat_PK_iv['Vd/F']
           list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-          series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd ' +"("+"л/кг"+")")
+          series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
           df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
           df_total_PK_iv.index.name = 'Номер'
@@ -1523,6 +1545,28 @@ if option == 'Изучение абсолютной и относительно�
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
+              ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+              cmax = max(list_concentration)
+              index_cmax = list_concentration.index(cmax)
+              list_before_cmax = list_concentration[0:index_cmax]
+              list_after_cmax = list_concentration[index_cmax:]
+              list_before_cmax_t = list_columns_T[0:index_cmax]
+              list_after_cmax_t = list_columns_T[index_cmax:]
+
+              count_list_concentration = len(list_after_cmax)
+              list_range_for_remove_0 = range(0,count_list_concentration)
+
+              list_conc_without_0=[]
+              list_t_without_0=[]
+              for i in list_range_for_remove_0:
+                  if list_after_cmax[i] !=0:
+                     list_conc_without_0.append(list_after_cmax[i])
+                     list_t_without_0.append(list_after_cmax_t[i])
+
+              list_concentration = list_before_cmax + list_conc_without_0
+              list_columns_T = list_before_cmax_t + list_t_without_0
+              ######################
+
               list_C_last.append(list_concentration[-1]) 
               list_T_last.append(list_columns_T[-1]) 
 
@@ -1570,7 +1614,7 @@ if option == 'Изучение абсолютной и относительно�
           ### пользовательский индекс
           ### пользовательский индекс
           list_for_index=df["Номер"].tolist()
-          df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+          df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
 
           ###описательная статистика
 
@@ -1659,13 +1703,13 @@ if option == 'Изучение абсолютной и относительно�
           list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-          series_CL= df_concat_PK_po_sub['CL']
+          series_CL= df_concat_PK_po_sub['CL/F']
           list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-          series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_sub.index.tolist(), name='CL ' +"("+"л/ч"+")")
+          series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_sub.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
           series_Vd= df_concat_PK_po_sub['Vd']
           list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-          series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Vd ' +"("+"л/кг"+")")
+          series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
           df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
           df_total_PK_po_sub.index.name = 'Номер'
@@ -2358,6 +2402,28 @@ if option == 'Изучение абсолютной и относительно�
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
+              ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+              cmax = max(list_concentration)
+              index_cmax = list_concentration.index(cmax)
+              list_before_cmax = list_concentration[0:index_cmax]
+              list_after_cmax = list_concentration[index_cmax:]
+              list_before_cmax_t = list_columns_T[0:index_cmax]
+              list_after_cmax_t = list_columns_T[index_cmax:]
+
+              count_list_concentration = len(list_after_cmax)
+              list_range_for_remove_0 = range(0,count_list_concentration)
+
+              list_conc_without_0=[]
+              list_t_without_0=[]
+              for i in list_range_for_remove_0:
+                  if list_after_cmax[i] !=0:
+                     list_conc_without_0.append(list_after_cmax[i])
+                     list_t_without_0.append(list_after_cmax_t[i])
+
+              list_concentration = list_before_cmax + list_conc_without_0
+              list_columns_T = list_before_cmax_t + list_t_without_0
+              ######################
+
               list_C_last.append(list_concentration[-1]) 
               list_T_last.append(list_columns_T[-1]) 
 
@@ -2407,7 +2473,7 @@ if option == 'Изучение абсолютной и относительно�
 
           ### пользовательский индекс
           list_for_index=df["Номер"].tolist()  
-          df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax', 'Cmax(2)','Tmax(2)', 'MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+          df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax', 'Cmax(2)','Tmax(2)', 'MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
 
           ###описательная статистика
 
@@ -2495,13 +2561,13 @@ if option == 'Изучение абсолютной и относительно�
           list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
           series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-          series_CL= df_concat_PK_po_tab['CL']
+          series_CL= df_concat_PK_po_tab['CL/F']
           list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-          series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_tab.index.tolist(), name='CL ' +"("+"л/ч"+")")
+          series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_tab.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
-          series_Vd= df_concat_PK_po_tab['Vd']
+          series_Vd= df_concat_PK_po_tab['Vd/F']
           list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-          series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Vd ' +"("+"л/кг"+")")
+          series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
           df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
           df_total_PK_po_tab.index.name = 'Номер'
@@ -3730,6 +3796,28 @@ if option == 'Изучение фармакокинетики в органах 
                   for column in df_without_numer.columns:
                       list_columns_T.append(float(column))
                   list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                  ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+                  cmax = max(list_concentration)
+                  index_cmax = list_concentration.index(cmax)
+                  list_before_cmax = list_concentration[0:index_cmax]
+                  list_after_cmax = list_concentration[index_cmax:]
+                  list_before_cmax_t = list_columns_T[0:index_cmax]
+                  list_after_cmax_t = list_columns_T[index_cmax:]
+
+                  count_list_concentration = len(list_after_cmax)
+                  list_range_for_remove_0 = range(0,count_list_concentration)
+
+                  list_conc_without_0=[]
+                  list_t_without_0=[]
+                  for i in list_range_for_remove_0:
+                      if list_after_cmax[i] !=0:
+                         list_conc_without_0.append(list_after_cmax[i])
+                         list_t_without_0.append(list_after_cmax_t[i])
+
+                  list_concentration = list_before_cmax + list_conc_without_0
+                  list_columns_T = list_before_cmax_t + list_t_without_0
+                  ######################
 
                   list_C_last.append(list_concentration[-1]) 
                   list_T_last.append(list_columns_T[-1]) 
@@ -4965,6 +5053,28 @@ if option == 'Линейность дозирования':
                       list_columns_T.append(float(column))
                   list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
+                  ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+                  cmax = max(list_concentration)
+                  index_cmax = list_concentration.index(cmax)
+                  list_before_cmax = list_concentration[0:index_cmax]
+                  list_after_cmax = list_concentration[index_cmax:]
+                  list_before_cmax_t = list_columns_T[0:index_cmax]
+                  list_after_cmax_t = list_columns_T[index_cmax:]
+
+                  count_list_concentration = len(list_after_cmax)
+                  list_range_for_remove_0 = range(0,count_list_concentration)
+
+                  list_conc_without_0=[]
+                  list_t_without_0=[]
+                  for i in list_range_for_remove_0:
+                      if list_after_cmax[i] !=0:
+                         list_conc_without_0.append(list_after_cmax[i])
+                         list_t_without_0.append(list_after_cmax_t[i])
+
+                  list_concentration = list_before_cmax + list_conc_without_0
+                  list_columns_T = list_before_cmax_t + list_t_without_0
+                  ######################
+
                   list_C_last.append(list_concentration[-1]) 
                   list_T_last.append(list_columns_T[-1]) 
 
@@ -5001,21 +5111,21 @@ if option == 'Линейность дозирования':
 
 
 
-              ###MRT0-inf
-              list_MRT0_inf=[]
+              ###MRT0-t
+              list_MRT0_t=[]
 
-              list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
+              list_zip_AUMCO_t_auc0_t = zip(list_AUMC0_t,list_AUC_0_T)
 
-              for i,j in list_zip_AUMCO_inf_auc0_inf:
-                  MRT0_inf=i/j
-                  list_MRT0_inf.append(MRT0_inf)
+              for i,j in list_zip_AUMCO_t_auc0_t:
+                  MRT0_t=i/j
+                  list_MRT0_t.append(MRT0_t)
 
               ##################### Фрейм ФК параметров
 
               ### пользовательский индекс
               list_for_index=df["Номер"].tolist()
 
-              df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL','Vd'],index=list_for_index) 
+              df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_t,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→t','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
 
               ###описательная статистика
 
@@ -5068,9 +5178,9 @@ if option == 'Линейность дозирования':
               list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
               series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
-              series_MRT0_inf= df_concat_PK_iv['MRT0→∞']
-              list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-              series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
+              series_MRT0_t= df_concat_PK_iv['MRT0→t']
+              list_MRT0_t_str_f=["%.3f" % round(v,3) for v in series_MRT0_t.tolist()]
+              series_MRT0_t=pd.Series(list_MRT0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→t '+"("+"ч"+")")
 
               series_half_live= df_concat_PK_iv['T1/2']
               list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
@@ -5096,15 +5206,15 @@ if option == 'Линейность дозирования':
               list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
               series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-              series_CL= df_concat_PK_iv['CL']
+              series_CL= df_concat_PK_iv['CL/F']
               list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-              series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL ' +"("+"л/ч"+")")
+              series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
-              series_Vd= df_concat_PK_iv['Vd']
+              series_Vd= df_concat_PK_iv['Vd/F']
               list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-              series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd ' +"("+"л/кг"+")")
+              series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
-              df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+              df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_t,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
               df_total_PK_iv.index.name = 'Номер'
 
               ##изменение названий параметров описательной статистики
@@ -5138,16 +5248,16 @@ if option == 'Линейность дозирования':
           for i in list_df_unrounded: 
               mean_сmax=i['Cmax'].loc['mean']
               mean_tmax=i['Tmax'].loc['mean']
-              mean_mrt0inf=i['MRT0→∞'].loc['mean']
+              mean_mrt0t=i['MRT0→t'].loc['mean']
               mean_thalf=i['T1/2'].loc['mean']
               mean_auc0t=i['AUC0-t'].loc['mean']
               mean_auc0inf=i['AUC0→∞'].loc['mean']
               mean_aumc0inf=i['AUMC0-∞'].loc['mean']
               mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
               mean_kel=i['Kel'].loc['mean']
-              mean_cl=i['CL'].loc['mean']
-              mean_vd=i['Vd'].loc['mean']
-              list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
+              mean_cl=i['CL/F'].loc['mean']
+              mean_vd=i['Vd/F'].loc['mean']
+              list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0t,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
           
           list_name_doses_with_measure_unit=[]
           for i in list_name_doses:
@@ -5155,7 +5265,7 @@ if option == 'Линейность дозирования':
            list_name_doses_with_measure_unit.append(j)
 
           ### получение итогового фрейма ФК параметров доз
-          df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin+")",'Tmax ' +"("+"ч"+")",'MRT0→∞ '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_lin+"×ч" +")",'AUC0→∞ '+"("+measure_unit_lin+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")",'Kel '+"("+"ч\u207B\u00B9"+")",'CL ' +"("+"л/ч"+")",'Vd ' +"("+"л/кг"+")"],index=list_name_doses_with_measure_unit)
+          df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin+")",'Tmax ' +"("+"ч"+")",'MRT0→t '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_lin+"×ч" +")",'AUC0→∞ '+"("+measure_unit_lin+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")",'Kel '+"("+"ч\u207B\u00B9"+")",'CL/F ' +"("+"л/ч"+")",'Vd/F ' +"("+"л/кг"+")"],index=list_name_doses_with_measure_unit)
           df_PK_doses_total_transpose=df_PK_doses_total.transpose()
 
           #округление фрейма df_PK_doses_total_transpose
@@ -5168,8 +5278,8 @@ if option == 'Линейность дозирования':
           series_Tmax=df_doses_trans_trans['Tmax ' +"("+"ч"+")"].tolist()       
           series_Tmax=pd.Series(["%.2f" % round(v,2) for v in series_Tmax]) 
 
-          series_MRT0_inf= df_doses_trans_trans['MRT0→∞ '+"("+"ч"+")"].tolist()   
-          series_MRT0_inf=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_inf])
+          series_MRT0_t= df_doses_trans_trans['MRT0→t '+"("+"ч"+")"].tolist()   
+          series_MRT0_t=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_t])
 
           series_half_live= df_doses_trans_trans['T1/2 '+"("+"ч"+")"].tolist()   
           series_half_live=pd.Series(["%.2f" % round(v,2) for v in series_half_live]) 
@@ -5189,13 +5299,13 @@ if option == 'Линейность дозирования':
           series_Kel= df_doses_trans_trans['Kel '+"("+"ч\u207B\u00B9"+")"].tolist()   
           series_Kel=pd.Series(["%.4f" % round(v,4) for v in series_Kel])
 
-          series_CL= df_doses_trans_trans['CL ' +"("+"л/ч"+")"].tolist()  
+          series_CL= df_doses_trans_trans['CL/F ' +"("+"л/ч"+")"].tolist()  
           series_CL=pd.Series(["%.2f" % round(v,2) for v in series_CL]) 
 
-          series_Vd= df_doses_trans_trans['Vd ' +"("+"л/кг"+")"].tolist()   
+          series_Vd= df_doses_trans_trans['Vd/F ' +"("+"л/кг"+")"].tolist()   
           series_Vd=pd.Series(["%.1f" % round(v,1) for v in series_Vd])
 
-          df_total_total_doses = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
+          df_total_total_doses = pd.concat([series_Cmax, series_Tmax, series_MRT0_t,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
 
           df_total_total_doses.index=df_PK_doses_total_transpose.columns.tolist()
           df_total_total_doses.columns=df_PK_doses_total_transpose.index.tolist() 
