@@ -4407,9 +4407,7 @@ if option == 'Линейность дозирования':
    if panel == "Загрузка файлов":
 
       st.title('Исследование линейности дозирования')
-       
-      st.subheader('Единицы измерения концентрации')
-       
+  
       measure_unit_lin = st.text_input("Введите единицы измерения концентрации", key="Единицы измерения концентрации при исследовании линейности дозирования", value = st.session_state["measure_unit_lin"])
       st.session_state["measure_unit_lin"] = measure_unit_lin
 
