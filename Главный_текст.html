@@ -1,0 +1,42 @@
+<h1>О приложении:</h1>
+<p id="example" style="padding: 0px 0px 0px 0px; width: 1300px; display: none;">Данное приложение может быть использовано в доклинических исследованиях для расчёта фармакокинетических параметров. В их числе исследования абсолютной и относительной биодоступности препарата, а также его экскреции с мочой и калом, изучение фармакокинетики в различных дозировках (проверка гипотезы линейности), изучение фармакокинетики лекарственного препарата в различных органах животных и др. Приложение позволяет получать таблицы с рассчитанными фармакокинетическими параметрами и автоматизировано строить графики фармакокинетических профилей в вышеупомянутых исследованиях, а также формировать соответствующие результаты в формате Word документов, которые можно скачать после загрузки исходных Excel файлов с концентрациями препарата, измеренных в соответствующих временных точках.</p>
+
+<style type="text/css">
+ #example .new { opacity: 0; }
+ #example .p_opacity {
+     -webkit-transition: opacity 0.8s ease-in-out;
+     -moz-transition: opacity 0.8s ease-in-out;
+     -ms-transition: opacity 0.8s ease-in-out;
+     -o-transition: opacity 0.8s ease-in-out;
+     transition: opacity 0.8s ease-in-out;
+     opacity: 1;
+ }
+ p {
+  color: #FFFFFF;
+  text-decoration: none;
+ }
+
+ h1 {
+  color: #FFFFFF;
+  text-decoration: none;
+ }
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<script type="text/javascript">
+ $(document).ready(function(){
+  $.fn.animate_Text = function() {
+   var string = this.text();
+   return this.each(function(){
+    var $this = $(this);
+    $this.html(string.replace(/./g, '<span class="new">$&</span>'));
+    $this.find('span.new').each(function(i, el){
+     setTimeout(function(){ $(el).addClass('p_opacity'); }, 20 * i);
+    });
+   });
+  };
+  $('#example').show();
+  $('#example').animate_Text();
+ });
+</script>
