@@ -76,7 +76,7 @@ st-annotated-text==4.0.0
 statistics==1.0.3.5
 statsmodels==0.14.0
 stqdm==0.0.5
-streamlit==1.22.0
+streamlit==1.26.0
 streamlit-ace==0.1.1
 streamlit-camera-input-live==0.2.0
 streamlit-card==0.0.61
