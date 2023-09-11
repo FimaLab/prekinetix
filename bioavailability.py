@@ -1242,23 +1242,23 @@ if selected == "Исследование":
                  list_count_row=range(count_row)
        
                  ###Cmax
-                 if "disabled_selected_columns_sub" not in st.session_state:
-                     st.session_state["disabled_selected_columns_sub"] = False
+                 ###создание состояния
+                 if "selected_value_sub" not in st.session_state:
+                    st.session_state["selected_value_sub"] = []
+                 
+                 if "feature_disable_selected_value" not in st.session_state:
+                     st.session_state["feature_disable_selected_value"] = True
 
                  ###создание состояния
                  st.info('Выбери Cmax:')
                  list_columns_without_numer = df.columns.tolist()
                  list_columns_without_numer.remove('Номер')
-                 selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax перорального введения субстанции',max_selections=1, disabled = st.session_state["disabled_selected_columns_sub"])
+                 selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax перорального введения субстанции',max_selections=1)
                  st.session_state["selected_columns_sub"] = selected_columns 
 
-                 ###создание состояния
-                 if "selected_value_sub" not in st.session_state:
-                    st.session_state["selected_value_sub"] = []
-
                  list_keys_cmax = st.session_state["selected_value_sub"]
-                 if selected_columns != []:
-                    selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax перорального введения субстанции',max_selections=1, disabled = st.session_state["disabled_selected_columns_sub"])
+                 if selected_columns != [] and st.session_state["feature_disable_selected_value"]:
+                    selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax перорального введения субстанции',max_selections=1)
                     list_keys_cmax.append(selected_value)
 
                  if list_keys_cmax != []:
@@ -1271,7 +1271,8 @@ if selected == "Исследование":
                     del st.session_state["selected_value_sub"]
                     list_keys_cmax_sample = []
                     selected_columns = st.session_state["selected_columns_sub"]
-                    
+                    st.session_state["feature_disable_selected_value"] = True
+                                        
                  st.write("Список Cmax:")
                  st.write(list_keys_cmax_sample)
                  
@@ -1279,9 +1280,13 @@ if selected == "Исследование":
                  list_cmax_1=list_keys_cmax_sample 
                     
                  if len(list_cmax_1) == len(df.index.tolist()):
+                    st.session_state["feature_disable_selected_value"] = False
+
                     ######Cmax2
-                    st.session_state["disabled_selected_columns_sub"] = True
-                    
+
+                    if "feature_disable_selected_value_2" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_2"] = True
+
                     st.info('Выбери Cmax(2):')
                     
                     selected_columns_2 = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax2 перорального введения субстанции', max_selections=1)
@@ -1292,7 +1297,7 @@ if selected == "Исследование":
                        st.session_state["selected_value_2_sub"] = []
 
                     list_keys_cmax_2 = st.session_state["selected_value_2_sub"]
-                    if selected_columns_2 != []:
+                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_2"]:
                        selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 перорального введения субстанции', max_selections=1)
                        list_keys_cmax_2.append(selected_value_2)
 
@@ -1306,11 +1311,15 @@ if selected == "Исследование":
                        del st.session_state["selected_value_2_sub"]
                        list_keys_cmax_sample_2 = []
                        selected_columns_2 = st.session_state["selected_columns_2_sub"]
+                       st.session_state["feature_disable_selected_value_2"] = True
 
                     st.write("Список Cmax(2):")
                     st.write(list_keys_cmax_sample_2)
 
                     list_cmax_2= list_keys_cmax_sample_2
+
+                    if len(list_cmax_2) == len(df.index.tolist()):
+                       st.session_state["feature_disable_selected_value_2"] = False
 
                     ###Tmax   
                     list_Tmax_1=[]
@@ -2135,64 +2144,84 @@ if selected == "Исследование":
                  list_count_row=range(count_row)
        
                  ###Cmax
-
-                 ###создание состояния
-                 if "bool_selected_columns_tab" not in st.session_state:
-                    st.session_state["bool_selected_columns_tab"] = False ###включен селектор
-
-                 st.info('Выбери Cmax:')
-                 list_columns_without_numer = df.columns.tolist()
-                 list_columns_without_numer.remove('Номер')
-                 selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax перорального введения таблетки')
-                 
                  ###создание состояния
                  if "selected_value_tab" not in st.session_state:
                     st.session_state["selected_value_tab"] = []
+                 
+                 if "feature_disable_selected_value" not in st.session_state:
+                     st.session_state["feature_disable_selected_value"] = True
+
+                 ###создание состояния
+                 st.info('Выбери Cmax:')
+                 list_columns_without_numer = df.columns.tolist()
+                 list_columns_without_numer.remove('Номер')
+                 selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax перорального введения таблетки',max_selections=1)
+                 st.session_state["selected_columns_tab"] = selected_columns 
 
                  list_keys_cmax = st.session_state["selected_value_tab"]
-                 if selected_columns != [] and st.session_state["bool_selected_columns_tab"] == False:
-                    selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax перорального введения таблетки')
+                 if selected_columns != [] and st.session_state["feature_disable_selected_value"]:
+                    selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax перорального введения таблетки',max_selections=1)
                     list_keys_cmax.append(selected_value)
 
                  if list_keys_cmax != []:
                     st.session_state["selected_value_tab"] = list_keys_cmax
 
-                 list_keys_cmax_sample = [item for sublist in list_keys_cmax for item in sublist]
                  list_keys_cmax = st.session_state["selected_value_tab"]
+                 list_keys_cmax_sample = [item for sublist in list_keys_cmax for item in sublist]
+
+                 if st.button('Очистить список Cmax', key="Очистка списка Cmax перорального введения таблетки"):
+                    del st.session_state["selected_value_tab"]
+                    list_keys_cmax_sample = []
+                    selected_columns = st.session_state["selected_columns_tab"]
+                    st.session_state["feature_disable_selected_value"] = True
+                                        
                  st.write("Список Cmax:")
                  st.write(list_keys_cmax_sample)
-
-                 list_cmax_1=list_keys_cmax_sample
                  
-                 if len(list_cmax_1) == len(df.index.tolist()):
-                    ######Cmax2
+
+                 list_cmax_1=list_keys_cmax_sample 
                     
-                    ###для отключения селектора cmax
-                    st.session_state["bool_selected_columns_tab"] = True ### отключаем селектор
-                    #####
+                 if len(list_cmax_1) == len(df.index.tolist()):
+                    st.session_state["feature_disable_selected_value"] = False
+
+                    ######Cmax2
+
+                    if "feature_disable_selected_value_2" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_2"] = True
 
                     st.info('Выбери Cmax(2):')
                     
-                    selected_columns_2 = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax2 перорального введения таблетки')
-                    
+                    selected_columns_2 = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax2 перорального введения таблетки', max_selections=1)
+                    st.session_state["selected_columns_2_tab"] = selected_columns_2
+
                     ###создание состояния
                     if "selected_value_2_tab" not in st.session_state:
                        st.session_state["selected_value_2_tab"] = []
 
                     list_keys_cmax_2 = st.session_state["selected_value_2_tab"]
-                    if selected_columns_2 != []:
-                       selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 перорального введения таблетки')
+                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_2"]:
+                       selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 перорального введения таблетки', max_selections=1)
                        list_keys_cmax_2.append(selected_value_2)
 
                     if list_keys_cmax_2 != []:
                        st.session_state["selected_value_2_tab"] = list_keys_cmax_2
 
-                    list_keys_cmax_sample_2 = [item for sublist in list_keys_cmax_2 for item in sublist]
                     list_keys_cmax_2 = st.session_state["selected_value_2_tab"]
+                    list_keys_cmax_sample_2 = [item for sublist in list_keys_cmax_2 for item in sublist]
+
+                    if st.button('Очистить список Cmax(2)', key="Очистка списка Cmax(2) перорального введения таблетки"):
+                       del st.session_state["selected_value_2_tab"]
+                       list_keys_cmax_sample_2 = []
+                       selected_columns_2 = st.session_state["selected_columns_2_tab"]
+                       st.session_state["feature_disable_selected_value_2"] = True
+
                     st.write("Список Cmax(2):")
                     st.write(list_keys_cmax_sample_2)
 
                     list_cmax_2= list_keys_cmax_sample_2
+
+                    if len(list_cmax_2) == len(df.index.tolist()):
+                       st.session_state["feature_disable_selected_value_2"] = False
                    
                     ###Tmax   
                     list_Tmax_1=[]
@@ -2472,7 +2501,7 @@ if selected == "Исследование":
                     list_cl=[]
 
                     for i in list_auc0_inf:
-                        cl = float(dose_po_sub)/i * 1000
+                        cl = float(dose_po_tab)/i * 1000
                         list_cl.append(cl)
 
 
@@ -2611,84 +2640,84 @@ if selected == "Исследование":
                     df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
-                    df_concat_PK_po_sub= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
+                    df_concat_PK_po_tab= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
                     ###округление описательной статистики и ФК параметров
 
-                    series_Cmax=df_concat_PK_po_sub['Cmax']
+                    series_Cmax=df_concat_PK_po_tab['Cmax']
                     list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-                    series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Cmax ' +"("+measure_unit+")")
+                    series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
-                    series_Cmax_2=df_concat_PK_po_sub['Cmax(2)']
+                    series_Cmax_2=df_concat_PK_po_tab['Cmax(2)']
                     list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
-                    series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_po_sub.index.tolist(), name='Cmax(2) ' +"("+measure_unit+")")
+                    series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_po_tab.index.tolist(), name='Cmax(2) ' +"("+measure_unit+")")
 
-                    series_Tmax=df_concat_PK_po_sub['Tmax']
+                    series_Tmax=df_concat_PK_po_tab['Tmax']
                     list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-                    series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Tmax ' +"("+"ч"+")")
+                    series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
-                    series_Tmax_2=df_concat_PK_po_sub['Tmax(2)']
+                    series_Tmax_2=df_concat_PK_po_tab['Tmax(2)']
                     list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
-                    series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_po_sub.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
+                    series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_po_tab.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
 
-                    series_MRT0_inf= df_concat_PK_po_sub['MRT0→∞']
+                    series_MRT0_inf= df_concat_PK_po_tab['MRT0→∞']
                     list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-                    series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
+                    series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
-                    series_half_live= df_concat_PK_po_sub['T1/2']
+                    series_half_live= df_concat_PK_po_tab['T1/2']
                     list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-                    series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_po_sub.index.tolist(), name='T1/2 '+"("+"ч"+")")
+                    series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_po_tab.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
-                    series_AUC0_t= df_concat_PK_po_sub['AUC0-t']
+                    series_AUC0_t= df_concat_PK_po_tab['AUC0-t']
                     list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-                    series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
+                    series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
 
-                    series_AUC0_inf= df_concat_PK_po_sub['AUC0→∞']
+                    series_AUC0_inf= df_concat_PK_po_tab['AUC0→∞']
                     list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-                    series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
+                    series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
 
-                    series_AUMC0_inf= df_concat_PK_po_sub['AUMC0-∞']
+                    series_AUMC0_inf= df_concat_PK_po_tab['AUMC0-∞']
                     list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-                    series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_po_sub.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
+                    series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_po_tab.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
 
-                    series_Сmax_dev_AUC0_t= df_concat_PK_po_sub['Сmax/AUC0-t']
+                    series_Сmax_dev_AUC0_t= df_concat_PK_po_tab['Сmax/AUC0-t']
                     list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-                    series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
+                    series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
 
-                    series_Kel= df_concat_PK_po_sub['Kel']
+                    series_Kel= df_concat_PK_po_tab['Kel']
                     list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-                    series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
+                    series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-                    series_CL= df_concat_PK_po_sub['CL/F']
+                    series_CL= df_concat_PK_po_tab['CL/F']
                     list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-                    series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_sub.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
+                    series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_po_tab.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
-                    series_Vd= df_concat_PK_po_sub['Vd']
+                    series_Vd= df_concat_PK_po_tab['Vd']
                     list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-                    series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_sub.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
+                    series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_po_tab.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
-                    df_total_PK_po_sub = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
-                    df_total_PK_po_sub.index.name = 'Номер'
+                    df_total_PK_po_tab = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+                    df_total_PK_po_tab.index.name = 'Номер'
 
                     ##изменение названий параметров описательной статистики
 
-                    df_total_PK_po_sub1=df_total_PK_po_sub.copy()
-                    df_total_PK_po_sub1.iloc[-6,:],df_total_PK_po_sub1.iloc[-2,:]=df_total_PK_po_sub.iloc[-2,:],df_total_PK_po_sub.iloc[-6,:]
+                    df_total_PK_po_tab1=df_total_PK_po_tab.copy()
+                    df_total_PK_po_tab1.iloc[-6,:],df_total_PK_po_tab1.iloc[-2,:]=df_total_PK_po_tab.iloc[-2,:],df_total_PK_po_tab.iloc[-6,:]
 
-                    df_total_PK_po_sub=df_total_PK_po_sub1
+                    df_total_PK_po_tab=df_total_PK_po_tab1
 
-                    df_total_PK_po_sub1=df_total_PK_po_sub.copy()
-                    df_total_PK_po_sub1.iloc[-4,:],df_total_PK_po_sub1.iloc[-5,:]=df_total_PK_po_sub.iloc[-5,:],df_total_PK_po_sub.iloc[-4,:]
+                    df_total_PK_po_tab1=df_total_PK_po_tab.copy()
+                    df_total_PK_po_tab1.iloc[-4,:],df_total_PK_po_tab1.iloc[-5,:]=df_total_PK_po_tab.iloc[-5,:],df_total_PK_po_tab.iloc[-4,:]
 
-                    df_total_PK_po_sub=df_total_PK_po_sub1
+                    df_total_PK_po_tab=df_total_PK_po_tab1
 
-                    df_total_PK_po_sub = df_total_PK_po_sub.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                    df_total_PK_po_tab = df_total_PK_po_tab.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
 
 
                     table_heading='Фармакокинетические показатели в крови после перорального введения таблетки'
                     list_heading_word.append(table_heading)
                     
-                    list_table_word.append(df_total_PK_po_sub)
+                    list_table_word.append(df_total_PK_po_tab)
 
                     ####получение интервала для средних ФК параметров
                     list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -2703,9 +2732,9 @@ if selected == "Исследование":
 
 
 
-                    list_list_PK_parametr_po_sub=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
-                    list_parametr_mean_h_po_sub=[]
-                    for i in list_list_PK_parametr_po_sub:
+                    list_list_PK_parametr_po_tab=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
+                    list_parametr_mean_h_po_tab=[]
+                    for i in list_list_PK_parametr_po_tab:
                          n=len(i)
 
                          def confidential_interval(i):
@@ -2718,37 +2747,37 @@ if selected == "Исследование":
                              return ([mean,h]) 
                          func_mean_h = confidential_interval(i)
 
-                         list_parametr_mean_h_po_sub.append(func_mean_h)
+                         list_parametr_mean_h_po_tab.append(func_mean_h)
 
 
-                    list_mean_h_po_sub_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[0]]
-                    parametr_round_mean_h_Cmax=str(list_mean_h_po_sub_Cmax_round[0]) +"±"+str(list_mean_h_po_sub_Cmax_round[1])
+                    list_mean_h_po_tab_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[0]]
+                    parametr_round_mean_h_Cmax=str(list_mean_h_po_tab_Cmax_round[0]) +"±"+str(list_mean_h_po_tab_Cmax_round[1])
 
-                    list_mean_h_po_sub_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[1]] 
-                    parametr_round_mean_h_AUC0_t=str(list_mean_h_po_sub_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_t_round[1]) 
+                    list_mean_h_po_tab_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[1]] 
+                    parametr_round_mean_h_AUC0_t=str(list_mean_h_po_tab_AUC0_t_round[0]) +"±"+str(list_mean_h_po_tab_AUC0_t_round[1]) 
 
-                    list_mean_h_po_sub_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_sub[2]]
-                    parametr_round_mean_h_Kel=str(list_mean_h_po_sub_Kel_round[0]) +"±"+str(list_mean_h_po_sub_Kel_round[1])
+                    list_mean_h_po_tab_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_tab[2]]
+                    parametr_round_mean_h_Kel=str(list_mean_h_po_tab_Kel_round[0]) +"±"+str(list_mean_h_po_tab_Kel_round[1])
 
-                    list_mean_h_po_sub_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[3]]
-                    parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_sub_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_inf_round[1]) 
+                    list_mean_h_po_tab_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[3]]
+                    parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_tab_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_tab_AUC0_inf_round[1]) 
 
-                    list_mean_h_po_sub_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[4]]
-                    parametr_round_mean_h_half_live=str(list_mean_h_po_sub_half_live_round[0]) +"±"+str(list_mean_h_po_sub_half_live_round[1])
+                    list_mean_h_po_tab_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[4]]
+                    parametr_round_mean_h_half_live=str(list_mean_h_po_tab_half_live_round[0]) +"±"+str(list_mean_h_po_tab_half_live_round[1])
 
-                    list_mean_h_po_sub_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[5]] 
-                    parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_sub_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUMC0_inf_round[1]) 
+                    list_mean_h_po_tab_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_tab[5]] 
+                    parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_tab_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_tab_AUMC0_inf_round[1]) 
 
-                    list_mean_h_po_sub_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_po_sub[6]]
-                    parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_sub_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_sub_MRT0_inf_round[1])
+                    list_mean_h_po_tab_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_po_tab[6]]
+                    parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_tab_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_tab_MRT0_inf_round[1])
 
-                    list_mean_h_po_sub_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_sub[7]]
-                    parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[1])
+                    list_mean_h_po_tab_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_po_tab[7]]
+                    parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_tab_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_tab_Сmax_dev_AUC0_t_round[1])
 
-                    list_parametr_round_mean_h_po_sub= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
+                    list_parametr_round_mean_h_po_tab= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-                    t_mean_po_sub = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
-                    list_parametr_round_mean_h_po_sub.insert(1,t_mean_po_sub)
+                    t_mean_po_tab = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
+                    list_parametr_round_mean_h_po_tab.insert(1,t_mean_po_tab)
 
               ###Биодоступность
 
