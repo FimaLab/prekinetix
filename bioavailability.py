@@ -46,6 +46,25 @@ def save_uploadedfile(uploadedfile):
        f.write(uploadedfile.getbuffer())
     return st.success("Файл загружен")
 
+#сохранение редактируемых файлов df_edit
+def save_editfile(df_edit,uploadedfile_name):
+    writer=pd.ExcelWriter(os.path.join("Папка для сохранения файлов",uploadedfile_name))
+    df_edit.to_excel(writer,index=False)
+    writer.save()
+
+#превращает df в excel файл 
+def to_excel(df_example_file):
+       output = BytesIO()
+       writer = pd.ExcelWriter(output, engine='xlsxwriter')
+       df_example_file.to_excel(writer, index=False, sheet_name='Sheet1')
+       workbook = writer.book
+       worksheet = writer.sheets['Sheet1']
+       format1 = workbook.add_format({'num_format': '0.00'}) 
+       worksheet.set_column('A:A', None, format1)
+       writer.save()  
+       processed_data = output.getvalue()
+       return processed_data
+
 
 #############################################################
 
@@ -87,18 +106,6 @@ if selected == "Исследование":
    ############### файл пример
 
    df_example_file = pd.read_excel("server_example_file.xlsx")
-
-   def to_excel(df_example_file):
-       output = BytesIO()
-       writer = pd.ExcelWriter(output, engine='xlsxwriter')
-       df_example_file.to_excel(writer, index=False, sheet_name='Sheet1')
-       workbook = writer.book
-       worksheet = writer.sheets['Sheet1']
-       format1 = workbook.add_format({'num_format': '0.00'}) 
-       worksheet.set_column('A:A', None, format1)
-       writer.save()  
-       processed_data = output.getvalue()
-       return processed_data
    df_example_file_xlsx = to_excel(df_example_file)
    st.sidebar.download_button(label='Пример файла 💾', data=df_example_file_xlsx , file_name= 'example_file.xlsx')
 
@@ -174,10 +181,39 @@ if selected == "Исследование":
               st.session_state["dose_iv"] = dose_iv
 
               if "uploaded_file_1" in st.session_state and dose_iv and measure_unit:
-                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"])) 
+                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
                  st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения субстанции')
-                 st.write(df)
                  
+                 ###возможность редактирования фрейма исходных данных
+                
+                 new_df = df
+                 list_columns_str = []
+                 for i in new_df.columns.tolist():
+                     i_new = str(i)
+                     list_columns_str.append(i_new)
+                 new_df.columns = list_columns_str
+
+                 edited_df = st.data_editor(new_df, key = "edited_df_внутривенное_субстанции")
+                 save_editfile(edited_df,st.session_state["uploaded_file_1"])
+
+                 df_change = edited_df
+                 
+                 list_change_values = df_change.columns.tolist()
+                 list_change_values.remove("Номер")
+
+                 list_columns_number = []
+                 for i in list_change_values:
+                     i_new = float(i)
+                     list_columns_number.append(i_new)
+                
+                 list_columns_number.insert(0,"Номер")
+
+                 df_change.columns = list_columns_number
+                 
+                 df = df_change
+                 
+                 ################
+
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после внутривенного введения субстанции'
                  list_heading_word.append(table_heading)
 
@@ -726,7 +762,7 @@ if selected == "Исследование":
                  list_AUMCO_inf=[]
 
                  list_AUMC0_t=[]
-
+                   
                  list_C_last=[]
                  list_T_last=[]
                  for i in range(0,count_row):
@@ -789,7 +825,7 @@ if selected == "Исследование":
                  for i,j in list_AUMC_zip:
                      AUMCO_inf=i+j
                      list_AUMCO_inf.append(AUMCO_inf)
-
+                 
                  ###MRT0-inf
                  list_MRT0_inf=[]
 
@@ -3312,6 +3348,16 @@ if selected == "Исследование":
                 "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
                 "nav-link-selected": {"background-color": "#335D70"},
             })
+
+            #if selected == "Включение параметров в исследование":
+               #type_parameter = st.selectbox('Выберите параметр',
+           #('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - ИБ")
+              # if type_parameter == 'Cmax(2)':
+               #   agree_cmax2 = st.checkbox('Добавить возможность выбора Cmax(2)')
+                #  if agree_cmax2:
+                     
+                  #   st.write('Параметр добавлен!')
+               
        
    #####################################################################        
    if option == 'Изучение фармакокинетики в органах животных':
