@@ -3446,7 +3446,7 @@ if selected == "Исследование":
                st.session_state["index_method_auc - ИО"] = 1
 
             file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
-            st.session_state
+
             ###сохранение файла
             if file_uploader is not None:
                for i in file_uploader:
