@@ -38,6 +38,19 @@ import codecs
 
 
 ###########################################################
+#область глобальных стилей
+
+st.markdown(
+    """
+<style>
+span[data-baseweb="tag"] {
+  background-color: #0f7c9bbf !important;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
 #область глобальных функций
 
 #сохранение загружаемых файлов 
@@ -93,6 +106,62 @@ def edit_frame(df,uploadedfile_name):
        
        df = df_change
        return df
+
+###создание Word-отчета
+## функция создания отчета таблиц
+
+def create_table(list_heading_word,list_table_word):
+    ### таблицы
+    zip_heading_table = zip(list_heading_word,list_table_word)
+
+    doc = Document()
+
+    # Settings
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Times New Roman'
+    font.size = Pt(8)
+    
+    for heading, df in zip_heading_table:
+        doc.add_paragraph(heading)
+
+        name_columns = pd.DataFrame(df.columns.tolist()).T
+        # add columns
+        name_columns.columns = df.columns.tolist()
+        df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
+        # add indexes
+        total_name_index = df.index.name
+        list_index_names = df.index.tolist()
+        list_index_names.insert(0,total_name_index)
+        series_index_names=pd.Series(list_index_names, name=total_name_index)
+        df_series_index_names = series_index_names.to_frame()
+        
+        df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
+        
+        t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
+        t.style = 'TableGrid'
+        # Add the body of the data frame
+        for i in range(df_columns_indexes.shape[0]):
+            row = t.add_row()
+            for j in range(df_columns_indexes.shape[1]):
+                cell = df_columns_indexes.iat[i, j]
+                row.cells[j].text = str(cell)
+
+    bio = BytesIO()
+    doc.save(bio)
+    if doc:
+        st.download_button(
+            label="Сохранить таблицы 📃",
+            data=bio.getvalue(),
+            file_name="Таблицы.docx",
+            mime="docx"
+        )
+
+    zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
+    #####визуализация
+    for heading, df in zip_heading_table:
+        st.subheader(heading)
+        st.write(df)
 
 
 #############################################################
@@ -3231,57 +3300,8 @@ if selected == "Исследование":
                  list_heading_word = st.session_state["list_heading_word"]
                  list_table_word = st.session_state["list_table_word"]
 
-                 ### таблицы
-                 zip_heading_table = zip(list_heading_word,list_table_word)
-
-                 doc = Document()
-
-                 # Settings
-                 style = doc.styles['Normal']
-                 font = style.font
-                 font.name = 'Times New Roman'
-                 font.size = Pt(8)
-                 
-                 for heading, df in zip_heading_table:
-                     doc.add_paragraph(heading)
-
-                     name_columns = pd.DataFrame(df.columns.tolist()).T
-                     # add columns
-                     name_columns.columns = df.columns.tolist()
-                     df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
-                     # add indexes
-                     total_name_index = df.index.name
-                     list_index_names = df.index.tolist()
-                     list_index_names.insert(0,total_name_index)
-                     series_index_names=pd.Series(list_index_names, name=total_name_index)
-                     df_series_index_names = series_index_names.to_frame()
-                     
-                     df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
-                     
-                     t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
-                     t.style = 'TableGrid'
-                     # Add the body of the data frame
-                     for i in range(df_columns_indexes.shape[0]):
-                         row = t.add_row()
-                         for j in range(df_columns_indexes.shape[1]):
-                             cell = df_columns_indexes.iat[i, j]
-                             row.cells[j].text = str(cell)
-
-                 bio = BytesIO()
-                 doc.save(bio)
-                 if doc:
-                     st.download_button(
-                         label="Сохранить таблицы 📃",
-                         data=bio.getvalue(),
-                         file_name="Таблицы.docx",
-                         mime="docx"
-                     )
-                 
-                 zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
-                 #####визуализация
-                 for heading, df in zip_heading_table:
-                     st.subheader(heading)
-                     st.write(df)
+                 ###вызов функции создания таблицы
+                 create_table(list_heading_word,list_table_word)
 
            if panel == "Графики":
                  
@@ -4477,57 +4497,8 @@ if selected == "Исследование":
             list_heading_word = st.session_state["list_heading_word"]
             list_table_word = st.session_state["list_table_word"]
 
-            ### таблицы
-            zip_heading_table = zip(list_heading_word,list_table_word)
-
-            doc = Document()
-
-            # Settings
-            style = doc.styles['Normal']
-            font = style.font
-            font.name = 'Times New Roman'
-            font.size = Pt(8)
-            
-            for heading, df in zip_heading_table:
-                doc.add_paragraph(heading)
-
-                name_columns = pd.DataFrame(df.columns.tolist()).T
-                # add columns
-                name_columns.columns = df.columns.tolist()
-                df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
-                # add indexes
-                total_name_index = df.index.name
-                list_index_names = df.index.tolist()
-                list_index_names.insert(0,total_name_index)
-                series_index_names=pd.Series(list_index_names, name=total_name_index)
-                df_series_index_names = series_index_names.to_frame()
-                
-                df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
-                
-                t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
-                t.style = 'TableGrid'
-                # Add the body of the data frame
-                for i in range(df_columns_indexes.shape[0]):
-                    row = t.add_row()
-                    for j in range(df_columns_indexes.shape[1]):
-                        cell = df_columns_indexes.iat[i, j]
-                        row.cells[j].text = str(cell)
-
-            bio = BytesIO()
-            doc.save(bio)
-            if doc:
-                st.download_button(
-                    label="Сохранить таблицы 📃",
-                    data=bio.getvalue(),
-                    file_name="Таблицы.docx",
-                    mime="docx"
-                )
-
-            zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
-            #####визуализация
-            for heading, df in zip_heading_table:
-                st.subheader(heading)
-                st.write(df)
+            ###вызов функции создания таблицы
+            create_table(list_heading_word,list_table_word)
 
          if panel == "Графики":
 
@@ -5630,58 +5601,10 @@ if selected == "Исследование":
          
             list_heading_word = st.session_state["list_heading_word"]
             list_table_word = st.session_state["list_table_word"]
-
-            ### таблицы
-            zip_heading_table = zip(list_heading_word,list_table_word)
-
-            doc = Document()
-
-            # Settings
-            style = doc.styles['Normal']
-            font = style.font
-            font.name = 'Times New Roman'
-            font.size = Pt(8)
             
-            for heading, df in zip_heading_table:
-                doc.add_paragraph(heading)
-
-                name_columns = pd.DataFrame(df.columns.tolist()).T
-                # add columns
-                name_columns.columns = df.columns.tolist()
-                df_columns = pd.concat([name_columns, df]).reset_index(drop = True)
-                # add indexes
-                total_name_index = df.index.name
-                list_index_names = df.index.tolist()
-                list_index_names.insert(0,total_name_index)
-                series_index_names=pd.Series(list_index_names, name=total_name_index)
-                df_series_index_names = series_index_names.to_frame()
-                
-                df_columns_indexes=pd.concat([df_series_index_names, df_columns], axis=1)
-                
-                t = doc.add_table(rows=1, cols=df_columns_indexes.shape[1])
-                t.style = 'TableGrid'
-                # Add the body of the data frame
-                for i in range(df_columns_indexes.shape[0]):
-                    row = t.add_row()
-                    for j in range(df_columns_indexes.shape[1]):
-                        cell = df_columns_indexes.iat[i, j]
-                        row.cells[j].text = str(cell)
-
-            bio = BytesIO()
-            doc.save(bio)
-            if doc:
-                st.download_button(
-                    label="Сохранить таблицы 📃",
-                    data=bio.getvalue(),
-                    file_name="Таблицы.docx",
-                    mime="docx"
-                )
-
-            zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
-            #####визуализация
-            for heading, df in zip_heading_table:
-                st.subheader(heading)
-                st.write(df)
+            ###вызов функции создания таблицы
+            create_table(list_heading_word,list_table_word)
+            
 
          if panel == "Графики":
          
