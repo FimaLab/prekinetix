@@ -163,6 +163,37 @@ def create_table(list_heading_word,list_table_word):
         st.subheader(heading)
         st.write(df)
 
+## функция создания отчета графиков
+def create_graphic(list_graphics_word,list_heading_graphics_word):
+    ### документ Word
+    zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
+    doc = Document()
+
+    # Settings
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Times New Roman'
+    font.size = Pt(12)
+
+    buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
+    for fig, heading in zip_graphics_heading:
+        buf = BytesIO()
+        fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
+        fp = tempfile.NamedTemporaryFile() 
+        with open(f"{fp.name}.jpg",'wb') as ff:
+             ff.write(buf.getvalue()) 
+        doc.add_picture(buf)
+        doc.add_paragraph(heading)
+    
+    doc.save(buf)
+    if doc:
+        st.download_button(
+            label="Сохранить графики 📈",
+            data=buf.getvalue(),
+            file_name="Графики.docx",
+            mime="docx",
+            key = "graphics"
+        )
 
 #############################################################
 
@@ -3307,36 +3338,9 @@ if selected == "Исследование":
                  
                  list_graphics_word = st.session_state["list_graphics_word"]
                  list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
-
-                 ### документ Word
-                 zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-                 doc = Document()
-
-                 # Settings
-                 style = doc.styles['Normal']
-                 font = style.font
-                 font.name = 'Times New Roman'
-                 font.size = Pt(12)
-
-                 buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
-                 for fig, heading in zip_graphics_heading:
-                     buf = BytesIO()
-                     fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
-                     fp = tempfile.NamedTemporaryFile() 
-                     with open(f"{fp.name}.jpg",'wb') as ff:
-                          ff.write(buf.getvalue()) 
-                     doc.add_picture(buf)
-                     doc.add_paragraph(heading)
                  
-                 doc.save(buf)
-                 if doc:
-                     st.download_button(
-                         label="Сохранить графики 📈",
-                         data=buf.getvalue(),
-                         file_name="Графики.docx",
-                         mime="docx",
-                         key = "graphics"
-                     )
+                 ###вызов функции создания графика
+                 create_graphic(list_graphics_word,list_heading_graphics_word)
 
                  #######визуализация
 
@@ -4505,35 +4509,8 @@ if selected == "Исследование":
             list_graphics_word = st.session_state["list_graphics_word"]
             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
 
-            ### графики
-            zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-            doc = Document()
-
-            # Settings
-            style = doc.styles['Normal']
-            font = style.font
-            font.name = 'Times New Roman'
-            font.size = Pt(12)
-
-            buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
-            for fig, heading in zip_graphics_heading:
-                buf = BytesIO()
-                fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
-                fp = tempfile.NamedTemporaryFile() 
-                with open(f"{fp.name}.jpg",'wb') as ff:
-                     ff.write(buf.getvalue()) 
-                doc.add_picture(buf)
-                doc.add_paragraph(heading)
-            
-            doc.save(buf)
-            if doc:
-                st.download_button(
-                    label="Сохранить графики 📈",
-                    data=buf.getvalue(),
-                    file_name="Графики.docx",
-                    mime="docx",
-                    key = "graphics"
-                )
+            ###вызов функции создания графика
+            create_graphic(list_graphics_word,list_heading_graphics_word)
             
             #######визуализация
 
@@ -5611,35 +5588,8 @@ if selected == "Исследование":
             list_graphics_word = st.session_state["list_graphics_word"]
             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
 
-            ### графики
-            zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
-            doc = Document()
-
-            # Settings
-            style = doc.styles['Normal']
-            font = style.font
-            font.name = 'Times New Roman'
-            font.size = Pt(12)
-
-            buf = BytesIO() #костыль для того, чтобы не вылазила ошибка
-            for fig, heading in zip_graphics_heading:
-                buf = BytesIO()
-                fig.savefig(buf, format="jpg", dpi=300, bbox_inches='tight')
-                fp = tempfile.NamedTemporaryFile() 
-                with open(f"{fp.name}.jpg",'wb') as ff:
-                     ff.write(buf.getvalue()) 
-                doc.add_picture(buf)
-                doc.add_paragraph(heading)
-            
-            doc.save(buf)
-            if doc:
-                st.download_button(
-                    label="Сохранить графики 📈",
-                    data=buf.getvalue(),
-                    file_name="Графики.docx",
-                    mime="docx",
-                    key = "graphics"
-                )
+            ###вызов функции создания графика
+            create_graphic(list_graphics_word,list_heading_graphics_word)
                 
             #######визуализация
 
