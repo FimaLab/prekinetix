@@ -64,6 +64,35 @@ def to_excel(df_example_file):
        writer.save()  
        processed_data = output.getvalue()
        return processed_data
+ 
+ ###возможность редактирования фрейма исходных данных
+def edit_frame(df,uploadedfile_name):
+       new_df = df
+       list_columns_str = []
+       for i in new_df.columns.tolist():
+           i_new = str(i)
+           list_columns_str.append(i_new)
+       new_df.columns = list_columns_str
+
+       edited_df = st.data_editor(new_df, key = ("edited_df" + uploadedfile_name))
+       save_editfile(edited_df,uploadedfile_name)
+
+       df_change = edited_df
+       
+       list_change_values = df_change.columns.tolist()
+       list_change_values.remove("Номер")
+
+       list_columns_number = []
+       for i in list_change_values:
+           i_new = float(i)
+           list_columns_number.append(i_new)
+
+       list_columns_number.insert(0,"Номер")
+
+       df_change.columns = list_columns_number
+       
+       df = df_change
+       return df
 
 
 #############################################################
@@ -184,34 +213,9 @@ if selected == "Исследование":
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
                  st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения субстанции')
                  
-                 ###возможность редактирования фрейма исходных данных
+                 ###интерактивная таблица
+                 df = edit_frame(df,st.session_state["uploaded_file_1"])
                 
-                 new_df = df
-                 list_columns_str = []
-                 for i in new_df.columns.tolist():
-                     i_new = str(i)
-                     list_columns_str.append(i_new)
-                 new_df.columns = list_columns_str
-
-                 edited_df = st.data_editor(new_df, key = "edited_df_внутривенное_субстанции")
-                 save_editfile(edited_df,st.session_state["uploaded_file_1"])
-
-                 df_change = edited_df
-                 
-                 list_change_values = df_change.columns.tolist()
-                 list_change_values.remove("Номер")
-
-                 list_columns_number = []
-                 for i in list_change_values:
-                     i_new = float(i)
-                     list_columns_number.append(i_new)
-                
-                 list_columns_number.insert(0,"Номер")
-
-                 df_change.columns = list_columns_number
-                 
-                 df = df_change
-                 
                  ################
 
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после внутривенного введения субстанции'
@@ -1029,7 +1033,9 @@ if selected == "Исследование":
 
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
                  st.subheader('Индивидуальные значения концентраций в крови после перорального введения субстанции')
-                 st.write(df)
+                 
+                 ###интерактивная таблица
+                 df = edit_frame(df,st.session_state["uploaded_file_2"])
 
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения субстанции'
                  list_heading_word.append(table_heading)
@@ -1932,7 +1938,9 @@ if selected == "Исследование":
 
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_3"]))
                  st.subheader('Индивидуальные значения концентраций в крови после перорального введения таблетки')
-                 st.write(df)
+                 
+                 ###интерактивная таблица
+                 df = edit_frame(df,st.session_state["uploaded_file_3"])
 
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения таблетки'
                  list_heading_word.append(table_heading)
@@ -2905,7 +2913,7 @@ if selected == "Исследование":
                   list_heading_graphics_word.append(graphic) 
               ### в полулогарифмических координатах
                   list_time.remove(0)
-                 
+                  
                   list_concentration__intravenous_substance.remove(0)
                   list_concentration__oral_substance.remove(0)
                   list_concentration__oral_pill.remove(0)
@@ -2930,7 +2938,7 @@ if selected == "Исследование":
                   graphic="Сравнение фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки"
                   list_heading_graphics_word.append(graphic)
               else:
-                 st.write("")
+                  st.write("")
 
               ##############################################################################################################
 
@@ -2948,7 +2956,9 @@ if selected == "Исследование":
 
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_4"]))
                  st.subheader('Индивидуальные значения концентраций в кале')
-                 st.write(df)
+                 
+                 ###интерактивная таблица
+                 df = edit_frame(df,st.session_state["uploaded_file_4"])
 
                  table_heading='Индивидуальные и усредненные значения концентраций в кале'
                  list_heading_word.append(table_heading)
@@ -3085,7 +3095,9 @@ if selected == "Исследование":
 
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_5"]))
                  st.subheader('Индивидуальные значения концентраций в моче')
-                 st.write(df)
+                 
+                 ###интерактивная таблица
+                 df = edit_frame(df,st.session_state["uploaded_file_5"])
                  
                  table_heading='Индивидуальные и усредненные значения концентраций в моче'
                  list_heading_word.append(table_heading)
@@ -3414,7 +3426,7 @@ if selected == "Исследование":
                st.session_state["index_method_auc - ИО"] = 1
 
             file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
-            
+            st.session_state
             ###сохранение файла
             if file_uploader is not None:
                for i in file_uploader:
@@ -3423,23 +3435,25 @@ if selected == "Исследование":
             
             list_keys_file_org = []
             for i in st.session_state.keys():
-                if i.__contains__("xlsx") and (not i.__contains__("Дозировка")):### чтобы не перекрывалось с lin
+                if i.__contains__("xlsx") and (not i.__contains__("Дозировка")) and (not i.__contains__("edited_df")):### чтобы не перекрывалось с lin; #обрезаем фразу ненужного добавления названия "edited_df"
                    list_keys_file_org.append(i)
-
+            
             if (list_keys_file_org != []) and dose and measure_unit_org_blood and measure_unit_org_organs:
 
                 list_name_organs=[]
                 list_df_unrounded=[]
                 list_df_for_mean_unround_for_graphics=[]
                 list_t_graph=[]
-
+                
                 for i in list_keys_file_org:
                     df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
 
                     file_name=st.session_state[i][:-5]
 
                     st.subheader('Индивидуальные значения концентраций ' + "("+file_name+")")
-                    st.write(df)
+                    
+                    ###интерактивная таблица
+                    df = edit_frame(df,i)
 
                     table_heading='Индивидуальные и усредненные значения концентраций ' + "("+file_name+")"
                     list_heading_word.append(table_heading)
@@ -4326,7 +4340,9 @@ if selected == "Исследование":
                
                df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_excrement"]))
                st.subheader('Индивидуальные значения концентраций в кале')
-               st.write(df)
+               
+               ###интерактивная таблица
+               df = edit_frame(df,st.session_state["uploaded_file_excrement"])
 
                table_heading='Индивидуальные и усредненные значения концентраций в кале'
                list_heading_word.append(table_heading) 
@@ -4650,7 +4666,7 @@ if selected == "Исследование":
             
             list_keys_file_lin = []
             for i in st.session_state.keys():
-                if i.__contains__("xlsx") and i.__contains__("Дозировка"): ###слово дозировка нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла
+                if i.__contains__("xlsx") and i.__contains__("Дозировка") and (not i.__contains__("edited_df")): ###слово дозировка нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
                    list_keys_file_lin.append(i)
 
             if (list_keys_file_lin != []) and measure_unit_lin and measure_unit_dose_lin:
@@ -4666,7 +4682,9 @@ if selected == "Исследование":
                     file_name=i[10:-5]
 
                     st.subheader('Индивидуальные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin)
-                    st.write(df)
+                    
+                    ###интерактивная таблица
+                    df = edit_frame(df,i)
 
                     table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin
                     list_heading_word.append(table_heading)
