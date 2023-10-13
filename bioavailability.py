@@ -2767,12 +2767,9 @@ if selected == "Исследование":
                     list_parametr_round_mean_h_po_tab.insert(1,t_mean_po_tab)
 
               ###Биодоступность
-              button_calculation_bioavailability = False
               
               list_cmax_2_iv = [] #потом удалить
 
-                
-              
               if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab:
                  
                  condition_iv_cmax1 =  len(list_cmax_1_iv) == count_rows_number_iv
