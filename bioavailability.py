@@ -2767,6 +2767,7 @@ if selected == "Исследование":
                     list_parametr_round_mean_h_po_tab.insert(1,t_mean_po_tab)
 
               ###Биодоступность
+              button_calculation_bioavailability = False
               
               list_cmax_2_iv = [] #потом удалить
 
@@ -2785,10 +2786,10 @@ if selected == "Исследование":
                  if condition_iv_cmax1 and condition_sub_cmax2 and condition_tab_cmax2: #исправить потом на все 1
                     button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
 
-              if button_calculation_bioavailability == True:
-                 st.write('👩🏽‍💻Биодоступность подсчитана!')
-              else:   
-                 st.write('🔧Заполните все поля ввода и загрузите файлы!')
+                 if button_calculation_bioavailability == True:
+                    st.write('👩🏽‍💻Биодоступность подсчитана!')
+                 else:   
+                    st.write('🔧Заполните все поля ввода и загрузите файлы!')
 
               if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab and button_calculation_bioavailability:
                   
