@@ -2780,11 +2780,15 @@ if selected == "Исследование":
                  condition_iv_cmax2 =  len(list_cmax_2_iv) == count_rows_number_iv
                  condition_sub_cmax2 = len(list_cmax_2_sub) == count_rows_number_sub
                  condition_tab_cmax2 = len(list_cmax_2_tab) == count_rows_number_tab
-
-                 if condition_iv_cmax2 and condition_sub_cmax2 and condition_tab_cmax2:
-                    button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
-                 if condition_iv_cmax1 and condition_sub_cmax2 and condition_tab_cmax2: #исправить потом на все 1
-                    button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
+                 
+                 condition_ON_cmax2 = False #вспомогательное условие, потом сделать возможность добавления или отвключения cmax2
+                 
+                 if condition_ON_cmax2 == True:
+                    if (condition_iv_cmax2 and condition_sub_cmax2 and condition_tab_cmax2):
+                       button_calculation_bioavailability = True
+                 if condition_ON_cmax2 == False:
+                    if (condition_iv_cmax1 and condition_sub_cmax2 and condition_tab_cmax2): #исправить потом на все 1
+                       button_calculation_bioavailability = True
 
                  if button_calculation_bioavailability == True:
                     st.write('👩🏽‍💻Биодоступность подсчитана!')
@@ -2821,7 +2825,7 @@ if selected == "Исследование":
                   df_averaged_concentrations_oral_pill=df_oral_pill.describe()
                   list_concentration__oral_pill=df_averaged_concentrations_oral_pill.loc['mean'].tolist()
 
-              ### итоговый фрейм по PK параметрам крови
+              ### итоговый фрейм по PK параметрам
 
                   list_index_for_df_total_PK_mean = ['Cmax ' +"("+measure_unit+")",'Tmax ' +"("+"ч"+")",'AUC0-t '+"("+measure_unit+"×ч" +")",'Kel '+"("+"ч\u207B\u00B9"+")",'AUC0→∞ '+"("+measure_unit+"×ч" +")",'T1/2 '+"("+"ч"+")",'AUMC0-∞ '+"("+measure_unit+"×ч\u00B2"+")",'MRT0→∞ '+"("+"ч"+")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")","F(абсолютная биодоступность),%","Относительная биодоступность,% (по сравнению с пероральным введением субстанции)"]
                   
