@@ -195,6 +195,96 @@ def create_graphic(list_graphics_word,list_heading_graphics_word):
             key = "graphics"
         )
 
+## функция подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+def create_table_descriptive_statistics(df):
+    col_mapping = df.columns.tolist()
+    col_mapping.remove('Номер')
+
+    list_gmean=[]
+    list_cv=[] 
+    for i in col_mapping:
+
+        list_ser=df[i].tolist()
+        list_ser_cv = list_ser#нужно с нулями для CV
+
+        #убрать нули, т.к нули будут давать нулевое gmean
+        count_for_range_ser=len(list_ser)
+        list_range_ser=range(0,count_for_range_ser)
+        
+        list_ser_without_0=[]
+        for i in list_range_ser:
+            if list_ser[i] !=0:
+               list_ser_without_0.append(list_ser[i])
+
+        list_ser = list_ser_without_0
+
+        def g_mean(list_ser):
+            a=np.log(list_ser)
+            return np.exp(a.mean())
+        Gmean=g_mean(list_ser)
+        list_gmean.append(Gmean)
+        
+        ####CV
+        cv_std=lambda x: np.std(x, ddof= 1 )
+        cv_mean=lambda x: np.mean(x)
+        CV_std=cv_std(list_ser_cv)
+        CV_mean=cv_mean(list_ser_cv)
+        CV=CV_std/CV_mean * 100
+        list_cv.append(CV)
+        
+    #для устранения None из фрейма
+    list_gmean.pop(0)
+    list_gmean.insert(0,0)
+    list_cv.pop(0)
+    list_cv.insert(0,0)
+    
+    df_averaged_concentrations=df.describe()
+    df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
+    df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
+    df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
+    df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
+    df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
+    df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
+
+    df_index=df.set_index('Номер')
+    df_concat = pd.concat([df_index,df_averaged_3],sort=False,axis=0)
+    df_concat_round=df_concat.round(2)
+
+    ###визуализация фрейма с нулями после округления
+    col_mapping = df_concat_round.columns.tolist()
+
+    list_list_series=[]
+    for i in col_mapping:
+        list_series = df_concat_round[i].tolist()
+         
+        list_series_round = []
+        for i in list_series:
+            value = "%.2f" % round(i,2)
+            list_series_round.append(value)
+             
+        list_list_series.append(list_series_round)
+
+    df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+    df_concat_round_str_transpose = df_concat_round_str.transpose()
+    df_concat_round_str_transpose.index.name = 'Номер'
+    
+    ##изменение названий параметров описательной статистики
+
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+    
+    #округление времени в качестве названий стоблцов
+    list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+    df_concat_round_str_transpose.columns = list_time_round
+    
+    dict_descriptive_statistics = {'df_concat_round_str_transpose': df_concat_round_str_transpose,'df_concat': df_concat}
+    return dict_descriptive_statistics
+
 #############################################################
 
 ####### Главное меню
@@ -321,100 +411,8 @@ if selected == "Исследование":
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после внутривенного введения субстанции'
                  list_heading_word.append(table_heading)
 
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 list_gmean=[]
-                 list_cv=[] 
-                 for i in col_mapping:
-
-                     list_ser=df[i].tolist()
-                     list_ser_cv = list_ser#нужно с нулями для CV
-
-                     #убрать нули, т.к нули будут давать нулевое gmean
-                     count_for_range_ser=len(list_ser)
-                     list_range_ser=range(0,count_for_range_ser)
-                     
-                     list_ser_without_0=[]
-                     for i in list_range_ser:
-                         if list_ser[i] !=0:
-                            list_ser_without_0.append(list_ser[i])
-
-                     list_ser = list_ser_without_0
-
-
-                     def g_mean(list_ser):
-                         a=np.log(list_ser)
-                         return np.exp(a.mean())
-                     Gmean=g_mean(list_ser)
-                     list_gmean.append(Gmean)
-                     
-                     ####CV
-
-                     cv_std=lambda x: np.std(x, ddof= 1 )
-                     cv_mean=lambda x: np.mean(x)
-                     CV_std=cv_std(list_ser_cv)
-
-                     CV_mean=cv_mean(list_ser_cv)
-
-                     CV=CV_std/CV_mean * 100
-                     list_cv.append(CV)
-                     
-                 #для устранения None из фрейма
-                 list_gmean.pop(0)
-                 list_gmean.insert(0,0)
-                 list_cv.pop(0)
-                 list_cv.insert(0,0)
-                 
-                 df_averaged_concentrations=df.describe()
-                 df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                 df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                 df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                 df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                 df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                 df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                 df_index=df.set_index('Номер')
-                 df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                 df_concat_round=df_concat.round(2)
-
-                 ###визуализация фрейма с нулями после округления
-                 col_mapping = df_concat_round.columns.tolist()
-
-                 list_list_series=[]
-                 for i in col_mapping:
-                     list_series = df_concat_round[i].tolist()
-                      
-                     list_series_round = []
-                     for i in list_series:
-                         value = "%.2f" % round(i,2)
-                         list_series_round.append(value)
-                          
-                     list_list_series.append(list_series_round)
-
-                 df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                 df_concat_round_str_transpose = df_concat_round_str.transpose()
-                 df_concat_round_str_transpose.index.name = 'Номер'
-                 
-                 ##изменение названий параметров описательной статистики
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                 
-
-                 #округление времени в качестве названий стоблцов
-                 list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                 df_concat_round_str_transpose.columns = list_time_round
-
+                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                  list_table_word.append(df_concat_round_str_transpose)
               ########### графики    
@@ -422,6 +420,9 @@ if selected == "Исследование":
               ######индивидуальные    
 
                  # в линейных координатах
+                 col_mapping = df.columns.tolist()
+                 col_mapping.remove('Номер')
+
                  count_row_df = len(df.axes[0])
 
                  list_time = []
@@ -538,7 +539,7 @@ if selected == "Исследование":
                      numer=float(i)
                      list_time.append(numer)
 
-
+                 df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
                  
@@ -967,9 +968,9 @@ if selected == "Исследование":
 
                      cv_std_PK=lambda x: np.std(x, ddof= 1 )
                      cv_mean_PK=lambda x: np.mean(x)
-                     CV_std_PK=cv_std(list_ser_PK)
 
-                     CV_mean_PK=cv_mean(list_ser_PK)
+                     CV_std_PK=cv_std_PK(list_ser_PK)
+                     CV_mean_PK=cv_mean_PK(list_ser_PK)
 
                      CV_PK=(CV_std_PK/CV_mean_PK * 100)
                      list_cv_PK.append(CV_PK)
@@ -1136,97 +1137,12 @@ if selected == "Исследование":
                  
                  ###интерактивная таблица
                  df = edit_frame(df,st.session_state["uploaded_file_2"])
-
+           
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения субстанции'
                  list_heading_word.append(table_heading)
 
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 list_gmean=[]
-                 list_cv=[] 
-                 for i in col_mapping:
-
-                     list_ser=df[i].tolist()
-                     list_ser_cv = list_ser#нужно с нулями для CV
-
-                     #убрать нули, т.к нули будут давать нулевое gmean
-                     count_for_range_ser=len(list_ser)
-                     list_range_ser=range(0,count_for_range_ser)
-                     
-                     list_ser_without_0=[]
-                     for i in list_range_ser:
-                         if list_ser[i] !=0:
-                            list_ser_without_0.append(list_ser[i])
-
-                     list_ser = list_ser_without_0
-
-                     def g_mean(list_ser):
-                         a=np.log(list_ser)
-                         return np.exp(a.mean())
-                     Gmean=g_mean(list_ser)
-                     list_gmean.append(Gmean)
-
-                     cv_std=lambda x: np.std(x, ddof= 1 )
-                     cv_mean=lambda x: np.mean(x)
-                     CV_std=cv_std(list_ser_cv)
-                     CV_mean=cv_mean(list_ser_cv)
-                     CV=CV_std/CV_mean * 100
-                     list_cv.append(CV)
-                 
-                 #для устранения None из фрейма
-                 list_gmean.pop(0)
-                 list_gmean.insert(0,0)
-                 list_cv.pop(0)
-                 list_cv.insert(0,0)
-
-                 df_averaged_concentrations=df.describe()
-                 df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                 df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                 df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                 df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                 df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                 df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                 df_index=df.set_index('Номер')
-                 df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                 df_concat_round=df_concat.round(2)
-                 
-                 ###визуализация фрейма с нулями после округления
-                 col_mapping = df_concat_round.columns.tolist()
-
-                 list_list_series=[]
-                 for i in col_mapping:
-                     list_series = df_concat_round[i].tolist()
-                      
-                     list_series_round = []
-                     for i in list_series:
-                         value = "%.2f" % round(i,2)
-                         list_series_round.append(value)
-                          
-                     list_list_series.append(list_series_round)
-
-                 df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                 df_concat_round_str_transpose = df_concat_round_str.transpose()
-                 df_concat_round_str_transpose.index.name = 'Номер'
-
-                 ##изменение названий параметров описательной статистики
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                 
-                 #округление времени в качестве названий стоблцов
-                 list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                 df_concat_round_str_transpose.columns = list_time_round
+                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
                  
                  list_table_word.append(df_concat_round_str_transpose)
 
@@ -1235,6 +1151,9 @@ if selected == "Исследование":
               ######индивидуальные    
 
                  # в линейных координатах
+                 col_mapping = df.columns.tolist()
+                 col_mapping.remove('Номер')
+
                  count_row_df = len(df.axes[0])
 
                  list_time = []
@@ -1344,7 +1263,7 @@ if selected == "Исследование":
                      numer=float(i)
                      list_time.append(numer)
 
-
+                 df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_2=df_averaged_concentrations.loc['std'].tolist()
 
@@ -1388,8 +1307,8 @@ if selected == "Исследование":
                  if "selected_value_sub" not in st.session_state:
                     st.session_state["selected_value_sub"] = []
                  
-                 if "feature_disable_selected_value" not in st.session_state:
-                     st.session_state["feature_disable_selected_value"] = True
+                 if "feature_disable_selected_value_sub" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_sub"] = True
 
                  ###создание состояния
                  st.info('Выбери Cmax:')
@@ -1399,7 +1318,7 @@ if selected == "Исследование":
                  st.session_state["selected_columns_sub"] = selected_columns 
 
                  list_keys_cmax = st.session_state["selected_value_sub"]
-                 if selected_columns != [] and st.session_state["feature_disable_selected_value"]:
+                 if selected_columns != [] and st.session_state["feature_disable_selected_value_sub"]:
                     selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax перорального введения субстанции',max_selections=1)
                     list_keys_cmax.append(selected_value)
 
@@ -1413,7 +1332,7 @@ if selected == "Исследование":
                     del st.session_state["selected_value_sub"]
                     list_keys_cmax_sample = []
                     selected_columns = st.session_state["selected_columns_sub"]
-                    st.session_state["feature_disable_selected_value"] = True
+                    st.session_state["feature_disable_selected_value_sub"] = True
                                         
                  st.write("Список Cmax:")
                  st.write(list_keys_cmax_sample)
@@ -1422,12 +1341,12 @@ if selected == "Исследование":
                  list_cmax_1=list_keys_cmax_sample 
                     
                  if len(list_cmax_1) == len(df.index.tolist()):
-                    st.session_state["feature_disable_selected_value"] = False
+                    st.session_state["feature_disable_selected_value_sub"] = False
 
                     ######Cmax2
 
-                    if "feature_disable_selected_value_2" not in st.session_state:
-                     st.session_state["feature_disable_selected_value_2"] = True
+                    if "feature_disable_selected_value_sub_2" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_sub_2"] = True
 
                     st.info('Выбери Cmax(2):')
                     
@@ -1439,7 +1358,7 @@ if selected == "Исследование":
                        st.session_state["selected_value_2_sub"] = []
 
                     list_keys_cmax_2 = st.session_state["selected_value_2_sub"]
-                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_2"]:
+                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_sub_2"]:
                        selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 перорального введения субстанции', max_selections=1)
                        list_keys_cmax_2.append(selected_value_2)
 
@@ -1453,7 +1372,7 @@ if selected == "Исследование":
                        del st.session_state["selected_value_2_sub"]
                        list_keys_cmax_sample_2 = []
                        selected_columns_2 = st.session_state["selected_columns_2_sub"]
-                       st.session_state["feature_disable_selected_value_2"] = True
+                       st.session_state["feature_disable_selected_value_sub_2"] = True
 
                     st.write("Список Cmax(2):")
                     st.write(list_keys_cmax_sample_2)
@@ -1461,7 +1380,7 @@ if selected == "Исследование":
                     list_cmax_2= list_keys_cmax_sample_2
 
                     if len(list_cmax_2) == len(df.index.tolist()):
-                       st.session_state["feature_disable_selected_value_2"] = False
+                       st.session_state["feature_disable_selected_value_sub_2"] = False
 
                     ###Tmax   
                     list_Tmax_1=[]
@@ -1861,16 +1780,15 @@ if selected == "Исследование":
 
                         cv_std_PK=lambda x: np.std(x, ddof= 1 )
                         cv_mean_PK=lambda x: np.mean(x)
-                        CV_std_PK=cv_std(list_ser_PK)
 
-                        CV_mean_PK=cv_mean(list_ser_PK)
+                        CV_std_PK=cv_std_PK(list_ser_PK)
+                        CV_mean_PK=cv_mean_PK(list_ser_PK)
 
                         CV_PK=(CV_std_PK/CV_mean_PK * 100)
                         list_cv_PK.append(CV_PK)
 
 
                     df_averaged_concentrations_PK=df_PK.describe()
-
                     df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
                     df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
                     df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
@@ -2022,7 +1940,7 @@ if selected == "Исследование":
               ##############################################################################################################
 
               st.title('Пероральное введение таблетки')
-
+              
               uploaded_file_3 = st.file_uploader("Выбрать файл перорального введения таблетки (формат XLSX)", key='Файл перорального введения таблетки при изучении абсолютной и относительной биодоступности препарата')
               
               #сохранение файла
@@ -2030,7 +1948,7 @@ if selected == "Исследование":
                  save_uploadedfile(uploaded_file_3)
                  st.session_state["uploaded_file_3"] = uploaded_file_3.name
 
-              dose_po_tab = st.text_input("Доза при пероральном введении таблетки", key='Доза при пероральном введении таблетки при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_po_tab"]) 
+              dose_po_tab = st.text_input("Доза при пероральном введении таблетки", key='Доза при пероральном введении таблетки при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_po_tab"])
               
               st.session_state["dose_po_tab"] = dose_po_tab
 
@@ -2041,105 +1959,23 @@ if selected == "Исследование":
                  
                  ###интерактивная таблица
                  df = edit_frame(df,st.session_state["uploaded_file_3"])
-
+           
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения таблетки'
                  list_heading_word.append(table_heading)
 
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 list_gmean=[]
-                 list_cv=[] 
-                 for i in col_mapping:
-
-                     list_ser=df[i].tolist()
-                     list_ser_cv = list_ser#нужно с нулями для CV
-
-                     #убрать нули, т.к нули будут давать нулевое gmean
-                     count_for_range_ser=len(list_ser)
-                     list_range_ser=range(0,count_for_range_ser)
-                     
-                     list_ser_without_0=[]
-                     for i in list_range_ser:
-                         if list_ser[i] !=0:
-                            list_ser_without_0.append(list_ser[i])
-
-                     list_ser = list_ser_without_0
-
-                     def g_mean(list_ser):
-                         a=np.log(list_ser)
-                         return np.exp(a.mean())
-                     Gmean=g_mean(list_ser)
-                     list_gmean.append(Gmean)
-
-                     cv_std=lambda x: np.std(x, ddof= 1 )
-                     cv_mean=lambda x: np.mean(x)
-                     CV_std=cv_std(list_ser_cv)
-                     CV_mean=cv_mean(list_ser_cv)
-                     CV=CV_std/CV_mean * 100
-                     list_cv.append(CV)
-                 
-                 #для устранения None из фрейма
-                 list_gmean.pop(0)
-                 list_gmean.insert(0,0)
-                 list_cv.pop(0)
-                 list_cv.insert(0,0)
-
-                 df_averaged_concentrations=df.describe()
-                 df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                 df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                 df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                 df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                 df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                 df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                 df_index=df.set_index('Номер')
-                 df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                 df_concat_round=df_concat.round(2)
-                 
-                 ###визуализация фрейма с нулями после округления
-                 col_mapping = df_concat_round.columns.tolist()
-
-                 list_list_series=[]
-                 for i in col_mapping:
-                     list_series = df_concat_round[i].tolist()
-                      
-                     list_series_round = []
-                     for i in list_series:
-                         value = "%.2f" % round(i,2)
-                         list_series_round.append(value)
-                          
-                     list_list_series.append(list_series_round)
-
-                 df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                 df_concat_round_str_transpose = df_concat_round_str.transpose()
-                 df_concat_round_str_transpose.index.name = 'Номер'
-
-                 ##изменение названий параметров описательной статистики
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                 
-                 #округление времени в качестве названий стоблцов
-                 list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                 df_concat_round_str_transpose.columns = list_time_round
+                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
                  
                  list_table_word.append(df_concat_round_str_transpose)
 
               ########### графики    
 
-                 ######индивидуальные    
+              ######индивидуальные    
 
                  # в линейных координатах
+                 col_mapping = df.columns.tolist()
+                 col_mapping.remove('Номер')
+
                  count_row_df = len(df.axes[0])
 
                  list_time = []
@@ -2162,11 +1998,11 @@ if selected == "Исследование":
                      plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
-
-                     list_graphics_word.append(fig) 
+                    
+                     list_graphics_word.append(fig)  
 
                      graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения таблетки,  '+numer_animal
-                     list_heading_graphics_word.append(graphic) 
+                     list_heading_graphics_word.append(graphic)
 
                   #в полулогарифмических координатах методом удаления точек
                      count_for_0_1=len(list_concentration)
@@ -2202,7 +2038,7 @@ if selected == "Исследование":
                      list_color.append(hexadecimal)
 
                  fig, ax = plt.subplots()
-
+                 
                  ax.set_prop_cycle(cycler(color=list_color))
 
                  plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
@@ -2223,7 +2059,7 @@ if selected == "Исследование":
 
 
                  fig, ax = plt.subplots()
-                
+                 
                  ax.set_prop_cycle(cycler(color=list_color))
 
                  plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
@@ -2237,40 +2073,41 @@ if selected == "Исследование":
                     ax.legend(bbox_to_anchor=(1, 1))
 
                  list_graphics_word.append(fig) 
-
+          
                  graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения таблетки"
-                 list_heading_graphics_word.append(graphic)      
+                 list_heading_graphics_word.append(graphic) 
 
+              ### усреденные    
+              #в линейных    
 
-              ### усреденные         
-               #в линейных   
                  list_time = []
                  for i in col_mapping:
                      numer=float(i)
                      list_time.append(numer)
 
-
+                 df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                 err_y_3=df_averaged_concentrations.loc['std'].tolist()
+                 err_y_2=df_averaged_concentrations.loc['std'].tolist()
 
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_3, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
 
                  list_graphics_word.append(fig) 
 
                  graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения таблетки'
-                 list_heading_graphics_word.append(graphic) 
+                 list_heading_graphics_word.append(graphic)  
 
               #в полулогарифмических координатах
                  list_time.remove(0)
                  list_concentration.remove(0)
-                 err_y_3.remove(0)       
+                 err_y_2.remove(0) 
+
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_3, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  ax.set_yscale("log")
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
@@ -2292,8 +2129,8 @@ if selected == "Исследование":
                  if "selected_value_tab" not in st.session_state:
                     st.session_state["selected_value_tab"] = []
                  
-                 if "feature_disable_selected_value" not in st.session_state:
-                     st.session_state["feature_disable_selected_value"] = True
+                 if "feature_disable_selected_value_tab" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_tab"] = True
 
                  ###создание состояния
                  st.info('Выбери Cmax:')
@@ -2303,7 +2140,7 @@ if selected == "Исследование":
                  st.session_state["selected_columns_tab"] = selected_columns 
 
                  list_keys_cmax = st.session_state["selected_value_tab"]
-                 if selected_columns != [] and st.session_state["feature_disable_selected_value"]:
+                 if selected_columns != [] and st.session_state["feature_disable_selected_value_tab"]:
                     selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax перорального введения таблетки',max_selections=1)
                     list_keys_cmax.append(selected_value)
 
@@ -2317,7 +2154,7 @@ if selected == "Исследование":
                     del st.session_state["selected_value_tab"]
                     list_keys_cmax_sample = []
                     selected_columns = st.session_state["selected_columns_tab"]
-                    st.session_state["feature_disable_selected_value"] = True
+                    st.session_state["feature_disable_selected_value_tab"] = True
                                         
                  st.write("Список Cmax:")
                  st.write(list_keys_cmax_sample)
@@ -2326,12 +2163,12 @@ if selected == "Исследование":
                  list_cmax_1=list_keys_cmax_sample 
                     
                  if len(list_cmax_1) == len(df.index.tolist()):
-                    st.session_state["feature_disable_selected_value"] = False
+                    st.session_state["feature_disable_selected_value_tab"] = False
 
                     ######Cmax2
 
                     if "feature_disable_selected_value_2" not in st.session_state:
-                     st.session_state["feature_disable_selected_value_2"] = True
+                     st.session_state["feature_disable_selected_value_tab_2"] = True
 
                     st.info('Выбери Cmax(2):')
                     
@@ -2343,7 +2180,7 @@ if selected == "Исследование":
                        st.session_state["selected_value_2_tab"] = []
 
                     list_keys_cmax_2 = st.session_state["selected_value_2_tab"]
-                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_2"]:
+                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_tab_2"]:
                        selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 перорального введения таблетки', max_selections=1)
                        list_keys_cmax_2.append(selected_value_2)
 
@@ -2357,7 +2194,7 @@ if selected == "Исследование":
                        del st.session_state["selected_value_2_tab"]
                        list_keys_cmax_sample_2 = []
                        selected_columns_2 = st.session_state["selected_columns_2_tab"]
-                       st.session_state["feature_disable_selected_value_2"] = True
+                       st.session_state["feature_disable_selected_value_tab_2"] = True
 
                     st.write("Список Cmax(2):")
                     st.write(list_keys_cmax_sample_2)
@@ -2365,8 +2202,8 @@ if selected == "Исследование":
                     list_cmax_2= list_keys_cmax_sample_2
 
                     if len(list_cmax_2) == len(df.index.tolist()):
-                       st.session_state["feature_disable_selected_value_2"] = False
-                   
+                       st.session_state["feature_disable_selected_value_tab_2"] = False
+
                     ###Tmax   
                     list_Tmax_1=[]
                     for cmax in list_cmax_1:
@@ -2765,16 +2602,15 @@ if selected == "Исследование":
 
                         cv_std_PK=lambda x: np.std(x, ddof= 1 )
                         cv_mean_PK=lambda x: np.mean(x)
-                        CV_std_PK=cv_std(list_ser_PK)
 
-                        CV_mean_PK=cv_mean(list_ser_PK)
+                        CV_std_PK=cv_std_PK(list_ser_PK)
+                        CV_mean_PK=cv_mean_PK(list_ser_PK)
 
                         CV_PK=(CV_std_PK/CV_mean_PK * 100)
                         list_cv_PK.append(CV_PK)
 
 
                     df_averaged_concentrations_PK=df_PK.describe()
-
                     df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
                     df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
                     df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
@@ -2874,8 +2710,6 @@ if selected == "Исследование":
                     list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
                     list_PK_Kel_not_round = df_PK['Kel'].tolist()
 
-
-
                     list_list_PK_parametr_po_tab=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
                     list_parametr_mean_h_po_tab=[]
                     for i in list_list_PK_parametr_po_tab:
@@ -2924,8 +2758,13 @@ if selected == "Исследование":
                     list_parametr_round_mean_h_po_tab.insert(1,t_mean_po_tab)
 
               ###Биодоступность
+         
+              button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
+              
+              if button_calculation_bioavailability:
+                 st.write('👩🏽‍💻Биодоступность подсчитана!')
 
-              if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab :
+              if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab and button_calculation_bioavailability:
                   
                   table_heading='Усредненные фармакокинетические параметры в крови после внутривенного введения субстанции, перорального введения субстанции и перорального введения таблетки, а также абсолютная и относительная биодоступность'
                   list_heading_word.append(table_heading)
@@ -3201,95 +3040,9 @@ if selected == "Исследование":
 
                     table_heading='Индивидуальные и усредненные значения концентраций ' + "("+file_name+")"
                     list_heading_word.append(table_heading)
-                    col_mapping = df.columns.tolist()
-                    col_mapping.remove('Номер')
 
-                    list_gmean=[]
-                    list_cv=[] 
-                    for i in col_mapping:
-
-                        list_ser=df[i].tolist()
-                        list_ser_cv = list_ser#нужно с нулями для CV
-
-                        #убрать нули, т.к нули будут давать нулевое gmean
-                        count_for_range_ser=len(list_ser)
-                        list_range_ser=range(0,count_for_range_ser)
-                        
-                        list_ser_without_0=[]
-                        for i in list_range_ser:
-                            if list_ser[i] !=0:
-                               list_ser_without_0.append(list_ser[i])
-
-                        list_ser = list_ser_without_0
-
-                        def g_mean(list_ser):
-                            a=np.log(list_ser)
-                            return np.exp(a.mean())
-                        Gmean=g_mean(list_ser)
-                        list_gmean.append(Gmean)
-
-                        cv_std=lambda x: np.std(x, ddof= 1 )
-                        cv_mean=lambda x: np.mean(x)
-                        CV_std=cv_std(list_ser_cv)
-
-                        CV_mean=cv_mean(list_ser_cv)
-
-                        CV=CV_std/CV_mean * 100
-                        list_cv.append(CV)
-                    
-                    #для устранения None из фрейма
-                    list_gmean.pop(0)
-                    list_gmean.insert(0,0)
-                    list_cv.pop(0)
-                    list_cv.insert(0,0)
-
-                    df_averaged_concentrations=df.describe()
-                    df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                    df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                    df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                    df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                    df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                    df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                    df_index=df.set_index('Номер')
-                    df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                    df_concat_round=df_concat.round(2)
-                    
-                    ###визуализация фрейма с нулями после округления
-                    col_mapping = df_concat_round.columns.tolist()
-
-                    list_list_series=[]
-                    for i in col_mapping:
-                        list_series = df_concat_round[i].tolist()
-                            
-                        list_series_round = []
-                        for i in list_series:
-                            value = "%.2f" % round(i,2)
-                            list_series_round.append(value)
-                                
-                        list_list_series.append(list_series_round)
-
-                    df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                    df_concat_round_str_transpose = df_concat_round_str.transpose()
-                    df_concat_round_str_transpose.index.name = 'Номер'
-
-                    ##изменение названий параметров описательной статистики
-
-                    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                    df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                    df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                    df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                    df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                    
-                    #округление времени в качестве названий стоблцов
-                    list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                    df_concat_round_str_transpose.columns = list_time_round
+                    ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                    df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                     list_table_word.append(df_concat_round_str_transpose) 
 
@@ -3301,7 +3054,10 @@ if selected == "Исследование":
 
                     ######индивидуальные    
 
-                    # в линейных координатах
+                    # в линейных координатах 
+                    col_mapping = df.columns.tolist()
+                    col_mapping.remove('Номер')
+
                     count_row_df = len(df.axes[0])
 
                     list_time = []
@@ -3412,7 +3168,7 @@ if selected == "Исследование":
                         numer=float(i)
                         list_time.append(numer)
 
-
+                    df_averaged_concentrations=df.describe()
                     list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                     err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
@@ -3816,9 +3572,9 @@ if selected == "Исследование":
 
                         cv_std_PK=lambda x: np.std(x, ddof= 1 )
                         cv_mean_PK=lambda x: np.mean(x)
-                        CV_std_PK=cv_std(list_ser_PK)
 
-                        CV_mean_PK=cv_mean(list_ser_PK)
+                        CV_std_PK=cv_std_PK(list_ser_PK)
+                        CV_mean_PK=cv_mean_PK(list_ser_PK)
 
                         CV_PK=(CV_std_PK/CV_mean_PK * 100)
                         list_cv_PK.append(CV_PK)
@@ -3894,6 +3650,8 @@ if selected == "Исследование":
                     list_table_word.append(df_total_PK_iv) 
                     #создание списков фреймов, названий органов и т.д.
 
+                    ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                    df_concat = create_table_descriptive_statistics(df)['df_concat']
 
                     list_name_organs.append(file_name)
                     list_df_unrounded.append(df_concat_PK_iv)
@@ -4209,101 +3967,8 @@ if selected == "Исследование":
                     table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin
                     list_heading_word.append(table_heading)
 
-                    col_mapping = df.columns.tolist()
-                    col_mapping.remove('Номер')
-
-                    list_gmean=[]
-                    list_cv=[] 
-                    for i in col_mapping:
-
-                        list_ser=df[i].tolist()
-                        list_ser_cv = list_ser#нужно с нулями для CV
-
-                        #убрать нули, т.к нули будут давать нулевое gmean
-                        count_for_range_ser=len(list_ser)
-                        list_range_ser=range(0,count_for_range_ser)
-                        
-                        list_ser_without_0=[]
-                        for i in list_range_ser:
-                            if list_ser[i] !=0:
-                               list_ser_without_0.append(list_ser[i])
-
-                        list_ser = list_ser_without_0
-
-                        def g_mean(list_ser):
-                            a=np.log(list_ser)
-                            return np.exp(a.mean())
-                        Gmean=g_mean(list_ser)
-                        list_gmean.append(Gmean)
-                        
-
-                        cv_std=lambda x: np.std(x, ddof= 1 )
-                        cv_mean=lambda x: np.mean(x)
-                        CV_std=cv_std(list_ser_cv)
-
-                        CV_mean=cv_mean(list_ser_cv)
-
-                        CV=CV_std/CV_mean * 100
-                        list_cv.append(CV)
-                    
-                    #для устранения None из фрейма
-                    list_gmean.pop(0)
-                    list_gmean.insert(0,0)
-                    list_cv.pop(0)
-                    list_cv.insert(0,0)
-                    
-
-                    df_averaged_concentrations=df.describe()
-                    df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                    df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                    df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                    df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                    df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                    df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                    df_index=df.set_index('Номер')
-                    df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                 
-                    ##помещение фреймов с описательной статистикой в список для извлечения потом std для построения линиий ошибок
-                    
-
-                    df_concat_round=df_concat.round(2)
-                    
-                    ###визуализация фрейма с нулями после округления
-                    col_mapping = df_concat_round.columns.tolist()
-
-                    list_list_series=[]
-                    for i in col_mapping:
-                        list_series = df_concat_round[i].tolist()
-                         
-                        list_series_round = []
-                        for i in list_series:
-                            value = "%.2f" % round(i,2)
-                            list_series_round.append(value)
-                             
-                        list_list_series.append(list_series_round)
-
-                    df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                    df_concat_round_str_transpose = df_concat_round_str.transpose()
-                    df_concat_round_str_transpose.index.name = 'Номер'
-
-                    ##изменение названий параметров описательной статистики
-
-                    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                    df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                    df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                    df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                    df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                    
-                    #округление времени в качестве названий стоблцов
-                    list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                    df_concat_round_str_transpose.columns = list_time_round
+                    ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                    df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                     list_table_word.append(df_concat_round_str_transpose)
                     ########### графики    
@@ -4312,6 +3977,9 @@ if selected == "Исследование":
                     ######индивидуальные    
 
                     # в линейных координатах
+                    col_mapping = df.columns.tolist()
+                    col_mapping.remove('Номер')
+
                     count_row_df = len(df.axes[0])
 
                     list_time = []
@@ -4422,7 +4090,7 @@ if selected == "Исследование":
                         numer=float(i)
                         list_time.append(numer)
 
-
+                    df_averaged_concentrations=df.describe()
                     list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                     err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
@@ -4852,9 +4520,9 @@ if selected == "Исследование":
 
                         cv_std_PK=lambda x: np.std(x, ddof= 1 )
                         cv_mean_PK=lambda x: np.mean(x)
-                        CV_std_PK=cv_std(list_ser_PK)
 
-                        CV_mean_PK=cv_mean(list_ser_PK)
+                        CV_std_PK=cv_std_PK(list_ser_PK)
+                        CV_mean_PK=cv_mean_PK(list_ser_PK)
 
                         CV_PK=(CV_std_PK/CV_mean_PK * 100)
                         list_cv_PK.append(CV_PK)
@@ -4942,6 +4610,8 @@ if selected == "Исследование":
                     list_table_word.append(df_total_PK_iv)
                     #создание списков фреймов, доз и т.д.
 
+                    ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                    df_concat = create_table_descriptive_statistics(df)['df_concat']
 
                     list_name_doses.append(file_name)
                     list_df_unrounded.append(df_concat_PK_iv)
@@ -5278,105 +4948,23 @@ if selected == "Исследование":
 
                    table_heading='Индивидуальные и усредненные значения концентраций в ' + excretion_pr
                    list_heading_word.append(table_heading) 
-                   col_mapping = df.columns.tolist()
-                   col_mapping.remove('Номер')
 
-                   list_gmean=[]
-                   list_cv=[] 
-                   for i in col_mapping:
-
-                       list_ser=df[i].tolist()
-                       list_ser_cv = list_ser#нужно с нулями для CV
-
-                       #убрать нули, т.к нули будут давать нулевое gmean
-                       count_for_range_ser=len(list_ser)
-                       list_range_ser=range(0,count_for_range_ser)
-                       
-                       list_ser_without_0=[]
-                       for i in list_range_ser:
-                           if list_ser[i] !=0:
-                               list_ser_without_0.append(list_ser[i])
-
-                       list_ser = list_ser_without_0
-
-                       def g_mean(list_ser):
-                           a=np.log(list_ser)
-                           return np.exp(a.mean())
-                       Gmean=g_mean(list_ser)
-                       list_gmean.append(Gmean)
-
-                       cv_std=lambda x: np.std(x, ddof= 1 )
-                       cv_mean=lambda x: np.mean(x)
-                       CV_std=cv_std(list_ser_cv)
-
-                       CV_mean=cv_mean(list_ser_cv)
-
-                       CV=CV_std/CV_mean * 100
-                       list_cv.append(CV)
-                   
-                   #для устранения None из фрейма
-                   list_gmean.pop(0)
-                   list_gmean.insert(0,0)
-                   list_cv.pop(0)
-                   list_cv.insert(0,0)
-
-                   df_averaged_concentrations=df.describe()
-                   df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                   df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                   df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                   df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                   df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                   df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                   df_index=df.set_index('Номер')
-                   df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                   df_concat_round=df_concat.round(2)
-                   
-                   ###визуализация фрейма с нулями после округления
-                   col_mapping = df_concat_round.columns.tolist()
-
-                   list_list_series=[]
-                   for i in col_mapping:
-                       list_series = df_concat_round[i].tolist()
-                       
-                       list_series_round = []
-                       for i in list_series:
-                           value = "%.2f" % round(i,2)
-                           list_series_round.append(value)
-                           
-                       list_list_series.append(list_series_round)
-
-                   df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                   df_concat_round_str_transpose = df_concat_round_str.transpose()
-                   df_concat_round_str_transpose.index.name = 'Номер'
-
-                   ##изменение названий параметров описательной статистики
-
-                   df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                   df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                   df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                   df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                   df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                   df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                   df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                   
-                   #округление времени в качестве названий стоблцов
-                   list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                   df_concat_round_str_transpose.columns = list_time_round
+                   ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                   df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                    list_table_word.append(df_concat_round_str_transpose) 
 
                    ########### диаграмма    
+                   
+                   col_mapping = df.columns.tolist()
+                   col_mapping.remove('Номер')
 
                    list_time = []
                    for i in col_mapping:
                        numer=float(i)
                        list_time.append(numer)
-
+                   
+                   df_averaged_concentrations=df.describe()
                    list_concentration=df_averaged_concentrations.loc['mean'].tolist()
 
                    list_concentration.remove(0)
