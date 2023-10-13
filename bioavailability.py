@@ -405,6 +405,9 @@ if selected == "Исследование":
                  
                  ###интерактивная таблица
                  df = edit_frame(df,st.session_state["uploaded_file_1"])
+
+                 ###количество животных 
+                 count_rows_number_iv= len(df.axes[0])
                 
                  ################
 
@@ -581,14 +584,14 @@ if selected == "Исследование":
                  ###Cmax
                  df_without_numer=df.drop(['Номер'],axis=1)
                  count_row=df_without_numer.shape[0]
-                 list_cmax=[]
+                 list_cmax_1_iv=[]
                  for i in range(0,count_row):
                      cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
-                     list_cmax.append(cmax)
+                     list_cmax_1_iv.append(cmax)
 
                  ###Tmax   
                  list_Tmax=[]
-                 for cmax in list_cmax:
+                 for cmax in list_cmax_1_iv:
                      for column in df.columns:
                          for num, row in df.iterrows():
                              if df.iloc[num][column] == cmax:
@@ -697,7 +700,7 @@ if selected == "Исследование":
                         list_AUC_0_T.append(AUC_O_T)
 
                  ####Сmax/AUC0-t
-                 list_Сmax_division_AUC0_t_for_division=zip(list_cmax,list_AUC_0_T)
+                 list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1_iv,list_AUC_0_T)
                  list_Сmax_division_AUC0_t=[]
                  for i,j in list_Сmax_division_AUC0_t_for_division:
                          list_Сmax_division_AUC0_t.append(i/j)
@@ -946,7 +949,7 @@ if selected == "Исследование":
                  ### пользовательский индекс
                  list_for_index=df["Номер"].tolist()
 
-                 df_PK=pd.DataFrame(list(zip(list_cmax,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
+                 df_PK=pd.DataFrame(list(zip(list_cmax_1_iv,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
                  
                  ###описательная статистика
 
@@ -1137,6 +1140,9 @@ if selected == "Исследование":
                  
                  ###интерактивная таблица
                  df = edit_frame(df,st.session_state["uploaded_file_2"])
+
+                 ###количество животных 
+                 count_rows_number_sub= len(df.axes[0])
            
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения субстанции'
                  list_heading_word.append(table_heading)
@@ -1338,9 +1344,11 @@ if selected == "Исследование":
                  st.write(list_keys_cmax_sample)
                  
 
-                 list_cmax_1=list_keys_cmax_sample 
-                    
-                 if len(list_cmax_1) == len(df.index.tolist()):
+                 list_cmax_1_sub=list_keys_cmax_sample 
+                 
+                 list_cmax_2_sub=[]
+
+                 if len(list_cmax_1_sub) == len(df.index.tolist()):
                     st.session_state["feature_disable_selected_value_sub"] = False
 
                     ######Cmax2
@@ -1377,14 +1385,14 @@ if selected == "Исследование":
                     st.write("Список Cmax(2):")
                     st.write(list_keys_cmax_sample_2)
 
-                    list_cmax_2= list_keys_cmax_sample_2
+                    list_cmax_2_sub= list_keys_cmax_sample_2
 
-                    if len(list_cmax_2) == len(df.index.tolist()):
+                    if len(list_cmax_2_sub) == len(df.index.tolist()):
                        st.session_state["feature_disable_selected_value_sub_2"] = False
 
                     ###Tmax   
                     list_Tmax_1=[]
-                    for cmax in list_cmax_1:
+                    for cmax in list_cmax_1_sub:
                         for column in df.columns:
                             for num, row in df.iterrows():
                                 if df.iloc[num][column] == cmax:
@@ -1396,7 +1404,7 @@ if selected == "Исследование":
                         list_Tmax_float_1.append(Tmax)
 
                     list_Tmax_2=[]
-                    for cmax in list_cmax_2:
+                    for cmax in list_cmax_2_sub:
                         for column in df.columns:
                             for num, row in df.iterrows():
                                 if df.iloc[num][column] == cmax:
@@ -1505,7 +1513,7 @@ if selected == "Исследование":
                            list_AUC_0_T.append(AUC_O_T)
 
                     ####Сmax/AUC0-t
-                    list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1,list_AUC_0_T)
+                    list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1_sub,list_AUC_0_T)
                     list_Сmax_division_AUC0_t=[]
                     for i,j in list_Сmax_division_AUC0_t_for_division:
                             list_Сmax_division_AUC0_t.append(i/j)
@@ -1752,13 +1760,13 @@ if selected == "Исследование":
                         list_MRT0_inf.append(MRT0_inf)
                  
                  #####Cmax условие для дальнейшего кода
-                 if len(list_cmax_1) == len(df.index.tolist()) and len(list_cmax_2) == len(df.index.tolist()):
+                 if len(list_cmax_1_sub) == len(df.index.tolist()) and len(list_cmax_2_sub) == len(df.index.tolist()):
 
                     ##################### Фрейм ФК параметров
 
                     ### пользовательский индекс
                     list_for_index=df["Номер"].tolist()
-                    df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
+                    df_PK=pd.DataFrame(list(zip(list_cmax_1_sub,list_Tmax_float_1,list_cmax_2_sub,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
 
                     ###описательная статистика
 
@@ -1871,7 +1879,6 @@ if selected == "Исследование":
 
                     df_total_PK_po_sub = df_total_PK_po_sub.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
 
-
                     table_heading='Фармакокинетические показатели в крови после перорального введения субстанции'
                     list_heading_word.append(table_heading)
                     
@@ -1887,8 +1894,6 @@ if selected == "Исследование":
                     list_PK_AUMC0_inf_not_round = df_PK['AUMC0-∞'].tolist()
                     list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
                     list_PK_Kel_not_round = df_PK['Kel'].tolist()
-
-
 
                     list_list_PK_parametr_po_sub=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
                     list_parametr_mean_h_po_sub=[]
@@ -1906,7 +1911,6 @@ if selected == "Исследование":
                          func_mean_h = confidential_interval(i)
 
                          list_parametr_mean_h_po_sub.append(func_mean_h)
-
 
                     list_mean_h_po_sub_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_po_sub[0]]
                     parametr_round_mean_h_Cmax=str(list_mean_h_po_sub_Cmax_round[0]) +"±"+str(list_mean_h_po_sub_Cmax_round[1])
@@ -1959,6 +1963,9 @@ if selected == "Исследование":
                  
                  ###интерактивная таблица
                  df = edit_frame(df,st.session_state["uploaded_file_3"])
+
+                 ###количество животных 
+                 count_rows_number_tab= len(df.axes[0])
            
                  table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения таблетки'
                  list_heading_word.append(table_heading)
@@ -2160,9 +2167,11 @@ if selected == "Исследование":
                  st.write(list_keys_cmax_sample)
                  
 
-                 list_cmax_1=list_keys_cmax_sample 
-                    
-                 if len(list_cmax_1) == len(df.index.tolist()):
+                 list_cmax_1_tab=list_keys_cmax_sample 
+
+                 list_cmax_2_tab=[]
+
+                 if len(list_cmax_1_tab) == len(df.index.tolist()):
                     st.session_state["feature_disable_selected_value_tab"] = False
 
                     ######Cmax2
@@ -2199,14 +2208,14 @@ if selected == "Исследование":
                     st.write("Список Cmax(2):")
                     st.write(list_keys_cmax_sample_2)
 
-                    list_cmax_2= list_keys_cmax_sample_2
+                    list_cmax_2_tab= list_keys_cmax_sample_2
 
-                    if len(list_cmax_2) == len(df.index.tolist()):
+                    if len(list_cmax_2_tab) == len(df.index.tolist()):
                        st.session_state["feature_disable_selected_value_tab_2"] = False
 
                     ###Tmax   
                     list_Tmax_1=[]
-                    for cmax in list_cmax_1:
+                    for cmax in list_cmax_1_tab:
                         for column in df.columns:
                             for num, row in df.iterrows():
                                 if df.iloc[num][column] == cmax:
@@ -2218,7 +2227,7 @@ if selected == "Исследование":
                         list_Tmax_float_1.append(Tmax)
 
                     list_Tmax_2=[]
-                    for cmax in list_cmax_2:
+                    for cmax in list_cmax_2_tab:
                         for column in df.columns:
                             for num, row in df.iterrows():
                                 if df.iloc[num][column] == cmax:
@@ -2327,7 +2336,7 @@ if selected == "Исследование":
                            list_AUC_0_T.append(AUC_O_T)
 
                     ####Сmax/AUC0-t
-                    list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1,list_AUC_0_T)
+                    list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1_tab,list_AUC_0_T)
                     list_Сmax_division_AUC0_t=[]
                     for i,j in list_Сmax_division_AUC0_t_for_division:
                             list_Сmax_division_AUC0_t.append(i/j)
@@ -2574,13 +2583,13 @@ if selected == "Исследование":
                         list_MRT0_inf.append(MRT0_inf)
                  
                  #####Cmax условие для дальнейшего кода
-                 if len(list_cmax_1) == len(df.index.tolist()) and len(list_cmax_2) == len(df.index.tolist()):
+                 if len(list_cmax_1_tab) == len(df.index.tolist()) and len(list_cmax_2_tab) == len(df.index.tolist()):
 
                     ##################### Фрейм ФК параметров
 
                     ### пользовательский индекс
                     list_for_index=df["Номер"].tolist()
-                    df_PK=pd.DataFrame(list(zip(list_cmax_1,list_Tmax_float_1,list_cmax_2,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
+                    df_PK=pd.DataFrame(list(zip(list_cmax_1_tab,list_Tmax_float_1,list_cmax_2_tab,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
 
                     ###описательная статистика
 
@@ -2758,11 +2767,31 @@ if selected == "Исследование":
                     list_parametr_round_mean_h_po_tab.insert(1,t_mean_po_tab)
 
               ###Биодоступность
-         
-              button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
+              button_calculation_bioavailability = False
               
-              if button_calculation_bioavailability:
+              list_cmax_2_iv = [] #потом удалить
+
+                
+              
+              if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab:
+                 
+                 condition_iv_cmax1 =  len(list_cmax_1_iv) == count_rows_number_iv
+                 condition_sub_cmax1 = len(list_cmax_1_sub) == count_rows_number_sub
+                 condition_tab_cmax1 = len(list_cmax_1_tab) == count_rows_number_tab
+                 
+                 condition_iv_cmax2 =  len(list_cmax_2_iv) == count_rows_number_iv
+                 condition_sub_cmax2 = len(list_cmax_2_sub) == count_rows_number_sub
+                 condition_tab_cmax2 = len(list_cmax_2_tab) == count_rows_number_tab
+
+                 if condition_iv_cmax2 and condition_sub_cmax2 and condition_tab_cmax2:
+                    button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
+                 if condition_iv_cmax1 and condition_sub_cmax2 and condition_tab_cmax2: #исправить потом на все 1
+                    button_calculation_bioavailability = st.button("🧮Рассчитать биодоступность", key = "button_calculation_bioavailability")
+
+              if button_calculation_bioavailability == True:
                  st.write('👩🏽‍💻Биодоступность подсчитана!')
+              else:   
+                 st.write('🔧Заполните все поля ввода и загрузите файлы!')
 
               if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab and button_calculation_bioavailability:
                   
