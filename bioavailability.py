@@ -230,7 +230,7 @@ if selected == "Исследование":
    st.sidebar.subheader('Какое исследование проводится?')
 
    option = st.sidebar.selectbox('Выберите вид исследования',
-       ('Изучение абсолютной и относительной биодоступности препарата', 'Изучение фармакокинетики в органах животных', 'Линейность дозирования'),disabled = False, key = "Вид исследования")
+       ('Изучение абсолютной и относительной биодоступности препарата', 'Изучение фармакокинетики в органах животных', 'Линейность дозирования','Изучение экскреции препарата'),disabled = False, key = "Вид исследования")
 
    ############### файл пример
 
@@ -3042,282 +3042,6 @@ if selected == "Исследование":
 
               ##############################################################################################################
 
-              #############кал
-
-              st.title('Исследование экскреции с калом')
-
-              uploaded_file_4 = st.file_uploader("Выбрать файл экскреции с калом (формат XLSX)", key='Файл экскреции с калом изучения абсолютной и относительной биодоступности препарата')
-              
-              if uploaded_file_4 is not None:
-                 save_uploadedfile(uploaded_file_4)
-                 st.session_state["uploaded_file_4"] = uploaded_file_4.name
-
-              if "uploaded_file_4" in st.session_state and measure_unit:
-
-                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_4"]))
-                 st.subheader('Индивидуальные значения концентраций в кале')
-                 
-                 ###интерактивная таблица
-                 df = edit_frame(df,st.session_state["uploaded_file_4"])
-
-                 table_heading='Индивидуальные и усредненные значения концентраций в кале'
-                 list_heading_word.append(table_heading)
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 list_gmean=[]
-                 list_cv=[] 
-                 for i in col_mapping:
-
-                     list_ser=df[i].tolist()
-                     list_ser_cv = list_ser#нужно с нулями для CV
-
-                     #убрать нули, т.к нули будут давать нулевое gmean
-                     count_for_range_ser=len(list_ser)
-                     list_range_ser=range(0,count_for_range_ser)
-                     
-                     list_ser_without_0=[]
-                     for i in list_range_ser:
-                         if list_ser[i] !=0:
-                            list_ser_without_0.append(list_ser[i])
-
-                     list_ser = list_ser_without_0
-
-                     def g_mean(list_ser):
-                         a=np.log(list_ser)
-                         return np.exp(a.mean())
-                     Gmean=g_mean(list_ser)
-                     list_gmean.append(Gmean)
-
-                     cv_std=lambda x: np.std(x, ddof= 1 )
-                     cv_mean=lambda x: np.mean(x)
-                     CV_std=cv_std(list_ser_cv)
-
-                     CV_mean=cv_mean(list_ser_cv)
-
-                     CV=CV_std/CV_mean * 100
-                     list_cv.append(CV)
-                 
-                 #для устранения None из фрейма
-                 list_gmean.pop(0)
-                 list_gmean.insert(0,0)
-                 list_cv.pop(0)
-                 list_cv.insert(0,0)
-
-                 df_averaged_concentrations=df.describe()
-                 df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                 df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                 df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                 df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                 df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                 df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                 df_index=df.set_index('Номер')
-                 df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                 df_concat_round=df_concat.round(2)
-                 
-                 ###визуализация фрейма с нулями после округления
-                 col_mapping = df_concat_round.columns.tolist()
-
-                 list_list_series=[]
-                 for i in col_mapping:
-                     list_series = df_concat_round[i].tolist()
-                      
-                     list_series_round = []
-                     for i in list_series:
-                         value = "%.2f" % round(i,2)
-                         list_series_round.append(value)
-                          
-                     list_list_series.append(list_series_round)
-
-                 df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                 df_concat_round_str_transpose = df_concat_round_str.transpose()
-                 df_concat_round_str_transpose.index.name = 'Номер'
-
-                 ##изменение названий параметров описательной статистики
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                 
-                 #округление времени в качестве названий стоблцов
-                 list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                 df_concat_round_str_transpose.columns = list_time_round
-                 
-                 list_table_word.append(df_concat_round_str_transpose)
-
-              ########### диаграмма    
-
-
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-
-                 list_concentration.remove(0)
-                 list_time.remove(0)
-
-
-
-                 fig, ax = plt.subplots()
-
-                 sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
-                 plt.xlabel("Время, ч")
-                 plt.ylabel("Концентрация, "+measure_unit)
-
-                 list_graphics_word.append(fig) 
-
-                 graphic='Выведение с калом'
-                 list_heading_graphics_word.append(graphic)    
-
-              #############моча
-
-
-              st.title('Исследование экскреции с мочой')
-
-              uploaded_file_5 = st.file_uploader("Выбрать файл экскреции с мочой (формат XLSX)", key='Файл экскреции с мочой изучения абсолютной и относительной биодоступности препарата')
-              
-              if uploaded_file_5 is not None:
-                 save_uploadedfile(uploaded_file_5)
-                 st.session_state["uploaded_file_5"] = uploaded_file_5.name
-
-              if "uploaded_file_5" in st.session_state and measure_unit:
-
-                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_5"]))
-                 st.subheader('Индивидуальные значения концентраций в моче')
-                 
-                 ###интерактивная таблица
-                 df = edit_frame(df,st.session_state["uploaded_file_5"])
-                 
-                 table_heading='Индивидуальные и усредненные значения концентраций в моче'
-                 list_heading_word.append(table_heading)
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 list_gmean=[]
-                 list_cv=[] 
-                 for i in col_mapping:
-
-                     list_ser=df[i].tolist()
-                     list_ser_cv = list_ser#нужно с нулями для CV
-
-                     #убрать нули, т.к нули будут давать нулевое gmean
-                     count_for_range_ser=len(list_ser)
-                     list_range_ser=range(0,count_for_range_ser)
-                     
-                     list_ser_without_0=[]
-                     for i in list_range_ser:
-                         if list_ser[i] !=0:
-                            list_ser_without_0.append(list_ser[i])
-
-                     list_ser = list_ser_without_0
-
-                     def g_mean(list_ser):
-                         a=np.log(list_ser)
-                         return np.exp(a.mean())
-                     Gmean=g_mean(list_ser)
-                     list_gmean.append(Gmean)
-
-                     cv_std=lambda x: np.std(x, ddof= 1 )
-                     cv_mean=lambda x: np.mean(x)
-                     CV_std=cv_std(list_ser_cv)
-
-                     CV_mean=cv_mean(list_ser_cv)
-
-                     CV=CV_std/CV_mean * 100
-                     list_cv.append(CV)
-                 
-                 #для устранения None из фрейма
-                 list_gmean.pop(0)
-                 list_gmean.insert(0,0)
-                 list_cv.pop(0)
-                 list_cv.insert(0,0)
-
-                 df_averaged_concentrations=df.describe()
-                 df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-                 df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-                 df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-                 df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-                 df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-                 df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-                 df_index=df.set_index('Номер')
-                 df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-                 df_concat_round=df_concat.round(2)
-                 
-                 ###визуализация фрейма с нулями после округления
-                 col_mapping = df_concat_round.columns.tolist()
-
-                 list_list_series=[]
-                 for i in col_mapping:
-                     list_series = df_concat_round[i].tolist()
-                      
-                     list_series_round = []
-                     for i in list_series:
-                         value = "%.2f" % round(i,2)
-                         list_series_round.append(value)
-                          
-                     list_list_series.append(list_series_round)
-
-                 df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-                 df_concat_round_str_transpose = df_concat_round_str.transpose()
-                 df_concat_round_str_transpose.index.name = 'Номер'
-
-                 ##изменение названий параметров описательной статистики
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-                 df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-                 df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-                 df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-                 
-                 #округление времени в качестве названий стоблцов
-                 list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-                 df_concat_round_str_transpose.columns = list_time_round
-
-                 list_table_word.append(df_concat_round_str_transpose)
-
-              ###########диаграмма    
-
-
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-
-                 list_concentration.remove(0)
-                 list_time.remove(0)
-
-
-
-                 fig, ax = plt.subplots()
-                 sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
-                 plt.xlabel("Время, ч")
-                 plt.ylabel("Концентрация, "+measure_unit) 
-
-                 list_graphics_word.append(fig) 
-
-                 graphic='Выведение с мочой'
-                 list_heading_graphics_word.append(graphic)  
-
               ###сохранение состояния 
               st.session_state["list_heading_word"] = list_heading_word
               st.session_state["list_table_word"] = list_table_word
@@ -3346,7 +3070,7 @@ if selected == "Исследование":
 
                  #классификация графиков по кнопкам
                  type_graphics = st.selectbox('Выберите вид графиков',
-           ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей при разных видах введения", "Диаграммы экскреции"),disabled = False, key = "Вид графика - ИБ" )
+           ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей при разных видах введения"),disabled = False, key = "Вид графика - ИБ" )
 
                  count_graphics_for_visual = len(list_heading_graphics_word)
                  list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
@@ -3368,11 +3092,7 @@ if selected == "Исследование":
                         if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
                            st.pyplot(list_graphics_word[i])
                            st.subheader(list_heading_graphics_word[i])
-                     if list_heading_graphics_word[i].__contains__("Выведение"):
-                        if type_graphics == 'Диаграммы экскреции':
-                           st.pyplot(list_graphics_word[i])
-                           st.subheader(list_heading_graphics_word[i])
-
+                     
        ######### боковое меню справа
        with col2:
             selected = option_menu(None, ["Включение параметров в исследование"], 
@@ -4343,151 +4063,6 @@ if selected == "Исследование":
                 graphic='Тканевая доступность в органах'
                 list_heading_graphics_word.append(graphic) 
 
-            ############кал
-
-            st.title('Исследование экскреции с калом')
-
-            if "measure_unit_org_cal" not in st.session_state:   
-             st.session_state["measure_unit_org_cal"] = ""
-
-            measure_unit_org_cal = st.text_input("Введите единицы измерения концентрации в кале", key='Единицы измерения при изучении фармакокинетики в органах животных в кале', value = st.session_state["measure_unit_org_cal"])
-             
-            st.session_state["measure_unit_org_cal"] = measure_unit_org_cal
-
-            uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции с калом (формат XLSX)", key="Файл экскреции с калом при изучении фармакокинетики в органах животных")
-            
-            if uploaded_file_excrement is not None:
-                save_uploadedfile(uploaded_file_excrement)
-                st.session_state["uploaded_file_excrement"] = uploaded_file_excrement.name
-
-            if "uploaded_file_excrement" in st.session_state and measure_unit_org_cal:
-               
-               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_excrement"]))
-               st.subheader('Индивидуальные значения концентраций в кале')
-               
-               ###интерактивная таблица
-               df = edit_frame(df,st.session_state["uploaded_file_excrement"])
-
-               table_heading='Индивидуальные и усредненные значения концентраций в кале'
-               list_heading_word.append(table_heading) 
-               col_mapping = df.columns.tolist()
-               col_mapping.remove('Номер')
-
-               list_gmean=[]
-               list_cv=[] 
-               for i in col_mapping:
-
-                   list_ser=df[i].tolist()
-                   list_ser_cv = list_ser#нужно с нулями для CV
-
-                   #убрать нули, т.к нули будут давать нулевое gmean
-                   count_for_range_ser=len(list_ser)
-                   list_range_ser=range(0,count_for_range_ser)
-                   
-                   list_ser_without_0=[]
-                   for i in list_range_ser:
-                       if list_ser[i] !=0:
-                          list_ser_without_0.append(list_ser[i])
-
-                   list_ser = list_ser_without_0
-
-                   def g_mean(list_ser):
-                       a=np.log(list_ser)
-                       return np.exp(a.mean())
-                   Gmean=g_mean(list_ser)
-                   list_gmean.append(Gmean)
-
-                   cv_std=lambda x: np.std(x, ddof= 1 )
-                   cv_mean=lambda x: np.mean(x)
-                   CV_std=cv_std(list_ser_cv)
-          
-                   CV_mean=cv_mean(list_ser_cv)
-
-                   CV=CV_std/CV_mean * 100
-                   list_cv.append(CV)
-               
-               #для устранения None из фрейма
-               list_gmean.pop(0)
-               list_gmean.insert(0,0)
-               list_cv.pop(0)
-               list_cv.insert(0,0)
-
-               df_averaged_concentrations=df.describe()
-               df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
-               df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-               df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-               df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
-               df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-               df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
-
-               df_index=df.set_index('Номер')
-               df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-               df_concat_round=df_concat.round(2)
-               
-               ###визуализация фрейма с нулями после округления
-               col_mapping = df_concat_round.columns.tolist()
-
-               list_list_series=[]
-               for i in col_mapping:
-                   list_series = df_concat_round[i].tolist()
-                    
-                   list_series_round = []
-                   for i in list_series:
-                       value = "%.2f" % round(i,2)
-                       list_series_round.append(value)
-                        
-                   list_list_series.append(list_series_round)
-
-               df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-               df_concat_round_str_transpose = df_concat_round_str.transpose()
-               df_concat_round_str_transpose.index.name = 'Номер'
-
-               ##изменение названий параметров описательной статистики
-
-               df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-               df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-
-               df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-               df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-               df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-
-               df_concat_round_str_transpose=df_concat_round_str_transpose1
-
-               df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-               
-               #округление времени в качестве названий стоблцов
-               list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
-               df_concat_round_str_transpose.columns = list_time_round
-
-               list_table_word.append(df_concat_round_str_transpose) 
-
-               ########### диаграмма    
-
-
-               list_time = []
-               for i in col_mapping:
-                   numer=float(i)
-                   list_time.append(numer)
-
-               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-
-               list_concentration.remove(0)
-               list_time.remove(0)
-
-
-
-               fig, ax = plt.subplots()
-
-               sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
-               plt.xlabel("Время, ч")
-               plt.ylabel("Концентрация, "+measure_unit_org_cal)
-
-               list_graphics_word.append(fig)
-
-               graphic='Выведение с калом'
-               list_heading_graphics_word.append(graphic)    
-
             ###сохранение состояния 
             st.session_state["list_heading_word"] = list_heading_word
             st.session_state["list_table_word"] = list_table_word
@@ -4516,7 +4091,7 @@ if selected == "Исследование":
 
             #классификация графиков по кнопкам
             type_graphics = st.selectbox('Выберите вид графиков',
-      ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей в различных органах", "Тканевая доступность в органах", "Диаграммы экскреции"),disabled = False, key = "Вид графика - ИО" )
+      ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей в различных органах", "Тканевая доступность в органах"),disabled = False, key = "Вид графика - ИО" )
 
             count_graphics_for_visual = len(list_heading_graphics_word)
             list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
@@ -4542,10 +4117,7 @@ if selected == "Исследование":
                    if type_graphics == 'Тканевая доступность в органах':
                       st.pyplot(list_graphics_word[i])
                       st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Выведение"):
-                   if type_graphics == 'Диаграммы экскреции':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
+                
       with col2:
             selected = option_menu(None, ["Включение параметров в исследование"], 
             icons=['menu-button'], 
@@ -5364,8 +4936,6 @@ if selected == "Исследование":
 
                     df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index') 
 
-                    
-
                     table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_lin
                     list_heading_word.append(table_heading)
 
@@ -5635,3 +5205,238 @@ if selected == "Исследование":
                 "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
                 "nav-link-selected": {"background-color": "#335D70"},
             })
+   
+   ###########################################################################################
+   if option == 'Изучение экскреции препарата':
+       
+       st.title('Изучение экскреции препарата')
+
+       col1, col2 = st.columns([0.66, 0.34])
+       
+       ####### основной экран
+       with col1:         
+            panel = st.radio(
+               "⚙️Панель управления",
+               ("Загрузка файлов", "Таблицы","Графики"),
+               horizontal=True, key= "Загрузка файлов - Изучение экскреции препарата"
+            )
+            
+            ###создание состояния
+            if "measure_unit_ex" not in st.session_state:   
+               st.session_state["measure_unit_ex"] = ""
+               
+            #cписки для word-отчета
+            list_heading_word=[]
+            list_table_word=[]
+            list_graphics_word=[]
+            list_heading_graphics_word=[]
+
+            if panel == "Загрузка файлов":
+               
+               #cостояние радио-кнопки "type_ex"
+               if "index_type_ex" not in st.session_state:
+                   st.session_state["index_type_ex"] = 0
+
+               type_excretion = st.radio('💩Выберите вид экскреции',('Кал', 'Моча', 'Желчь'), key = "Вид экскреции",index = st.session_state["index_type_ex"])
+               
+               if st.session_state["Вид экскреции"] == 'Кал':
+                  st.session_state["index_type_ex"] = 0
+               if st.session_state["Вид экскреции"] == 'Моча':
+                  st.session_state["index_type_ex"] = 1
+               if st.session_state["Вид экскреции"] == 'Желчь':
+                  st.session_state["index_type_ex"] = 2
+
+               if type_excretion == 'Кал':
+                  excretion_tv = "калом"
+                  excretion_pr = "кале"
+               if type_excretion == 'Моча':
+                  excretion_tv = "мочой"
+                  excretion_pr = "моче"
+               if type_excretion == 'Желчь':
+                  excretion_tv = "желчью"
+                  excretion_pr = "желчи"
+
+               st.title('Исследование экскреции с ' + excretion_tv)
+
+               measure_unit_ex = st.text_input("Введите единицы измерения концентрации", key='Единицы измерения при изучении экскреции препарата', value = st.session_state["measure_unit_ex"])
+                   
+               st.session_state["measure_unit_ex"] = measure_unit_ex
+
+               uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции (формат XLSX)", key="Файл экскреции")
+
+               if uploaded_file_excrement is not None:
+                   save_uploadedfile(uploaded_file_excrement)
+                   st.session_state["uploaded_file_excrement"] = uploaded_file_excrement.name
+
+               if "uploaded_file_excrement" in st.session_state and measure_unit_ex:
+                   
+                   df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_excrement"]))
+                   st.subheader('Индивидуальные значения концентраций в ' + excretion_pr)
+                   
+                   ###интерактивная таблица
+                   df = edit_frame(df,st.session_state["uploaded_file_excrement"])
+
+                   table_heading='Индивидуальные и усредненные значения концентраций в ' + excretion_pr
+                   list_heading_word.append(table_heading) 
+                   col_mapping = df.columns.tolist()
+                   col_mapping.remove('Номер')
+
+                   list_gmean=[]
+                   list_cv=[] 
+                   for i in col_mapping:
+
+                       list_ser=df[i].tolist()
+                       list_ser_cv = list_ser#нужно с нулями для CV
+
+                       #убрать нули, т.к нули будут давать нулевое gmean
+                       count_for_range_ser=len(list_ser)
+                       list_range_ser=range(0,count_for_range_ser)
+                       
+                       list_ser_without_0=[]
+                       for i in list_range_ser:
+                           if list_ser[i] !=0:
+                               list_ser_without_0.append(list_ser[i])
+
+                       list_ser = list_ser_without_0
+
+                       def g_mean(list_ser):
+                           a=np.log(list_ser)
+                           return np.exp(a.mean())
+                       Gmean=g_mean(list_ser)
+                       list_gmean.append(Gmean)
+
+                       cv_std=lambda x: np.std(x, ddof= 1 )
+                       cv_mean=lambda x: np.mean(x)
+                       CV_std=cv_std(list_ser_cv)
+
+                       CV_mean=cv_mean(list_ser_cv)
+
+                       CV=CV_std/CV_mean * 100
+                       list_cv.append(CV)
+                   
+                   #для устранения None из фрейма
+                   list_gmean.pop(0)
+                   list_gmean.insert(0,0)
+                   list_cv.pop(0)
+                   list_cv.insert(0,0)
+
+                   df_averaged_concentrations=df.describe()
+                   df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
+                   df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
+                   df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
+                   df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
+                   df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
+                   df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
+
+                   df_index=df.set_index('Номер')
+                   df_concat= pd.concat([df_index,df_averaged_3],sort=False,axis=0)
+                   df_concat_round=df_concat.round(2)
+                   
+                   ###визуализация фрейма с нулями после округления
+                   col_mapping = df_concat_round.columns.tolist()
+
+                   list_list_series=[]
+                   for i in col_mapping:
+                       list_series = df_concat_round[i].tolist()
+                       
+                       list_series_round = []
+                       for i in list_series:
+                           value = "%.2f" % round(i,2)
+                           list_series_round.append(value)
+                           
+                       list_list_series.append(list_series_round)
+
+                   df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
+                   df_concat_round_str_transpose = df_concat_round_str.transpose()
+                   df_concat_round_str_transpose.index.name = 'Номер'
+
+                   ##изменение названий параметров описательной статистики
+
+                   df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+                   df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
+
+                   df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+                   df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+                   df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
+
+                   df_concat_round_str_transpose=df_concat_round_str_transpose1
+
+                   df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                   
+                   #округление времени в качестве названий стоблцов
+                   list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
+                   df_concat_round_str_transpose.columns = list_time_round
+
+                   list_table_word.append(df_concat_round_str_transpose) 
+
+                   ########### диаграмма    
+
+                   list_time = []
+                   for i in col_mapping:
+                       numer=float(i)
+                       list_time.append(numer)
+
+                   list_concentration=df_averaged_concentrations.loc['mean'].tolist()
+
+                   list_concentration.remove(0)
+                   list_time.remove(0)
+
+                   fig, ax = plt.subplots()
+
+                   sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
+                   plt.xlabel("Время, ч")
+                   plt.ylabel("Концентрация, "+measure_unit_ex)
+
+                   list_graphics_word.append(fig)
+
+                   graphic='Выведение с ' + excretion_tv
+                   list_heading_graphics_word.append(graphic)
+               else:
+                  st.write("")    
+               
+               ##############################################################################################################
+
+               ###сохранение состояния 
+               st.session_state["list_heading_word"] = list_heading_word
+               st.session_state["list_table_word"] = list_table_word
+               st.session_state["list_graphics_word"] = list_graphics_word
+               st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+
+            #####Создание word отчета
+            if panel == "Таблицы":
+
+                  list_heading_word = st.session_state["list_heading_word"]
+                  list_table_word = st.session_state["list_table_word"]
+
+                  ###вызов функции создания таблицы
+                  create_table(list_heading_word,list_table_word)
+
+            if panel == "Графики":
+                  
+                  list_graphics_word = st.session_state["list_graphics_word"]
+                  list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+                  
+                  ###вызов функции создания графика
+                  create_graphic(list_graphics_word,list_heading_graphics_word)
+
+                  #######визуализация
+
+                  count_graphics_for_visual = len(list_heading_graphics_word)
+                  list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+                  
+                  for i in list_range_count_graphics_for_visual:
+                      if list_heading_graphics_word[i].__contains__("Выведение"):
+                         st.pyplot(list_graphics_word[i])
+                         st.subheader(list_heading_graphics_word[i])
+
+       with col2:
+            selected = option_menu(None, ["Включение параметров в исследование"], 
+            icons=['menu-button'], 
+            menu_icon="cast", default_index=0, orientation="vertical",
+            styles={
+                "container": {"padding": "0!important", "background-color": "#24769C"},
+                "icon": {"color": "#5DAED3", "font-size": "13px"}, 
+                "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                "nav-link-selected": {"background-color": "#335D70"},
+            })                      
