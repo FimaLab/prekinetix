@@ -332,7 +332,8 @@ if selected == "Исследование":
 
    text_contents = '''1)Оглавлять колонку с номерами животных должно слово «Номер» (в верхнем регистре).
    2)Знак «№» обязательно должен присутствовать при указании номера животного, иначе приложение выдаст ошибку. 
-   3) Не ставить в ячейки знак «-» в случае нулевого значения. Ставить число «0» для корректной работы приложения. 
+   3) Не ставить в ячейки знак «-» в случае нулевого значения. Ставить число «0» для корректной работы приложения.
+   4)Ни в каком исследовании загружаемые файлы не должны называться одинаково.
    '''
    st.sidebar.download_button('Памятка заполнения 📄', text_contents)
 
@@ -579,545 +580,646 @@ if selected == "Исследование":
                  list_heading_graphics_word.append(graphic)
 
 
-              ############### Параметры ФК
+                 ############ Параметры ФК
 
-                 ###Cmax
                  df_without_numer=df.drop(['Номер'],axis=1)
                  count_row=df_without_numer.shape[0]
-                 list_cmax_1_iv=[]
-                 for i in range(0,count_row):
-                     cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
-                     list_cmax_1_iv.append(cmax)
 
-                 ###Tmax   
-                 list_Tmax=[]
-                 for cmax in list_cmax_1_iv:
-                     for column in df.columns:
-                         for num, row in df.iterrows():
-                             if df.iloc[num][column] == cmax:
-                                list_Tmax.append(f"{column}")
-               
-                 list_Tmax_float=[]           
-                 for i in list_Tmax:
-                     Tmax=float(i)
-                     list_Tmax_float.append(Tmax)
+                 list_count_row=range(count_row)
+       
+                 ###Cmax
+                 ###создание состояния
+                 if "selected_value_iv" not in st.session_state:
+                    st.session_state["selected_value_iv"] = []
                  
-                 ###AUC0-t
-                 list_AUC_0_T=[]
-                 if method_auc == 'linear':
+                 if "feature_disable_selected_value_iv" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_iv"] = True
+
+                 ###создание состояния
+                 st.info('Выбери Cmax:')
+                 list_columns_without_numer = df.columns.tolist()
+                 list_columns_without_numer.remove('Номер')
+                 selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax внутривенного введения субстанции',max_selections=1)
+                 st.session_state["selected_columns_iv"] = selected_columns 
+
+                 list_keys_cmax = st.session_state["selected_value_iv"]
+                 if selected_columns != [] and st.session_state["feature_disable_selected_value_iv"]:
+                    selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax внутривенного введения субстанции',max_selections=1)
+                    list_keys_cmax.append(selected_value)
+
+                 if list_keys_cmax != []:
+                    st.session_state["selected_value_iv"] = list_keys_cmax
+
+                 list_keys_cmax = st.session_state["selected_value_iv"]
+                 list_keys_cmax_sample = [item for sublist in list_keys_cmax for item in sublist]
+
+                 if st.button('Очистить список Cmax', key="Очистка списка Cmax внутривенного введения субстанции"):
+                    del st.session_state["selected_value_iv"]
+                    list_keys_cmax_sample = []
+                    selected_columns = st.session_state["selected_columns_iv"]
+                    st.session_state["feature_disable_selected_value_iv"] = True
+                                        
+                 st.write("Список Cmax:")
+                 st.write(list_keys_cmax_sample)
+                 
+
+                 list_cmax_1_iv=list_keys_cmax_sample 
+                 
+                 list_cmax_2_iv=[]
+
+                 if len(list_cmax_1_iv) == len(df.index.tolist()):
+                    st.session_state["feature_disable_selected_value_iv"] = False
+
+                    ######Cmax2
+
+                    if "feature_disable_selected_value_iv_2" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_iv_2"] = True
+
+                    st.info('Выбери Cmax(2):')
+                    
+                    selected_columns_2 = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax2 внутривенного введения субстанции', max_selections=1)
+                    st.session_state["selected_columns_2_iv"] = selected_columns_2
+
+                    ###создание состояния
+                    if "selected_value_2_iv" not in st.session_state:
+                       st.session_state["selected_value_2_iv"] = []
+
+                    list_keys_cmax_2 = st.session_state["selected_value_2_iv"]
+                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_iv_2"]:
+                       selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 внутривенного введения субстанции', max_selections=1)
+                       list_keys_cmax_2.append(selected_value_2)
+
+                    if list_keys_cmax_2 != []:
+                       st.session_state["selected_value_2_iv"] = list_keys_cmax_2
+
+                    list_keys_cmax_2 = st.session_state["selected_value_2_iv"]
+                    list_keys_cmax_sample_2 = [item for sublist in list_keys_cmax_2 for item in sublist]
+
+                    if st.button('Очистить список Cmax(2)', key="Очистка списка Cmax(2) внутривенного введения субстанции"):
+                       del st.session_state["selected_value_2_iv"]
+                       list_keys_cmax_sample_2 = []
+                       selected_columns_2 = st.session_state["selected_columns_2_iv"]
+                       st.session_state["feature_disable_selected_value_iv_2"] = True
+
+                    st.write("Список Cmax(2):")
+                    st.write(list_keys_cmax_sample_2)
+
+                    list_cmax_2_iv= list_keys_cmax_sample_2
+
+                    if len(list_cmax_2_iv) == len(df.index.tolist()):
+                       st.session_state["feature_disable_selected_value_iv_2"] = False
+
+                    ###Tmax   
+                    list_Tmax_1=[]
+                    for cmax in list_cmax_1_iv:
+                        for column in df.columns:
+                            for num, row in df.iterrows():
+                                if df.iloc[num][column] == cmax:
+                                   list_Tmax_1.append(f"{column}")
+                  
+                    list_Tmax_float_1=[]           
+                    for i in list_Tmax_1:
+                        Tmax=float(i)
+                        list_Tmax_float_1.append(Tmax)
+
+                    list_Tmax_2=[]
+                    for cmax in list_cmax_2_iv:
+                        for column in df.columns:
+                            for num, row in df.iterrows():
+                                if df.iloc[num][column] == cmax:
+                                   list_Tmax_2.append(f"{column}")
+                  
+                    list_Tmax_float_2=[]           
+                    for i in list_Tmax_2:
+                        Tmax=float(i)
+                        list_Tmax_float_2.append(Tmax)  
+
+                    ###AUC0-t
+                    list_AUC_0_T=[]
+                    if method_auc == 'linear':
+                       for i in range(0,count_row):
+                           list_columns_T=[]
+                           for column in df_without_numer.columns:
+                               list_columns_T.append(float(column))
+                           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                           ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
+                           cmax = max(list_concentration)
+                           index_cmax = list_concentration.index(cmax)
+                           list_before_cmax = list_concentration[0:index_cmax]
+                           list_after_cmax = list_concentration[index_cmax:]
+                           list_before_cmax_t = list_columns_T[0:index_cmax]
+                           list_after_cmax_t = list_columns_T[index_cmax:]
+
+                           count_list_concentration = len(list_after_cmax)
+                           list_range_for_remove_0 = range(0,count_list_concentration)
+
+                           list_conc_without_0=[]
+                           list_t_without_0=[]
+                           for i in list_range_for_remove_0:
+                               if list_after_cmax[i] !=0:
+                                  list_conc_without_0.append(list_after_cmax[i])
+                                  list_t_without_0.append(list_after_cmax_t[i])
+
+                           list_concentration = list_before_cmax + list_conc_without_0
+                           list_columns_T = list_before_cmax_t + list_t_without_0
+                           ######################
+
+                           AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+                           list_AUC_0_T.append(AUC_0_T)
+
+                    if method_auc == 'linear-up/log-down':
+                       for i in range(0,count_row):
+                           list_columns_T=[]
+                           for column in df_without_numer.columns:
+                               list_columns_T.append(float(column))
+                           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                           ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
+                           cmax = max(list_concentration)
+                           index_cmax = list_concentration.index(cmax)
+                           list_before_cmax = list_concentration[0:index_cmax]
+                           list_after_cmax = list_concentration[index_cmax:]
+                           list_before_cmax_t = list_columns_T[0:index_cmax]
+                           list_after_cmax_t = list_columns_T[index_cmax:]
+
+                           count_list_concentration = len(list_after_cmax)
+                           list_range_for_remove_0 = range(0,count_list_concentration)
+
+                           list_conc_without_0=[]
+                           list_t_without_0=[]
+                           for i in list_range_for_remove_0:
+                               if list_after_cmax[i] !=0:
+                                  list_conc_without_0.append(list_after_cmax[i])
+                                  list_t_without_0.append(list_after_cmax_t[i])
+
+                           list_concentration = list_before_cmax + list_conc_without_0
+                           list_columns_T = list_before_cmax_t + list_t_without_0
+                           ######################
+                           
+                           list_c = list_concentration
+                           list_t = list_columns_T
+                           
+                           count_i = len(list_c)
+                           list_range= range(0,count_i)
+                           
+                           list_AUC_0_T_ascending=[]
+                           list_AUC_0_T_descending = []
+                           AUC_0_T_ascending=0
+                           AUC_0_T_descending = 0
+                           a=0
+                           a1=0
+                           d=0
+                           d1=0
+                           for i in list_range:
+                               if a1<count_i-1:
+                                  if list_c[i+1] > list_c[i]:
+                                     if a<count_i-1:
+                                         AUC_0_T_ascending += ((list_c[i]+list_c[i+1])*(list_t[i+1]-list_t[i]))/2
+                                         a+=1
+                                         list_AUC_0_T_ascending.append(AUC_0_T_ascending)
+                               if d1<count_i-1:
+                                  if list_c[i+1] < list_c[i]:      
+                                     if d<count_i-1:
+                                         AUC_0_T_descending+=(list_t[i+1]-list_t[i])/(np.log(np.asarray(list_c[i])/np.asarray(list_c[i+1]))) *(list_c[i]-list_c[i+1])
+                                         d+=1
+                                         list_AUC_0_T_descending.append(AUC_0_T_descending)
+                                  a1+=1
+                                  d1+=1
+            
+                           AUC_O_T = list_AUC_0_T_ascending[-1]+list_AUC_0_T_descending[-1]
+                           
+                           list_AUC_0_T.append(AUC_O_T)
+
+                    ####Сmax/AUC0-t
+                    list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1_iv,list_AUC_0_T)
+                    list_Сmax_division_AUC0_t=[]
+                    for i,j in list_Сmax_division_AUC0_t_for_division:
+                            list_Сmax_division_AUC0_t.append(i/j)
+
+
+                    ####KEL
+                    list_kel_total=[]
                     for i in range(0,count_row):
                         list_columns_T=[]
                         for column in df_without_numer.columns:
                             list_columns_T.append(float(column))
                         list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                        list_concentration.remove(0)
+                        list_c=list_concentration
 
-                        ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
-                        cmax = max(list_concentration)
-                        index_cmax = list_concentration.index(cmax)
-                        list_before_cmax = list_concentration[0:index_cmax]
-                        list_after_cmax = list_concentration[index_cmax:]
-                        list_before_cmax_t = list_columns_T[0:index_cmax]
-                        list_after_cmax_t = list_columns_T[index_cmax:]
+                        list_time=df_without_numer.columns.tolist()
+                        list_time.remove(0) 
 
-                        count_list_concentration = len(list_after_cmax)
-                        list_range_for_remove_0 = range(0,count_list_concentration)
+                        list_t=[]
+                        for i in list_time:
+                            i=float(i)
+                            list_t.append(i)
 
-                        list_conc_without_0=[]
-                        list_t_without_0=[]
-                        for i in list_range_for_remove_0:
-                            if list_after_cmax[i] !=0:
-                               list_conc_without_0.append(list_after_cmax[i])
-                               list_t_without_0.append(list_after_cmax_t[i])
+                        #срез_без_cmax
+                        max_value_c=max(list_c)
+                        index_cmax=list_c.index(max_value_c)
 
-                        list_concentration = list_before_cmax + list_conc_without_0
-                        list_columns_T = list_before_cmax_t + list_t_without_0
-                        ######################
+                        list_c_without_cmax=list_c[index_cmax+1:]
+                        list_t_without_cmax=list_t[index_cmax+1:]
 
-                        AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
-                        list_AUC_0_T.append(AUC_0_T)
+                        #удаление всех нулей из массивов
+                        count_for_0_1=len(list_c_without_cmax)
+                        list_range_for_0_1=range(0,count_for_0_1)
 
-                 if method_auc == 'linear-up/log-down':
+                        list_time_0=[]
+                        list_conc_0=[]
+                        for i in list_range_for_0_1:
+                            if list_c_without_cmax[i] !=0:
+                               list_conc_0.append(list_c_without_cmax[i])
+                               list_time_0.append(list_t_without_cmax[i]) 
+                        ################################
+
+                        n_points=len(list_conc_0)
+                        list_n_points = range(0,n_points)
+
+                        #создание списков с поочередно уменьщающемся кол, точек
+                        list_for_kel_c=[]
+                        for j in list_n_points:
+                            if j<n_points:
+                               list_c_new=list_conc_0[j:n_points]
+                               list_for_kel_c.append(list_c_new)
+                        list_for_kel_c.pop(-1) #удаление списка с одной точкой
+                        list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
+
+                        list_for_kel_t=[]
+                        for j in list_n_points:
+                            if j<n_points:
+                               list_t_new=list_time_0[j:n_points]
+                               list_for_kel_t.append(list_t_new)
+                        list_for_kel_t.pop(-1) #удаление списка с одной точкой
+                        list_for_kel_t.pop(-1) #удаление списка с двумя точками 
+
+                        list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
+
+                        list_kel=[]
+                        list_r=[]
+                        for i,j in list_ct_zip:
+
+                            n_points_r=len(i)
+
+                            np_c=np.asarray(i)
+                            np_t_1=np.asarray(j).reshape((-1,1))
+
+                            np_c_log=np.log(np_c)
+
+                            model = LinearRegression().fit(np_t_1,np_c_log)
+
+                            np_t=np.asarray(j)
+                            a=np.corrcoef(np_t, np_c_log)
+                            cor=((a[0])[1])
+                            r_sq=cor**2
+
+                            adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
+
+                            ########################################
+                            kel=abs(model.coef_[0])
+                            list_kel.append(kel)
+                            list_r.append(adjusted_r_sq)
+
+                        #делаем срезы списоков до rmax
+                        max_r=max(list_r)
+
+                        index_max_r= list_r.index(max_r)
+
+                        list_r1=list_r
+                        list_kel1=list_kel
+
+                        number_elem_list_r1=len(list_r1)
+
+                        list_range_kel=range(0,number_elem_list_r1) 
+
+                        list_kel_total_1=[]
+                        for i in list_range_kel:
+
+                            if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                               list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                               break #самая ранняя удовлетовряющая условию
+
+                        for i in list_kel_total_1:
+                            list_kel_total.append(i) 
+
+
+                    ####T1/2
+                    list_half_live=[]
+                    for i in list_kel_total:
+                        half_live=math.log(2)/i
+                        list_half_live.append(half_live)
+
+
+                    ###AUC0-inf 
+
+                    list_auc0_inf=[] 
+
+                    list_of_list_c=[]
                     for i in range(0,count_row):
-                        list_columns_T=[]
-                        for column in df_without_numer.columns:
-                            list_columns_T.append(float(column))
                         list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
-
-                        ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
-                        cmax = max(list_concentration)
-                        index_cmax = list_concentration.index(cmax)
-                        list_before_cmax = list_concentration[0:index_cmax]
-                        list_after_cmax = list_concentration[index_cmax:]
-                        list_before_cmax_t = list_columns_T[0:index_cmax]
-                        list_after_cmax_t = list_columns_T[index_cmax:]
-
-                        count_list_concentration = len(list_after_cmax)
-                        list_range_for_remove_0 = range(0,count_list_concentration)
-
-                        list_conc_without_0=[]
-                        list_t_without_0=[]
-                        for i in list_range_for_remove_0:
-                            if list_after_cmax[i] !=0:
-                               list_conc_without_0.append(list_after_cmax[i])
-                               list_t_without_0.append(list_after_cmax_t[i])
-
-                        list_concentration = list_before_cmax + list_conc_without_0
-                        list_columns_T = list_before_cmax_t + list_t_without_0
-                        ######################
-                        
+                        list_concentration.remove(0)
                         list_c = list_concentration
-                        list_t = list_columns_T
-                        
-                        count_i = len(list_c)
-                        list_range= range(0,count_i)
-                        
-                        list_AUC_0_T_ascending=[]
-                        list_AUC_0_T_descending = []
-                        AUC_0_T_ascending=0
-                        AUC_0_T_descending = 0
+                        list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
+                        list_of_list_c.append(list_c)
+
+                    list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
+
+                        #AUCt-inf 
+                    list_auc_t_inf=[]     
+                    for i,j in list_zip_c_AUCt_inf:
+                        for clast in j:
+                            if clast != 0:
+                               clast_true=clast
+                               break
+                        auc_t_inf=clast_true/i
+                        list_auc_t_inf.append(auc_t_inf)
+
+                    list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
+
+                    for i,j in list_auc_t_inf_and_AUC_0_T_zip:
+                        auc0_inf=i+j    
+                        list_auc0_inf.append(auc0_inf)
+
+
+                    ####CL
+                    list_cl=[]
+
+                    for i in list_auc0_inf:
+                        cl = float(dose_iv)/i * 1000
+                        list_cl.append(cl)
+
+
+                    ####Vd
+                    list_Vd=[]
+
+                    list_zip_kel_cl=zip(list_kel_total,list_cl)
+
+                    for i,j in list_zip_kel_cl:
+                        Vd = j/i
+                        list_Vd.append(Vd)
+
+
+                    ###AUMC
+                    list_AUMCO_inf=[]
+
+                    list_AUMC0_t=[]
+
+                    list_C_last=[]
+                    list_T_last=[]
+                    for i in range(0,count_row):
+                        list_columns_T=[]
+                        for column in df_without_numer.columns:
+                            list_columns_T.append(float(column))
+                        list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                        ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+                        cmax = max(list_concentration)
+                        index_cmax = list_concentration.index(cmax)
+                        list_before_cmax = list_concentration[0:index_cmax]
+                        list_after_cmax = list_concentration[index_cmax:]
+                        list_before_cmax_t = list_columns_T[0:index_cmax]
+                        list_after_cmax_t = list_columns_T[index_cmax:]
+
+                        count_list_concentration = len(list_after_cmax)
+                        list_range_for_remove_0 = range(0,count_list_concentration)
+
+                        list_conc_without_0=[]
+                        list_t_without_0=[]
+                        for i in list_range_for_remove_0:
+                            if list_after_cmax[i] !=0:
+                               list_conc_without_0.append(list_after_cmax[i])
+                               list_t_without_0.append(list_after_cmax_t[i])
+
+                        list_concentration = list_before_cmax + list_conc_without_0
+                        list_columns_T = list_before_cmax_t + list_t_without_0
+                        ######################
+
+                        list_C_last.append(list_concentration[-1]) 
+                        list_T_last.append(list_columns_T[-1]) 
+
+                        list_len=len(list_concentration)
+
+                        list_aumc_i=[]
+                        for i in range(0,list_len):
+                            AUMC=(list_columns_T[i] - list_columns_T[i-1]) *  ((list_concentration[i] * list_columns_T[i] + list_concentration[i-1] * list_columns_T[i-1])/2)
+                            list_aumc_i.append(AUMC)
+
+                        list_aumc_i.pop(0)
+
                         a=0
-                        a1=0
-                        d=0
-                        d1=0
-                        for i in list_range:
-                            if a1<count_i-1:
-                               if list_c[i+1] > list_c[i]:
-                                  if a<count_i-1:
-                                      AUC_0_T_ascending += ((list_c[i]+list_c[i+1])*(list_t[i+1]-list_t[i]))/2
-                                      a+=1
-                                      list_AUC_0_T_ascending.append(AUC_0_T_ascending)
-                            if d1<count_i-1:
-                               if list_c[i+1] < list_c[i]:      
-                                  if d<count_i-1:
-                                      AUC_0_T_descending+=(list_t[i+1]-list_t[i])/(np.log(np.asarray(list_c[i])/np.asarray(list_c[i+1]))) *(list_c[i]-list_c[i+1])
-                                      d+=1
-                                      list_AUC_0_T_descending.append(AUC_0_T_descending)
-                               a1+=1
-                               d1+=1
-         
-                        AUC_O_T = list_AUC_0_T_ascending[-1]+list_AUC_0_T_descending[-1]
-                        
-                        list_AUC_0_T.append(AUC_O_T)
+                        list_AUMC0_t_1=[]
+                        for i in list_aumc_i:
+                            a+=i
+                            list_AUMC0_t_1.append(a)
+                        list_AUMC0_t.append(list_AUMC0_t_1[-1])
 
-                 ####Сmax/AUC0-t
-                 list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1_iv,list_AUC_0_T)
-                 list_Сmax_division_AUC0_t=[]
-                 for i,j in list_Сmax_division_AUC0_t_for_division:
-                         list_Сmax_division_AUC0_t.append(i/j)
+                    list_zip_for_AUMC_inf=zip(list_kel_total,list_C_last,list_T_last)
 
-                 ####KEL
-                 list_kel_total=[]
-                 for i in range(0,count_row):
-                     list_columns_T=[]
-                     for column in df_without_numer.columns:
-                         list_columns_T.append(float(column))
-                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
-                     list_concentration.remove(0)
-                     list_c=list_concentration
-
-                     list_time=df_without_numer.columns.tolist()
-                     list_time.remove(0) 
-
-                     list_t=[]
-                     for i in list_time:
-                         i=float(i)
-                         list_t.append(i)
-
-                     #срез_без_cmax
-                     max_value_c=max(list_c)
-                     index_cmax=list_c.index(max_value_c)
-
-                     list_c_without_cmax=list_c[index_cmax+1:]
-                     list_t_without_cmax=list_t[index_cmax+1:]
-
-                     #удаление всех нулей из массивов
-                     count_for_0_1=len(list_c_without_cmax)
-                     list_range_for_0_1=range(0,count_for_0_1)
-
-                     list_time_0=[]
-                     list_conc_0=[]
-                     for i in list_range_for_0_1:
-                         if list_c_without_cmax[i] !=0:
-                            list_conc_0.append(list_c_without_cmax[i])
-                            list_time_0.append(list_t_without_cmax[i]) 
-                     ################################
-
-                     n_points=len(list_conc_0)
-                     list_n_points = range(0,n_points)
-
-                     #создание списков с поочередно уменьщающемся кол, точек
-                     list_for_kel_c=[]
-                     for j in list_n_points:
-                         if j<n_points:
-                            list_c_new=list_conc_0[j:n_points]
-                            list_for_kel_c.append(list_c_new)
-                     list_for_kel_c.pop(-1) #удаление списка с одной точкой
-                     list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
-
-                     list_for_kel_t=[]
-                     for j in list_n_points:
-                         if j<n_points:
-                            list_t_new=list_time_0[j:n_points]
-                            list_for_kel_t.append(list_t_new)
-                     list_for_kel_t.pop(-1) #удаление списка с одной точкой
-                     list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
-                     list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
-
-                     list_kel=[]
-                     list_r=[]
-                     for i,j in list_ct_zip:
-
-                         n_points_r=len(i)
-
-                         np_c=np.asarray(i)
-                         np_t_1=np.asarray(j).reshape((-1,1))
-
-                         np_c_log=np.log(np_c)
-
-                         model = LinearRegression().fit(np_t_1,np_c_log)
-
-                         np_t=np.asarray(j)
-                         a=np.corrcoef(np_t, np_c_log)
-                         cor=((a[0])[1])
-                         r_sq=cor**2
-
-                         adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
-
-                         ########################################
-                         kel=abs(model.coef_[0])
-                         list_kel.append(kel)
-                         list_r.append(adjusted_r_sq)
-
-                     #делаем срезы списоков до rmax
-                     max_r=max(list_r)
-
-                     index_max_r= list_r.index(max_r)
-
-                     list_r1=list_r
-                     list_kel1=list_kel
-
-                     number_elem_list_r1=len(list_r1)
-
-                     list_range_kel=range(0,number_elem_list_r1) 
-
-                     list_kel_total_1=[]
-                     for i in list_range_kel:
-
-                         if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
-                            list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
-                            break #самая ранняя удовлетовряющая условию
-
-                     for i in list_kel_total_1:
-                         list_kel_total.append(i) 
-
-                 ####T1/2
-                 list_half_live=[]
-                 for i in list_kel_total:
-                     half_live=math.log(2)/i
-                     list_half_live.append(half_live)
+                    list_AUMCt_inf=[]
+                    for k,c,t in list_zip_for_AUMC_inf:
+                        AUMCt_inf=c*t/k+c/(k*k)
+                        list_AUMCt_inf.append(AUMCt_inf)
 
 
-                 ###AUC0-inf 
+                    list_AUMC_zip=zip(list_AUMC0_t,list_AUMCt_inf)
 
-                 list_auc0_inf=[] 
+                    for i,j in list_AUMC_zip:
+                        AUMCO_inf=i+j
+                        list_AUMCO_inf.append(AUMCO_inf)
 
-                 list_of_list_c=[]
-                 for i in range(0,count_row):
-                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
-                     list_concentration.remove(0)
-                     list_c = list_concentration
-                     list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
-                     list_of_list_c.append(list_c)
+                    ###MRT0-inf
+                    list_MRT0_inf=[]
 
-                 list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
+                    list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
 
-                     #AUCt-inf 
-                 list_auc_t_inf=[]     
-                 for i,j in list_zip_c_AUCt_inf:
-                     for clast in j:
-                         if clast != 0:
-                            clast_true=clast
-                            break
-                     auc_t_inf=clast_true/i
-                     list_auc_t_inf.append(auc_t_inf)
-
-                 list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
-
-                 for i,j in list_auc_t_inf_and_AUC_0_T_zip:
-                     auc0_inf=i+j    
-                     list_auc0_inf.append(auc0_inf)
-
-                 ####CL
-                 list_cl=[]
-
-                 for i in list_auc0_inf:
-                     cl = float(dose_iv)/i * 1000
-                     list_cl.append(cl)
-
-
-                 ####Vd
-                 list_Vd=[]
-
-                 list_zip_kel_cl=zip(list_kel_total,list_cl)
-
-                 for i,j in list_zip_kel_cl:
-                     Vd = j/i
-                     list_Vd.append(Vd)
-
-
-                 ###AUMC
-                 list_AUMCO_inf=[]
-
-                 list_AUMC0_t=[]
-                   
-                 list_C_last=[]
-                 list_T_last=[]
-                 for i in range(0,count_row):
-                     list_columns_T=[]
-                     for column in df_without_numer.columns:
-                         list_columns_T.append(float(column))
-                     list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
-
-                     ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
-                     cmax = max(list_concentration)
-                     index_cmax = list_concentration.index(cmax)
-                     list_before_cmax = list_concentration[0:index_cmax]
-                     list_after_cmax = list_concentration[index_cmax:]
-                     list_before_cmax_t = list_columns_T[0:index_cmax]
-                     list_after_cmax_t = list_columns_T[index_cmax:]
-
-                     count_list_concentration = len(list_after_cmax)
-                     list_range_for_remove_0 = range(0,count_list_concentration)
-
-                     list_conc_without_0=[]
-                     list_t_without_0=[]
-                     for i in list_range_for_remove_0:
-                         if list_after_cmax[i] !=0:
-                            list_conc_without_0.append(list_after_cmax[i])
-                            list_t_without_0.append(list_after_cmax_t[i])
-
-                     list_concentration = list_before_cmax + list_conc_without_0
-                     list_columns_T = list_before_cmax_t + list_t_without_0
-                     ######################
-
-                     list_C_last.append(list_concentration[-1]) 
-                     list_T_last.append(list_columns_T[-1]) 
-
-                     list_len=len(list_concentration)
-
-                     list_aumc_i=[]
-                     for i in range(0,list_len):
-                         AUMC=(list_columns_T[i] - list_columns_T[i-1]) *  ((list_concentration[i] * list_columns_T[i] + list_concentration[i-1] * list_columns_T[i-1])/2)
-                         list_aumc_i.append(AUMC)
-
-                     list_aumc_i.pop(0)
-
-                     a=0
-                     list_AUMC0_t_1=[]
-                     for i in list_aumc_i:
-                         a+=i
-                         list_AUMC0_t_1.append(a)
-                     list_AUMC0_t.append(list_AUMC0_t_1[-1])
-
-                 list_zip_for_AUMC_inf=zip(list_kel_total,list_C_last,list_T_last)
-
-                 list_AUMCt_inf=[]
-                 for k,c,t in list_zip_for_AUMC_inf:
-                     AUMCt_inf=c*t/k+c/(k*k)
-                     list_AUMCt_inf.append(AUMCt_inf)
-
-
-                 list_AUMC_zip=zip(list_AUMC0_t,list_AUMCt_inf)
-
-                 for i,j in list_AUMC_zip:
-                     AUMCO_inf=i+j
-                     list_AUMCO_inf.append(AUMCO_inf)
+                    for i,j in list_zip_AUMCO_inf_auc0_inf:
+                        MRT0_inf=i/j
+                        list_MRT0_inf.append(MRT0_inf)
                  
-                 ###MRT0-inf
-                 list_MRT0_inf=[]
 
-                 list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
+                 #####Cmax условие для дальнейшего кода
+                 if len(list_cmax_1_iv) == len(df.index.tolist()) and len(list_cmax_2_iv) == len(df.index.tolist()):
 
-                 for i,j in list_zip_AUMCO_inf_auc0_inf:
-                     MRT0_inf=i/j
-                     list_MRT0_inf.append(MRT0_inf)
+                    ##################### Фрейм ФК параметров
 
+                    ### пользовательский индекс
+                    list_for_index=df["Номер"].tolist()
+                    df_PK=pd.DataFrame(list(zip(list_cmax_1_iv,list_Tmax_float_1,list_cmax_2_iv,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
 
-                 ##################### Фрейм ФК параметров
+                    ###описательная статистика
 
-                 ### пользовательский индекс
-                 list_for_index=df["Номер"].tolist()
+                    col_mapping_PK = df_PK.columns.tolist()
 
-                 df_PK=pd.DataFrame(list(zip(list_cmax_1_iv,list_Tmax_float,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
-                 
-                 ###описательная статистика
+                    list_gmean_PK=[]
 
-                 col_mapping_PK = df_PK.columns.tolist()
+                    list_cv_PK=[] 
 
-                 list_gmean_PK=[]
+                    for i in col_mapping_PK:
 
-                 list_cv_PK=[] 
+                        list_ser_PK=df_PK[i].tolist()
 
-                 for i in col_mapping_PK:
+                        def g_mean(list_ser_PK):
+                            a=np.log(list_ser_PK)
+                            return np.exp(a.mean())
+                        Gmean_PK=g_mean(list_ser_PK)
+                        list_gmean_PK.append(Gmean_PK)
 
-                     list_ser_PK=df_PK[i].tolist()
+                        cv_std_PK=lambda x: np.std(x, ddof= 1 )
+                        cv_mean_PK=lambda x: np.mean(x)
 
-                     def g_mean(list_ser_PK):
-                         a=np.log(list_ser_PK)
-                         return np.exp(a.mean())
-                     Gmean_PK=g_mean(list_ser_PK)
-                     list_gmean_PK.append(Gmean_PK)
+                        CV_std_PK=cv_std_PK(list_ser_PK)
+                        CV_mean_PK=cv_mean_PK(list_ser_PK)
 
-                     cv_std_PK=lambda x: np.std(x, ddof= 1 )
-                     cv_mean_PK=lambda x: np.mean(x)
-
-                     CV_std_PK=cv_std_PK(list_ser_PK)
-                     CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-                     CV_PK=(CV_std_PK/CV_mean_PK * 100)
-                     list_cv_PK.append(CV_PK)
+                        CV_PK=(CV_std_PK/CV_mean_PK * 100)
+                        list_cv_PK.append(CV_PK)
 
 
-                 df_averaged_concentrations_PK=df_PK.describe()
-                 df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
-                 df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-                 df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-                 df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
-                 df_round_without_CV_PK=df_averaged_3_PK
-                 df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-                 df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
+                    df_averaged_concentrations_PK=df_PK.describe()
+                    df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
+                    df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
+                    df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
+                    df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
+                    df_round_without_CV_PK=df_averaged_3_PK
+                    df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
+                    df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
 
 
-                 df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
+                    df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
-                 ###округление описательной статистики и ФК параметров
+                    ###округление описательной статистики и ФК параметров
 
-                 series_Cmax=df_concat_PK_iv['Cmax']
-                 list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
-                 series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax ' +"("+measure_unit+")")
+                    series_Cmax=df_concat_PK_iv['Cmax']
+                    list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
+                    series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Cmax ' +"("+measure_unit+")")
 
-                 series_Tmax=df_concat_PK_iv['Tmax']
-                 list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
-                 series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax ' +"("+"ч"+")")
+                    series_Cmax_2=df_concat_PK_iv['Cmax(2)']
+                    list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
+                    series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_iv.index.tolist(), name='Cmax(2) ' +"("+measure_unit+")")
 
-                 series_MRT0_inf= df_concat_PK_iv['MRT0→∞']
-                 list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
-                 series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
+                    series_Tmax=df_concat_PK_iv['Tmax']
+                    list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
+                    series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_iv.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
-                 series_half_live= df_concat_PK_iv['T1/2']
-                 list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
-                 series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2 '+"("+"ч"+")")
+                    series_Tmax_2=df_concat_PK_iv['Tmax(2)']
+                    list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
+                    series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_iv.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
 
-                 series_AUC0_t= df_concat_PK_iv['AUC0-t']
-                 list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
-                 series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
+                    series_MRT0_inf= df_concat_PK_iv['MRT0→∞']
+                    list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
+                    series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
 
-                 series_AUC0_inf= df_concat_PK_iv['AUC0→∞']
-                 list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
-                 series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
+                    series_half_live= df_concat_PK_iv['T1/2']
+                    list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
+                    series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_iv.index.tolist(), name='T1/2 '+"("+"ч"+")")
 
-                 series_AUMC0_inf= df_concat_PK_iv['AUMC0-∞']
-                 list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
-                 series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
+                    series_AUC0_t= df_concat_PK_iv['AUC0-t']
+                    list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
+                    series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0-t '+"("+measure_unit+"×ч" +")")
 
-                 series_Сmax_dev_AUC0_t= df_concat_PK_iv['Сmax/AUC0-t']
-                 list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
-                 series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
+                    series_AUC0_inf= df_concat_PK_iv['AUC0→∞']
+                    list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
+                    series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUC0→∞ '+"("+measure_unit+"×ч" +")")
 
-                 series_Kel= df_concat_PK_iv['Kel']
-                 list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
-                 series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
+                    series_AUMC0_inf= df_concat_PK_iv['AUMC0-∞']
+                    list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
+                    series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_iv.index.tolist(), name='AUMC0-∞ '+"("+measure_unit+"×ч\u00B2" +")")
 
-                 series_CL= df_concat_PK_iv['CL/F']
-                 list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
-                 series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
+                    series_Сmax_dev_AUC0_t= df_concat_PK_iv['Сmax/AUC0-t']
+                    list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
+                    series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_iv.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
 
-                 series_Vd= df_concat_PK_iv['Vd/F']
-                 list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
-                 series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
+                    series_Kel= df_concat_PK_iv['Kel']
+                    list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
+                    series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_iv.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
 
-                 df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
-                 df_total_PK_iv.index.name = 'Номер'
+                    series_CL= df_concat_PK_iv['CL/F']
+                    list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
+                    series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_iv.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
-                 ##изменение названий параметров описательной статистики
+                    series_Vd= df_concat_PK_iv['Vd']
+                    list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
+                    series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_iv.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
-                 df_total_PK_iv1=df_total_PK_iv.copy()
-                 df_total_PK_iv1.iloc[-6,:],df_total_PK_iv1.iloc[-2,:]=df_total_PK_iv.iloc[-2,:],df_total_PK_iv.iloc[-6,:]
+                    df_total_PK_iv = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
+                    df_total_PK_iv.index.name = 'Номер'
 
-                 df_total_PK_iv=df_total_PK_iv1
+                    ##изменение названий параметров описательной статистики
 
-                 df_total_PK_iv1=df_total_PK_iv.copy()
-                 df_total_PK_iv1.iloc[-4,:],df_total_PK_iv1.iloc[-5,:]=df_total_PK_iv.iloc[-5,:],df_total_PK_iv.iloc[-4,:]
+                    df_total_PK_iv1=df_total_PK_iv.copy()
+                    df_total_PK_iv1.iloc[-6,:],df_total_PK_iv1.iloc[-2,:]=df_total_PK_iv.iloc[-2,:],df_total_PK_iv.iloc[-6,:]
 
-                 df_total_PK_iv=df_total_PK_iv1
+                    df_total_PK_iv=df_total_PK_iv1
 
-                 df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                    df_total_PK_iv1=df_total_PK_iv.copy()
+                    df_total_PK_iv1.iloc[-4,:],df_total_PK_iv1.iloc[-5,:]=df_total_PK_iv.iloc[-5,:],df_total_PK_iv.iloc[-4,:]
 
-                 table_heading='Фармакокинетические показатели в крови после внутривенного введения субстанции'
-                 list_heading_word.append(table_heading)
+                    df_total_PK_iv=df_total_PK_iv1
 
-                 list_table_word.append(df_total_PK_iv)
+                    df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
 
-                 ####получение интервала для средних ФК параметров
-                 list_PK_Cmax_not_round = df_PK['Cmax'].tolist()
-                 list_PK_Tmax_not_round = df_PK['Tmax'].tolist() 
-                 list_PK_MRT0_inf_not_round = df_PK['MRT0→∞'].tolist() 
-                 list_PK_half_live_not_round = df_PK['T1/2'].tolist() 
-                 list_PK_AUC0_t_not_round = df_PK['AUC0-t'].tolist()
-                 list_PK_AUC0_inf_not_round = df_PK['AUC0→∞'].tolist()
-                 list_PK_AUMC0_inf_not_round = df_PK['AUMC0-∞'].tolist()
-                 list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
-                 list_PK_Kel_not_round = df_PK['Kel'].tolist()
+                    table_heading='Фармакокинетические показатели в крови после внутривенного введения субстанции'
+                    list_heading_word.append(table_heading)
+                    
+                    list_table_word.append(df_total_PK_iv)
 
+                    ####получение интервала для средних ФК параметров
+                    list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
+                    list_PK_Tmax_1_not_round = df_PK['Tmax'].tolist() 
+                    list_PK_MRT0_inf_not_round = df_PK['MRT0→∞'].tolist() 
+                    list_PK_half_live_not_round = df_PK['T1/2'].tolist() 
+                    list_PK_AUC0_t_not_round = df_PK['AUC0-t'].tolist()
+                    list_PK_AUC0_inf_not_round = df_PK['AUC0→∞'].tolist()
+                    list_PK_AUMC0_inf_not_round = df_PK['AUMC0-∞'].tolist()
+                    list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
+                    list_PK_Kel_not_round = df_PK['Kel'].tolist()
 
+                    list_list_PK_parametr_iv=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
+                    list_parametr_mean_h_iv=[]
+                    for i in list_list_PK_parametr_iv:
+                         n=len(i)
 
-                 list_list_PK_parametr_iv=[list_PK_Cmax_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
-                 list_parametr_mean_h_iv=[]
-                 for i in list_list_PK_parametr_iv:
-                      n=len(i)
+                         def confidential_interval(i):
+                             if n < 30:
+                                h = statistics.stdev(i)
+                                mean = np.mean(i)
+                             else:
+                                h = statistics.stdev(i)  ### прояснить момент с n-1
+                                mean = np.mean(i)
+                             return ([mean,h]) 
+                         func_mean_h = confidential_interval(i)
 
-                      def confidential_interval(i):
-                          if n < 30:
-                             h = statistics.stdev(i)
-                             mean = np.mean(i)
-                          else:
-                             h = statistics.stdev(i) ### прояснить момент с n-1
-                             mean = np.mean(i)
-                          return ([mean,h]) 
-                      func_mean_h = confidential_interval(i)
+                         list_parametr_mean_h_iv.append(func_mean_h)
 
-                      list_parametr_mean_h_iv.append(func_mean_h)
+                    list_mean_h_iv_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[0]]
+                    parametr_round_mean_h_Cmax=str(list_mean_h_iv_Cmax_round[0]) +"±"+str(list_mean_h_iv_Cmax_round[1])
 
+                    list_mean_h_iv_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[1]] 
+                    parametr_round_mean_h_AUC0_t=str(list_mean_h_iv_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_AUC0_t_round[1]) 
 
-                 list_mean_h_iv_Cmax_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[0]]
-                 parametr_round_mean_h_Cmax=str(list_mean_h_iv_Cmax_round[0]) +"±"+str(list_mean_h_iv_Cmax_round[1])
+                    list_mean_h_iv_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_iv[2]]
+                    parametr_round_mean_h_Kel=str(list_mean_h_iv_Kel_round[0]) +"±"+str(list_mean_h_iv_Kel_round[1])
 
-                 list_mean_h_iv_AUC0_t_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[1]] 
-                 parametr_round_mean_h_AUC0_t=str(list_mean_h_iv_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_AUC0_t_round[1]) 
+                    list_mean_h_iv_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[3]]
+                    parametr_round_mean_h_AUC0_inf=str(list_mean_h_iv_AUC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUC0_inf_round[1]) 
 
-                 list_mean_h_iv_Kel_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_iv[2]]
-                 parametr_round_mean_h_Kel=str(list_mean_h_iv_Kel_round[0]) +"±"+str(list_mean_h_iv_Kel_round[1])
+                    list_mean_h_iv_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[4]]
+                    parametr_round_mean_h_half_live=str(list_mean_h_iv_half_live_round[0]) +"±"+str(list_mean_h_iv_half_live_round[1])
 
-                 list_mean_h_iv_AUC0_inf_round= ["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[3]]
-                 parametr_round_mean_h_AUC0_inf=str(list_mean_h_iv_AUC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUC0_inf_round[1]) 
+                    list_mean_h_iv_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[5]] 
+                    parametr_round_mean_h_AUMC0_inf=str(list_mean_h_iv_AUMC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUMC0_inf_round[1]) 
 
-                 list_mean_h_iv_half_live_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[4]]
-                 parametr_round_mean_h_half_live=str(list_mean_h_iv_half_live_round[0]) +"±"+str(list_mean_h_iv_half_live_round[1])
+                    list_mean_h_iv_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_iv[6]]
+                    parametr_round_mean_h_MRT0_inf=str(list_mean_h_iv_MRT0_inf_round[0]) +"±"+str(list_mean_h_iv_MRT0_inf_round[1])
 
-                 list_mean_h_iv_AUMC0_inf_round=["%.2f" % round(v,2) for v in list_parametr_mean_h_iv[5]] 
-                 parametr_round_mean_h_AUMC0_inf=str(list_mean_h_iv_AUMC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUMC0_inf_round[1]) 
+                    list_mean_h_iv_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_iv[7]]
+                    parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_iv_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_Сmax_dev_AUC0_t_round[1])
 
-                 list_mean_h_iv_MRT0_inf_round=["%.3f" % round(v,3) for v in list_parametr_mean_h_iv[6]]
-                 parametr_round_mean_h_MRT0_inf=str(list_mean_h_iv_MRT0_inf_round[0]) +"±"+str(list_mean_h_iv_MRT0_inf_round[1])
+                    list_parametr_round_mean_h_iv= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-                 list_mean_h_iv_Сmax_dev_AUC0_t_round=["%.4f" % round(v,4) for v in list_parametr_mean_h_iv[7]]
-                 parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_iv_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_Сmax_dev_AUC0_t_round[1])
-
-                 list_parametr_round_mean_h_iv= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
-
-                 t_mean_iv = str("%.2f" % round(np.mean(list_PK_Tmax_not_round),2))     
-                 list_parametr_round_mean_h_iv.insert(1,t_mean_iv)
+                    t_mean_iv = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
+                    list_parametr_round_mean_h_iv.insert(1,t_mean_iv)
 
               ############################################################################################################### 
               st.title('Пероральное введение субстанции')
@@ -1301,7 +1403,7 @@ if selected == "Исследование":
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения субстанции'
                  list_heading_graphics_word.append(graphic) 
 
-              ############### Параметры ФК
+                 ############ Параметры ФК
 
                  df_without_numer=df.drop(['Номер'],axis=1)
                  count_row=df_without_numer.shape[0]
@@ -2769,8 +2871,6 @@ if selected == "Исследование":
               ###Биодоступность
               button_calculation_bioavailability = False
               
-              list_cmax_2_iv = [] #потом удалить
-
               if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit and dose_iv and dose_po_sub and dose_po_tab:
                  
                  condition_iv_cmax1 =  len(list_cmax_1_iv) == count_rows_number_iv
@@ -2781,13 +2881,13 @@ if selected == "Исследование":
                  condition_sub_cmax2 = len(list_cmax_2_sub) == count_rows_number_sub
                  condition_tab_cmax2 = len(list_cmax_2_tab) == count_rows_number_tab
                  
-                 condition_ON_cmax2 = False #вспомогательное условие, потом сделать возможность добавления или отвключения cmax2
+                 condition_ON_cmax2 = True #вспомогательное условие, потом сделать возможность добавления или отвключения cmax2
                  
                  if condition_ON_cmax2 == True:
                     if (condition_iv_cmax2 and condition_sub_cmax2 and condition_tab_cmax2):
                        button_calculation_bioavailability = True
                  if condition_ON_cmax2 == False:
-                    if (condition_iv_cmax1 and condition_sub_cmax2 and condition_tab_cmax2): #исправить потом на все 1
+                    if (condition_iv_cmax1 and condition_sub_cmax1 and condition_tab_cmax1): #исправить потом на все 1
                        button_calculation_bioavailability = True
 
                  if button_calculation_bioavailability == True:
