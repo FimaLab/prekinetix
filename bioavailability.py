@@ -4894,7 +4894,7 @@ if selected == "Исследование":
 
                        ### пользовательский индекс
                        list_for_index=df["Номер"].tolist()
-                       df_PK=pd.DataFrame(list(zip(list_cmax_1_lin,list_Tmax_float_1,list_cmax_2_lin,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
+                       df_PK=pd.DataFrame(list(zip(list_cmax_1_lin,list_Tmax_float_1,list_cmax_2_lin,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
 
                        ###описательная статистика
 
@@ -4987,7 +4987,7 @@ if selected == "Исследование":
                        list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
                        series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_lin.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
 
-                       series_Vd= df_concat_PK_lin['Vd']
+                       series_Vd= df_concat_PK_lin['Vd/F']
                        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
                        series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_lin.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
 
