@@ -5057,8 +5057,11 @@ if selected == "Исследование":
                        mean_auc0t=i['AUC0-t'].loc['mean']
                        mean_auc0inf=i['AUC0→∞'].loc['mean']
                        mean_aumc0inf=i['AUMC0-∞'].loc['mean']
+                       mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
                        mean_kel=i['Kel'].loc['mean']
-                       list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_сmax2,mean_tmax2,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_kel])
+                       mean_cl=i['CL/F'].loc['mean']
+                       mean_vd=i['Vd/F'].loc['mean']
+                       list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_сmax2,mean_tmax2,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
                 
                        list_name_doses_with_measure_unit=[]
                        for i in list_name_doses:
