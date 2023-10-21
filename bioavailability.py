@@ -25,6 +25,7 @@ from cycler import cycler
 from streamlit_option_menu import option_menu
 import streamlit.components.v1 as components 
 import codecs
+from streamlit_js_eval import streamlit_js_eval
 
 ############Для запуска приложения в консоле
 
@@ -40,6 +41,8 @@ import codecs
 # 1) Открыть Node.js command prompt
 # 2)nativefier  --name "BPK" --icon "C:\Users\Павел\OneDrive\Worktable\icon_final_total.ico" "https://bioavailability-pk.streamlit.app" 
 
+### создать и обновить файл требований
+# pip freeze > requirements.txt
 
 ###########################################################
 #область глобальных стилей
@@ -309,8 +312,7 @@ def create_table_descriptive_statistics(df):
 #кнопка перезагрузки приложения
 button_upload_app = st.sidebar.button('🔄', key = "Перезагрузка приложения", use_container_width = False)
 if button_upload_app:
-   for key in st.session_state.keys():
-       del st.session_state[key]
+   streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 ### пустое пространство 
 
