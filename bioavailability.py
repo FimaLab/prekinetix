@@ -25,7 +25,6 @@ from cycler import cycler
 from streamlit_option_menu import option_menu
 import streamlit.components.v1 as components 
 import codecs
-from PIL import Image
 
 ############Для запуска приложения в консоле
 
