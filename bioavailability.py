@@ -337,9 +337,9 @@ selected = option_menu(None, ["Главная", "Исследование", 'Н�
 ##########Главная
 if selected == "Главная":
    
-   #file_land = codecs.open("заставка.html","r",encoding="utf8")
-   #page_land = file_land.read()
-   #components.html(page_land,width=None, height=300, scrolling=False)
+   file_land = codecs.open("заставка.html","r",encoding="utf8")
+   page_land = file_land.read()
+   components.html(page_land,width=None, height=300, scrolling=False)
 
    file = codecs.open("Главный_текст.html","r",encoding="utf8")
    page = file.read()
