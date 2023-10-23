@@ -3990,7 +3990,7 @@ if selected == "Исследование":
                            MRT0_inf=i/j
                            list_MRT0_inf.append(MRT0_inf)
                     
-                    if st.session_state["agree_cmax2 - ИБ"] == True:
+                    if st.session_state["agree_cmax2 - органы"] == True:
                        #####Cmax условие для дальнейшего кода  ####
                        if len(list_cmax_1_org) == len(df.index.tolist()) and len(list_cmax_2_org) == len(df.index.tolist()):
 
