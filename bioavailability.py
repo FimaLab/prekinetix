@@ -4428,6 +4428,33 @@ if selected == "Исследование":
       
       col1, col2 = st.columns([0.66, 0.34])
 
+      ######### боковое меню справа
+      with col2:
+           selected = option_menu(None, ["Включение параметров в исследование"], 
+           icons=['menu-button'], 
+           menu_icon="cast", default_index=0, orientation="vertical",
+           styles={
+               "container": {"padding": "0!important", "background-color": "#24769C"},
+               "icon": {"color": "#5DAED3", "font-size": "13px"}, 
+               "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+               "nav-link-selected": {"background-color": "#335D70"},
+           })
+
+           if selected == "Включение параметров в исследование":
+              type_parameter = st.selectbox('Выберите параметр',
+           ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - линейность")
+              
+
+           if type_parameter == 'Cmax(2)':
+              
+              if "agree_cmax2 - линейность" not in st.session_state:
+                 st.session_state["agree_cmax2 - линейность"] = False
+
+              st.session_state["agree_cmax2 - линейность"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - линейность", value = st.session_state["agree_cmax2 - линейность"])
+              
+              if st.session_state["agree_cmax2 - линейность"] == True:
+                 st.write('🧠Параметр добавлен!')
+
       with col1:
 
          panel = st.radio(
@@ -4669,45 +4696,56 @@ if selected == "Исследование":
                     list_count_row=range(count_row)
           
                     ###Cmax
-                    ###создание состояния
-                    if ("selected_value_lin" + file_name) not in st.session_state:
-                       st.session_state["selected_value_lin"+ file_name] = []
-                    
-                    if ("feature_disable_selected_value_lin" + file_name) not in st.session_state:
-                        st.session_state["feature_disable_selected_value_lin" + file_name] = True
+                    #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (выкл)
+                    if st.session_state["agree_cmax2 - линейность"] == False:
+                       list_cmax_1_lin=[]
+                       for i in range(0,count_row):
+                           cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
+                           list_cmax_1_lin.append(cmax)
 
-                    ###создание состояния
-                    st.info('Выбери Cmax:')
-                    list_columns_without_numer = df.columns.tolist()
-                    list_columns_without_numer.remove('Номер')
-                    selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax линейность дозирования ' + file_name, max_selections=1)
-                    st.session_state["selected_columns_lin"+ file_name] = selected_columns 
+                    #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
+                    if st.session_state["agree_cmax2 - линейность"] == True:
 
-                    list_keys_cmax = st.session_state["selected_value_lin"+ file_name]
-                    if selected_columns != [] and st.session_state["feature_disable_selected_value_lin"+ file_name]:
-                       selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax линейность дозирования ' + file_name, max_selections=1)
-                       list_keys_cmax.append(selected_value)
+                       ###создание состояния
+                       if ("selected_value_lin" + file_name) not in st.session_state:
+                          st.session_state["selected_value_lin"+ file_name] = []
+                       
+                       if ("feature_disable_selected_value_lin" + file_name) not in st.session_state:
+                           st.session_state["feature_disable_selected_value_lin" + file_name] = True
 
-                    if list_keys_cmax != []:
-                       st.session_state["selected_value_lin"+ file_name] = list_keys_cmax
+                       ###создание состояния
+                       st.info('Выбери Cmax:')
+                       list_columns_without_numer = df.columns.tolist()
+                       list_columns_without_numer.remove('Номер')
+                       selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax линейность дозирования ' + file_name, max_selections=1)
+                       st.session_state["selected_columns_lin"+ file_name] = selected_columns 
 
-                    list_keys_cmax = st.session_state["selected_value_lin"+ file_name]
-                    list_keys_cmax_sample = [item for sublist in list_keys_cmax for item in sublist]
-                    
-                    if st.button('Очистить список Cmax', key="Очистка списка Cmax линейность дозирования " + file_name):
-                       del st.session_state["selected_value_lin"+ file_name]
-                       list_keys_cmax_sample = []
-                       selected_columns = st.session_state["selected_columns_lin"+ file_name]
-                       st.session_state["feature_disable_selected_value_lin"+ file_name] = True
-                    
-                    st.write("Список Cmax:")
-                    st.write(list_keys_cmax_sample)
-                    
-                    list_cmax_1_lin =list_keys_cmax_sample 
-                    
-                    list_cmax_2_lin =[]
+                       list_keys_cmax = st.session_state["selected_value_lin"+ file_name]
+                       if selected_columns != [] and st.session_state["feature_disable_selected_value_lin"+ file_name]:
+                          selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax линейность дозирования ' + file_name, max_selections=1)
+                          list_keys_cmax.append(selected_value)
 
-                    if len(list_cmax_1_lin) == len(df.index.tolist()):
+                       if list_keys_cmax != []:
+                          st.session_state["selected_value_lin"+ file_name] = list_keys_cmax
+
+                       list_keys_cmax = st.session_state["selected_value_lin"+ file_name]
+                       list_keys_cmax_sample = [item for sublist in list_keys_cmax for item in sublist]
+                       
+                       if st.button('Очистить список Cmax', key="Очистка списка Cmax линейность дозирования " + file_name):
+                          del st.session_state["selected_value_lin"+ file_name]
+                          list_keys_cmax_sample = []
+                          selected_columns = st.session_state["selected_columns_lin"+ file_name]
+                          st.session_state["feature_disable_selected_value_lin"+ file_name] = True
+                       
+                       st.write("Список Cmax:")
+                       st.write(list_keys_cmax_sample)
+                       
+                       list_cmax_1_lin =list_keys_cmax_sample 
+                       
+                       list_cmax_2_lin =[]
+
+                    if len(list_cmax_1_lin) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - линейность"] == True):
+                       
                        st.session_state["feature_disable_selected_value_lin"+ file_name] = False
 
                        ######Cmax2
@@ -4748,7 +4786,9 @@ if selected == "Исследование":
 
                        if len(list_cmax_2_lin) == len(df.index.tolist()):
                           st.session_state["feature_disable_selected_value_lin_2"+ file_name] = False
-
+                    
+                    if (len(list_cmax_1_lin) == len(df.index.tolist())):
+                       
                        ###Tmax   
                        list_Tmax_1=[]
                        for cmax in list_cmax_1_lin:
@@ -4762,6 +4802,8 @@ if selected == "Исследование":
                            Tmax=float(i)
                            list_Tmax_float_1.append(Tmax)
 
+                    if (len(list_cmax_1_lin) == len(df.index.tolist())) and (st.session_state["agree_cmax2 - линейность"] == True):
+                       
                        list_Tmax_2=[]
                        for cmax in list_cmax_2_lin:
                            for column in df.columns:
@@ -4774,6 +4816,8 @@ if selected == "Исследование":
                            Tmax=float(i)
                            list_Tmax_float_2.append(Tmax)  
 
+                    if (len(list_cmax_1_lin) == len(df.index.tolist())):
+                       
                        ###AUC0-t
                        list_AUC_0_T=[]
                        if method_auc == 'linear':
@@ -5117,15 +5161,32 @@ if selected == "Исследование":
                        for i,j in list_zip_AUMCO_inf_auc0_inf:
                            MRT0_inf=i/j
                            list_MRT0_inf.append(MRT0_inf)
-
-                    #####Cmax условие для дальнейшего кода
-                    if len(list_cmax_1_lin) == len(df.index.tolist()) and len(list_cmax_2_lin) == len(df.index.tolist()):
                     
+                    if st.session_state["agree_cmax2 - линейность"] == True:
+                       #####Cmax условие для дальнейшего кода
+                       if len(list_cmax_1_lin) == len(df.index.tolist()) and len(list_cmax_2_lin) == len(df.index.tolist()):
+                       
+                          ##################### Фрейм ФК параметров
+
+                          ### пользовательский индекс
+                          list_for_index=df["Номер"].tolist()
+                          df_PK=pd.DataFrame(list(zip(list_cmax_1_lin,list_Tmax_float_1,list_cmax_2_lin,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
+                    
+                    if len(list_cmax_1_lin) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - линейность"] == False):
+
                        ##################### Фрейм ФК параметров
 
                        ### пользовательский индекс
                        list_for_index=df["Номер"].tolist()
-                       df_PK=pd.DataFrame(list(zip(list_cmax_1_lin,list_Tmax_float_1,list_cmax_2_lin,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index) 
+                       df_PK=pd.DataFrame(list(zip(list_cmax_1_lin,list_Tmax_float_1,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd/F'],index=list_for_index)
+
+                    checking_condition_cmax2 = False
+
+                    if st.session_state["agree_cmax2 - линейность"] == True:
+                     
+                       checking_condition_cmax2 = len(list_cmax_1_lin) == len(df.index.tolist()) and len(list_cmax_2_lin) == len(df.index.tolist()) and st.session_state["agree_cmax2 - линейность"] == True
+
+                    if checking_condition_cmax2 or (len(list_cmax_1_lin) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - линейность"] == False)):
 
                        ###описательная статистика
 
@@ -5174,17 +5235,19 @@ if selected == "Исследование":
                        list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
                        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_lin.index.tolist(), name='Cmax ' +"("+measure_unit_lin +")")
 
-                       series_Cmax_2=df_concat_PK_lin['Cmax(2)']
-                       list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
-                       series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_lin.index.tolist(), name='Cmax(2) ' +"("+measure_unit_lin +")")
+                       if st.session_state["agree_cmax2 - линейность"] == True:
+                          series_Cmax_2=df_concat_PK_lin['Cmax(2)']
+                          list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
+                          series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_lin.index.tolist(), name='Cmax(2) ' +"("+measure_unit_lin +")")
 
                        series_Tmax=df_concat_PK_lin['Tmax']
                        list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
                        series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_lin.index.tolist(), name='Tmax ' +"("+"ч"+")")
 
-                       series_Tmax_2=df_concat_PK_lin['Tmax(2)']
-                       list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
-                       series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_lin.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
+                       if st.session_state["agree_cmax2 - линейность"] == True:
+                          series_Tmax_2=df_concat_PK_lin['Tmax(2)']
+                          list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
+                          series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_lin.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
 
                        series_MRT0_inf= df_concat_PK_lin['MRT0→∞']
                        list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
@@ -5221,8 +5284,12 @@ if selected == "Исследование":
                        series_Vd= df_concat_PK_lin['Vd/F']
                        list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
                        series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_lin.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
+                       
+                       if st.session_state["agree_cmax2 - линейность"] == True:
+                          df_total_PK_lin = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1) 
+                       else:
+                          df_total_PK_lin = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
 
-                       df_total_PK_lin = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1 ) 
                        df_total_PK_lin.index.name = 'Номер'
 
                        ##изменение названий параметров описательной статистики
@@ -5259,14 +5326,13 @@ if selected == "Исследование":
                  
                    condition_cmax1 =  len(list_cmax_1_lin) == count_rows_number_lin
                    
-                   condition_cmax2 =  len(list_cmax_2_lin) == count_rows_number_lin
+                   if st.session_state["agree_cmax2 - линейность"] == True:
+                      condition_cmax2 =  len(list_cmax_2_lin) == count_rows_number_lin
                    
-                   condition_ON_cmax2 = True #вспомогательное условие, потом сделать возможность добавления или отвключения cmax2
-                   
-                   if condition_ON_cmax2 == True:
+                   if st.session_state["agree_cmax2 - линейность"] == True:
                       if (condition_cmax2):
                          button_calculation = True
-                   if condition_ON_cmax2 == False:
+                   if st.session_state["agree_cmax2 - линейность"] == False:
                       if (condition_cmax1):
                          button_calculation = True
 
@@ -5276,31 +5342,50 @@ if selected == "Исследование":
                       st.write('🔧Заполните все поля ввода и загрузите файлы!')
                 
                 if (list_keys_file_lin != []) and measure_unit_lin and measure_unit_dose_lin and button_calculation:
+                   
+                   if st.session_state["agree_cmax2 - линейность"] == True:
+                      list_list_PK_par_mean=[]
+                      for i in list_df_unrounded: 
+                          mean_сmax=i['Cmax'].loc['mean']
+                          mean_tmax=i['Tmax'].loc['mean']
+                          mean_сmax2=i['Cmax(2)'].loc['mean']
+                          mean_tmax2=i['Tmax(2)'].loc['mean']
+                          mean_mrt0inf=i['MRT0→∞'].loc['mean']
+                          mean_thalf=i['T1/2'].loc['mean']
+                          mean_auc0t=i['AUC0-t'].loc['mean']
+                          mean_auc0inf=i['AUC0→∞'].loc['mean']
+                          mean_aumc0inf=i['AUMC0-∞'].loc['mean']
+                          mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
+                          mean_kel=i['Kel'].loc['mean']
+                          mean_cl=i['CL/F'].loc['mean']
+                          mean_vd=i['Vd/F'].loc['mean']
+                          list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_сmax2,mean_tmax2,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
+                   else:
+                      for i in list_df_unrounded: 
+                          mean_сmax=i['Cmax'].loc['mean']
+                          mean_tmax=i['Tmax'].loc['mean']
+                          mean_mrt0inf=i['MRT0→∞'].loc['mean']
+                          mean_thalf=i['T1/2'].loc['mean']
+                          mean_auc0t=i['AUC0-t'].loc['mean']
+                          mean_auc0inf=i['AUC0→∞'].loc['mean']
+                          mean_aumc0inf=i['AUMC0-∞'].loc['mean']
+                          mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
+                          mean_kel=i['Kel'].loc['mean']
+                          mean_cl=i['CL/F'].loc['mean']
+                          mean_vd=i['Vd/F'].loc['mean']
+                          list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd]) 
 
-                   list_list_PK_par_mean=[]
-                   for i in list_df_unrounded: 
-                       mean_сmax=i['Cmax'].loc['mean']
-                       mean_tmax=i['Tmax'].loc['mean']
-                       mean_сmax2=i['Cmax(2)'].loc['mean']
-                       mean_tmax2=i['Tmax(2)'].loc['mean']
-                       mean_mrt0inf=i['MRT0→∞'].loc['mean']
-                       mean_thalf=i['T1/2'].loc['mean']
-                       mean_auc0t=i['AUC0-t'].loc['mean']
-                       mean_auc0inf=i['AUC0→∞'].loc['mean']
-                       mean_aumc0inf=i['AUMC0-∞'].loc['mean']
-                       mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
-                       mean_kel=i['Kel'].loc['mean']
-                       mean_cl=i['CL/F'].loc['mean']
-                       mean_vd=i['Vd/F'].loc['mean']
-                       list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_сmax2,mean_tmax2,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
-                
                        list_name_doses_with_measure_unit=[]
                        for i in list_name_doses:
                         j= i + " " + measure_unit_lin
                         list_name_doses_with_measure_unit.append(j)
 
                    ### получение итогового фрейма ФК параметров доз
-                   df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin+")",'Cmax(2) ' +"("+measure_unit_lin+")",'Tmax ' +"("+"ч"+")",'Tmax(2) ' +"("+"ч"+")",'MRT0→∞ '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_lin+"×ч" +")",'AUC0→∞ '+"("+measure_unit_lin+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")",'Kel '+"("+"ч\u207B\u00B9"+")",'CL/F ' +"("+"л/ч"+")",'Vd/F ' +"("+"л/кг"+")"],index=list_name_doses_with_measure_unit)
+                   if st.session_state["agree_cmax2 - линейность"] == True:
+                      df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin+")",'Cmax(2) ' +"("+measure_unit_lin+")",'Tmax ' +"("+"ч"+")",'Tmax(2) ' +"("+"ч"+")",'MRT0→∞ '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_lin+"×ч" +")",'AUC0→∞ '+"("+measure_unit_lin+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")",'Kel '+"("+"ч\u207B\u00B9"+")",'CL/F ' +"("+"л/ч"+")",'Vd/F ' +"("+"л/кг"+")"],index=list_name_doses_with_measure_unit)
+                   else:
+                      df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin+")",'Tmax ' +"("+"ч"+")",'MRT0→∞ '+"("+"ч"+")",'T1/2 '+"("+"ч"+")",'AUC0-t '+"("+measure_unit_lin+"×ч" +")",'AUC0→∞ '+"("+measure_unit_lin+"×ч" +")",'AUMC0-∞ '+"("+measure_unit_lin+"×ч\u00B2" +")",'Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")",'Kel '+"("+"ч\u207B\u00B9"+")",'CL/F ' +"("+"л/ч"+")",'Vd/F ' +"("+"л/кг"+")"],index=list_name_doses_with_measure_unit)
+
                    df_PK_doses_total_transpose=df_PK_doses_total.transpose()
 
                    #округление фрейма df_PK_doses_total_transpose
@@ -5313,11 +5398,12 @@ if selected == "Исследование":
                    series_Tmax=df_doses_trans_trans['Tmax ' +"("+"ч"+")"].tolist()       
                    series_Tmax=pd.Series(["%.2f" % round(v,2) for v in series_Tmax])
 
-                   series_Cmax2=df_doses_trans_trans['Cmax(2) ' +"("+measure_unit_lin+")"].tolist() 
-                   series_Cmax2=pd.Series(["%.2f" % round(v,2) for v in series_Cmax2])
+                   if st.session_state["agree_cmax2 - линейность"] == True:
+                      series_Cmax2=df_doses_trans_trans['Cmax(2) ' +"("+measure_unit_lin+")"].tolist() 
+                      series_Cmax2=pd.Series(["%.2f" % round(v,2) for v in series_Cmax2])
 
-                   series_Tmax2=df_doses_trans_trans['Tmax(2) ' +"("+"ч"+")"].tolist()       
-                   series_Tmax2=pd.Series(["%.2f" % round(v,2) for v in series_Tmax2])
+                      series_Tmax2=df_doses_trans_trans['Tmax(2) ' +"("+"ч"+")"].tolist()       
+                      series_Tmax2=pd.Series(["%.2f" % round(v,2) for v in series_Tmax2])
 
                    series_MRT0_inf= df_doses_trans_trans['MRT0→∞ '+"("+"ч"+")"].tolist()   
                    series_MRT0_inf=pd.Series(["%.3f" % round(v,3) for v in series_MRT0_inf])
@@ -5345,8 +5431,11 @@ if selected == "Исследование":
 
                    series_Vd= df_doses_trans_trans['Vd/F ' +"("+"л/кг"+")"].tolist()   
                    series_Vd=pd.Series(["%.1f" % round(v,1) for v in series_Vd])
-
-                   df_total_total_doses = pd.concat([series_Cmax, series_Tmax,series_Cmax2, series_Tmax2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
+                   
+                   if st.session_state["agree_cmax2 - линейность"] == True:
+                      df_total_total_doses = pd.concat([series_Cmax, series_Tmax,series_Cmax2, series_Tmax2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
+                   else:
+                      df_total_total_doses = pd.concat([series_Cmax, series_Tmax,series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
 
                    df_total_total_doses.index=df_PK_doses_total_transpose.columns.tolist()
                    df_total_total_doses.columns=df_PK_doses_total_transpose.index.tolist() 
@@ -5532,7 +5621,15 @@ if selected == "Исследование":
                    if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
                       st.pyplot(list_graphics_word[i])
                       st.subheader(list_heading_graphics_word[i])
-      with col2:
+   
+   ###########################################################################################
+   if option == 'Изучение экскреции препарата':
+       
+       st.title('Изучение экскреции препарата')
+
+       col1, col2 = st.columns([0.66, 0.34])
+       
+       with col2:
             selected = option_menu(None, ["Включение параметров в исследование"], 
             icons=['menu-button'], 
             menu_icon="cast", default_index=0, orientation="vertical",
@@ -5542,14 +5639,7 @@ if selected == "Исследование":
                 "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
                 "nav-link-selected": {"background-color": "#335D70"},
             })
-   
-   ###########################################################################################
-   if option == 'Изучение экскреции препарата':
-       
-       st.title('Изучение экскреции препарата')
 
-       col1, col2 = st.columns([0.66, 0.34])
-       
        ####### основной экран
        with col1:         
             panel = st.radio(
@@ -5684,14 +5774,4 @@ if selected == "Исследование":
                       if list_heading_graphics_word[i].__contains__("Выведение"):
                          st.pyplot(list_graphics_word[i])
                          st.subheader(list_heading_graphics_word[i])
-
-       with col2:
-            selected = option_menu(None, ["Включение параметров в исследование"], 
-            icons=['menu-button'], 
-            menu_icon="cast", default_index=0, orientation="vertical",
-            styles={
-                "container": {"padding": "0!important", "background-color": "#24769C"},
-                "icon": {"color": "#5DAED3", "font-size": "13px"}, 
-                "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-                "nav-link-selected": {"background-color": "#335D70"},
-            })                      
+                      
