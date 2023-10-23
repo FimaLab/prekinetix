@@ -51,20 +51,53 @@ st.markdown(
     """
 <style>
 span[data-baseweb="tag"] {
-  background-color: #0f7c9bbf !important;
+  background-color: #3095eb !important;
 }
 label[data-baseweb="checkbox"] {
-  background-color: #355b70 !important;
+  background-color: #1D1D1D !important;
   border-radius: 5px;
 }
 label[data-baseweb="checkbox"] span {
-  background-color: #50a0af !important;
+  background-color: #2e4f4f !important;
   margin-left: 6px;
+}
+div[data-baseweb="notification"] {
+  background-color: #2e4f4f !important;
 }
 </style>
 """,
     unsafe_allow_html=True,
 )
+
+####[theme] синяяя тема
+#primaryColor="#FFFFFF"
+#backgroundColor="#04748c"
+#secondaryBackgroundColor="#5d959f"
+#textColor="#FFFFFF"
+#font="sans serif"
+
+#<style>
+#span[data-baseweb="tag"] {
+ # background-color: #0f7c9bbf !important;
+#}
+#label[data-baseweb="checkbox"] {
+ # background-color: #355b70 !important;
+ # border-radius: 5px;
+#}
+#label[data-baseweb="checkbox"] span {
+ # background-color: #50a0af !important;
+ # margin-left: 6px;
+#}
+#</style>
+
+#основного меню 
+
+#styles={
+ #            "container": {"padding": "0!important", "background-color": "#24769C"},
+ #            "icon": {"color": "#5DAED3", "font-size": "18px"}, 
+ #            "nav-link": {"font-size": "18px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+  #           "nav-link-selected": {"background-color": "#335D70"},
+  #       })
 
 #span[data-baseweb="tag"] - стиль тега в селекторе
 #label[data-baseweb="checkbox"] - стиль чекбокса всего
@@ -328,10 +361,10 @@ selected = option_menu(None, ["Главная", "Исследование", 'Н�
          icons=['house-door', 'graph-up','wrench-adjustable'], 
          menu_icon="cast", default_index=0, orientation="horizontal",
          styles={
-             "container": {"padding": "0!important", "background-color": "#24769C"},
-             "icon": {"color": "#5DAED3", "font-size": "18px"}, 
+             "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+             "icon": {"color": "#cbe4de", "font-size": "18px"}, 
              "nav-link": {"font-size": "18px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-             "nav-link-selected": {"background-color": "#335D70"},
+             "nav-link-selected": {"background-color": "#0e8388"},
          })
 
 ##########Главная
@@ -383,10 +416,10 @@ if selected == "Исследование":
             icons=['menu-button'], 
             menu_icon="cast", default_index=0, orientation="vertical",
             styles={
-                "container": {"padding": "0!important", "background-color": "#24769C"},
-                "icon": {"color": "#5DAED3", "font-size": "13px"}, 
+                "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                "icon": {"color": "#cbe4de", "font-size": "13px"}, 
                 "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-                "nav-link-selected": {"background-color": "#335D70"},
+                "nav-link-selected": {"background-color": "#0e8388"},
             })
 
             if selected == "Включение параметров в исследование":
