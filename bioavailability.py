@@ -4002,11 +4002,11 @@ if selected == "Исследование":
                     
                     if len(list_cmax_1_org) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - органы"] == False):
 
-                          ##################### Фрейм ФК параметров
+                       ##################### Фрейм ФК параметров
 
-                          ### пользовательский индекс
-                          list_for_index=df["Номер"].tolist()
-                          df_PK=pd.DataFrame(list(zip(list_cmax_1_org,list_Tmax_float_1,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
+                       ### пользовательский индекс
+                       list_for_index=df["Номер"].tolist()
+                       df_PK=pd.DataFrame(list(zip(list_cmax_1_org,list_Tmax_float_1,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
                     
                     checking_condition_cmax2 = False
 
