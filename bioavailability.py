@@ -339,14 +339,9 @@ if selected == "Главная":
    
    col1, col2 = st.columns([0.66, 0.34])
 
-   with col1:
-        file_land = codecs.open("заставка.html","r",encoding="utf8")
-        page_land = file_land.read()
-        components.html(page_land,width=None, height=550, scrolling=False)
-
    file = codecs.open("Главный_текст.html","r",encoding="utf8")
    page = file.read()
-   components.html(page,width=None, height=600, scrolling=False)
+   components.html(page,width=None, height=800, scrolling=False)
 
 ##########Исследование
 
