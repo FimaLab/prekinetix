@@ -5361,6 +5361,7 @@ if selected == "Исследование":
                           mean_vd=i['Vd/F'].loc['mean']
                           list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_сmax2,mean_tmax2,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
                    else:
+                      list_list_PK_par_mean=[]
                       for i in list_df_unrounded: 
                           mean_сmax=i['Cmax'].loc['mean']
                           mean_tmax=i['Tmax'].loc['mean']
