@@ -343,7 +343,7 @@ def create_table_descriptive_statistics(df):
 ####### Главное меню
 
 #кнопка перезагрузки приложения
-button_upload_app = st.sidebar.button(':violet[Обновить страницу🌌]', key = "Перезагрузка приложения", use_container_width = False)
+button_upload_app = st.sidebar.button(':violet[Обновить страницу]', key = "Перезагрузка приложения", use_container_width = False)
 if button_upload_app:
    streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
