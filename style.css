@@ -4,11 +4,6 @@ div.css-zt5igj.e1nzilvr4  {
   font-size: 30px;
 }
 
-/*logo*//*etr89bj2*/
-div.css-1kyxreq.e115fcil2 {
-  margin-left: 30px;
-}
-
 /*main container*//*egzxvld4*/
 div.css-1y4p8pa.ea3mdgi4 {
   padding-top: 30px;
@@ -26,4 +21,9 @@ h1 {
 /*sidebar*/
 div.css-10oheav.eczjsme4 {
   padding-top: 15px;
+}
+
+/* селектор по значению атрибута логотипа*/
+[style="width: 110px;"] {
+  margin-left: 30px;
 }
