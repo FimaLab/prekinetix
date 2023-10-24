@@ -426,16 +426,16 @@ if selected == "Исследование":
                type_parameter = st.selectbox('Выберите параметр',
             ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - ИБ")
                
+            
+            if "agree_cmax2 - ИБ" not in st.session_state:
+                  st.session_state["agree_cmax2 - ИБ"] = False
 
             if type_parameter == 'Cmax(2)':
                
-               if "agree_cmax2 - ИБ" not in st.session_state:
-                  st.session_state["agree_cmax2 - ИБ"] = False
-
                st.session_state["agree_cmax2 - ИБ"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - ИБ", value = st.session_state["agree_cmax2 - ИБ"])
                
                if st.session_state["agree_cmax2 - ИБ"] == True:
-                  st.write('🧠Параметр добавлен!')
+                  st.write('✔️Параметр добавлен!')
 
        ####### основной экран
        with col1:
@@ -3292,16 +3292,25 @@ if selected == "Исследование":
               type_parameter = st.selectbox('Выберите параметр',
            ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - органы")
               
+           if "agree_cmax2 - органы" not in st.session_state:
+                 st.session_state["agree_cmax2 - органы"] = False
 
            if type_parameter == 'Cmax(2)':
-              
-              if "agree_cmax2 - органы" not in st.session_state:
-                 st.session_state["agree_cmax2 - органы"] = False
 
               st.session_state["agree_cmax2 - органы"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - органы", value = st.session_state["agree_cmax2 - органы"])
               
               if st.session_state["agree_cmax2 - органы"] == True:
-                 st.write('🧠Параметр добавлен!')
+                 st.write('✔️Параметр добавлен!')
+
+           if "agree_injection - органы" not in st.session_state:
+                 st.session_state["agree_injection - органы"] = False
+
+           if type_parameter == "Вид введения":
+
+              st.session_state["agree_injection - органы"] = st.checkbox('Внутривенное введение', key = "Возможность добавления injection - органы", value = st.session_state["agree_injection - органы"])
+              
+              if st.session_state["agree_injection - органы"] == True:
+                 st.write('💉Параметр добавлен!')
 
       with col1:
           
@@ -3409,7 +3418,10 @@ if selected == "Исследование":
                     for i in col_mapping:
                         numer=float(i)
                         list_time.append(numer)
-                    list_t_graph.append(list_time) 
+                    list_t_graph.append(list_time)
+
+                    if st.session_state["agree_injection - органы"] == True: 
+                       list_time.remove(0)
 
                     for r in range(0,count_row_df):
 
@@ -3421,6 +3433,8 @@ if selected == "Исследование":
 
                         list_concentration = [float(v) for v in list_concentration]
 
+                        if st.session_state["agree_injection - органы"] == True:
+                           list_concentration.remove(0)
 
                         fig, ax = plt.subplots()
                         plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
@@ -3460,6 +3474,10 @@ if selected == "Исследование":
 
                     df_for_plot_conc=df.drop(['Номер'], axis=1)
                     df_for_plot_conc_1 = df_for_plot_conc.transpose()
+                    
+                    if st.session_state["agree_injection - органы"] == True:
+                       df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
+
                     list_numer_animal_for_plot=df['Номер'].tolist()
                     count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
                     list_color = [] ## генерация 500 цветов
@@ -3516,7 +3534,11 @@ if selected == "Исследование":
                     df_averaged_concentrations=df.describe()
                     list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                     err_y_1=df_averaged_concentrations.loc['std'].tolist()
-
+                    
+                    if st.session_state["agree_injection - органы"] == True:
+                       list_time.remove(0) ###т.к. внутривенное
+                       list_concentration.remove(0)
+                       err_y_1.remove(0)
 
                     fig, ax = plt.subplots()
                     plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -3530,9 +3552,10 @@ if selected == "Исследование":
 
                  #в полулогарифмических координатах
                     #для полулогарифм. посторим без нуля
-                    list_time.remove(0)
-                    list_concentration.remove(0)
-                    err_y_1.remove(0) 
+                    if st.session_state["agree_injection - органы"] == False:
+                      list_time.remove(0)
+                      list_concentration.remove(0)
+                      err_y_1.remove(0) 
 
 
                     fig, ax = plt.subplots()
@@ -4331,8 +4354,13 @@ if selected == "Исследование":
                    for i in list_name_organs:
                     j= i + " std"
                     list_name_organs_std.append(j)
+                   
+                   list_time_for_df_mean_conc_graph = list_t_graph[0]
 
-                   df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_t_graph[0],index=list_name_organs)
+                   if st.session_state["agree_injection - органы"] == True:
+                      list_time_for_df_mean_conc_graph.insert(0,0)
+
+                   df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_for_df_mean_conc_graph,index=list_name_organs)
                    df_mean_conc_graph_1=df_mean_conc_graph.transpose()
                    df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_t_graph[0],index=list_name_organs_std)
                    df_std_conc_graph_1=df_std_conc_graph.transpose()
@@ -4343,11 +4371,17 @@ if selected == "Исследование":
                        hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
                        list_colors.append(hexadecimal)
                    
+                   list_t_organs=list(df_concat_mean_std.index)
+
+                   if st.session_state["agree_injection - органы"] == True:
+                      list_t_organs.remove(0)
+                      df_concat_mean_std=df_concat_mean_std.drop([0])
+
                    list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)    
 
                    fig, ax = plt.subplots()
                    for i,j,c in list_zip_mean_std_colors:
-                        plt.errorbar(list(df_concat_mean_std.index),df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+                        plt.errorbar(list_t_organs,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+ measure_unit_org_blood)
                         ax.legend(fontsize = 5)
@@ -4360,13 +4394,16 @@ if selected == "Исследование":
                    ### в полулог. координатах
 
                    list_t_organs=list(df_concat_mean_std.index)
-                   list_t_organs.remove(0)
-                   df_concat_mean_std_without_0=df_concat_mean_std.drop([0])
+
+                   if st.session_state["agree_injection - органы"] == False:
+                      list_t_organs.remove(0)
+                      df_concat_mean_std=df_concat_mean_std.drop([0])
+
                    list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)
 
                    fig, ax = plt.subplots()
                    for i,j,c in list_zip_mean_std_colors:
-                        plt.errorbar(list_t_organs,df_concat_mean_std_without_0[i],yerr=df_concat_mean_std_without_0[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+                        plt.errorbar(list_t_organs,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
                         ax.set_yscale("log")
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+ measure_unit_org_blood)
@@ -4475,16 +4512,15 @@ if selected == "Исследование":
               type_parameter = st.selectbox('Выберите параметр',
            ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - линейность")
               
+           if "agree_cmax2 - линейность" not in st.session_state:
+                 st.session_state["agree_cmax2 - линейность"] = False
 
            if type_parameter == 'Cmax(2)':
-              
-              if "agree_cmax2 - линейность" not in st.session_state:
-                 st.session_state["agree_cmax2 - линейность"] = False
 
               st.session_state["agree_cmax2 - линейность"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - линейность", value = st.session_state["agree_cmax2 - линейность"])
               
               if st.session_state["agree_cmax2 - линейность"] == True:
-                 st.write('🧠Параметр добавлен!')
+                 st.write('✔️Параметр добавлен!')
 
       with col1:
 
