@@ -374,7 +374,7 @@ if selected == "Главная":
 
    file = codecs.open("Главный_текст.html","r",encoding="utf8")
    page = file.read()
-   components.html(page,width=None, height=800, scrolling=False)
+   components.html(page,width=None, height=1000, scrolling=False)
 
 ##########Исследование
 
