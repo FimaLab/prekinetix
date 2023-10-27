@@ -210,6 +210,7 @@ def create_table(list_heading_word,list_table_word):
             mime="docx"
         )
 
+def visualize_table(list_heading_word,list_table_word):
     zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
     #####визуализация
     for heading, df in zip_heading_table:
@@ -385,7 +386,7 @@ if selected == "Исследование":
    st.sidebar.subheader('Какое исследование проводится?')
 
    option = st.sidebar.selectbox('Выберите вид исследования',
-       ('Изучение абсолютной и относительной биодоступности препарата', 'Изучение фармакокинетики в органах животных', 'Линейность дозирования','Изучение экскреции препарата'),disabled = False, key = "Вид исследования")
+       ('Биодоступность', 'ФК в органах', 'Линейность дозирования','Экскреция препарата'),disabled = False, key = "Вид исследования")
 
    ############### файл пример
 
@@ -404,39 +405,12 @@ if selected == "Исследование":
    
    ################################
 
-   if option == 'Изучение абсолютной и относительной биодоступности препарата':
+   if option == 'Биодоступность':
        
        st.title('Изучение абсолютной и относительной биодоступности препарата')
 
        col1, col2 = st.columns([0.66, 0.34])
        
-       ######### боковое меню справа
-       with col2:
-            selected = option_menu(None, ["Включение параметров в исследование"], 
-            icons=['menu-button'], 
-            menu_icon="cast", default_index=0, orientation="vertical",
-            styles={
-                "container": {"padding": "0!important", "background-color": "#2e4f4f"},
-                "icon": {"color": "#cbe4de", "font-size": "13px"}, 
-                "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-                "nav-link-selected": {"background-color": "#0e8388"},
-            })
-
-            if selected == "Включение параметров в исследование":
-               type_parameter = st.selectbox('Выберите параметр',
-            ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - ИБ")
-               
-            
-            if "agree_cmax2 - ИБ" not in st.session_state:
-                  st.session_state["agree_cmax2 - ИБ"] = False
-
-            if type_parameter == 'Cmax(2)':
-               
-               st.session_state["agree_cmax2 - ИБ"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - ИБ", value = st.session_state["agree_cmax2 - ИБ"])
-               
-               if st.session_state["agree_cmax2 - ИБ"] == True:
-                  st.write('✔️Параметр добавлен!')
-
        ####### основной экран
        with col1:
            
@@ -463,7 +437,35 @@ if selected == "Исследование":
            list_heading_graphics_word=[]
 
            if panel == "Загрузка файлов":
-          
+              
+              ######### боковое меню справа
+              with col2:
+                    selected = option_menu(None, ["Включение параметров в исследование"], 
+                    icons=['menu-button'], 
+                    menu_icon="cast", default_index=0, orientation="vertical",
+                    styles={
+                       "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                       "icon": {"color": "#cbe4de", "font-size": "13px"}, 
+                       "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                       "nav-link-selected": {"background-color": "#0e8388"},
+                    })
+
+                    if selected == "Включение параметров в исследование":
+                       type_parameter = st.selectbox('Выберите параметр',
+                    ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - ИБ")
+                       
+                    
+                    if "agree_cmax2 - ИБ" not in st.session_state:
+                          st.session_state["agree_cmax2 - ИБ"] = False
+
+                    if type_parameter == 'Cmax(2)':
+                       
+                       st.session_state["agree_cmax2 - ИБ"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - ИБ", value = st.session_state["agree_cmax2 - ИБ"])
+                       
+                       if st.session_state["agree_cmax2 - ИБ"] == True:
+                          st.write('✔️Параметр добавлен!')
+
+
               measure_unit = st.text_input("Введите единицы измерения концентрации", key='Единицы измерения при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["measure_unit"])
               
               st.session_state["measure_unit"] = measure_unit
@@ -3223,95 +3225,94 @@ if selected == "Исследование":
               st.session_state["list_table_word"] = list_table_word
               st.session_state["list_graphics_word"] = list_graphics_word
               st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
-              
-           
-           #####Создание word отчета
-           if panel == "Таблицы":
+       
+       #отдельная панель, чтобы уменьшить размер вывода результатов
 
-                 list_heading_word = st.session_state["list_heading_word"]
-                 list_table_word = st.session_state["list_table_word"]
+       col1, col2 = st.columns([0.66,0.34])
+       
+       with col1:
+        
+          #####Создание word отчета
+          if panel == "Таблицы":
 
-                 ###вызов функции создания таблицы
-                 create_table(list_heading_word,list_table_word)
+                list_heading_word = st.session_state["list_heading_word"]
+                list_table_word = st.session_state["list_table_word"]
+                
+                ###вызов функции визуализации таблиц
+                visualize_table(list_heading_word,list_table_word)
 
-           if panel == "Графики":
-                 
-                 list_graphics_word = st.session_state["list_graphics_word"]
-                 list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
-                 
-                 ###вызов функции создания графика
-                 create_graphic(list_graphics_word,list_heading_graphics_word)
-
-                 #######визуализация
-
-                 #классификация графиков по кнопкам
-                 type_graphics = st.selectbox('Выберите вид графиков',
-           ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей при разных видах введения"),disabled = False, key = "Вид графика - ИБ" )
-
-                 count_graphics_for_visual = len(list_heading_graphics_word)
-                 list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
-                 
-                 for i in list_range_count_graphics_for_visual:
-                     if list_heading_graphics_word[i].__contains__("индивидуального"): 
-                        if type_graphics == 'Индивидуальные фармакокинетические профили':
-                           st.pyplot(list_graphics_word[i])
-                           st.subheader(list_heading_graphics_word[i])
-                     if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
-                        if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                           st.pyplot(list_graphics_word[i])
-                           st.subheader(list_heading_graphics_word[i])
-                     if list_heading_graphics_word[i].__contains__("усредненного"):
-                        if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                           st.pyplot(list_graphics_word[i])
-                           st.subheader(list_heading_graphics_word[i])
-                     if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
-                        if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
-                           st.pyplot(list_graphics_word[i])
-                           st.subheader(list_heading_graphics_word[i])
+                with col2:
                      
+                     selected = option_menu(None, ["Cформированный отчeт"], 
+                     icons=['file-earmark-arrow-down-fill'], 
+                     menu_icon="cast", default_index=0, orientation="vertical",
+                     styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                     })
+
+                     if selected == "Cформированный отчeт":
+
+                        ###вызов функции создания Word-отчета таблиц
+                        create_table(list_heading_word,list_table_word)
+
+          if panel == "Графики":
+                
+                list_graphics_word = st.session_state["list_graphics_word"]
+                list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+                
+                #######визуализация
+
+                #классификация графиков по кнопкам
+                type_graphics = st.selectbox('Выберите вид графиков',
+          ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей при разных видах введения"),disabled = False, key = "Вид графика - ИБ" )
+
+                count_graphics_for_visual = len(list_heading_graphics_word)
+                list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+                
+                for i in list_range_count_graphics_for_visual:
+                    if list_heading_graphics_word[i].__contains__("индивидуального"): 
+                       if type_graphics == 'Индивидуальные фармакокинетические профили':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("усредненного"):
+                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
+                       if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+
+                with col2:
+                     
+                     selected = option_menu(None, ["Cформированный отчeт"], 
+                     icons=['file-earmark-arrow-down-fill'], 
+                     menu_icon="cast", default_index=0, orientation="vertical",
+                     styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                     })
+                      
+                     if selected == "Cформированный отчeт":
+                        ###вызов функции создания Word-отчета графиков
+                        create_graphic(list_graphics_word,list_heading_graphics_word)  
+                       
    #####################################################################        
-   if option == 'Изучение фармакокинетики в органах животных':
+   if option == 'ФК в органах':
       
       st.title('Исследование ФК параметров для органов животных')
       
       col1, col2 = st.columns([0.66, 0.34])
       
-      ######### боковое меню справа
-      with col2:
-           selected = option_menu(None, ["Включение параметров в исследование"], 
-           icons=['menu-button'], 
-           menu_icon="cast", default_index=0, orientation="vertical",
-           styles={
-               "container": {"padding": "0!important", "background-color": "#24769C"},
-               "icon": {"color": "#5DAED3", "font-size": "13px"}, 
-               "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-               "nav-link-selected": {"background-color": "#335D70"},
-           })
-
-           if selected == "Включение параметров в исследование":
-              type_parameter = st.selectbox('Выберите параметр',
-           ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - органы")
-              
-           if "agree_cmax2 - органы" not in st.session_state:
-                 st.session_state["agree_cmax2 - органы"] = False
-
-           if type_parameter == 'Cmax(2)':
-
-              st.session_state["agree_cmax2 - органы"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - органы", value = st.session_state["agree_cmax2 - органы"])
-              
-              if st.session_state["agree_cmax2 - органы"] == True:
-                 st.write('✔️Параметр добавлен!')
-
-           if "agree_injection - органы" not in st.session_state:
-                 st.session_state["agree_injection - органы"] = False
-
-           if type_parameter == "Вид введения":
-
-              st.session_state["agree_injection - органы"] = st.checkbox('Внутривенное введение', key = "Возможность добавления injection - органы", value = st.session_state["agree_injection - органы"])
-              
-              if st.session_state["agree_injection - органы"] == True:
-                 st.write('💉Параметр добавлен!')
-
       with col1:
           
          panel = st.radio(
@@ -3335,6 +3336,42 @@ if selected == "Исследование":
          list_heading_graphics_word=[]
           
          if panel == "Загрузка файлов":
+            
+            ######### боковое меню справа
+            with col2:
+                 selected = option_menu(None, ["Включение параметров в исследование"], 
+                 icons=['menu-button'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                     "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                     "icon": {"color": "#cbe4de", "font-size": "13px"}, 
+                     "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                     "nav-link-selected": {"background-color": "#0e8388"},
+                 })
+
+                 if selected == "Включение параметров в исследование":
+                    type_parameter = st.selectbox('Выберите параметр',
+                 ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - органы")
+                    
+                 if "agree_cmax2 - органы" not in st.session_state:
+                       st.session_state["agree_cmax2 - органы"] = False
+
+                 if type_parameter == 'Cmax(2)':
+
+                    st.session_state["agree_cmax2 - органы"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - органы", value = st.session_state["agree_cmax2 - органы"])
+                    
+                    if st.session_state["agree_cmax2 - органы"] == True:
+                       st.write('✔️Параметр добавлен!')
+
+                 if "agree_injection - органы" not in st.session_state:
+                       st.session_state["agree_injection - органы"] = False
+
+                 if type_parameter == "Вид введения":
+
+                    st.session_state["agree_injection - органы"] = st.checkbox('Внутривенное введение', key = "Возможность добавления injection - органы", value = st.session_state["agree_injection - органы"])
+                    
+                    if st.session_state["agree_injection - органы"] == True:
+                       st.write('💉Параметр добавлен!')
 
             measure_unit_org_blood = st.text_input("Введите единицы измерения концентрации в крови", key='Единицы измерения при изучении фармакокинетики в органах животных в крови', value = st.session_state["measure_unit_org_blood"])
             
@@ -3553,10 +3590,9 @@ if selected == "Исследование":
                  #в полулогарифмических координатах
                     #для полулогарифм. посторим без нуля
                     if st.session_state["agree_injection - органы"] == False:
-                      list_time.remove(0)
-                      list_concentration.remove(0)
-                      err_y_1.remove(0) 
-
+                       list_time.remove(0)
+                       list_concentration.remove(0)
+                       err_y_1.remove(0) 
 
                     fig, ax = plt.subplots()
                     plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -3564,7 +3600,6 @@ if selected == "Исследование":
                     plt.xlabel("Время, ч")
                     plt.ylabel("Концентрация, "+measure_unit_org)
 
-                    
                     list_graphics_word.append(fig)
 
                     graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"
@@ -4355,14 +4390,14 @@ if selected == "Исследование":
                     j= i + " std"
                     list_name_organs_std.append(j)
                    
-                   list_time_for_df_mean_conc_graph = list_t_graph[0]
+                   list_time_new_df = list_t_graph[0]
 
                    if st.session_state["agree_injection - органы"] == True:
-                      list_time_for_df_mean_conc_graph.insert(0,0)
+                      list_time_new_df.insert(0,0)
 
-                   df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_for_df_mean_conc_graph,index=list_name_organs)
+                   df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_new_df,index=list_name_organs)
                    df_mean_conc_graph_1=df_mean_conc_graph.transpose()
-                   df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_t_graph[0],index=list_name_organs_std)
+                   df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_time_new_df,index=list_name_organs_std)
                    df_std_conc_graph_1=df_std_conc_graph.transpose()
                    df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
 
@@ -4438,24 +4473,43 @@ if selected == "Исследование":
             st.session_state["list_table_word"] = list_table_word
             st.session_state["list_graphics_word"] = list_graphics_word
             st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+      
+      #отдельная панель, чтобы уменьшить размер вывода результатов
 
+      col1, col2 = st.columns([0.66,0.34])
+      
+      with col1:
 
-      #####Создание word отчета
+         #####Создание word отчета
          if panel == "Таблицы": 
             
             list_heading_word = st.session_state["list_heading_word"]
             list_table_word = st.session_state["list_table_word"]
 
-            ###вызов функции создания таблицы
-            create_table(list_heading_word,list_table_word)
+            ###вызов функции визуализации таблиц
+            visualize_table(list_heading_word,list_table_word)
+
+            with col2:
+                 
+                 selected = option_menu(None, ["Cформированный отчeт"], 
+                 icons=['file-earmark-arrow-down-fill'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                    "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                    "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                    "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                    "nav-link-selected": {"background-color": "#0e8388"},
+                 })
+
+                 if selected == "Cформированный отчeт":
+
+                    ###вызов функции создания Word-отчета таблиц
+                    create_table(list_heading_word,list_table_word)
 
          if panel == "Графики":
 
             list_graphics_word = st.session_state["list_graphics_word"]
             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
-
-            ###вызов функции создания графика
-            create_graphic(list_graphics_word,list_heading_graphics_word)
             
             #######визуализация
 
@@ -4487,6 +4541,22 @@ if selected == "Исследование":
                    if type_graphics == 'Тканевая доступность в органах':
                       st.pyplot(list_graphics_word[i])
                       st.subheader(list_heading_graphics_word[i])
+            
+            with col2:
+                     
+                 selected = option_menu(None, ["Cформированный отчeт"], 
+                 icons=['file-earmark-arrow-down-fill'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                    "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                    "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                    "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                    "nav-link-selected": {"background-color": "#0e8388"},
+                 })
+                  
+                 if selected == "Cформированный отчeт":
+                    ###вызов функции создания Word-отчета графиков
+                    create_graphic(list_graphics_word,list_heading_graphics_word)
 
 ################################################################################################
 
@@ -4495,32 +4565,6 @@ if selected == "Исследование":
       st.title('Исследование линейности дозирования')
       
       col1, col2 = st.columns([0.66, 0.34])
-
-      ######### боковое меню справа
-      with col2:
-           selected = option_menu(None, ["Включение параметров в исследование"], 
-           icons=['menu-button'], 
-           menu_icon="cast", default_index=0, orientation="vertical",
-           styles={
-               "container": {"padding": "0!important", "background-color": "#24769C"},
-               "icon": {"color": "#5DAED3", "font-size": "13px"}, 
-               "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-               "nav-link-selected": {"background-color": "#335D70"},
-           })
-
-           if selected == "Включение параметров в исследование":
-              type_parameter = st.selectbox('Выберите параметр',
-           ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - линейность")
-              
-           if "agree_cmax2 - линейность" not in st.session_state:
-                 st.session_state["agree_cmax2 - линейность"] = False
-
-           if type_parameter == 'Cmax(2)':
-
-              st.session_state["agree_cmax2 - линейность"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - линейность", value = st.session_state["agree_cmax2 - линейность"])
-              
-              if st.session_state["agree_cmax2 - линейность"] == True:
-                 st.write('✔️Параметр добавлен!')
 
       with col1:
 
@@ -4543,6 +4587,42 @@ if selected == "Исследование":
          list_heading_graphics_word=[]
 
          if panel == "Загрузка файлов":
+            
+            ######### боковое меню справа
+            with col2:
+                 selected = option_menu(None, ["Включение параметров в исследование"], 
+                 icons=['menu-button'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                     "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                     "icon": {"color": "#cbe4de", "font-size": "13px"}, 
+                     "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                     "nav-link-selected": {"background-color": "#0e8388"},
+                 })
+
+                 if selected == "Включение параметров в исследование":
+                    type_parameter = st.selectbox('Выберите параметр',
+                 ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - линейность")
+                    
+                 if "agree_cmax2 - линейность" not in st.session_state:
+                       st.session_state["agree_cmax2 - линейность"] = False
+
+                 if type_parameter == 'Cmax(2)':
+
+                    st.session_state["agree_cmax2 - линейность"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - линейность", value = st.session_state["agree_cmax2 - линейность"])
+                    
+                    if st.session_state["agree_cmax2 - линейность"] == True:
+                       st.write('✔️Параметр добавлен!')
+
+                 if "agree_injection - линейность" not in st.session_state:
+                       st.session_state["agree_injection - линейность"] = False
+
+                 if type_parameter == "Вид введения":
+
+                    st.session_state["agree_injection - линейность"] = st.checkbox('Внутривенное введение', key = "Возможность добавления injection - линейность", value = st.session_state["agree_injection - линейность"])
+                    
+                    if st.session_state["agree_injection - линейность"] == True:
+                       st.write('💉Параметр добавлен!')
 
             measure_unit_lin = st.text_input("Введите единицы измерения концентрации", key="Единицы измерения концентрации при исследовании линейности дозирования", value = st.session_state["measure_unit_lin"])
             st.session_state["measure_unit_lin"] = measure_unit_lin
@@ -4603,7 +4683,6 @@ if selected == "Исследование":
                     list_table_word.append(df_concat_round_str_transpose)
                     ########### графики    
                     
-                    
                     ######индивидуальные    
 
                     # в линейных координатах
@@ -4618,6 +4697,9 @@ if selected == "Исследование":
                         list_time.append(numer)
                     list_t_graph.append(list_time) 
 
+                    if st.session_state["agree_injection - линейность"] == True: 
+                       list_time.remove(0)
+
                     for r in range(0,count_row_df):
 
                         list_concentration=df.iloc[r].tolist()
@@ -4628,6 +4710,8 @@ if selected == "Исследование":
 
                         list_concentration = [float(v) for v in list_concentration]
 
+                        if st.session_state["agree_injection - линейность"] == True:
+                           list_concentration.remove(0)
 
                         fig, ax = plt.subplots()
                         plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
@@ -4666,6 +4750,10 @@ if selected == "Исследование":
 
                     df_for_plot_conc=df.drop(['Номер'], axis=1)
                     df_for_plot_conc_1 = df_for_plot_conc.transpose()
+
+                    if st.session_state["agree_injection - линейность"] == True:
+                       df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
+
                     list_numer_animal_for_plot=df['Номер'].tolist()
                     count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
                     list_color = [] ## генерация 500 цветов
@@ -4724,6 +4812,10 @@ if selected == "Исследование":
                     list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                     err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
+                    if st.session_state["agree_injection - линейность"] == True:
+                       list_time.remove(0) ###т.к. внутривенное
+                       list_concentration.remove(0)
+                       err_y_1.remove(0)
 
                     fig, ax = plt.subplots()
                     plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -4735,14 +4827,12 @@ if selected == "Исследование":
                     graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_lin
                     list_heading_graphics_word.append(graphic)
 
-
-
                  #в полулогарифмических координатах
                     #для полулогарифм. посторим без нуля
-                    list_time.remove(0)
-                    list_concentration.remove(0)
-                    err_y_1.remove(0) 
-
+                    if st.session_state["agree_injection - линейность"] == False:
+                       list_time.remove(0)
+                       list_concentration.remove(0)
+                       err_y_1.remove(0) 
 
                     fig, ax = plt.subplots()
                     plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -5515,6 +5605,7 @@ if selected == "Исследование":
                    list_heading_word.append(table_heading)
 
                    list_table_word.append(df_total_total_doses_total)
+
                    ###построение графика "Фармакокинетический профиль в различных дозировках"
 
                    ### в линейных координатах
@@ -5531,9 +5622,14 @@ if selected == "Исследование":
                     j= i + " std"
                     list_name_doses_with_measure_unit_std.append(j)
 
-                   df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_t_graph[0],index=list_name_doses_with_measure_unit)
+                   list_time_new_df = list_t_graph[0]
+
+                   if st.session_state["agree_injection - линейность"] == True:
+                      list_time_new_df.insert(0,0)
+
+                   df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_new_df,index=list_name_doses_with_measure_unit)
                    df_mean_conc_graph_1=df_mean_conc_graph.transpose()
-                   df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_t_graph[0],index=list_name_doses_with_measure_unit_std)
+                   df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_time_new_df,index=list_name_doses_with_measure_unit_std)
                    df_std_conc_graph_1=df_std_conc_graph.transpose()
                    df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
 
@@ -5541,12 +5637,18 @@ if selected == "Исследование":
                    for i in range(0,500):
                        hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
                        list_colors.append(hexadecimal)
+
+                   list_t_doses=list(df_concat_mean_std.index)
+
+                   if st.session_state["agree_injection - линейность"] == True:
+                      list_t_doses.remove(0)
+                      df_concat_mean_std=df_concat_mean_std.drop([0])
                        
                    list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
                    fig, ax = plt.subplots()
                    for i,j,c in list_zip_mean_std_colors:
-                        plt.errorbar(list(df_concat_mean_std.index),df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+                        plt.errorbar(list_t_doses,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+ measure_unit_lin)
                         ax.legend(fontsize = 8)
@@ -5557,15 +5659,18 @@ if selected == "Исследование":
                    list_heading_graphics_word.append(graphic) 
 
                    ### в полулог. координатах
-                   
+
                    list_t_doses=list(df_concat_mean_std.index)
-                   list_t_doses.remove(0)
-                   df_concat_mean_std_without_0=df_concat_mean_std.drop([0])
+
+                   if st.session_state["agree_injection - линейность"] == False:
+                      list_t_doses.remove(0)
+                      df_concat_mean_std=df_concat_mean_std.drop([0])
+                   
                    list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
                    fig, ax = plt.subplots()
                    for i,j,c in list_zip_mean_std_colors:
-                        plt.errorbar(list_t_doses,df_concat_mean_std_without_0[i],yerr=df_concat_mean_std_without_0[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+                        plt.errorbar(list_t_doses,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
                         ax.set_yscale("log")
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+ measure_unit_lin)
@@ -5635,25 +5740,44 @@ if selected == "Исследование":
             st.session_state["list_table_word"] = list_table_word
             st.session_state["list_graphics_word"] = list_graphics_word
             st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
-            
+
+      #отдельная панель, чтобы уменьшить размер вывода результатов
+
+      col1, col2 = st.columns([0.66,0.34])
+      
+      with col1:      
          
-      #####Создание word отчета
+         #####Создание word отчета
          if panel == "Таблицы": 
          
             list_heading_word = st.session_state["list_heading_word"]
             list_table_word = st.session_state["list_table_word"]
             
-            ###вызов функции создания таблицы
-            create_table(list_heading_word,list_table_word)
+            ###вызов функции визуализации таблиц
+            visualize_table(list_heading_word,list_table_word)
+
+            with col2:
+                 
+                 selected = option_menu(None, ["Cформированный отчeт"], 
+                 icons=['file-earmark-arrow-down-fill'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                    "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                    "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                    "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                    "nav-link-selected": {"background-color": "#0e8388"},
+                 })
+
+                 if selected == "Cформированный отчeт":
+
+                    ###вызов функции создания Word-отчета таблиц
+                    create_table(list_heading_word,list_table_word)
             
 
          if panel == "Графики":
          
             list_graphics_word = st.session_state["list_graphics_word"]
             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
-
-            ###вызов функции создания графика
-            create_graphic(list_graphics_word,list_heading_graphics_word)
                 
             #######визуализация
 
@@ -5689,25 +5813,30 @@ if selected == "Исследование":
                    if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
                       st.pyplot(list_graphics_word[i])
                       st.subheader(list_heading_graphics_word[i])
-   
+
+            with col2:
+                     
+                 selected = option_menu(None, ["Cформированный отчeт"], 
+                 icons=['file-earmark-arrow-down-fill'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                    "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                    "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                    "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                    "nav-link-selected": {"background-color": "#0e8388"},
+                 })
+                  
+                 if selected == "Cформированный отчeт":
+                    ###вызов функции создания Word-отчета графиков
+                    create_graphic(list_graphics_word,list_heading_graphics_word)
+
    ###########################################################################################
-   if option == 'Изучение экскреции препарата':
+   if option == 'Экскреция препарата':
        
        st.title('Изучение экскреции препарата')
 
        col1, col2 = st.columns([0.66, 0.34])
        
-       with col2:
-            selected = option_menu(None, ["Включение параметров в исследование"], 
-            icons=['menu-button'], 
-            menu_icon="cast", default_index=0, orientation="vertical",
-            styles={
-                "container": {"padding": "0!important", "background-color": "#24769C"},
-                "icon": {"color": "#5DAED3", "font-size": "13px"}, 
-                "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-                "nav-link-selected": {"background-color": "#335D70"},
-            })
-
        ####### основной экран
        with col1:         
             panel = st.radio(
@@ -5727,6 +5856,17 @@ if selected == "Исследование":
             list_heading_graphics_word=[]
 
             if panel == "Загрузка файлов":
+               
+               with col2:
+                    selected = option_menu(None, ["Включение параметров в исследование"], 
+                    icons=['menu-button'], 
+                    menu_icon="cast", default_index=0, orientation="vertical",
+                    styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "13px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                    })
                
                #cостояние радио-кнопки "type_ex"
                if "index_type_ex" not in st.session_state:
@@ -5815,31 +5955,66 @@ if selected == "Исследование":
                st.session_state["list_table_word"] = list_table_word
                st.session_state["list_graphics_word"] = list_graphics_word
                st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+            
+       #отдельная панель, чтобы уменьшить размер вывода результатов
 
-            #####Создание word отчета
-            if panel == "Таблицы":
+       col1, col2 = st.columns([0.66,0.34])
+       
+       with col1:
 
-                  list_heading_word = st.session_state["list_heading_word"]
-                  list_table_word = st.session_state["list_table_word"]
+          #####Создание word отчета
+          if panel == "Таблицы":
 
-                  ###вызов функции создания таблицы
-                  create_table(list_heading_word,list_table_word)
+                list_heading_word = st.session_state["list_heading_word"]
+                list_table_word = st.session_state["list_table_word"]
 
-            if panel == "Графики":
-                  
-                  list_graphics_word = st.session_state["list_graphics_word"]
-                  list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
-                  
-                  ###вызов функции создания графика
-                  create_graphic(list_graphics_word,list_heading_graphics_word)
+                ###вызов функции визуализации таблиц
+                visualize_table(list_heading_word,list_table_word)
 
-                  #######визуализация
+                with col2:
+                     
+                     selected = option_menu(None, ["Cформированный отчeт"], 
+                     icons=['file-earmark-arrow-down-fill'], 
+                     menu_icon="cast", default_index=0, orientation="vertical",
+                     styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                     })
 
-                  count_graphics_for_visual = len(list_heading_graphics_word)
-                  list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
-                  
-                  for i in list_range_count_graphics_for_visual:
-                      if list_heading_graphics_word[i].__contains__("Выведение"):
-                         st.pyplot(list_graphics_word[i])
-                         st.subheader(list_heading_graphics_word[i])
+                     if selected == "Cформированный отчeт":
+
+                        ###вызов функции создания Word-отчета таблиц
+                        create_table(list_heading_word,list_table_word)
+
+          if panel == "Графики":
+                
+                list_graphics_word = st.session_state["list_graphics_word"]
+                list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+
+                #######визуализация
+
+                count_graphics_for_visual = len(list_heading_graphics_word)
+                list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+                
+                for i in list_range_count_graphics_for_visual:
+                    if list_heading_graphics_word[i].__contains__("Выведение"):
+                       st.pyplot(list_graphics_word[i])
+                       st.subheader(list_heading_graphics_word[i])
+                       
+                with col2:
+                
+                     selected = option_menu(None, ["Cформированный отчeт"], 
+                     icons=['file-earmark-arrow-down-fill'], 
+                     menu_icon="cast", default_index=0, orientation="vertical",
+                     styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                     })
                       
+                     if selected == "Cформированный отчeт":
+                        ###вызов функции создания Word-отчета графиков
+                        create_graphic(list_graphics_word,list_heading_graphics_word) 
