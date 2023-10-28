@@ -2,6 +2,9 @@
 
 import streamlit as st
 
+#предварительный просмотр общего доступа
+st.set_page_config(page_title="BPK")
+
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
@@ -43,11 +46,6 @@ from streamlit_js_eval import streamlit_js_eval
 
 ### создать и обновить файл требований
 # pip freeze > requirements.txt
-
-
-#предварительный просмотр общего доступа
-st.set_page_config(page_title="BPK")
-
 
 ###########################################################
 #область глобальных стилей
