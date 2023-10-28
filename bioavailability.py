@@ -3,7 +3,7 @@
 import streamlit as st
 
 #предварительный просмотр общего доступа
-st.set_page_config(page_title="BPK")
+st.set_page_config(page_title="BPK", page_icon="favicon.png", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
