@@ -533,6 +533,9 @@ if selected == "Исследование":
                  for i in col_mapping:
                      numer=float(i)
                      list_time.append(numer)
+                 
+                 if st.session_state["agree_injection - фк"] == True: 
+                    list_time.remove(0)
 
                  for r in range(0,count_row_df):
 
@@ -543,6 +546,9 @@ if selected == "Исследование":
                      list_concentration.pop(0) #удаление номера животного
 
                      list_concentration = [float(v) for v in list_concentration]
+
+                     if st.session_state["agree_injection - фк"] == True:
+                        list_concentration.remove(0)
 
 
                      fig, ax = plt.subplots()
@@ -581,6 +587,10 @@ if selected == "Исследование":
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
+
+                 if st.session_state["agree_injection - фк"] == True:
+                    df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
+
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
@@ -636,7 +646,11 @@ if selected == "Исследование":
                  df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_pk=df_averaged_concentrations.loc['std'].tolist()
-
+                 
+                 if st.session_state["agree_injection - фк"] == True:
+                    list_time.remove(0) ###т.к. внутривенное
+                    list_concentration.remove(0)
+                    err_y_pk.remove(0)
 
                  fig, ax = plt.subplots()
                  plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -649,9 +663,10 @@ if selected == "Исследование":
                  list_heading_graphics_word.append(graphic)  
 
               #в полулогарифмических координатах
-                 list_time.remove(0)
-                 list_concentration.remove(0)
-                 err_y_pk.remove(0) 
+                 if st.session_state["agree_injection - фк"] == False:
+                    list_time.remove(0) ###т.к. внутривенное
+                    list_concentration.remove(0)
+                    err_y_pk.remove(0) 
 
 
                  fig, ax = plt.subplots()
