@@ -373,6 +373,8 @@ selected = option_menu(None, ["Главная", "Исследование", 'Н�
 
 ##########Главная
 if selected == "Главная":
+
+   st.sidebar.caption('© 2023. Павел Резванов')
    
    col1, col2 = st.columns([0.66, 0.34])
 
@@ -389,7 +391,7 @@ if selected == "Исследование":
    st.sidebar.subheader('Какое исследование проводится?')
 
    option = st.sidebar.selectbox('Выберите вид исследования',
-       ('Биодоступность', 'ФК в органах', 'Линейность дозирования','Экскреция препарата'),disabled = False, key = "Вид исследования")
+       ('Фармакокинетика','Биодоступность', 'ФК в органах', 'Линейность дозирования','Экскреция препарата'),disabled = False, key = "Вид исследования")
 
    ############### файл пример
 
@@ -407,6 +409,966 @@ if selected == "Исследование":
    st.sidebar.download_button('Памятка заполнения 📄', text_contents)
    
    ################################
+   if option == 'Фармакокинетика':
+      
+       st.title('Расчет фармакокинетических параметров')
+
+       col1, col2 = st.columns([0.66, 0.34])
+      
+       ####### основной экран
+       with col1:
+           
+           panel = st.radio(
+               "⚙️Панель управления",
+               ("Загрузка файлов", "Таблицы","Графики"),
+               horizontal=True, key= "Загрузка файлов - Расчет фармакокинетических параметров"
+           )
+         
+           ###создание состояния
+           if "measure_unit_pk" not in st.session_state:
+              st.session_state["measure_unit_pk"] = ""
+           if "dose_pk" not in st.session_state:
+              st.session_state["dose_pk"] = ""
+           
+           #cписки для word-отчета
+           list_heading_word=[]
+           list_table_word=[]
+           list_graphics_word=[]
+           list_heading_graphics_word=[]
+
+           if panel == "Загрузка файлов":
+              
+              ######### боковое меню справа
+              with col2:
+                   selected = option_menu(None, ["Включение параметров в исследование"], 
+                   icons=['menu-button'], 
+                   menu_icon="cast", default_index=0, orientation="vertical",
+                   styles={
+                       "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                       "icon": {"color": "#cbe4de", "font-size": "13px"}, 
+                       "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                       "nav-link-selected": {"background-color": "#0e8388"},
+                   })
+
+                   if selected == "Включение параметров в исследование":
+                      type_parameter = st.selectbox('Выберите параметр',
+                   ('Второй максимум',"Вид введения"),disabled = False, key = "Вид параметра - фк")
+                      
+                   if "agree_cmax2 - фк" not in st.session_state:
+                         st.session_state["agree_cmax2 - фк"] = False
+
+                   if type_parameter == 'Второй максимум':
+
+                      st.session_state["agree_cmax2 - фк"] = st.checkbox('Добавить возможность выбора второго максимума на ФК кривой', key = "Возможность добавления Cmax2 - фк", value = st.session_state["agree_cmax2 - фк"])
+                      
+                      if st.session_state["agree_cmax2 - фк"] == True:
+                         st.write('✔️Параметр добавлен!')
+
+                   if "agree_injection - фк" not in st.session_state:
+                         st.session_state["agree_injection - фк"] = False
+
+                   if type_parameter == "Вид введения":
+
+                      st.session_state["agree_injection - фк"] = st.checkbox('Внутривенное введение', key = "Возможность добавления injection - фк", value = st.session_state["agree_injection - фк"])
+                      
+                      if st.session_state["agree_injection - фк"] == True:
+                         st.write('💉Параметр добавлен!')
+              
+              measure_unit_pk = st.text_input("Введите единицы измерения концентрации", key='Единицы измерения при расчете фармакокинетических параметров', value = st.session_state["measure_unit_pk"])
+              
+              st.session_state["measure_unit_pk"] = measure_unit_pk
+
+              #cостояние радио-кнопки "method_auc"
+              if "index_method_auc - фк" not in st.session_state:
+                  st.session_state["index_method_auc - фк"] = 0
+
+              method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - фк", index = st.session_state["index_method_auc - фк"])
+              
+              if st.session_state["Метод подсчёта AUC0-t - фк"] == 'linear':
+                 st.session_state["index_method_auc - фк"] = 0
+              if st.session_state["Метод подсчёта AUC0-t - фк"] == "linear-up/log-down":
+                 st.session_state["index_method_auc - фк"] = 1
+                           
+              uploaded_file_pk = st.file_uploader("Выбрать файл концентраций ЛС (формат XLSX)", key='Файл введения ЛС при расчете фк')
+              
+              #сохранение файла
+              if uploaded_file_pk is not None:
+                 save_uploadedfile(uploaded_file_pk)
+                 st.session_state["uploaded_file_pk"] = uploaded_file_pk.name
+
+              dose_pk = st.text_input("Доза при введении ЛС", key='Доза при введении ЛС при при расчете фк', value = st.session_state["dose_pk"])
+              
+              st.session_state["dose_pk"] = dose_pk
+              
+              if "uploaded_file_pk" in st.session_state and dose_pk and measure_unit_pk:
+
+                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_pk"]))
+                 st.subheader('Индивидуальные значения концентраций в крови после введения ЛС')
+                 
+                 ###интерактивная таблица
+                 df = edit_frame(df,st.session_state["uploaded_file_pk"])
+
+                 ###количество животных 
+                 count_rows_number_pk= len(df.axes[0])
+           
+                 table_heading='Индивидуальные и усредненные значения концентраций в крови после введения ЛС'
+                 list_heading_word.append(table_heading)
+
+                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+                 
+                 list_table_word.append(df_concat_round_str_transpose)
+              
+              ########### графики    
+
+              ######индивидуальные    
+
+                 # в линейных координатах
+                 col_mapping = df.columns.tolist()
+                 col_mapping.remove('Номер')
+
+                 count_row_df = len(df.axes[0])
+
+                 list_time = []
+                 for i in col_mapping:
+                     numer=float(i)
+                     list_time.append(numer)
+
+                 for r in range(0,count_row_df):
+
+                     list_concentration=df.iloc[r].tolist()
+
+                     numer_animal=list_concentration[0]
+
+                     list_concentration.pop(0) #удаление номера животного
+
+                     list_concentration = [float(v) for v in list_concentration]
+
+
+                     fig, ax = plt.subplots()
+                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0, color = "black", markeredgecolor="black",markerfacecolor="black")
+                     plt.xlabel("Время, ч")
+                     plt.ylabel("Концентрация, "+measure_unit_pk)
+                    
+                     list_graphics_word.append(fig)  
+
+                     graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после введения ЛС,  '+numer_animal
+                     list_heading_graphics_word.append(graphic)
+
+                  #в полулогарифмических координатах методом удаления точек
+                     count_for_0_1=len(list_concentration)
+                     list_range_for_0_1=range(0,count_for_0_1)
+
+                     list_time_0=[]
+                     list_for_log_1=[]
+                     for i in list_range_for_0_1:
+                         if list_concentration[i] !=0:
+                            list_for_log_1.append(list_concentration[i])
+                            list_time_0.append(list_time[i]) 
+
+                     fig, ax = plt.subplots()
+                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
+                     ax.set_yscale("log")
+                     plt.xlabel("Время, ч")
+                     plt.ylabel("Концентрация, "+measure_unit_pk)
+
+                     list_graphics_word.append(fig) 
+
+                     graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС,  '+numer_animal
+                     list_heading_graphics_word.append(graphic)
+
+              # объединенные индивидуальные в линейных координатах
+
+                 df_for_plot_conc=df.drop(['Номер'], axis=1)
+                 df_for_plot_conc_1 = df_for_plot_conc.transpose()
+                 list_numer_animal_for_plot=df['Номер'].tolist()
+                 count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
+
+                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+
+                 fig, ax = plt.subplots()
+                 
+                 ax.set_prop_cycle(cycler(color=list_color))
+
+                 plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
+
+                 ax.set_xlabel("Время, ч")
+                 ax.set_ylabel("Концентрация, "+measure_unit_pk)
+                 if count_numer_animal > 20:
+                    ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+                 else:
+                    ax.legend(bbox_to_anchor=(1, 1))
+
+                 list_graphics_word.append(fig) 
+
+                 graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после введения ЛС"
+                 list_heading_graphics_word.append(graphic)    
+              # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
+                 df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
+
+                 fig, ax = plt.subplots()
+                 
+                 ax.set_prop_cycle(cycler(color=list_color))
+
+                 plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
+
+                 ax.set_xlabel("Время, ч")
+                 ax.set_ylabel("Концентрация, "+measure_unit_pk)
+                 ax.set_yscale("log")
+                 if count_numer_animal > 20:
+                    ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+                 else:
+                    ax.legend(bbox_to_anchor=(1, 1))
+
+                 list_graphics_word.append(fig) 
+          
+                 graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после введения ЛС"
+                 list_heading_graphics_word.append(graphic) 
+
+              ### усреденные    
+              #в линейных    
+
+                 list_time = []
+                 for i in col_mapping:
+                     numer=float(i)
+                     list_time.append(numer)
+
+                 df_averaged_concentrations=df.describe()
+                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
+                 err_y_pk=df_averaged_concentrations.loc['std'].tolist()
+
+
+                 fig, ax = plt.subplots()
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.xlabel("Время, ч")
+                 plt.ylabel("Концентрация, "+measure_unit_pk)
+
+                 list_graphics_word.append(fig) 
+
+                 graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после введения ЛС'
+                 list_heading_graphics_word.append(graphic)  
+
+              #в полулогарифмических координатах
+                 list_time.remove(0)
+                 list_concentration.remove(0)
+                 err_y_pk.remove(0) 
+
+
+                 fig, ax = plt.subplots()
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 ax.set_yscale("log")
+                 plt.xlabel("Время, ч")
+                 plt.ylabel("Концентрация, "+measure_unit_pk)
+
+                 list_graphics_word.append(fig) 
+
+                 graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС'
+                 list_heading_graphics_word.append(graphic)
+                 
+                 ############ Параметры ФК
+
+                 df_without_numer=df.drop(['Номер'],axis=1)
+                 count_row=df_without_numer.shape[0]
+
+                 list_count_row=range(count_row)
+       
+                 ###Cmax
+                 #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (выкл)
+                 if st.session_state["agree_cmax2 - фк"] == False:
+                    list_cmax_1_pk=[]
+                    for i in range(0,count_row):
+                        cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
+                        list_cmax_1_pk.append(cmax)
+                 
+                 #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
+                 if st.session_state["agree_cmax2 - фк"] == True:
+                    ###создание состояния
+                    if "selected_value_pk" not in st.session_state:
+                       st.session_state["selected_value_pk"] = []
+                    
+                    if "feature_disable_selected_value_pk" not in st.session_state:
+                        st.session_state["feature_disable_selected_value_pk"] = True
+
+                    ###создание состояния
+                    st.info('Выбери Cmax:')
+                    list_columns_without_numer = df.columns.tolist()
+                    list_columns_without_numer.remove('Номер')
+                    selected_columns = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax введения ЛС',max_selections=1)
+                    st.session_state["selected_columns_pk"] = selected_columns 
+
+                    list_keys_cmax = st.session_state["selected_value_pk"]
+                    if selected_columns != [] and st.session_state["feature_disable_selected_value_pk"]:
+                       selected_value = st.multiselect('Выбери значение концентрации:', df[selected_columns], key='Выбери значение концентрации Cmax введения ЛС',max_selections=1)
+                       list_keys_cmax.append(selected_value)
+
+                    if list_keys_cmax != []:
+                       st.session_state["selected_value_pk"] = list_keys_cmax
+
+                    list_keys_cmax = st.session_state["selected_value_pk"]
+                    list_keys_cmax_sample = [item for sublist in list_keys_cmax for item in sublist]
+
+                    if st.button('Очистить список Cmax', key="Очистка списка Cmax введения ЛС"):
+                       del st.session_state["selected_value_pk"]
+                       list_keys_cmax_sample = []
+                       selected_columns = st.session_state["selected_columns_pk"]
+                       st.session_state["feature_disable_selected_value_pk"] = True
+                                           
+                    st.write("Список Cmax:")
+                    st.write(list_keys_cmax_sample)
+                    
+                    list_cmax_1_pk=list_keys_cmax_sample 
+                    
+                    list_cmax_2_pk=[]
+
+                 if len(list_cmax_1_pk) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - фк"] == True):
+                    st.session_state["feature_disable_selected_value_pk"] = False
+
+                    ######Cmax2
+
+                    if "feature_disable_selected_value_pk_2" not in st.session_state:
+                     st.session_state["feature_disable_selected_value_pk_2"] = True
+
+                    st.info('Выбери Cmax(2):')
+                    
+                    selected_columns_2 = st.multiselect('Выбери временную точку:', list_columns_without_numer, key='Выбери временную точку Cmax2 введения ЛС', max_selections=1)
+                    st.session_state["selected_columns_2_pk"] = selected_columns_2
+
+                    ###создание состояния
+                    if "selected_value_2_pk" not in st.session_state:
+                       st.session_state["selected_value_2_pk"] = []
+
+                    list_keys_cmax_2 = st.session_state["selected_value_2_pk"]
+                    if selected_columns_2 != [] and st.session_state["feature_disable_selected_value_pk_2"]:
+                       selected_value_2 = st.multiselect('Выбери значение концентрации:', df[selected_columns_2], key='Выбери значение концентрации Cmax2 введения ЛС', max_selections=1)
+                       list_keys_cmax_2.append(selected_value_2)
+
+                    if list_keys_cmax_2 != []:
+                       st.session_state["selected_value_2_pk"] = list_keys_cmax_2
+
+                    list_keys_cmax_2 = st.session_state["selected_value_2_pk"]
+                    list_keys_cmax_sample_2 = [item for sublist in list_keys_cmax_2 for item in sublist]
+
+                    if st.button('Очистить список Cmax(2)', key="Очистка списка Cmax(2) введения ЛС"):
+                       del st.session_state["selected_value_2_pk"]
+                       list_keys_cmax_sample_2 = []
+                       selected_columns_2 = st.session_state["selected_columns_2_pk"]
+                       st.session_state["feature_disable_selected_value_pk_2"] = True
+
+                    st.write("Список Cmax(2):")
+                    st.write(list_keys_cmax_sample_2)
+
+                    list_cmax_2_pk= list_keys_cmax_sample_2
+
+                    if len(list_cmax_2_pk) == len(df.index.tolist()):
+                       st.session_state["feature_disable_selected_value_pk_2"] = False
+
+                 if (len(list_cmax_1_pk) == len(df.index.tolist())):
+                    
+                    ###Tmax   
+                    list_Tmax_1=[]
+                    for cmax in list_cmax_1_pk:
+                        for column in df.columns:
+                            for num, row in df.iterrows():
+                                if df.iloc[num][column] == cmax:
+                                   list_Tmax_1.append(f"{column}")
+                  
+                    list_Tmax_float_1=[]           
+                    for i in list_Tmax_1:
+                        Tmax=float(i)
+                        list_Tmax_float_1.append(Tmax)
+
+                 if (len(list_cmax_1_pk) == len(df.index.tolist())) and (st.session_state["agree_cmax2 - фк"] == True):
+                    
+                    list_Tmax_2=[]
+                    for cmax in list_cmax_2_pk:
+                        for column in df.columns:
+                            for num, row in df.iterrows():
+                                if df.iloc[num][column] == cmax:
+                                   list_Tmax_2.append(f"{column}")
+                  
+                    list_Tmax_float_2=[]           
+                    for i in list_Tmax_2:
+                        Tmax=float(i)
+                        list_Tmax_float_2.append(Tmax)  
+
+                 if (len(list_cmax_1_pk) == len(df.index.tolist())):
+                    
+                    ###AUC0-t
+                    list_AUC_0_T=[]
+                    if method_auc == 'linear':
+                       for i in range(0,count_row):
+                           list_columns_T=[]
+                           for column in df_without_numer.columns:
+                               list_columns_T.append(float(column))
+                           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                           ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
+                           cmax = max(list_concentration)
+                           index_cmax = list_concentration.index(cmax)
+                           list_before_cmax = list_concentration[0:index_cmax]
+                           list_after_cmax = list_concentration[index_cmax:]
+                           list_before_cmax_t = list_columns_T[0:index_cmax]
+                           list_after_cmax_t = list_columns_T[index_cmax:]
+
+                           count_list_concentration = len(list_after_cmax)
+                           list_range_for_remove_0 = range(0,count_list_concentration)
+
+                           list_conc_without_0=[]
+                           list_t_without_0=[]
+                           for i in list_range_for_remove_0:
+                               if list_after_cmax[i] !=0:
+                                  list_conc_without_0.append(list_after_cmax[i])
+                                  list_t_without_0.append(list_after_cmax_t[i])
+
+                           list_concentration = list_before_cmax + list_conc_without_0
+                           list_columns_T = list_before_cmax_t + list_t_without_0
+                           ######################
+
+                           AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
+                           list_AUC_0_T.append(AUC_0_T)
+
+                    if method_auc == 'linear-up/log-down':
+                       for i in range(0,count_row):
+                           list_columns_T=[]
+                           for column in df_without_numer.columns:
+                               list_columns_T.append(float(column))
+                           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                           ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
+                           cmax = max(list_concentration)
+                           index_cmax = list_concentration.index(cmax)
+                           list_before_cmax = list_concentration[0:index_cmax]
+                           list_after_cmax = list_concentration[index_cmax:]
+                           list_before_cmax_t = list_columns_T[0:index_cmax]
+                           list_after_cmax_t = list_columns_T[index_cmax:]
+
+                           count_list_concentration = len(list_after_cmax)
+                           list_range_for_remove_0 = range(0,count_list_concentration)
+
+                           list_conc_without_0=[]
+                           list_t_without_0=[]
+                           for i in list_range_for_remove_0:
+                               if list_after_cmax[i] !=0:
+                                  list_conc_without_0.append(list_after_cmax[i])
+                                  list_t_without_0.append(list_after_cmax_t[i])
+
+                           list_concentration = list_before_cmax + list_conc_without_0
+                           list_columns_T = list_before_cmax_t + list_t_without_0
+                           ######################
+                           
+                           list_c = list_concentration
+                           list_t = list_columns_T
+                           
+                           count_i = len(list_c)
+                           list_range= range(0,count_i)
+                           
+                           list_AUC_0_T_ascending=[]
+                           list_AUC_0_T_descending = []
+                           AUC_0_T_ascending=0
+                           AUC_0_T_descending = 0
+                           a=0
+                           a1=0
+                           d=0
+                           d1=0
+                           for i in list_range:
+                               if a1<count_i-1:
+                                  if list_c[i+1] > list_c[i]:
+                                     if a<count_i-1:
+                                         AUC_0_T_ascending += ((list_c[i]+list_c[i+1])*(list_t[i+1]-list_t[i]))/2
+                                         a+=1
+                                         list_AUC_0_T_ascending.append(AUC_0_T_ascending)
+                               if d1<count_i-1:
+                                  if list_c[i+1] < list_c[i]:      
+                                     if d<count_i-1:
+                                         AUC_0_T_descending+=(list_t[i+1]-list_t[i])/(np.log(np.asarray(list_c[i])/np.asarray(list_c[i+1]))) *(list_c[i]-list_c[i+1])
+                                         d+=1
+                                         list_AUC_0_T_descending.append(AUC_0_T_descending)
+                                  a1+=1
+                                  d1+=1
+            
+                           AUC_O_T = list_AUC_0_T_ascending[-1]+list_AUC_0_T_descending[-1]
+                           
+                           list_AUC_0_T.append(AUC_O_T)
+
+                    ####Сmax/AUC0-t
+                    list_Сmax_division_AUC0_t_for_division=zip(list_cmax_1_pk,list_AUC_0_T)
+                    list_Сmax_division_AUC0_t=[]
+                    for i,j in list_Сmax_division_AUC0_t_for_division:
+                            list_Сmax_division_AUC0_t.append(i/j)
+
+
+                    ####KEL
+                    list_kel_total=[]
+                    for i in range(0,count_row):
+                        list_columns_T=[]
+                        for column in df_without_numer.columns:
+                            list_columns_T.append(float(column))
+                        list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                        list_concentration.remove(0)
+                        list_c=list_concentration
+
+                        list_time=df_without_numer.columns.tolist()
+                        list_time.remove(0) 
+
+                        list_t=[]
+                        for i in list_time:
+                            i=float(i)
+                            list_t.append(i)
+
+                        #срез_без_cmax
+                        max_value_c=max(list_c)
+                        index_cmax=list_c.index(max_value_c)
+
+                        list_c_without_cmax=list_c[index_cmax+1:]
+                        list_t_without_cmax=list_t[index_cmax+1:]
+
+                        #удаление всех нулей из массивов
+                        count_for_0_1=len(list_c_without_cmax)
+                        list_range_for_0_1=range(0,count_for_0_1)
+
+                        list_time_0=[]
+                        list_conc_0=[]
+                        for i in list_range_for_0_1:
+                            if list_c_without_cmax[i] !=0:
+                               list_conc_0.append(list_c_without_cmax[i])
+                               list_time_0.append(list_t_without_cmax[i]) 
+                        ################################
+
+                        n_points=len(list_conc_0)
+                        list_n_points = range(0,n_points)
+
+                        #создание списков с поочередно уменьщающемся кол, точек
+                        list_for_kel_c=[]
+                        for j in list_n_points:
+                            if j<n_points:
+                               list_c_new=list_conc_0[j:n_points]
+                               list_for_kel_c.append(list_c_new)
+                        list_for_kel_c.pop(-1) #удаление списка с одной точкой
+                        list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
+
+                        list_for_kel_t=[]
+                        for j in list_n_points:
+                            if j<n_points:
+                               list_t_new=list_time_0[j:n_points]
+                               list_for_kel_t.append(list_t_new)
+                        list_for_kel_t.pop(-1) #удаление списка с одной точкой
+                        list_for_kel_t.pop(-1) #удаление списка с двумя точками 
+
+                        list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
+
+                        list_kel=[]
+                        list_r=[]
+                        for i,j in list_ct_zip:
+
+                            n_points_r=len(i)
+
+                            np_c=np.asarray(i)
+                            np_t_1=np.asarray(j).reshape((-1,1))
+
+                            np_c_log=np.log(np_c)
+
+                            model = LinearRegression().fit(np_t_1,np_c_log)
+
+                            np_t=np.asarray(j)
+                            a=np.corrcoef(np_t, np_c_log)
+                            cor=((a[0])[1])
+                            r_sq=cor**2
+
+                            adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
+
+                            ########################################
+                            kel=abs(model.coef_[0])
+                            list_kel.append(kel)
+                            list_r.append(adjusted_r_sq)
+
+                        #делаем срезы списоков до rmax
+                        max_r=max(list_r)
+
+                        index_max_r= list_r.index(max_r)
+
+                        list_r1=list_r
+                        list_kel1=list_kel
+
+                        number_elem_list_r1=len(list_r1)
+
+                        list_range_kel=range(0,number_elem_list_r1) 
+
+                        list_kel_total_1=[]
+                        for i in list_range_kel:
+
+                            if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
+                               list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                               break #самая ранняя удовлетовряющая условию
+
+                        for i in list_kel_total_1:
+                            list_kel_total.append(i) 
+
+
+                    ####T1/2
+                    list_half_live=[]
+                    for i in list_kel_total:
+                        half_live=math.log(2)/i
+                        list_half_live.append(half_live)
+
+
+                    ###AUC0-inf 
+
+                    list_auc0_inf=[] 
+
+                    list_of_list_c=[]
+                    for i in range(0,count_row):
+                        list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+                        list_concentration.remove(0)
+                        list_c = list_concentration
+                        list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
+                        list_of_list_c.append(list_c)
+
+                    list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
+
+                        #AUCt-inf 
+                    list_auc_t_inf=[]     
+                    for i,j in list_zip_c_AUCt_inf:
+                        for clast in j:
+                            if clast != 0:
+                               clast_true=clast
+                               break
+                        auc_t_inf=clast_true/i
+                        list_auc_t_inf.append(auc_t_inf)
+
+                    list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
+
+                    for i,j in list_auc_t_inf_and_AUC_0_T_zip:
+                        auc0_inf=i+j    
+                        list_auc0_inf.append(auc0_inf)
+
+
+                    ####CL
+                    list_cl=[]
+
+                    for i in list_auc0_inf:
+                        cl = float(dose_pk)/i * 1000
+                        list_cl.append(cl)
+
+
+                    ####Vd
+                    list_Vd=[]
+
+                    list_zip_kel_cl=zip(list_kel_total,list_cl)
+
+                    for i,j in list_zip_kel_cl:
+                        Vd = j/i
+                        list_Vd.append(Vd)
+
+
+                    ###AUMC
+                    list_AUMCO_inf=[]
+
+                    list_AUMC0_t=[]
+
+                    list_C_last=[]
+                    list_T_last=[]
+                    for i in range(0,count_row):
+                        list_columns_T=[]
+                        for column in df_without_numer.columns:
+                            list_columns_T.append(float(column))
+                        list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+                        ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
+                        cmax = max(list_concentration)
+                        index_cmax = list_concentration.index(cmax)
+                        list_before_cmax = list_concentration[0:index_cmax]
+                        list_after_cmax = list_concentration[index_cmax:]
+                        list_before_cmax_t = list_columns_T[0:index_cmax]
+                        list_after_cmax_t = list_columns_T[index_cmax:]
+
+                        count_list_concentration = len(list_after_cmax)
+                        list_range_for_remove_0 = range(0,count_list_concentration)
+
+                        list_conc_without_0=[]
+                        list_t_without_0=[]
+                        for i in list_range_for_remove_0:
+                            if list_after_cmax[i] !=0:
+                               list_conc_without_0.append(list_after_cmax[i])
+                               list_t_without_0.append(list_after_cmax_t[i])
+
+                        list_concentration = list_before_cmax + list_conc_without_0
+                        list_columns_T = list_before_cmax_t + list_t_without_0
+                        ######################
+
+                        list_C_last.append(list_concentration[-1]) 
+                        list_T_last.append(list_columns_T[-1]) 
+
+                        list_len=len(list_concentration)
+
+                        list_aumc_i=[]
+                        for i in range(0,list_len):
+                            AUMC=(list_columns_T[i] - list_columns_T[i-1]) *  ((list_concentration[i] * list_columns_T[i] + list_concentration[i-1] * list_columns_T[i-1])/2)
+                            list_aumc_i.append(AUMC)
+
+                        list_aumc_i.pop(0)
+
+                        a=0
+                        list_AUMC0_t_1=[]
+                        for i in list_aumc_i:
+                            a+=i
+                            list_AUMC0_t_1.append(a)
+                        list_AUMC0_t.append(list_AUMC0_t_1[-1])
+
+                    list_zip_for_AUMC_inf=zip(list_kel_total,list_C_last,list_T_last)
+
+                    list_AUMCt_inf=[]
+                    for k,c,t in list_zip_for_AUMC_inf:
+                        AUMCt_inf=c*t/k+c/(k*k)
+                        list_AUMCt_inf.append(AUMCt_inf)
+
+
+                    list_AUMC_zip=zip(list_AUMC0_t,list_AUMCt_inf)
+
+                    for i,j in list_AUMC_zip:
+                        AUMCO_inf=i+j
+                        list_AUMCO_inf.append(AUMCO_inf)
+
+                    ###MRT0-inf
+                    list_MRT0_inf=[]
+
+                    list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
+
+                    for i,j in list_zip_AUMCO_inf_auc0_inf:
+                        MRT0_inf=i/j
+                        list_MRT0_inf.append(MRT0_inf)
+                 
+                 if st.session_state["agree_cmax2 - фк"] == True:
+                    #####Cmax условие для дальнейшего кода
+                    if len(list_cmax_1_pk) == len(df.index.tolist()) and len(list_cmax_2_pk) == len(df.index.tolist()):
+
+                       ##################### Фрейм ФК параметров
+
+                       ### пользовательский индекс
+                       list_for_index=df["Номер"].tolist()
+                       df_PK=pd.DataFrame(list(zip(list_cmax_1_pk,list_Tmax_float_1,list_cmax_2_pk,list_Tmax_float_2,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','Cmax(2)','Tmax(2)','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index) 
+
+                 if len(list_cmax_1_pk) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - фк"] == False):
+                    
+                    ##################### Фрейм ФК параметров
+
+                    ### пользовательский индекс
+                    list_for_index=df["Номер"].tolist()
+                    df_PK=pd.DataFrame(list(zip(list_cmax_1_pk,list_Tmax_float_1,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vd)),columns=['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Сmax/AUC0-t','Kel','CL/F','Vd'],index=list_for_index)
+                 
+                 checking_condition_cmax2 = False
+
+                 if st.session_state["agree_cmax2 - фк"] == True:
+                     
+                    checking_condition_cmax2 = len(list_cmax_1_pk) == len(df.index.tolist()) and len(list_cmax_2_pk) == len(df.index.tolist()) and st.session_state["agree_cmax2 - фк"] == True
+
+                 if checking_condition_cmax2 or (len(list_cmax_1_pk) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - фк"] == False)):
+                 
+                    ###описательная статистика
+
+                    col_mapping_PK = df_PK.columns.tolist()
+
+                    list_gmean_PK=[]
+
+                    list_cv_PK=[] 
+
+                    for i in col_mapping_PK:
+
+                        list_ser_PK=df_PK[i].tolist()
+
+                        def g_mean(list_ser_PK):
+                            a=np.log(list_ser_PK)
+                            return np.exp(a.mean())
+                        Gmean_PK=g_mean(list_ser_PK)
+                        list_gmean_PK.append(Gmean_PK)
+
+                        cv_std_PK=lambda x: np.std(x, ddof= 1 )
+                        cv_mean_PK=lambda x: np.mean(x)
+
+                        CV_std_PK=cv_std_PK(list_ser_PK)
+                        CV_mean_PK=cv_mean_PK(list_ser_PK)
+
+                        CV_PK=(CV_std_PK/CV_mean_PK * 100)
+                        list_cv_PK.append(CV_PK)
+
+
+                    df_averaged_concentrations_PK=df_PK.describe()
+                    df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
+                    df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
+                    df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
+                    df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
+                    df_round_without_CV_PK=df_averaged_3_PK
+                    df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
+                    df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
+
+
+                    df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
+
+                    ###округление описательной статистики и ФК параметров
+
+                    series_Cmax=df_concat_PK_pk['Cmax']
+                    list_Cmax_str_f=["%.2f" % round(v,2) for v in series_Cmax.tolist()]
+                    series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax ' +"("+measure_unit_pk+")")
+
+                    if st.session_state["agree_cmax2 - фк"] == True:
+                       series_Cmax_2=df_concat_PK_pk['Cmax(2)']
+                       list_Cmax_str_f_2=["%.2f" % round(v,2) for v in series_Cmax_2.tolist()]
+                       series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_concat_PK_pk.index.tolist(), name='Cmax(2) ' +"("+measure_unit_pk+")")
+
+                    series_Tmax=df_concat_PK_pk['Tmax']
+                    list_Tmax_str_f=["%.2f" % round(v,2) for v in series_Tmax.tolist()]
+                    series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Tmax ' +"("+"ч"+")")
+                    
+                    if st.session_state["agree_cmax2 - фк"] == True:
+                       series_Tmax_2=df_concat_PK_pk['Tmax(2)']
+                       list_Tmax_str_f_2=["%.2f" % round(v,2) for v in series_Tmax_2.tolist()]
+                       series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_concat_PK_pk.index.tolist(), name='Tmax(2) ' +"("+"ч"+")")
+
+                    series_MRT0_inf= df_concat_PK_pk['MRT0→∞']
+                    list_MRT0_inf_str_f=["%.3f" % round(v,3) for v in series_MRT0_inf.tolist()]
+                    series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='MRT0→∞ '+"("+"ч"+")")
+
+                    series_half_live= df_concat_PK_pk['T1/2']
+                    list_half_live_str_f=["%.2f" % round(v,2) for v in series_half_live.tolist()]
+                    series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_pk.index.tolist(), name='T1/2 '+"("+"ч"+")")
+
+                    series_AUC0_t= df_concat_PK_pk['AUC0-t']
+                    list_AUC0_t_str_f=["%.2f" % round(v,2) for v in series_AUC0_t.tolist()]
+                    series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t '+"("+measure_unit_pk+"×ч" +")")
+
+                    series_AUC0_inf= df_concat_PK_pk['AUC0→∞']
+                    list_AUC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUC0_inf.tolist()]
+                    series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞ '+"("+measure_unit_pk+"×ч" +")")
+
+                    series_AUMC0_inf= df_concat_PK_pk['AUMC0-∞']
+                    list_AUMC0_inf_str_f=["%.2f" % round(v,2) for v in series_AUMC0_inf.tolist()]
+                    series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_pk+"×ч\u00B2" +")")
+
+                    series_Сmax_dev_AUC0_t= df_concat_PK_pk['Сmax/AUC0-t']
+                    list_Сmax_dev_AUC0_t_str_f=["%.4f" % round(v,4) for v in series_Сmax_dev_AUC0_t.tolist()]
+                    series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='Сmax/AUC0-t '+"("+"ч\u207B\u00B9"+")")
+
+                    series_Kel= df_concat_PK_pk['Kel']
+                    list_Kel_str_f=["%.4f" % round(v,4) for v in series_Kel.tolist()]
+                    series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_pk.index.tolist(), name='Kel '+"("+"ч\u207B\u00B9"+")")
+
+                    series_CL= df_concat_PK_pk['CL/F']
+                    list_CL_str_f=["%.2f" % round(v,2) for v in series_CL.tolist()]
+                    series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_pk.index.tolist(), name='CL/F ' +"("+"л/ч"+")")
+
+                    series_Vd= df_concat_PK_pk['Vd']
+                    list_Vd_str_f=["%.1f" % round(v,1) for v in series_Vd.tolist()]
+                    series_Vd=pd.Series(list_Vd_str_f, index = df_concat_PK_pk.index.tolist(), name='Vd/F ' +"("+"л/кг"+")")
+                    
+                    if st.session_state["agree_cmax2 - фк"] == True:
+                       df_total_PK_pk = pd.concat([series_Cmax, series_Tmax, series_Cmax_2, series_Tmax_2, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1) 
+                    else:
+                       df_total_PK_pk = pd.concat([series_Cmax, series_Tmax, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1) 
+                    
+                    df_total_PK_pk.index.name = 'Номер'
+
+                    ##изменение названий параметров описательной статистики
+
+                    df_total_PK_pk1=df_total_PK_pk.copy()
+                    df_total_PK_pk1.iloc[-6,:],df_total_PK_pk1.iloc[-2,:]=df_total_PK_pk.iloc[-2,:],df_total_PK_pk.iloc[-6,:]
+
+                    df_total_PK_pk=df_total_PK_pk1
+
+                    df_total_PK_pk1=df_total_PK_pk.copy()
+                    df_total_PK_pk1.iloc[-4,:],df_total_PK_pk1.iloc[-5,:]=df_total_PK_pk.iloc[-5,:],df_total_PK_pk.iloc[-4,:]
+
+                    df_total_PK_pk=df_total_PK_pk1
+
+                    df_total_PK_pk = df_total_PK_pk.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+
+                    table_heading='Фармакокинетические показатели в крови после введения лс'
+                    list_heading_word.append(table_heading)
+                    
+                    list_table_word.append(df_total_PK_pk)
+              else:
+                  st.write("")
+              ###сохранение состояния 
+              st.session_state["list_heading_word"] = list_heading_word
+              st.session_state["list_table_word"] = list_table_word
+              st.session_state["list_graphics_word"] = list_graphics_word
+              st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+             
+       #отдельная панель, чтобы уменьшить размер вывода результатов
+
+       col1, col2 = st.columns([0.66,0.34])
+       
+       with col1:
+        
+          #####Создание word отчета
+          if panel == "Таблицы":
+
+                list_heading_word = st.session_state["list_heading_word"]
+                list_table_word = st.session_state["list_table_word"]
+                
+                ###вызов функции визуализации таблиц
+                visualize_table(list_heading_word,list_table_word)
+
+                with col2:
+                     
+                     selected = option_menu(None, ["Cформированный отчeт"], 
+                     icons=['file-earmark-arrow-down-fill'], 
+                     menu_icon="cast", default_index=0, orientation="vertical",
+                     styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                     })
+
+                     if selected == "Cформированный отчeт":
+
+                        ###вызов функции создания Word-отчета таблиц
+                        create_table(list_heading_word,list_table_word)
+
+          if panel == "Графики":
+                
+                list_graphics_word = st.session_state["list_graphics_word"]
+                list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+                
+                #######визуализация
+
+                #классификация графиков по кнопкам
+                type_graphics = st.selectbox('Выберите вид графиков',
+          ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля'),disabled = False, key = "Вид графика - фк" )
+
+                count_graphics_for_visual = len(list_heading_graphics_word)
+                list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+                
+                for i in list_range_count_graphics_for_visual:
+                    if list_heading_graphics_word[i].__contains__("индивидуального"): 
+                       if type_graphics == 'Индивидуальные фармакокинетические профили':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("усредненного"):
+                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+
+                with col2:
+                     
+                     selected = option_menu(None, ["Cформированный отчeт"], 
+                     icons=['file-earmark-arrow-down-fill'], 
+                     menu_icon="cast", default_index=0, orientation="vertical",
+                     styles={
+                        "container": {"padding": "0!important", "background-color": "#2e4f4f"},
+                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                        "nav-link": {"font-size": "13px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+                        "nav-link-selected": {"background-color": "#0e8388"},
+                     })
+                      
+                     if selected == "Cформированный отчeт":
+                        ###вызов функции создания Word-отчета графиков
+                        create_graphic(list_graphics_word,list_heading_graphics_word) 
+
+######################################################################################################################################
 
    if option == 'Биодоступность':
        
@@ -455,15 +1417,15 @@ if selected == "Исследование":
 
                     if selected == "Включение параметров в исследование":
                        type_parameter = st.selectbox('Выберите параметр',
-                    ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - ИБ")
+                    ('Второй максимум',"-"),disabled = False, key = "Вид параметра - ИБ")
                        
                     
                     if "agree_cmax2 - ИБ" not in st.session_state:
                           st.session_state["agree_cmax2 - ИБ"] = False
 
-                    if type_parameter == 'Cmax(2)':
+                    if type_parameter == 'Второй максимум':
                        
-                       st.session_state["agree_cmax2 - ИБ"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - ИБ", value = st.session_state["agree_cmax2 - ИБ"])
+                       st.session_state["agree_cmax2 - ИБ"] = st.checkbox('Добавить возможность выбора второго максимума на ФК кривой', key = "Возможность добавления Cmax2 - ИБ", value = st.session_state["agree_cmax2 - ИБ"])
                        
                        if st.session_state["agree_cmax2 - ИБ"] == True:
                           st.write('✔️Параметр добавлен!')
@@ -486,7 +1448,7 @@ if selected == "Исследование":
 
               st.title('Внутривенное введение субстанции')
               
-              uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения (формат XLSX)", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
+              uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения субстанции (формат XLSX)", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
               
               #сохранение файла
               if uploaded_file_1 is not None:
@@ -546,7 +1508,7 @@ if selected == "Исследование":
                      list_concentration.remove(0) ###т.к. внутривенное
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
                      
@@ -568,7 +1530,7 @@ if selected == "Исследование":
                             list_time_0.append(list_time[i]) 
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      ax.set_yscale("log")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
@@ -589,10 +1551,7 @@ if selected == "Исследование":
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
-                 list_color = [] ## генерация 500 цветов
-                 for i in range(0,500):
-                     hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                     list_color.append(hexadecimal)
+                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
                  
                  fig, ax = plt.subplots()
                 
@@ -649,7 +1608,7 @@ if selected == "Исследование":
                  err_y_1.remove(0) 
                  
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
                  
@@ -665,7 +1624,7 @@ if selected == "Исследование":
 
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  ax.set_yscale("log")
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
@@ -1416,7 +2375,7 @@ if selected == "Исследование":
 
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
                     
@@ -1437,7 +2396,7 @@ if selected == "Исследование":
                             list_time_0.append(list_time[i]) 
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      ax.set_yscale("log")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
@@ -1453,10 +2412,8 @@ if selected == "Исследование":
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-                 list_color = [] ## генерация 500 цветов
-                 for i in range(0,500):
-                     hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                     list_color.append(hexadecimal)
+
+                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
                  fig, ax = plt.subplots()
                  
@@ -1512,7 +2469,7 @@ if selected == "Исследование":
 
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
 
@@ -1528,7 +2485,7 @@ if selected == "Исследование":
 
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  ax.set_yscale("log")
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
@@ -2277,7 +3234,7 @@ if selected == "Исследование":
 
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
                     
@@ -2298,7 +3255,7 @@ if selected == "Исследование":
                             list_time_0.append(list_time[i]) 
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      ax.set_yscale("log")
                      plt.xlabel("Время, ч")
                      plt.ylabel("Концентрация, "+measure_unit)
@@ -2314,10 +3271,8 @@ if selected == "Исследование":
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-                 list_color = [] ## генерация 500 цветов
-                 for i in range(0,500):
-                     hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                     list_color.append(hexadecimal)
+
+                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
                  fig, ax = plt.subplots()
                  
@@ -2373,7 +3328,7 @@ if selected == "Исследование":
 
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
 
@@ -2389,7 +3344,7 @@ if selected == "Исследование":
 
 
                  fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                 plt.errorbar(list_time,list_concentration,yerr=err_y_2, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  ax.set_yscale("log")
                  plt.xlabel("Время, ч")
                  plt.ylabel("Концентрация, "+measure_unit)
@@ -3354,14 +4309,14 @@ if selected == "Исследование":
 
                  if selected == "Включение параметров в исследование":
                     type_parameter = st.selectbox('Выберите параметр',
-                 ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - органы")
+                 ('Второй максимум',"Вид введения"),disabled = False, key = "Вид параметра - органы")
                     
                  if "agree_cmax2 - органы" not in st.session_state:
                        st.session_state["agree_cmax2 - органы"] = False
 
-                 if type_parameter == 'Cmax(2)':
+                 if type_parameter == 'Второй максимум':
 
-                    st.session_state["agree_cmax2 - органы"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - органы", value = st.session_state["agree_cmax2 - органы"])
+                    st.session_state["agree_cmax2 - органы"] = st.checkbox('Добавить возможность выбора второго максимума на ФК кривой', key = "Возможность добавления Cmax2 - органы", value = st.session_state["agree_cmax2 - органы"])
                     
                     if st.session_state["agree_cmax2 - органы"] == True:
                        st.write('✔️Параметр добавлен!')
@@ -3477,7 +4432,7 @@ if selected == "Исследование":
                            list_concentration.remove(0)
 
                         fig, ax = plt.subplots()
-                        plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                        plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+measure_unit_org)
          
@@ -3499,7 +4454,7 @@ if selected == "Исследование":
                                list_time_0.append(list_time[i]) 
 
                         fig, ax = plt.subplots()
-                        plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                        plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                         ax.set_yscale("log")
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+measure_unit_org)
@@ -3520,10 +4475,8 @@ if selected == "Исследование":
 
                     list_numer_animal_for_plot=df['Номер'].tolist()
                     count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-                    list_color = [] ## генерация 500 цветов
-                    for i in range(0,500):
-                        hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                        list_color.append(hexadecimal)
+
+                    list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
                     fig, ax = plt.subplots()
                     
@@ -3581,7 +4534,7 @@ if selected == "Исследование":
                        err_y_1.remove(0)
 
                     fig, ax = plt.subplots()
-                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                     plt.xlabel("Время, ч")
                     plt.ylabel("Концентрация, "+measure_unit_org)
                     
@@ -3598,7 +4551,7 @@ if selected == "Исследование":
                        err_y_1.remove(0) 
 
                     fig, ax = plt.subplots()
-                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                     ax.set_yscale("log")
                     plt.xlabel("Время, ч")
                     plt.ylabel("Концентрация, "+measure_unit_org)
@@ -4404,10 +5357,7 @@ if selected == "Исследование":
                    df_std_conc_graph_1=df_std_conc_graph.transpose()
                    df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
 
-                   list_colors = [] ## генерация 500 цветов
-                   for i in range(0,500):
-                       hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                       list_colors.append(hexadecimal)
+                   list_colors = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
                    
                    list_t_organs=list(df_concat_mean_std.index)
 
@@ -4605,14 +5555,14 @@ if selected == "Исследование":
 
                  if selected == "Включение параметров в исследование":
                     type_parameter = st.selectbox('Выберите параметр',
-                 ('Cmax(2)',"Вид введения"),disabled = False, key = "Вид параметра - линейность")
+                 ('Второй максимум',"Вид введения"),disabled = False, key = "Вид параметра - линейность")
                     
                  if "agree_cmax2 - линейность" not in st.session_state:
                        st.session_state["agree_cmax2 - линейность"] = False
 
-                 if type_parameter == 'Cmax(2)':
+                 if type_parameter == 'Второй максимум':
 
-                    st.session_state["agree_cmax2 - линейность"] = st.checkbox('Добавить возможность выбора Cmax(2)', key = "Возможность добавления Cmax2 - линейность", value = st.session_state["agree_cmax2 - линейность"])
+                    st.session_state["agree_cmax2 - линейность"] = st.checkbox('Добавить возможность выбора второго максимума на ФК кривой', key = "Возможность добавления Cmax2 - линейность", value = st.session_state["agree_cmax2 - линейность"])
                     
                     if st.session_state["agree_cmax2 - линейность"] == True:
                        st.write('✔️Параметр добавлен!')
@@ -4669,7 +5619,7 @@ if selected == "Исследование":
 
                     file_name=i[10:-5]
 
-                    st.subheader('Индивидуальные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin)
+                    st.subheader('Индивидуальные значения концентраций в дозировке ' +file_name+" "+ measure_unit_dose_lin)
                     
                     ###интерактивная таблица
                     df = edit_frame(df,i)
@@ -4677,7 +5627,7 @@ if selected == "Исследование":
                     ###количество животных 
                     count_rows_number_lin= len(df.axes[0])
 
-                    table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_lin
+                    table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_dose_lin
                     list_heading_word.append(table_heading)
 
                     ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -4717,13 +5667,13 @@ if selected == "Исследование":
                            list_concentration.remove(0)
 
                         fig, ax = plt.subplots()
-                        plt.plot(list_time,list_concentration,marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                        plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+measure_unit_lin)
                         
                         list_graphics_word.append(fig)
            
-                        graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_lin+',  '+numer_animal
+                        graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
                         list_heading_graphics_word.append(graphic) 
 
                      #в полулогарифмических координатах методом удаления точек
@@ -4738,7 +5688,7 @@ if selected == "Исследование":
                                list_time_0.append(list_time[i]) 
 
                         fig, ax = plt.subplots()
-                        plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue")
+                        plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                         ax.set_yscale("log")
                         plt.xlabel("Время, ч")
                         plt.ylabel("Концентрация, "+measure_unit_lin)
@@ -4746,7 +5696,7 @@ if selected == "Исследование":
                         
                         list_graphics_word.append(fig)
                         
-                        graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_lin+',  '+numer_animal
+                        graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
                         list_heading_graphics_word.append(graphic) 
 
                  # объединенные индивидуальные в линейных координатах
@@ -4759,10 +5709,8 @@ if selected == "Исследование":
 
                     list_numer_animal_for_plot=df['Номер'].tolist()
                     count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-                    list_color = [] ## генерация 500 цветов
-                    for i in range(0,500):
-                        hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                        list_color.append(hexadecimal)
+
+                    list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
                     fig, ax = plt.subplots()
 
@@ -4779,7 +5727,7 @@ if selected == "Исследование":
                     
                     list_graphics_word.append(fig)
                     
-                    graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_lin
+                    graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
                     list_heading_graphics_word.append(graphic) 
              
                  # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
@@ -4802,7 +5750,7 @@ if selected == "Исследование":
                     
                     list_graphics_word.append(fig)
                     
-                    graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_lin
+                    graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
                     list_heading_graphics_word.append(graphic) 
                      ###усредненные    
                  # в линейных координатах
@@ -4821,13 +5769,13 @@ if selected == "Исследование":
                        err_y_1.remove(0)
 
                     fig, ax = plt.subplots()
-                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                     plt.xlabel("Время, ч")
                     plt.ylabel("Концентрация, "+measure_unit_lin)
                      
                     list_graphics_word.append(fig)
                     
-                    graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_lin
+                    graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_dose_lin
                     list_heading_graphics_word.append(graphic)
 
                  #в полулогарифмических координатах
@@ -4838,14 +5786,14 @@ if selected == "Исследование":
                        err_y_1.remove(0) 
 
                     fig, ax = plt.subplots()
-                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+                    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                     ax.set_yscale("log")
                     plt.xlabel("Время, ч")
                     plt.ylabel("Концентрация, "+measure_unit_lin)
 
                     list_graphics_word.append(fig)
                     
-                    graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ measure_unit_lin
+                    graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ measure_unit_dose_lin
                     list_heading_graphics_word.append(graphic)
 
                     ############ Параметры ФК
@@ -5466,7 +6414,7 @@ if selected == "Исследование":
 
                        df_total_PK_lin = df_total_PK_lin.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
 
-                       table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_lin
+                       table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_dose_lin
                        list_heading_word.append(table_heading)
 
                        list_table_word.append(df_total_PK_lin)
@@ -5538,7 +6486,7 @@ if selected == "Исследование":
 
                    list_name_doses_with_measure_unit=[]
                    for i in list_name_doses:
-                    j= i + " " + measure_unit_lin
+                    j= i + " " + measure_unit_dose_lin
                     list_name_doses_with_measure_unit.append(j)
 
                    ### получение итогового фрейма ФК параметров доз
@@ -5636,10 +6584,7 @@ if selected == "Исследование":
                    df_std_conc_graph_1=df_std_conc_graph.transpose()
                    df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
 
-                   list_colors = [] ## генерация 500 цветов
-                   for i in range(0,500):
-                       hexadecimal = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-                       list_colors.append(hexadecimal)
+                   list_colors = ["black","red","blue","green","#D6870C"]
 
                    list_t_doses=list(df_concat_mean_std.index)
 
