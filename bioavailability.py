@@ -353,7 +353,7 @@ if button_upload_app:
 
 ### пустое пространство 
 
-st.sidebar.title('ㅤㅤㅤㅤㅤㅤㅤ')
+st.sidebar.title('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ')
 
 st.sidebar.image("logo-new.png", width=110)
 
@@ -373,6 +373,11 @@ selected = option_menu(None, ["Главная", "Исследование", 'Н�
 
 ##########Главная
 if selected == "Главная":
+   
+   with st.sidebar:
+        file = codecs.open("часы.html","r",encoding="utf8")
+        page = file.read()
+        components.html(page,width=None, height=143, scrolling=False)
 
    st.sidebar.caption('© 2023. Павел Резванов')
    
@@ -6981,3 +6986,35 @@ if selected == "Исследование":
                      if selected == "Cформированный отчeт":
                         ###вызов функции создания Word-отчета графиков
                         create_graphic(list_graphics_word,list_heading_graphics_word) 
+
+###Инициализировать значения в состоянии сеанса
+#if 'key' not in st.session_state:
+    #st.session_state['key'] = 'value'
+
+# Session State also supports attribute based syntax
+#if 'key' not in st.session_state:
+    #st.session_state.key = 'value'
+
+##удалить проект 
+# Delete all the items in Session state
+#for key in st.session_state.keys():
+    #del st.session_state[key]
+#import json
+
+#list_keys_session = st.session_state.keys()
+#list_values_session = st.session_state.values()
+
+#zip_obj_keys_and_values = zip(list_keys_session,list_values_session)
+
+#finalDict = {}
+
+#for i,j in zip_obj_keys_and_values:
+#    finalDict[i] = j
+
+#st.write(finalDict)
+
+#with open("проект.json", "w") as json_file:
+     #json.dump(finalDict, json_file)
+
+#st.download_button(label = "Cкачать проект", data = json.dumps(finalDict,ensure_ascii=False), file_name="проект.json", mime = "application/json")
+

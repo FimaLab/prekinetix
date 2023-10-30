@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+
+  <head>
+    
+    <title>JavaScript Clock !</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="js/clock.js"></script>
+    
+  </head>
+  
+  <body onload="clockTimer();">
+    
+    <div class="clockpage">
+      <span id="clock"></span>
+      <div id="date">
+       <span class="month"></span>
+       <span class="day"></span>,
+       <span class="year"></span>
+      </div>
+      <span id="dayOfWeek"></span>
+    </div>
+    
+  </body>
+
+</html>
+
+<style type="text/css">
+body
+{
+  background-color: #1D1D1D;
+  margin: 0;
+}
+
+.clockpage
+{
+  margin: auto;
+  max-width: 500px;
+  min-width: 100px;
+  background: #1D1D1D;
+  text-align: center;
+  font-family: 'Titillium Web', sans-serif;
+  font-size: 32px;
+  padding: 10px;
+  font-weight: bold;
+  border-top: 10px solid #2e4f4f;
+  border-bottom: 10px solid #2e4f4f;
+}
+#dayOfWeek
+{
+  display: block;
+  font-weight: normal;
+  font-size: 18px;
+}
+
+#clock {
+  color: #cbe4de;
+  margin-right: 25px;
+}
+
+#dayOfWeek {
+ color: #cbe4de;
+ margin-right: 25px;
+ font-weight: bold;
+}
+
+#date{
+ color: #cbe4de;
+ font-size: 18px;
+ margin-right: 25px;
+}
+
+</style>
+
+<script type="text/javascript">
+function clockTimer()
+{
+  var date = new Date();
+  
+  var time = [date.getHours(),date.getMinutes(),date.getSeconds()]; // |[0] = Hours| |[1] = Minutes| |[2] = Seconds|
+  var dayOfWeek = ["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"]
+  var days = date.getDay();
+  
+  if(time[0] < 10){time[0] = "0"+ time[0];}
+  if(time[1] < 10){time[1] = "0"+ time[1];}
+  if(time[2] < 10){time[2] = "0"+ time[2];}
+  
+  var current_time = [time[0],time[1],time[2]].join(':');
+  var clock = document.getElementById("clock");
+  var day = document.getElementById("dayOfWeek");
+  
+  clock.innerHTML = current_time;
+  day.innerHTML = dayOfWeek[days];
+  
+  
+  
+  setTimeout("clockTimer()", 1000);
+}
+
+// ============= Get the date =============================
+let month = document.querySelector(".month");
+let day = document.querySelector(".day");
+let year = document.querySelector(".year");
+let date = new Date();
+
+let months = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь"
+];
+month.innerHTML = months[date.getMonth()];
+day.innerHTML = date.getDate();
+year.innerHTML = date.getFullYear();
+
+</script>
