@@ -23,7 +23,6 @@ from docx import Document
 from docx.shared import Pt
 import tempfile
 import os
-import random
 from cycler import cycler
 from streamlit_option_menu import option_menu
 import streamlit.components.v1 as components 
