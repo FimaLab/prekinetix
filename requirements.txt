@@ -87,8 +87,6 @@ streamlit-image-coordinates==0.1.6
 streamlit-js-eval==0.1.5
 streamlit-keyup==0.2.0
 streamlit-option-menu==0.3.6
-streamlit-server-state==0.17.1
-streamlit-sync==0.1.0
 streamlit-toggle-switch==1.0.2
 streamlit-vertical-slider==1.0.2
 tenacity==8.2.2
