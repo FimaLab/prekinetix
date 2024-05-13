@@ -31,9 +31,9 @@ from streamlit_js_eval import streamlit_js_eval
 
 ############Для запуска приложения в консоле
 
-#cd C:\Users\Павел\OneDrive\Worktable\pyt\Bioavailability
-#активировать среду my_env_name\scripts\activate
-#streamlit run "C:\Users\Павел\OneDrive\Worktable\pyt\Bioavailability\bioavailability.py"
+#cd "C:\Users\User\Desktop\preclinical-main\preclinical-main"
+#активировать среду venv\Scripts\activate.bat
+#streamlit run "C:\Users\User\Desktop\preclinical-main\preclinical-main\bioavailability.py"
 #после введения команды в консоль, закрепляем открытую вкладку в браузере
 #для просмотра измененного кода нужно обязательно сохранять файл .py и перезагружать вкладку
 
@@ -378,13 +378,19 @@ if selected == "Главная":
         page = file.read()
         components.html(page,width=None, height=143, scrolling=False)
 
-   st.sidebar.caption('© 2023. Павел Резванов')
+   st.sidebar.caption('© 2024. Центр биофармацевтического анализа и метаболомных исследований')
    
    col1, col2 = st.columns([0.66, 0.34])
 
-   file = codecs.open("Главный_текст.html","r",encoding="utf8")
-   page = file.read()
-   components.html(page,width=None, height=1000, scrolling=False)
+   colum1, colum2 = st.columns([0.4, 0.6])
+
+   with colum1:
+      st.image('screensaver.jpg', width = 450)
+
+   with colum2:
+      file = codecs.open("general_text.html","r",encoding="utf8")
+      page = file.read()
+      components.html(page,width=None, height=1000, scrolling=False)
 
 ##########Исследование
 
