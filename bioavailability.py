@@ -7198,18 +7198,18 @@ if selected == "Исследование":
                if "index_type_ex" not in st.session_state:
                    st.session_state["index_type_ex"] = 0
 
-               type_excretion = st.radio('💩Выберите вид экскреции',('Кал', 'Моча', 'Желчь'), key = "Вид экскреции",index = st.session_state["index_type_ex"])
+               type_excretion = st.radio('💩Выберите вид экскреции',('Фекалии', 'Моча', 'Желчь'), key = "Вид экскреции",index = st.session_state["index_type_ex"])
                
-               if st.session_state["Вид экскреции"] == 'Кал':
+               if st.session_state["Вид экскреции"] == 'Фекалии':
                   st.session_state["index_type_ex"] = 0
                if st.session_state["Вид экскреции"] == 'Моча':
                   st.session_state["index_type_ex"] = 1
                if st.session_state["Вид экскреции"] == 'Желчь':
                   st.session_state["index_type_ex"] = 2
 
-               if type_excretion == 'Кал':
-                  excretion_tv = "калом"
-                  excretion_pr = "кале"
+               if type_excretion == 'Фекалии':
+                  excretion_tv = "фекалиями"
+                  excretion_pr = "фекалиях"
                if type_excretion == 'Моча':
                   excretion_tv = "мочой"
                   excretion_pr = "моче"
