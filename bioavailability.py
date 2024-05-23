@@ -28,6 +28,7 @@ from streamlit_option_menu import option_menu
 import streamlit.components.v1 as components 
 import codecs
 from streamlit_js_eval import streamlit_js_eval
+import scipy.stats as stat
 
 ############Для запуска приложения в консоле
 
@@ -257,7 +258,11 @@ def create_table_descriptive_statistics(df):
     col_mapping.remove('Номер')
 
     list_gmean=[]
-    list_cv=[] 
+    list_cv=[]
+    list_q1=[]
+    list_q3=[]
+    list_interquartile_range =[]
+    list_confidence_interval = []
     for i in col_mapping:
 
         list_ser=df[i].tolist()
@@ -279,7 +284,40 @@ def create_table_descriptive_statistics(df):
             return np.exp(a.mean())
         Gmean=g_mean(list_ser)
         list_gmean.append(Gmean)
-        
+
+        ###подсчет квартилей
+        def quantile_exc(data, n):  # Where data is the data group, n is the quartile
+            if n<1 or n>3:
+                return False
+            data.sort()
+            position = (len(data) + 1)*n/4
+            pos_integer = int(math.modf(position)[1])
+            pos_decimal = position - pos_integer
+            quartile = data[pos_integer - 1] + (data[pos_integer] - data[pos_integer - 1])*pos_decimal
+            return quartile
+        q1=quantile_exc(list_ser_cv, 1)
+        q3=quantile_exc(list_ser_cv, 3)
+        interquartile_range = q3 - q1
+
+        list_q1.append(q1)
+        list_q3.append(q3)
+        list_interquartile_range.append(interquartile_range)
+
+        ###расчет 95% интревала
+        def confidence_interval(data):
+            if len(data) <= 30:
+                с_i = stat.t.interval(alpha=0.95, df=len(data)-1, 
+                    loc=np.mean(data), ### или медиана
+                    scale=stat.sem(data))
+            else:
+                с_i = stat.norm.interval(alpha=0.95, 
+                 loc=np.mean(data), ### или медиана
+                 scale=stat.sem(data))
+            return с_i
+        с_i=confidence_interval(list_ser_cv)
+
+        list_confidence_interval.append(с_i)
+
         ####CV
         cv_std=lambda x: np.std(x, ddof= 1 )
         cv_mean=lambda x: np.mean(x)
@@ -295,17 +333,24 @@ def create_table_descriptive_statistics(df):
     list_cv.insert(0,0)
     
     df_averaged_concentrations=df.describe()
-    df_averaged_concentrations_1= df_averaged_concentrations.drop(['count', '25%','75%'],axis=0)
+    df_averaged_concentrations_1= df_averaged_concentrations.drop(['25%','75%'],axis=0)
     df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
     df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-    df_averaged_3 = df_averaged_concentrations_2.rename(index={5 : "Gmean"})
+    df_averaged_3 = df_averaged_concentrations_2.rename(index={6 : "Gmean"})
     df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-    df_averaged_3 = df_averaged_3.rename(index={6 : "CV, %"})
+    df_averaged_3 = df_averaged_3.rename(index={7 : "CV, %"})
+    df_averaged_3.loc[len(df_averaged_3.index )] = list_q1
+    df_averaged_3 = df_averaged_3.rename(index={8 : "25% квартиль"})
+    df_averaged_3.loc[len(df_averaged_3.index )] = list_q3
+    df_averaged_3 = df_averaged_3.rename(index={9 : "75% квартиль"})
+    df_averaged_3.loc[len(df_averaged_3.index )] = list_interquartile_range
+    df_averaged_3 = df_averaged_3.rename(index={10 : "МКД"})
 
     df_index=df.set_index('Номер')
     df_concat = pd.concat([df_index,df_averaged_3],sort=False,axis=0)
+    
     df_concat_round=df_concat.round(2)
-
+    
     ###визуализация фрейма с нулями после округления
     col_mapping = df_concat_round.columns.tolist()
 
@@ -324,20 +369,50 @@ def create_table_descriptive_statistics(df):
     df_concat_round_str_transpose = df_concat_round_str.transpose()
     df_concat_round_str_transpose.index.name = 'Номер'
     
-    ##изменение названий параметров описательной статистики
-
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-6,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-6,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-4,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-    
     #округление времени в качестве названий стоблцов
     list_time_round =["%.2f" % round(v,2) for v in df_concat_round_str_transpose.columns.tolist()]
     df_concat_round_str_transpose.columns = list_time_round
-    
+
+    #округление количества субъектов до целого
+    list_count_subjects_round =[float(v) for v in df_concat_round_str_transpose.loc["count"].tolist()]
+    list_count_subjects_round =[int(v) for v in list_count_subjects_round]
+    df_concat_round_str_transpose.loc["count"] = list_count_subjects_round
+
+    ###добавление в таблицу доверительного интервала
+    df_concat_round_str_transpose.loc[len(df_concat_round_str_transpose.index )] = list_confidence_interval
+    index_c_i = df_concat_round_str_transpose.index.values.tolist()[-1]
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename(index={index_c_i : "95% ДИ"})
+
+    ##изменение названий параметров описательной статистики
+
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-9,:],df_concat_round_str_transpose1.iloc[-1,:]=df_concat_round_str_transpose.iloc[-1,:],df_concat_round_str_transpose.iloc[-9,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-8,:],df_concat_round_str_transpose1.iloc[-6,:]=df_concat_round_str_transpose.iloc[-6,:],df_concat_round_str_transpose.iloc[-8,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-7,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-7,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-5,:],df_concat_round_str_transpose1.iloc[-4,:]=df_concat_round_str_transpose.iloc[-4,:],df_concat_round_str_transpose.iloc[-5,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-3,:]=df_concat_round_str_transpose.iloc[-3,:],df_concat_round_str_transpose.iloc[-4,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-3,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-3,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
+    df_concat_round_str_transpose1.iloc[-2,:],df_concat_round_str_transpose1.iloc[-1,:]=df_concat_round_str_transpose.iloc[-1,:],df_concat_round_str_transpose.iloc[-2,:]
+    df_concat_round_str_transpose=df_concat_round_str_transpose1
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'min': "95% ДИ","95% ДИ": 'Минимум','median': "Ср. геом.",'Gmean': "Медиана",'max': 'КВ, %','CV, %': 'Максимум'}, axis='index')
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': '25% квартиль','25% квартиль': 'Максимум',}, axis='index')
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': '75% квартиль','75% квартиль': 'Максимум',}, axis='index')
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': 'МКД','МКД': 'Максимум',}, axis='index')
+    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': 'Мин.','Минимум': 'Макс.','count': 'N','std': 'СО','mean': 'M',}, axis='index')
+
+    #возвращение двух таблиц округленной и нет
     dict_descriptive_statistics = {'df_concat_round_str_transpose': df_concat_round_str_transpose,'df_concat': df_concat}
     return dict_descriptive_statistics
 
