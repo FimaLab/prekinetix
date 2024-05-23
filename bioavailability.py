@@ -295,9 +295,16 @@ def create_table_descriptive_statistics(df):
             pos_decimal = position - pos_integer
             quartile = data[pos_integer - 1] + (data[pos_integer] - data[pos_integer - 1])*pos_decimal
             return quartile
-        q1=quantile_exc(list_ser_cv, 1)
-        q3=quantile_exc(list_ser_cv, 3)
-        interquartile_range = q3 - q1
+        
+        #ограничение в 4 точки минимум для q1,q3,мкд
+        if len(list_ser_cv)>3:
+            q1=quantile_exc(list_ser_cv, 1)
+            q3=quantile_exc(list_ser_cv, 3)
+            interquartile_range = q3 - q1
+        else:
+            q1=None
+            q3=None
+            interquartile_range = None
 
         list_q1.append(q1)
         list_q3.append(q3)
