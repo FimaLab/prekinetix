@@ -700,11 +700,11 @@ if selected == "Исследование":
               if "index_method_auc - фк" not in st.session_state:
                   st.session_state["index_method_auc - фк"] = 0
 
-              method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - фк", index = st.session_state["index_method_auc - фк"])
+              method_auc = st.radio("📌Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC и AUMC - фк", index = st.session_state["index_method_auc - фк"])
               
-              if st.session_state["Метод подсчёта AUC0-t - фк"] == 'linear':
+              if st.session_state["Метод подсчёта AUC и AUMC - фк"] == 'linear':
                  st.session_state["index_method_auc - фк"] = 0
-              if st.session_state["Метод подсчёта AUC0-t - фк"] == "linear-up/log-down":
+              if st.session_state["Метод подсчёта AUC и AUMC - фк"] == "linear-up/log-down":
                  st.session_state["index_method_auc - фк"] = 1
                            
               uploaded_file_pk = st.file_uploader("Выбрать файл концентраций ЛС (формат XLSX)", key='Файл введения ЛС при расчете фк')
@@ -1708,11 +1708,11 @@ if selected == "Исследование":
               if "index_method_auc - ИБ" not in st.session_state:
                   st.session_state["index_method_auc - ИБ"] = 0
 
-              method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - ИБ", index = st.session_state["index_method_auc - ИБ"])
+              method_auc = st.radio("📌Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC и AUMC - ИБ", index = st.session_state["index_method_auc - ИБ"])
               
-              if st.session_state["Метод подсчёта AUC0-t - ИБ"] == 'linear':
+              if st.session_state["Метод подсчёта AUC и AUMC - ИБ"] == 'linear':
                  st.session_state["index_method_auc - ИБ"] = 0
-              if st.session_state["Метод подсчёта AUC0-t - ИБ"] == "linear-up/log-down":
+              if st.session_state["Метод подсчёта AUC и AUMC - ИБ"] == "linear-up/log-down":
                  st.session_state["index_method_auc - ИБ"] = 1
 
               st.title('Внутривенное введение субстанции')
@@ -4726,11 +4726,11 @@ if selected == "Исследование":
             if "index_method_auc - ИО" not in st.session_state:
                 st.session_state["index_method_auc - ИО"] = 0
 
-            method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - ИО", index = st.session_state["index_method_auc - ИО"])
+            method_auc = st.radio("📌Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC и AUMC - ИО", index = st.session_state["index_method_auc - ИО"])
             
-            if st.session_state["Метод подсчёта AUC0-t - ИО"] == 'linear':
+            if st.session_state["Метод подсчёта AUC и AUMC - ИО"] == 'linear':
                st.session_state["index_method_auc - ИО"] = 0
-            if st.session_state["Метод подсчёта AUC0-t - ИО"] == "linear-up/log-down":
+            if st.session_state["Метод подсчёта AUC и AUMC - ИО"] == "linear-up/log-down":
                st.session_state["index_method_auc - ИО"] = 1
 
             file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых органов(в том числе файл для крови); файл должен быть назван соотвественно органу;исходный файл крови должен быть назван 'Кровь'",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
@@ -5932,11 +5932,11 @@ if selected == "Исследование":
             if "index_method_auc - ЛД" not in st.session_state:
                 st.session_state["index_method_auc - ЛД"] = 0
 
-            method_auc = st.radio("📌Метод подсчёта AUC0-t",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC0-t - ЛД", index = st.session_state["index_method_auc - ЛД"])
+            method_auc = st.radio("📌Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC и AUMC - ЛД", index = st.session_state["index_method_auc - ЛД"])
             
-            if st.session_state["Метод подсчёта AUC0-t - ЛД"] == 'linear':
+            if st.session_state["Метод подсчёта AUC и AUMC - ЛД"] == 'linear':
                st.session_state["index_method_auc - ЛД"] = 0
-            if st.session_state["Метод подсчёта AUC0-t - ЛД"] == "linear-up/log-down":
+            if st.session_state["Метод подсчёта AUC и AUMC - ЛД"] == "linear-up/log-down":
                st.session_state["index_method_auc - ЛД"] = 1
 
             file_uploader = st.file_uploader("Выберите нужное количество файлов соответственно количеству исследуемых дозировок(не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через '.' Слово 'Дозировка' в верхнем регистре обязательно",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
