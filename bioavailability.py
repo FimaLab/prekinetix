@@ -436,7 +436,7 @@ def create_table_descriptive_statistics_before_95CI_pk(df_PK):
 
     for i in col_mapping_PK:
 
-       list_ser_PK=df[i].tolist()
+       list_ser_PK=df_PK[i].tolist()
 
        def g_mean(list_ser_PK):
              a=np.log(list_ser_PK)
@@ -509,7 +509,51 @@ def create_table_descriptive_statistics_before_95CI_pk(df_PK):
     df_averaged_3_PK.loc[len(df_averaged_3_PK.index )] = list_interquartile_range_PK
     df_averaged_3_PK = df_averaged_3_PK.rename(index={10 : "МКД"})
 
-    return df_averaged_3_PK
+    return {"df_averaged_3_PK": df_averaged_3_PK,
+              "list_confidence_interval_PK": list_confidence_interval_PK}
+
+#округление количества субъектов до целого
+def round_subjects_count(df_total_PK):
+   list_count_subjects_round =[float(v) for v in df_total_PK.loc["count"].tolist()]
+   list_count_subjects_round =[int(v) for v in list_count_subjects_round]
+   df_total_PK.loc["count"] = list_count_subjects_round
+
+###добавление в таблицу доверительного интервала
+def add_ci_in_table(df_total_PK,list_confidence_interval_PK):
+    df_total_PK.loc[len(df_total_PK.index )] = list_confidence_interval_PK
+    index_c_i = df_total_PK.index.values.tolist()[-1]
+    df_total_PK = df_total_PK.rename(index={index_c_i : "95% ДИ"})
+    return df_total_PK
+
+##изменение названий параметров описательной статистики
+def rename_parametrs_descriptive_statistics(df_total_PK):
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-9,:],df_total_PK1.iloc[-1,:]=df_total_PK.iloc[-1,:],df_total_PK.iloc[-9,:]
+    df_total_PK=df_total_PK1
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-8,:],df_total_PK1.iloc[-6,:]=df_total_PK.iloc[-6,:],df_total_PK.iloc[-8,:]
+    df_total_PK=df_total_PK1
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-7,:],df_total_PK1.iloc[-5,:]=df_total_PK.iloc[-5,:],df_total_PK.iloc[-7,:]
+    df_total_PK=df_total_PK1
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-5,:],df_total_PK1.iloc[-4,:]=df_total_PK.iloc[-4,:],df_total_PK.iloc[-5,:]
+    df_total_PK=df_total_PK1
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-4,:],df_total_PK1.iloc[-3,:]=df_total_PK.iloc[-3,:],df_total_PK.iloc[-4,:]
+    df_total_PK=df_total_PK1
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-3,:],df_total_PK1.iloc[-2,:]=df_total_PK.iloc[-2,:],df_total_PK.iloc[-3,:]
+    df_total_PK=df_total_PK1
+    df_total_PK1=df_total_PK.copy()
+    df_total_PK1.iloc[-2,:],df_total_PK1.iloc[-1,:]=df_total_PK.iloc[-1,:],df_total_PK.iloc[-2,:]
+    df_total_PK=df_total_PK1
+    df_total_PK = df_total_PK.rename({'min': "95% ДИ","95% ДИ": 'Минимум','median': "Ср. геом.",'Gmean': "Медиана",'max': 'КВ, %','CV, %': 'Максимум'}, axis='index')
+    df_total_PK = df_total_PK.rename({'Максимум': '25% квартиль','25% квартиль': 'Максимум',}, axis='index')
+    df_total_PK = df_total_PK.rename({'Максимум': '75% квартиль','75% квартиль': 'Максимум',}, axis='index')
+    df_total_PK = df_total_PK.rename({'Максимум': 'МКД','МКД': 'Максимум',}, axis='index')
+    df_total_PK = df_total_PK.rename({'Максимум': 'Мин.','Минимум': 'Макс.','count': 'N','std': 'СО','mean': 'M',}, axis='index')
+    return df_total_PK
 
 #############################################################
 
@@ -1424,8 +1468,8 @@ if selected == "Исследование":
                  if checking_condition_cmax2 or (len(list_cmax_1_pk) == len(df.index.tolist()) and (st.session_state["agree_cmax2 - фк"] == False)):
                  
                     ###описательная статистика
-
-                    df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                    dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                    df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
 
                     df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -1492,19 +1536,18 @@ if selected == "Исследование":
                     
                     df_total_PK_pk.index.name = 'Номер'
 
+                    #округление количества субъектов до целого
+                    round_subjects_count(df_total_PK_pk)
+                    
+                    #получение списка значений доверительного интервала
+                    list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
+
+                    ###добавление в таблицу доверительного интервала
+                    df_total_PK_pk = add_ci_in_table(df_total_PK_pk,list_confidence_interval_PK)
+
                     ##изменение названий параметров описательной статистики
 
-                    df_total_PK_pk1=df_total_PK_pk.copy()
-                    df_total_PK_pk1.iloc[-6,:],df_total_PK_pk1.iloc[-2,:]=df_total_PK_pk.iloc[-2,:],df_total_PK_pk.iloc[-6,:]
-
-                    df_total_PK_pk=df_total_PK_pk1
-
-                    df_total_PK_pk1=df_total_PK_pk.copy()
-                    df_total_PK_pk1.iloc[-4,:],df_total_PK_pk1.iloc[-5,:]=df_total_PK_pk.iloc[-5,:],df_total_PK_pk.iloc[-4,:]
-
-                    df_total_PK_pk=df_total_PK_pk1
-
-                    df_total_PK_pk = df_total_PK_pk.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                    df_total_PK_pk = rename_parametrs_descriptive_statistics(df_total_PK_pk)
 
                     table_heading='Фармакокинетические показатели в крови после введения лс'
                     list_heading_word.append(table_heading)
@@ -2435,41 +2478,8 @@ if selected == "Исследование":
                     
                     ###описательная статистика
 
-                    col_mapping_PK = df_PK.columns.tolist()
-
-                    list_gmean_PK=[]
-
-                    list_cv_PK=[] 
-
-                    for i in col_mapping_PK:
-
-                        list_ser_PK=df_PK[i].tolist()
-
-                        def g_mean(list_ser_PK):
-                            a=np.log(list_ser_PK)
-                            return np.exp(a.mean())
-                        Gmean_PK=g_mean(list_ser_PK)
-                        list_gmean_PK.append(Gmean_PK)
-
-                        cv_std_PK=lambda x: np.std(x, ddof= 1 )
-                        cv_mean_PK=lambda x: np.mean(x)
-
-                        CV_std_PK=cv_std_PK(list_ser_PK)
-                        CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-                        CV_PK=(CV_std_PK/CV_mean_PK * 100)
-                        list_cv_PK.append(CV_PK)
-
-
-                    df_averaged_concentrations_PK=df_PK.describe()
-                    df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
-                    df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-                    df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-                    df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
-                    df_round_without_CV_PK=df_averaged_3_PK
-                    df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-                    df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
-
+                    dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                    df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
 
                     df_concat_PK_iv= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -2536,19 +2546,18 @@ if selected == "Исследование":
 
                     df_total_PK_iv.index.name = 'Номер'
 
+                    #округление количества субъектов до целого
+                    round_subjects_count(df_total_PK_iv)
+                    
+                    #получение списка значений доверительного интервала
+                    list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
+
+                    ###добавление в таблицу доверительного интервала
+                    df_total_PK_iv = add_ci_in_table(df_total_PK_iv,list_confidence_interval_PK)
+
                     ##изменение названий параметров описательной статистики
 
-                    df_total_PK_iv1=df_total_PK_iv.copy()
-                    df_total_PK_iv1.iloc[-6,:],df_total_PK_iv1.iloc[-2,:]=df_total_PK_iv.iloc[-2,:],df_total_PK_iv.iloc[-6,:]
-
-                    df_total_PK_iv=df_total_PK_iv1
-
-                    df_total_PK_iv1=df_total_PK_iv.copy()
-                    df_total_PK_iv1.iloc[-4,:],df_total_PK_iv1.iloc[-5,:]=df_total_PK_iv.iloc[-5,:],df_total_PK_iv.iloc[-4,:]
-
-                    df_total_PK_iv=df_total_PK_iv1
-
-                    df_total_PK_iv = df_total_PK_iv.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                    df_total_PK_iv = rename_parametrs_descriptive_statistics(df_total_PK_iv)
 
                     table_heading='Фармакокинетические показатели в крови после внутривенного введения субстанции'
                     list_heading_word.append(table_heading)
@@ -3364,41 +3373,8 @@ if selected == "Исследование":
                  
                     ###описательная статистика
 
-                    col_mapping_PK = df_PK.columns.tolist()
-
-                    list_gmean_PK=[]
-
-                    list_cv_PK=[] 
-
-                    for i in col_mapping_PK:
-
-                        list_ser_PK=df_PK[i].tolist()
-
-                        def g_mean(list_ser_PK):
-                            a=np.log(list_ser_PK)
-                            return np.exp(a.mean())
-                        Gmean_PK=g_mean(list_ser_PK)
-                        list_gmean_PK.append(Gmean_PK)
-
-                        cv_std_PK=lambda x: np.std(x, ddof= 1 )
-                        cv_mean_PK=lambda x: np.mean(x)
-
-                        CV_std_PK=cv_std_PK(list_ser_PK)
-                        CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-                        CV_PK=(CV_std_PK/CV_mean_PK * 100)
-                        list_cv_PK.append(CV_PK)
-
-
-                    df_averaged_concentrations_PK=df_PK.describe()
-                    df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
-                    df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-                    df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-                    df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
-                    df_round_without_CV_PK=df_averaged_3_PK
-                    df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-                    df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
-
+                    dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                    df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
 
                     df_concat_PK_po_sub= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -3465,19 +3441,18 @@ if selected == "Исследование":
                     
                     df_total_PK_po_sub.index.name = 'Номер'
 
+                    #округление количества субъектов до целого
+                    round_subjects_count(df_total_PK_po_sub)
+                    
+                    #получение списка значений доверительного интервала
+                    list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
+
+                    ###добавление в таблицу доверительного интервала
+                    df_total_PK_po_sub = add_ci_in_table(df_total_PK_po_sub,list_confidence_interval_PK)
+
                     ##изменение названий параметров описательной статистики
 
-                    df_total_PK_po_sub1=df_total_PK_po_sub.copy()
-                    df_total_PK_po_sub1.iloc[-6,:],df_total_PK_po_sub1.iloc[-2,:]=df_total_PK_po_sub.iloc[-2,:],df_total_PK_po_sub.iloc[-6,:]
-
-                    df_total_PK_po_sub=df_total_PK_po_sub1
-
-                    df_total_PK_po_sub1=df_total_PK_po_sub.copy()
-                    df_total_PK_po_sub1.iloc[-4,:],df_total_PK_po_sub1.iloc[-5,:]=df_total_PK_po_sub.iloc[-5,:],df_total_PK_po_sub.iloc[-4,:]
-
-                    df_total_PK_po_sub=df_total_PK_po_sub1
-
-                    df_total_PK_po_sub = df_total_PK_po_sub.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                    ddf_total_PK_po_sub = rename_parametrs_descriptive_statistics(df_total_PK_po_sub)
 
                     table_heading='Фармакокинетические показатели в крови после перорального введения субстанции'
                     list_heading_word.append(table_heading)
@@ -4295,41 +4270,8 @@ if selected == "Исследование":
                     
                     ###описательная статистика
 
-                    col_mapping_PK = df_PK.columns.tolist()
-
-                    list_gmean_PK=[]
-
-                    list_cv_PK=[] 
-
-                    for i in col_mapping_PK:
-
-                        list_ser_PK=df_PK[i].tolist()
-
-                        def g_mean(list_ser_PK):
-                            a=np.log(list_ser_PK)
-                            return np.exp(a.mean())
-                        Gmean_PK=g_mean(list_ser_PK)
-                        list_gmean_PK.append(Gmean_PK)
-
-                        cv_std_PK=lambda x: np.std(x, ddof= 1 )
-                        cv_mean_PK=lambda x: np.mean(x)
-
-                        CV_std_PK=cv_std_PK(list_ser_PK)
-                        CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-                        CV_PK=(CV_std_PK/CV_mean_PK * 100)
-                        list_cv_PK.append(CV_PK)
-
-
-                    df_averaged_concentrations_PK=df_PK.describe()
-                    df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
-                    df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-                    df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-                    df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
-                    df_round_without_CV_PK=df_averaged_3_PK
-                    df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-                    df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
-
+                    dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                    df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
 
                     df_concat_PK_po_rdf= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -4396,20 +4338,18 @@ if selected == "Исследование":
                     
                     df_total_PK_po_rdf.index.name = 'Номер'
 
+                    #округление количества субъектов до целого
+                    round_subjects_count(df_total_PK_po_rdf)
+                    
+                    #получение списка значений доверительного интервала
+                    list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
+
+                    ###добавление в таблицу доверительного интервала
+                    df_total_PK_po_rdf = add_ci_in_table(df_total_PK_po_rdf,list_confidence_interval_PK)
+
                     ##изменение названий параметров описательной статистики
 
-                    df_total_PK_po_rdf1=df_total_PK_po_rdf.copy()
-                    df_total_PK_po_rdf1.iloc[-6,:],df_total_PK_po_rdf1.iloc[-2,:]=df_total_PK_po_rdf.iloc[-2,:],df_total_PK_po_rdf.iloc[-6,:]
-
-                    df_total_PK_po_rdf=df_total_PK_po_rdf1
-
-                    df_total_PK_po_rdf1=df_total_PK_po_rdf.copy()
-                    df_total_PK_po_rdf1.iloc[-4,:],df_total_PK_po_rdf1.iloc[-5,:]=df_total_PK_po_rdf.iloc[-5,:],df_total_PK_po_rdf.iloc[-4,:]
-
-                    df_total_PK_po_rdf=df_total_PK_po_rdf1
-
-                    df_total_PK_po_rdf = df_total_PK_po_rdf.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
-
+                    df_total_PK_po_rdf = rename_parametrs_descriptive_statistics(df_total_PK_po_rdf)
 
                     table_heading='Фармакокинетические показатели в крови после перорального введения ГЛФ'
                     list_heading_word.append(table_heading)
@@ -5502,41 +5442,8 @@ if selected == "Исследование":
                        
                        ###описательная статистика
 
-                       col_mapping_PK = df_PK.columns.tolist()
-
-                       list_gmean_PK=[]
-
-                       list_cv_PK=[] 
-
-                       for i in col_mapping_PK:
-
-                           list_ser_PK=df_PK[i].tolist()
-
-                           def g_mean(list_ser_PK):
-                               a=np.log(list_ser_PK)
-                               return np.exp(a.mean())
-                           Gmean_PK=g_mean(list_ser_PK)
-                           list_gmean_PK.append(Gmean_PK)
-
-                           cv_std_PK=lambda x: np.std(x, ddof= 1 )
-                           cv_mean_PK=lambda x: np.mean(x)
-
-                           CV_std_PK=cv_std_PK(list_ser_PK)
-                           CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-                           CV_PK=(CV_std_PK/CV_mean_PK * 100)
-                           list_cv_PK.append(CV_PK)
-
-
-                       df_averaged_concentrations_PK=df_PK.describe()
-                       df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
-                       df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-                       df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-                       df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
-                       df_round_without_CV_PK=df_averaged_3_PK
-                       df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-                       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
-
+                       dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                       df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
 
                        df_concat_PK_org= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -5603,19 +5510,18 @@ if selected == "Исследование":
 
                        df_total_PK_org.index.name = 'Номер'
 
+                       #округление количества субъектов до целого
+                       round_subjects_count(df_total_PK_org)
+                       
+                       #получение списка значений доверительного интервала
+                       list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
+
+                       ###добавление в таблицу доверительного интервала
+                       df_total_PK_org = add_ci_in_table(df_total_PK_org,list_confidence_interval_PK)
+
                        ##изменение названий параметров описательной статистики
 
-                       df_total_PK_org1=df_total_PK_org.copy()
-                       df_total_PK_org1.iloc[-6,:],df_total_PK_org1.iloc[-2,:]=df_total_PK_org.iloc[-2,:],df_total_PK_org.iloc[-6,:]
-
-                       df_total_PK_org=df_total_PK_org1
-
-                       df_total_PK_org1=df_total_PK_org.copy()
-                       df_total_PK_org1.iloc[-4,:],df_total_PK_org1.iloc[-5,:]=df_total_PK_org.iloc[-5,:],df_total_PK_org.iloc[-4,:]
-
-                       df_total_PK_org=df_total_PK_org1
-
-                       df_total_PK_org = df_total_PK_org.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                       df_total_PK_org = rename_parametrs_descriptive_statistics(df_total_PK_org)
 
                        table_heading='Фармакокинетические показатели ' + "("+file_name+")"
                        list_heading_word.append(table_heading)
@@ -6737,41 +6643,8 @@ if selected == "Исследование":
 
                        ###описательная статистика
 
-                       col_mapping_PK = df_PK.columns.tolist()
-
-                       list_gmean_PK=[]
-
-                       list_cv_PK=[] 
-
-                       for i in col_mapping_PK:
-
-                           list_ser_PK=df_PK[i].tolist()
-
-                           def g_mean(list_ser_PK):
-                               a=np.log(list_ser_PK)
-                               return np.exp(a.mean())
-                           Gmean_PK=g_mean(list_ser_PK)
-                           list_gmean_PK.append(Gmean_PK)
-
-                           cv_std_PK=lambda x: np.std(x, ddof= 1 )
-                           cv_mean_PK=lambda x: np.mean(x)
-
-                           CV_std_PK=cv_std_PK(list_ser_PK)
-                           CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-                           CV_PK=(CV_std_PK/CV_mean_PK * 100)
-                           list_cv_PK.append(CV_PK)
-
-
-                       df_averaged_concentrations_PK=df_PK.describe()
-                       df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['count', '25%','75%'],axis=0)
-                       df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-                       df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-                       df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={5 : "Gmean"})
-                       df_round_without_CV_PK=df_averaged_3_PK
-                       df_round_without_CV_PK.loc[len(df_round_without_CV_PK.index )] = list_cv_PK
-                       df_averaged_3_PK = df_round_without_CV_PK.rename(index={6 : "CV, %"})
-
+                       dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
+                       df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
 
                        df_concat_PK_lin= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -6839,19 +6712,18 @@ if selected == "Исследование":
 
                        df_total_PK_lin.index.name = 'Номер'
 
+                       #округление количества субъектов до целого
+                       round_subjects_count(df_total_PK_lin)
+                       
+                       #получение списка значений доверительного интервала
+                       list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
+
+                       ###добавление в таблицу доверительного интервала
+                       df_total_PK_lin = add_ci_in_table(df_total_PK_lin,list_confidence_interval_PK)
+
                        ##изменение названий параметров описательной статистики
 
-                       df_total_PK_lin1=df_total_PK_lin.copy()
-                       df_total_PK_lin1.iloc[-6,:],df_total_PK_lin1.iloc[-2,:]=df_total_PK_lin.iloc[-2,:],df_total_PK_lin.iloc[-6,:]
-
-                       df_total_PK_lin=df_total_PK_lin1
-
-                       df_total_PK_lin1=df_total_PK_lin.copy()
-                       df_total_PK_lin1.iloc[-4,:],df_total_PK_lin1.iloc[-5,:]=df_total_PK_lin.iloc[-5,:],df_total_PK_lin.iloc[-4,:]
-
-                       df_total_PK_lin=df_total_PK_lin1
-
-                       df_total_PK_lin = df_total_PK_lin.rename({'Gmean': 'SD', 'std': 'Gmean','median': 'Минимум', 'min': 'Медиана','max': 'Максимум','mean': 'Mean'}, axis='index')
+                       df_total_PK_lin = rename_parametrs_descriptive_statistics(df_total_PK_lin)
 
                        table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_dose_lin
                        list_heading_word.append(table_heading)
