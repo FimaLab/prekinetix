@@ -5,11 +5,11 @@ div.css-zt5igj.e1nzilvr4  {
 }
 
 /*main container*//*egzxvld4*/
-div.css-1y4p8pa.ea3mdgi4 {
+[data-testid="stAppViewBlockContainer"] {
   padding-top: 30px;
   padding-left: 20px;
   padding-right: 20px;
-  max-width: 1400px;
+  max-width: 1300px;
 }
 
 /*header*/
@@ -25,7 +25,10 @@ div.css-10oheav.eczjsme4 {
 
 /* селектор по значению атрибута логотипа*/
 [style="width: 110px;"] {
-  margin-left: 30px;
+  margin-bottom: 20px;
+  margin-left: 40px;
 }
 
-
+[class="st-emotion-cache-saxznz e1nzilvr4"] {
+  color: white;
+}
