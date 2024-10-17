@@ -1,7 +1,13 @@
 [theme]
-primaryColor="#3095eb"
-backgroundColor="#121212"
-secondaryBackgroundColor="#1D1D1D"
-textColor="#cbe4de"
-font="sans serif"
+base="dark"
+primaryColor = '#4691ce'
+backgroundColor = '#ffffff'
+secondaryBackgroundColor = '#4985c1'
+textColor = '#000000'
+font = 'sans serif'
+
+[server]
+enableXsrfProtection = false
+enableCORS = false
+port=8501
 
