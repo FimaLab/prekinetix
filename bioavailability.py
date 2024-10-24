@@ -424,6 +424,11 @@ if option == 'Фармакокинетика':
              
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
+             # Используем кастомные виджеты с уникальными ключами
+             list_table_heading_for_excel = [list_heading_word,list_table_word]
+             for heading,table in list_table_heading_for_excel:
+                 download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
+
 
              with col2:
                   
@@ -1578,6 +1583,10 @@ if option == 'Биодоступность':
              
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
+             # Используем кастомные виджеты с уникальными ключами
+             list_table_heading_for_excel = [list_heading_word,list_table_word]
+             for heading,table in list_table_heading_for_excel:
+                 download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
              with col2:
                   
@@ -2257,6 +2266,10 @@ if option == 'Распределение по органам':
 
             ###вызов функции визуализации таблиц
             visualize_table(list_heading_word,list_table_word)
+            # Используем кастомные виджеты с уникальными ключами
+            list_table_heading_for_excel = [list_heading_word,list_table_word]
+            for heading,table in list_table_heading_for_excel:
+                download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
             with col2:
                  
@@ -2962,6 +2975,10 @@ if option == 'Линейность дозирования':
             
             ###вызов функции визуализации таблиц
             visualize_table(list_heading_word,list_table_word)
+            # Используем кастомные виджеты с уникальными ключами
+            list_table_heading_for_excel = [list_heading_word,list_table_word]
+            for heading,table in list_table_heading_for_excel:
+                download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
             with col2:
                  
@@ -3168,6 +3185,10 @@ if option == 'Экскреция препарата':
 
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
+             # Используем кастомные виджеты с уникальными ключами
+             list_table_heading_for_excel = [list_heading_word,list_table_word]
+             for heading,table in list_table_heading_for_excel:
+                 download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
              with col2:
                   
