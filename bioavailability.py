@@ -829,28 +829,28 @@ if option == 'Биодоступность':
 
                        list_parametr_mean_h_iv.append(func_mean_h)
 
-                  list_mean_h_iv_Cmax_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[0]]
+                  list_mean_h_iv_Cmax_round=[v for v in list_parametr_mean_h_iv[0]]
                   parametr_round_mean_h_Cmax=str(list_mean_h_iv_Cmax_round[0]) +"±"+str(list_mean_h_iv_Cmax_round[1])
 
-                  list_mean_h_iv_AUC0_t_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[1]] 
+                  list_mean_h_iv_AUC0_t_round=[v for v in list_parametr_mean_h_iv[1]] 
                   parametr_round_mean_h_AUC0_t=str(list_mean_h_iv_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_AUC0_t_round[1]) 
 
-                  list_mean_h_iv_Kel_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[2]]
+                  list_mean_h_iv_Kel_round=[v for v in list_parametr_mean_h_iv[2]]
                   parametr_round_mean_h_Kel=str(list_mean_h_iv_Kel_round[0]) +"±"+str(list_mean_h_iv_Kel_round[1])
 
-                  list_mean_h_iv_AUC0_inf_round= [round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[3]]
+                  list_mean_h_iv_AUC0_inf_round= [v for v in list_parametr_mean_h_iv[3]]
                   parametr_round_mean_h_AUC0_inf=str(list_mean_h_iv_AUC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUC0_inf_round[1]) 
 
-                  list_mean_h_iv_half_live_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[4]]
+                  list_mean_h_iv_half_live_round=[v for v in list_parametr_mean_h_iv[4]]
                   parametr_round_mean_h_half_live=str(list_mean_h_iv_half_live_round[0]) +"±"+str(list_mean_h_iv_half_live_round[1])
 
-                  list_mean_h_iv_AUMC0_inf_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[5]] 
+                  list_mean_h_iv_AUMC0_inf_round=[v for v in list_parametr_mean_h_iv[5]] 
                   parametr_round_mean_h_AUMC0_inf=str(list_mean_h_iv_AUMC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUMC0_inf_round[1]) 
 
-                  list_mean_h_iv_MRT0_inf_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[6]]
+                  list_mean_h_iv_MRT0_inf_round=[v for v in list_parametr_mean_h_iv[6]]
                   parametr_round_mean_h_MRT0_inf=str(list_mean_h_iv_MRT0_inf_round[0]) +"±"+str(list_mean_h_iv_MRT0_inf_round[1])
 
-                  list_mean_h_iv_Сmax_dev_AUC0_t_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_iv[7]]
+                  list_mean_h_iv_Сmax_dev_AUC0_t_round=[v for v in list_parametr_mean_h_iv[7]]
                   parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_iv_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_Сmax_dev_AUC0_t_round[1])
 
                   list_parametr_round_mean_h_iv= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
@@ -1104,28 +1104,28 @@ if option == 'Биодоступность':
 
                        list_parametr_mean_h_po_sub.append(func_mean_h)
 
-                  list_mean_h_po_sub_Cmax_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[0]]
+                  list_mean_h_po_sub_Cmax_round=[v for v in list_parametr_mean_h_po_sub[0]]
                   parametr_round_mean_h_Cmax=str(list_mean_h_po_sub_Cmax_round[0]) +"±"+str(list_mean_h_po_sub_Cmax_round[1])
 
-                  list_mean_h_po_sub_AUC0_t_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[1]] 
+                  list_mean_h_po_sub_AUC0_t_round=[v for v in list_parametr_mean_h_po_sub[1]] 
                   parametr_round_mean_h_AUC0_t=str(list_mean_h_po_sub_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_t_round[1]) 
 
-                  list_mean_h_po_sub_Kel_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[2]]
+                  list_mean_h_po_sub_Kel_round=[v for v in list_parametr_mean_h_po_sub[2]]
                   parametr_round_mean_h_Kel=str(list_mean_h_po_sub_Kel_round[0]) +"±"+str(list_mean_h_po_sub_Kel_round[1])
 
-                  list_mean_h_po_sub_AUC0_inf_round= [round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[3]]
+                  list_mean_h_po_sub_AUC0_inf_round= [v for v in list_parametr_mean_h_po_sub[3]]
                   parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_sub_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_inf_round[1]) 
 
-                  list_mean_h_po_sub_half_live_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[4]]
+                  list_mean_h_po_sub_half_live_round=[v for v in list_parametr_mean_h_po_sub[4]]
                   parametr_round_mean_h_half_live=str(list_mean_h_po_sub_half_live_round[0]) +"±"+str(list_mean_h_po_sub_half_live_round[1])
 
-                  list_mean_h_po_sub_AUMC0_inf_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[5]] 
+                  list_mean_h_po_sub_AUMC0_inf_round=[v for v in list_parametr_mean_h_po_sub[5]] 
                   parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_sub_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUMC0_inf_round[1]) 
 
-                  list_mean_h_po_sub_MRT0_inf_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[6]]
+                  list_mean_h_po_sub_MRT0_inf_round=[v for v in list_parametr_mean_h_po_sub[6]]
                   parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_sub_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_sub_MRT0_inf_round[1])
 
-                  list_mean_h_po_sub_Сmax_dev_AUC0_t_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_sub[7]]
+                  list_mean_h_po_sub_Сmax_dev_AUC0_t_round=[v for v in list_parametr_mean_h_po_sub[7]]
                   parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[1])
 
                   list_parametr_round_mean_h_po_sub= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
@@ -1381,28 +1381,28 @@ if option == 'Биодоступность':
                        list_parametr_mean_h_po_rdf.append(func_mean_h)
 
 
-                  list_mean_h_po_rdf_Cmax_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[0]]
+                  list_mean_h_po_rdf_Cmax_round=[v for v in list_parametr_mean_h_po_rdf[0]]
                   parametr_round_mean_h_Cmax=str(list_mean_h_po_rdf_Cmax_round[0]) +"±"+str(list_mean_h_po_rdf_Cmax_round[1])
 
-                  list_mean_h_po_rdf_AUC0_t_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[1]] 
+                  list_mean_h_po_rdf_AUC0_t_round=[v for v in list_parametr_mean_h_po_rdf[1]] 
                   parametr_round_mean_h_AUC0_t=str(list_mean_h_po_rdf_AUC0_t_round[0]) +"±"+str(list_mean_h_po_rdf_AUC0_t_round[1]) 
 
-                  list_mean_h_po_rdf_Kel_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[2]]
+                  list_mean_h_po_rdf_Kel_round=[v for v in list_parametr_mean_h_po_rdf[2]]
                   parametr_round_mean_h_Kel=str(list_mean_h_po_rdf_Kel_round[0]) +"±"+str(list_mean_h_po_rdf_Kel_round[1])
 
-                  list_mean_h_po_rdf_AUC0_inf_round= [round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[3]]
+                  list_mean_h_po_rdf_AUC0_inf_round= [v for v in list_parametr_mean_h_po_rdf[3]]
                   parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_rdf_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_rdf_AUC0_inf_round[1]) 
 
-                  list_mean_h_po_rdf_half_live_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[4]]
+                  list_mean_h_po_rdf_half_live_round=[v for v in list_parametr_mean_h_po_rdf[4]]
                   parametr_round_mean_h_half_live=str(list_mean_h_po_rdf_half_live_round[0]) +"±"+str(list_mean_h_po_rdf_half_live_round[1])
 
-                  list_mean_h_po_rdf_AUMC0_inf_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[5]] 
+                  list_mean_h_po_rdf_AUMC0_inf_round=[v for v in list_parametr_mean_h_po_rdf[5]] 
                   parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_rdf_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_rdf_AUMC0_inf_round[1]) 
 
-                  list_mean_h_po_rdf_MRT0_inf_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[6]]
+                  list_mean_h_po_rdf_MRT0_inf_round=[v for v in list_parametr_mean_h_po_rdf[6]]
                   parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_rdf_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_rdf_MRT0_inf_round[1])
 
-                  list_mean_h_po_rdf_Сmax_dev_AUC0_t_round=[round_to_significant_figures(v, 4) for v in list_parametr_mean_h_po_rdf[7]]
+                  list_mean_h_po_rdf_Сmax_dev_AUC0_t_round=[v for v in list_parametr_mean_h_po_rdf[7]]
                   parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_rdf_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_rdf_Сmax_dev_AUC0_t_round[1])
 
                   list_parametr_round_mean_h_po_rdf= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
@@ -2106,28 +2106,28 @@ if option == 'Распределение по органам':
 
 
                 series_Cmax=df_organs_trans_trans['Cmax ' +"("+measure_unit_org_blood+")"].tolist() 
-                series_Cmax=pd.Series([round_to_significant_figures(v, 4) for v in series_Cmax])
+                series_Cmax=pd.Series([v for v in series_Cmax])
 
                 series_Tmax=df_organs_trans_trans['Tmax ' +"("+f"{measure_unit_org_time}"+")"].tolist()       
-                series_Tmax=pd.Series([round_to_significant_figures(v, 4) for v in series_Tmax]) 
+                series_Tmax=pd.Series([v for v in series_Tmax]) 
                 
                 series_MRT0_inf= df_organs_trans_trans['MRT0→∞ '+"("+f"{measure_unit_org_time}"+")"].tolist()   
-                series_MRT0_inf=pd.Series([round_to_significant_figures(v, 4) for v in series_MRT0_inf])
+                series_MRT0_inf=pd.Series([v for v in series_MRT0_inf])
 
                 series_half_live= df_organs_trans_trans['T1/2 '+"("+f"{measure_unit_org_time}"+")"].tolist()   
-                series_half_live=pd.Series([round_to_significant_figures(v, 4) for v in series_half_live]) 
+                series_half_live=pd.Series([v for v in series_half_live]) 
 
                 series_AUC0_t= df_organs_trans_trans['AUC0-t '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}" +")"].tolist()   
-                series_AUC0_t=pd.Series([round_to_significant_figures(v, 4) for v in series_AUC0_t])
+                series_AUC0_t=pd.Series([v for v in series_AUC0_t])
 
                 series_AUC0_inf= df_organs_trans_trans['AUC0→∞ '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}" +")"].tolist()  
-                series_AUC0_inf=pd.Series([round_to_significant_figures(v, 4) for v in series_AUC0_inf]) 
+                series_AUC0_inf=pd.Series([v for v in series_AUC0_inf]) 
 
                 series_AUMC0_inf= df_organs_trans_trans['AUMC0-∞ '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}\u00B2" +")"].tolist()   
-                series_AUMC0_inf=pd.Series([round_to_significant_figures(v, 4) for v in series_AUMC0_inf])
+                series_AUMC0_inf=pd.Series([v for v in series_AUMC0_inf])
           
                 series_Kel= df_organs_trans_trans['Kel '+"("+f"{measure_unit_org_time}\u207B\u00B9"+")"].tolist()   
-                series_Kel=pd.Series([round_to_significant_figures(v, 4) for v in series_Kel])
+                series_Kel=pd.Series([v for v in series_Kel])
 
                 series_ft= df_organs_trans_trans['fт'].tolist() ##уже округлен
                 series_ft=pd.Series(series_ft)
@@ -2763,44 +2763,44 @@ if option == 'Линейность дозирования':
                 df_doses_trans_trans=df_PK_doses_total_transpose.transpose()
 
                 series_Cmax=df_doses_trans_trans['Cmax ' +"("+measure_unit_lin_concentration+")"].tolist() 
-                series_Cmax=pd.Series([round_to_significant_figures(v, 4) for v in series_Cmax])
+                series_Cmax=pd.Series([v for v in series_Cmax])
 
                 series_Tmax=df_doses_trans_trans['Tmax ' +"("+f"{measure_unit_lin_time}"+")"].tolist()       
-                series_Tmax=pd.Series([round_to_significant_figures(v, 4) for v in series_Tmax])
+                series_Tmax=pd.Series([v for v in series_Tmax])
 
                 series_MRT0_inf= df_doses_trans_trans['MRT0→∞ '+"("+f"{measure_unit_lin_time}"+")"].tolist()   
-                series_MRT0_inf=pd.Series([round_to_significant_figures(v, 4) for v in series_MRT0_inf])
+                series_MRT0_inf=pd.Series([v for v in series_MRT0_inf])
 
                 series_half_live= df_doses_trans_trans['T1/2 '+"("+f"{measure_unit_lin_time}"+")"].tolist()   
-                series_half_live=pd.Series([round_to_significant_figures(v, 4) for v in series_half_live]) 
+                series_half_live=pd.Series([v for v in series_half_live]) 
 
                 series_AUC0_t= df_doses_trans_trans['AUC0-t '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")"].tolist()   
-                series_AUC0_t=pd.Series([round_to_significant_figures(v, 4) for v in series_AUC0_t])
+                series_AUC0_t=pd.Series([v for v in series_AUC0_t])
 
                 series_AUC0_inf= df_doses_trans_trans['AUC0→∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")"].tolist()  
-                series_AUC0_inf=pd.Series([round_to_significant_figures(v, 4) for v in series_AUC0_inf]) 
+                series_AUC0_inf=pd.Series([v for v in series_AUC0_inf]) 
 
                 series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}\u00B2" +")"].tolist()   
-                series_AUMC0_inf=pd.Series([round_to_significant_figures(v, 4) for v in series_AUMC0_inf])
+                series_AUMC0_inf=pd.Series([v for v in series_AUMC0_inf])
 
                 series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")"].tolist()  
-                series_Сmax_dev_AUC0_t=pd.Series([round_to_significant_figures(v, 4) for v in series_Сmax_dev_AUC0_t]) 
+                series_Сmax_dev_AUC0_t=pd.Series([v for v in series_Сmax_dev_AUC0_t]) 
 
                 series_Kel= df_doses_trans_trans['Kel '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")"].tolist()   
-                series_Kel=pd.Series([round_to_significant_figures(v, 4) for v in series_Kel])
+                series_Kel=pd.Series([v for v in series_Kel])
                 
                 if st.session_state["agree_injection - линейность"] == False:
                    series_CL= df_doses_trans_trans['Cl/F ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})/{measure_unit_lin_time}"+")"].tolist()  
-                   series_CL=pd.Series([round_to_significant_figures(v, 4) for v in series_CL]) 
+                   series_CL=pd.Series([v for v in series_CL]) 
 
                    series_Vd= df_doses_trans_trans['Vz/F ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})"+")"].tolist()   
-                   series_Vd=pd.Series([round_to_significant_figures(v, 4) for v in series_Vd])
+                   series_Vd=pd.Series([v for v in series_Vd])
                 else:
                    series_CL= df_doses_trans_trans['Cl ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})/{measure_unit_lin_time}"+")"].tolist()  
-                   series_CL=pd.Series([round_to_significant_figures(v, 4) for v in series_CL]) 
+                   series_CL=pd.Series([v for v in series_CL]) 
 
                    series_Vd= df_doses_trans_trans['Vz ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})"+")"].tolist()   
-                   series_Vd=pd.Series([round_to_significant_figures(v, 4) for v in series_Vd])
+                   series_Vd=pd.Series([v for v in series_Vd])
                 
                 df_total_total_doses = pd.concat([series_Cmax, series_Tmax,series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
 
