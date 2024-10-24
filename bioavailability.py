@@ -209,6 +209,9 @@ if option == 'Фармакокинетика':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
               
               list_table_word.append(df_concat_round_str_transpose)
+              
+              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
            
            ########### графики    
 
@@ -392,11 +395,17 @@ if option == 'Фармакокинетика':
                   
                   list_table_word.append(df_total_PK_pk)
 
+                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                  download_excel_button(df_total_PK_pk, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+
                   if st.session_state["agree_cmax2 - фк"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_pk)
+
+                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                     download_excel_button(df_total_PK_additional_double_peaks_pk, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
               else:
                   st.session_state["df_total_PK_pk"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
                   st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
@@ -424,10 +433,6 @@ if option == 'Фармакокинетика':
              
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
-             # Используем кастомные виджеты с уникальными ключами
-             list_table_heading_for_excel = [list_heading_word,list_table_word]
-             for heading,table in list_table_heading_for_excel:
-                 download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
 
              with col2:
@@ -617,6 +622,9 @@ if option == 'Биодоступность':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
               list_table_word.append(df_concat_round_str_transpose)
+
+              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
            ########### графики    
 
            ######индивидуальные    
@@ -800,11 +808,17 @@ if option == 'Биодоступность':
                   
                   list_table_word.append(df_total_PK_iv)
 
+                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                  download_excel_button(df_total_PK_iv, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+
                   if st.session_state["agree_cmax2 - ИБ"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_iv)
+
+                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                     download_excel_button(df_total_PK_additional_double_peaks_iv, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                   ####получение интервала для средних ФК параметров
                   list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -902,6 +916,11 @@ if option == 'Биодоступность':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
               
               list_table_word.append(df_concat_round_str_transpose)
+
+              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+
+              
 
            ########### графики    
 
@@ -1075,11 +1094,17 @@ if option == 'Биодоступность':
                   
                   list_table_word.append(df_total_PK_po_sub)
 
+                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                  download_excel_button(df_total_PK_po_sub, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+
                   if st.session_state["agree_cmax2 - ИБ"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_po_sub)
+
+                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                     download_excel_button(df_total_PK_additional_double_peaks_po_sub, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                   ####получение интервала для средних ФК параметров
                   list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -1178,6 +1203,9 @@ if option == 'Биодоступность':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
               
               list_table_word.append(df_concat_round_str_transpose)
+
+              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
            ########### графики    
 
@@ -1351,11 +1379,17 @@ if option == 'Биодоступность':
                   
                   list_table_word.append(df_total_PK_po_rdf)
 
+                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                  download_excel_button(df_total_PK_po_rdf, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+
                   if st.session_state["agree_cmax2 - ИБ"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_po_rdf)
+
+                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                     download_excel_button(df_total_PK_additional_double_peaks_po_rdf, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
                   
                   ####получение интервала для средних ФК параметров
                   list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -1495,6 +1529,9 @@ if option == 'Биодоступность':
                
                list_table_word.append(df_total_PK_mean)
 
+               # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+               download_excel_button(df_total_PK_mean, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+
            #####объединенные графики
 
            ### в линейных координатах
@@ -1583,10 +1620,6 @@ if option == 'Биодоступность':
              
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
-             # Используем кастомные виджеты с уникальными ключами
-             list_table_heading_for_excel = [list_heading_word,list_table_word]
-             for heading,table in list_table_heading_for_excel:
-                 download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
              with col2:
                   
@@ -1827,7 +1860,11 @@ if option == 'Распределение по органам':
                  ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
                  df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
-                 list_table_word.append(df_concat_round_str_transpose) 
+                 list_table_word.append(df_concat_round_str_transpose)
+                 
+                 # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                 download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
+                  
 
                  if file_name == "Кровь":
                     measure_unit_org = measure_unit_org_blood
@@ -2027,12 +2064,18 @@ if option == 'Распределение по органам':
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_org)
+
+                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                     download_excel_button(df_total_PK_org, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
                      
                      if st.session_state["agree_cmax2 - органы"] == True:
                         table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле '  + "("+file_name+")"
                         list_heading_word.append(table_heading)
                         
-                        list_table_word.append(df_total_PK_additional_double_peaks_org) 
+                        list_table_word.append(df_total_PK_additional_double_peaks_org)
+
+                        # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                        download_excel_button(df_total_PK_additional_double_peaks_org, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx") 
                      #создание списков фреймов, названий органов и т.д.
 
                      ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -2152,7 +2195,10 @@ if option == 'Распределение по органам':
                 table_heading='Фармакокинетические параметры в различных тканях'
                 list_heading_word.append(table_heading) 
 
-                list_table_word.append(df_total_total_organs_total) 
+                list_table_word.append(df_total_total_organs_total)
+
+                # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                download_excel_button(df_total_total_organs_total, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")  
 
                 ###построение графика "Фармакокинетический профиль в органах"
 
@@ -2266,10 +2312,6 @@ if option == 'Распределение по органам':
 
             ###вызов функции визуализации таблиц
             visualize_table(list_heading_word,list_table_word)
-            # Используем кастомные виджеты с уникальными ключами
-            list_table_heading_for_excel = [list_heading_word,list_table_word]
-            for heading,table in list_table_heading_for_excel:
-                download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
             with col2:
                  
@@ -2502,6 +2544,9 @@ if option == 'Линейность дозирования':
                  df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                  list_table_word.append(df_concat_round_str_transpose)
+
+                 # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                 download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")  
                  ########### графики    
                  
                  ######индивидуальные    
@@ -2697,11 +2742,18 @@ if option == 'Линейность дозирования':
 
                      list_table_word.append(df_total_PK_lin)
 
+                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                     download_excel_button(df_total_PK_lin, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx") 
+
                      if st.session_state["agree_cmax2 - линейность"] == True:
                         table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле ' +file_name +" "+ measure_unit_dose_lin
                         list_heading_word.append(table_heading)
                         
                         list_table_word.append(df_total_PK_additional_double_peaks_lin)
+
+                        # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                        download_excel_button(df_total_PK_additional_double_peaks_lin, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx") 
+
                      #создание списков фреймов, доз и т.д.
 
                      ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -2827,6 +2879,9 @@ if option == 'Линейность дозирования':
                 list_heading_word.append(table_heading)
 
                 list_table_word.append(df_total_total_doses_total)
+
+                # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                download_excel_button(df_total_total_doses_total, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                 ###построение графика "Фармакокинетический профиль в различных дозировках"
 
@@ -2975,10 +3030,6 @@ if option == 'Линейность дозирования':
             
             ###вызов функции визуализации таблиц
             visualize_table(list_heading_word,list_table_word)
-            # Используем кастомные виджеты с уникальными ключами
-            list_table_heading_for_excel = [list_heading_word,list_table_word]
-            for heading,table in list_table_heading_for_excel:
-                download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
             with col2:
                  
@@ -3132,7 +3183,10 @@ if option == 'Экскреция препарата':
                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
-                list_table_word.append(df_concat_round_str_transpose) 
+                list_table_word.append(df_concat_round_str_transpose)
+                
+                # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                 ########### диаграмма    
                 
@@ -3185,10 +3239,6 @@ if option == 'Экскреция препарата':
 
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
-             # Используем кастомные виджеты с уникальными ключами
-             list_table_heading_for_excel = [list_heading_word,list_table_word]
-             for heading,table in list_table_heading_for_excel:
-                 download_excel_button(table, label=f"Скачать Excel {heading}", key=f"{heading}")
 
              with col2:
                   
