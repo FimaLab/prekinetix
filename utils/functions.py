@@ -20,16 +20,16 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 
 # Функция для сохранения DataFrame в формате Excel
-def to_excel(df):
+def to_excel_results(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False)
+        df.to_excel(writer, index=True)
     output.seek(0)  # Возвращаем курсор в начало файла
     return output
 
 # Обертка для скачивания файла в формате Excel с поддержкой ключа
-def download_excel_button(df, label="Скачать Excel", file_name="data.xlsx", key=None):
-    excel_data = to_excel(df)
+def download_excel_button(df, label, key, file_name):
+    excel_data = to_excel_results(df)
     st.download_button(
         label=label,
         data=excel_data,
