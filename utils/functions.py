@@ -19,6 +19,25 @@ from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from docx.shared import RGBColor
 
+# Функция для сохранения DataFrame в формате Excel
+def to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
+    output.seek(0)  # Возвращаем курсор в начало файла
+    return output
+
+# Обертка для скачивания файла в формате Excel с поддержкой ключа
+def download_excel_button(df, label="Скачать Excel", file_name="data.xlsx", key=None):
+    excel_data = to_excel(df)
+    st.download_button(
+        label=label,
+        data=excel_data,
+        file_name=file_name,
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        key=key  # Добавлен параметр key
+    )
+
 #округление до определенного значения значищих цифр
 def round_to_significant_figures(num, sig_figs):
     # Проверка на строку "-"
