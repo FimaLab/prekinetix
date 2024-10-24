@@ -343,7 +343,7 @@ def create_table_descriptive_statistics(df):
          
         list_series_round = []
         for i in list_series:
-            value = round_to_significant_figures(i, 4)
+            value = i
             list_series_round.append(value)
              
         list_list_series.append(list_series_round)
@@ -353,7 +353,7 @@ def create_table_descriptive_statistics(df):
     df_concat_round_str_transpose.index.name = 'Номер'
     
     #округление времени в качестве названий стоблцов
-    list_time_round =[round_to_significant_figures(v, 4) for v in df_concat_round_str_transpose.columns.tolist()]
+    list_time_round =[v for v in df_concat_round_str_transpose.columns.tolist()]
     df_concat_round_str_transpose.columns = list_time_round
 
     #округление количества субъектов до целого
@@ -402,8 +402,8 @@ def create_table_descriptive_statistics(df):
     for i,j in list_CI:
         
         if i and not pd.isna(i) and i != 'None':
-            i_round = round_to_significant_figures(i, 4)
-            j_round = round_to_significant_figures(j, 4)
+            i_round = i
+            j_round = j
         else:
             i_round = "-"
             j_round = "-"
@@ -579,8 +579,8 @@ def rename_parametrs_descriptive_statistics(df_total_PK):
     for i,j in list_CI:
         
         if i and not pd.isna(i) and i != 'None':
-            i_round = round_to_significant_figures(i, 4)
-            j_round = round_to_significant_figures(j, 4)
+            i_round = i
+            j_round = j
         else:
             i_round = "-"
             j_round = "-"
@@ -1243,43 +1243,43 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
           ###округление дополнительных ФК параметров
 
           series_Cmax_1=df_PK_additional_double_peaks['Cmax1']
-          list_Cmax_str_f_1=[round_to_significant_figures(v, 4) for v in series_Cmax_1.tolist()]
+          list_Cmax_str_f_1=[v for v in series_Cmax_1.tolist()]
           series_Cmax_1=pd.Series(list_Cmax_str_f_1, index = df_PK_additional_double_peaks.index.tolist(), name='Cmax1 ' +"("+measure_unit_concentration+")")
 
           series_Tmax_1=df_PK_additional_double_peaks['Tmax1']
-          list_Tmax_str_f_1=[round_to_significant_figures(v, 4) for v in series_Tmax_1.tolist()]
+          list_Tmax_str_f_1=[v for v in series_Tmax_1.tolist()]
           series_Tmax_1=pd.Series(list_Tmax_str_f_1, index = df_PK_additional_double_peaks.index.tolist(), name='Tmax1 ' +"("+f"{measure_unit_time}"+")")
 
           series_Cmax_2=df_PK_additional_double_peaks['Cmax2']
-          list_Cmax_str_f_2=[round_to_significant_figures(v, 4) for v in series_Cmax_2.tolist()]
+          list_Cmax_str_f_2=[v for v in series_Cmax_2.tolist()]
           series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_PK_additional_double_peaks.index.tolist(), name='Cmax2 ' +"("+measure_unit_concentration+")")
 
           series_Tmax_2=df_PK_additional_double_peaks['Tmax2']
-          list_Tmax_str_f_2=[round_to_significant_figures(v, 4) for v in series_Tmax_2.tolist()]
+          list_Tmax_str_f_2=[v for v in series_Tmax_2.tolist()]
           series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_PK_additional_double_peaks.index.tolist(), name='Tmax2 ' +"("+f"{measure_unit_time}"+")")
 
           series_CmaxH=df_PK_additional_double_peaks['CmaxH']
-          list_CmaxH_str_f=[round_to_significant_figures(v, 4) for v in series_CmaxH.tolist()]
+          list_CmaxH_str_f=[v for v in series_CmaxH.tolist()]
           series_CmaxH =pd.Series(list_CmaxH_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='CmaxH ' +"("+measure_unit_concentration+")")
 
           series_TmaxH=df_PK_additional_double_peaks['TmaxH']
-          list_TmaxH_str_f=[round_to_significant_figures(v, 4) for v in series_TmaxH.tolist()]
+          list_TmaxH_str_f=[v for v in series_TmaxH.tolist()]
           series_TmaxH=pd.Series(list_TmaxH_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='TmaxH ' +"("+f"{measure_unit_time}"+")")
 
           series_CmaxL_CmaxH=df_PK_additional_double_peaks['CmaxL/CmaxH']
-          list_CmaxL_CmaxH_str_f=[round_to_significant_figures(v, 4) for v in series_CmaxL_CmaxH.tolist()]
+          list_CmaxL_CmaxH_str_f=[v for v in series_CmaxL_CmaxH.tolist()]
           series_CmaxL_CmaxH=pd.Series(list_CmaxL_CmaxH_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='CmaxL/CmaxH')
 
           series_CmaxH_L=df_PK_additional_double_peaks['CmaxH-L']
-          list_CmaxH_L_str_f=[round_to_significant_figures(v, 4) for v in series_CmaxH_L.tolist()]
+          list_CmaxH_L_str_f=[v for v in series_CmaxH_L.tolist()]
           series_CmaxH_L=pd.Series(list_CmaxH_L_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='CmaxH-L ' +"("+measure_unit_concentration+")")
 
           series_NumBtwPeaks=df_PK_additional_double_peaks['Количество точек между пиками']
-          list_NumBtwPeaks_str_f=[round_to_significant_figures(v, 4) for v in series_NumBtwPeaks.tolist()]
+          list_NumBtwPeaks_str_f=[v for v in series_NumBtwPeaks.tolist()]
           series_NumBtwPeaks=pd.Series(list_NumBtwPeaks_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='Количество точек между пиками ')
 
           series_DuraBtwPeaks=df_PK_additional_double_peaks['Время между пиками']
-          list_DuraBtwPeaks_str_f=[round_to_significant_figures(v, 4) for v in series_DuraBtwPeaks.tolist()]
+          list_DuraBtwPeaks_str_f=[v for v in series_DuraBtwPeaks.tolist()]
           series_DuraBtwPeaks=pd.Series(list_DuraBtwPeaks_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='Время между пиками ' +"("+f"{measure_unit_time}"+")")
           
           df_total_PK_additional_double_peaks = pd.concat([series_Cmax_1, series_Tmax_1, series_Cmax_2, series_Tmax_2, series_CmaxH, series_TmaxH, 
@@ -1299,63 +1299,63 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        ###округление описательной статистики и ФК параметров
 
        series_Cmax=df_concat_PK_pk['Cmax']
-       list_Cmax_str_f=[round_to_significant_figures(v, 4) for v in series_Cmax.tolist()]
+       list_Cmax_str_f=[v for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax ' +"("+measure_unit_concentration+")")
 
        series_Tmax=df_concat_PK_pk['Tmax']
-       list_Tmax_str_f=[round_to_significant_figures(v, 4) for v in series_Tmax.tolist()]
+       list_Tmax_str_f=[v for v in series_Tmax.tolist()]
        series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Tmax ' +"("+f"{measure_unit_time}"+")")
 
        series_Clast=df_concat_PK_pk['Clast']
-       list_Clast_str_f=[round_to_significant_figures(v, 4) for v in series_Clast.tolist()]
+       list_Clast_str_f=[v for v in series_Clast.tolist()]
        series_Clast=pd.Series(list_Clast_str_f, index = df_concat_PK_pk.index.tolist(), name='Clast ' +"("+measure_unit_concentration+")")
 
        series_Tlast=df_concat_PK_pk['Tlast']
-       list_Tlast_str_f=[round_to_significant_figures(v, 4) for v in series_Tlast.tolist()]
+       list_Tlast_str_f=[v for v in series_Tlast.tolist()]
        series_Tlast=pd.Series(list_Tlast_str_f, index = df_concat_PK_pk.index.tolist(), name='Tlast ' +"("+f"{measure_unit_time}"+")")
        
        series_MRT0_t= df_concat_PK_pk['MRT0→t']
-       list_MRT0_t_str_f=[round_to_significant_figures(v, 4) for v in series_MRT0_t.tolist()]
+       list_MRT0_t_str_f=[v for v in series_MRT0_t.tolist()]
        series_MRT0_t=pd.Series(list_MRT0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='MRT0→t '+"("+f"{measure_unit_time}"+")")
 
        series_MRT0_inf= df_concat_PK_pk['MRT0→∞']
-       list_MRT0_inf_str_f=[round_to_significant_figures(v, 4) for v in series_MRT0_inf.tolist()]
+       list_MRT0_inf_str_f=[v for v in series_MRT0_inf.tolist()]
        series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='MRT0→∞ '+"("+f"{measure_unit_time}"+")")
 
        series_half_live= df_concat_PK_pk['T1/2']
-       list_half_live_str_f=[round_to_significant_figures(v, 4) for v in series_half_live.tolist()]
+       list_half_live_str_f=[v for v in series_half_live.tolist()]
        series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_pk.index.tolist(), name='T1/2 '+"("+f"{measure_unit_time}"+")")
 
        series_AUC0_t= df_concat_PK_pk['AUC0-t']
-       list_AUC0_t_str_f=[round_to_significant_figures(v, 4) for v in series_AUC0_t.tolist()]
+       list_AUC0_t_str_f=[v for v in series_AUC0_t.tolist()]
        series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
 
        series_AUC0_inf= df_concat_PK_pk['AUC0→∞']
-       list_AUC0_inf_str_f=[round_to_significant_figures(v, 4) for v in series_AUC0_inf.tolist()]
+       list_AUC0_inf_str_f=[v for v in series_AUC0_inf.tolist()]
        series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
        
        series_AUMC0_t= df_concat_PK_pk['AUMC0-t']
-       list_AUMC0_t_str_f=[round_to_significant_figures(v, 4) for v in series_AUMC0_t.tolist()]
+       list_AUMC0_t_str_f=[v for v in series_AUMC0_t.tolist()]
        series_AUMC0_t=pd.Series(list_AUMC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
 
        series_AUMC0_inf= df_concat_PK_pk['AUMC0-∞']
-       list_AUMC0_inf_str_f=[round_to_significant_figures(v, 4) for v in series_AUMC0_inf.tolist()]
+       list_AUMC0_inf_str_f=[v for v in series_AUMC0_inf.tolist()]
        series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_pk['Сmax/AUC0-t']
-       list_Сmax_dev_AUC0_t_str_f=[round_to_significant_figures(v, 4) for v in series_Сmax_dev_AUC0_t.tolist()]
+       list_Сmax_dev_AUC0_t_str_f=[v for v in series_Сmax_dev_AUC0_t.tolist()]
        series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='Сmax/AUC0-t '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
 
        series_Kel= df_concat_PK_pk['Kel']
-       list_Kel_str_f=[round_to_significant_figures(v, 4) for v in series_Kel.tolist()]
+       list_Kel_str_f=[v for v in series_Kel.tolist()]
        series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_pk.index.tolist(), name='Kel '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
 
        series_Cl_F= df_concat_PK_pk['Cl/F']
-       list_Cl_F_str_f=[round_to_significant_figures(v, 4) for v in series_Cl_F.tolist()]
+       list_Cl_F_str_f=[v for v in series_Cl_F.tolist()]
        series_Cl_F=pd.Series(list_Cl_F_str_f, index = df_concat_PK_pk.index.tolist(), name='Cl/F ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})/{measure_unit_time}"+")")
 
        series_Vz_F= df_concat_PK_pk['Vz/F']
-       list_Vz_F_str_f=[round_to_significant_figures(v, 4) for v in series_Vz_F.tolist()]
+       list_Vz_F_str_f=[v for v in series_Vz_F.tolist()]
        series_Vz_F=pd.Series(list_Vz_F_str_f, index = df_concat_PK_pk.index.tolist(), name='Vz/F ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
        
        df_total_PK_pk = pd.concat([series_Cmax, series_Tmax, series_Clast, series_Tlast, series_MRT0_t, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_t,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_Cl_F,series_Vz_F], axis= 1) 
@@ -2106,43 +2106,43 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
           ###округление дополнительных ФК параметров
 
           series_Cmax_1=df_PK_additional_double_peaks['Cmax1']
-          list_Cmax_str_f_1=[round_to_significant_figures(v, 4) for v in series_Cmax_1.tolist()]
+          list_Cmax_str_f_1=[v for v in series_Cmax_1.tolist()]
           series_Cmax_1=pd.Series(list_Cmax_str_f_1, index = df_PK_additional_double_peaks.index.tolist(), name='Cmax1 ' +"("+measure_unit_concentration+")")
 
           series_Tmax_1=df_PK_additional_double_peaks['Tmax1']
-          list_Tmax_str_f_1=[round_to_significant_figures(v, 4) for v in series_Tmax_1.tolist()]
+          list_Tmax_str_f_1=[v for v in series_Tmax_1.tolist()]
           series_Tmax_1=pd.Series(list_Tmax_str_f_1, index = df_PK_additional_double_peaks.index.tolist(), name='Tmax1 ' +"("+f"{measure_unit_time}"+")")
 
           series_Cmax_2=df_PK_additional_double_peaks['Cmax2']
-          list_Cmax_str_f_2=[round_to_significant_figures(v, 4) for v in series_Cmax_2.tolist()]
+          list_Cmax_str_f_2=[v for v in series_Cmax_2.tolist()]
           series_Cmax_2=pd.Series(list_Cmax_str_f_2, index = df_PK_additional_double_peaks.index.tolist(), name='Cmax2 ' +"("+measure_unit_concentration+")")
 
           series_Tmax_2=df_PK_additional_double_peaks['Tmax2']
-          list_Tmax_str_f_2=[round_to_significant_figures(v, 4) for v in series_Tmax_2.tolist()]
+          list_Tmax_str_f_2=[v for v in series_Tmax_2.tolist()]
           series_Tmax_2=pd.Series(list_Tmax_str_f_2, index = df_PK_additional_double_peaks.index.tolist(), name='Tmax2 ' +"("+f"{measure_unit_time}"+")")
 
           series_CmaxH=df_PK_additional_double_peaks['CmaxH']
-          list_CmaxH_str_f=[round_to_significant_figures(v, 4) for v in series_CmaxH.tolist()]
+          list_CmaxH_str_f=[v for v in series_CmaxH.tolist()]
           series_CmaxH =pd.Series(list_CmaxH_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='CmaxH ' +"("+measure_unit_concentration+")")
 
           series_TmaxH=df_PK_additional_double_peaks['TmaxH']
-          list_TmaxH_str_f=[round_to_significant_figures(v, 4) for v in series_TmaxH.tolist()]
+          list_TmaxH_str_f=[v for v in series_TmaxH.tolist()]
           series_TmaxH=pd.Series(list_TmaxH_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='TmaxH ' +"("+f"{measure_unit_time}"+")")
 
           series_CmaxL_CmaxH=df_PK_additional_double_peaks['CmaxL/CmaxH']
-          list_CmaxL_CmaxH_str_f=[round_to_significant_figures(v, 4) for v in series_CmaxL_CmaxH.tolist()]
+          list_CmaxL_CmaxH_str_f=[v for v in series_CmaxL_CmaxH.tolist()]
           series_CmaxL_CmaxH=pd.Series(list_CmaxL_CmaxH_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='CmaxL/CmaxH')
 
           series_CmaxH_L=df_PK_additional_double_peaks['CmaxH-L']
-          list_CmaxH_L_str_f=[round_to_significant_figures(v, 4) for v in series_CmaxH_L.tolist()]
+          list_CmaxH_L_str_f=[v for v in series_CmaxH_L.tolist()]
           series_CmaxH_L=pd.Series(list_CmaxH_L_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='CmaxH-L ' +"("+measure_unit_concentration+")")
 
           series_NumBtwPeaks=df_PK_additional_double_peaks['Количество точек между пиками']
-          list_NumBtwPeaks_str_f=[round_to_significant_figures(v, 4) for v in series_NumBtwPeaks.tolist()]
+          list_NumBtwPeaks_str_f=[v for v in series_NumBtwPeaks.tolist()]
           series_NumBtwPeaks=pd.Series(list_NumBtwPeaks_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='Количество точек между пиками ')
 
           series_DuraBtwPeaks=df_PK_additional_double_peaks['Время между пиками']
-          list_DuraBtwPeaks_str_f=[round_to_significant_figures(v, 4) for v in series_DuraBtwPeaks.tolist()]
+          list_DuraBtwPeaks_str_f=[v for v in series_DuraBtwPeaks.tolist()]
           series_DuraBtwPeaks=pd.Series(list_DuraBtwPeaks_str_f, index = df_PK_additional_double_peaks.index.tolist(), name='Время между пиками ' +"("+f"{measure_unit_time}"+")")
           
           df_total_PK_additional_double_peaks = pd.concat([series_Cmax_1, series_Tmax_1, series_Cmax_2, series_Tmax_2, series_CmaxH, series_TmaxH, 
@@ -2162,71 +2162,71 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        ###округление описательной статистики и ФК параметров
 
        series_Cmax=df_concat_PK_pk['Cmax']
-       list_Cmax_str_f=[round_to_significant_figures(v, 4) for v in series_Cmax.tolist()]
+       list_Cmax_str_f=[v for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax ' +"("+measure_unit_concentration+")")
 
        series_Tmax=df_concat_PK_pk['Tmax']
-       list_Tmax_str_f=[round_to_significant_figures(v, 4) for v in series_Tmax.tolist()]
+       list_Tmax_str_f=[v for v in series_Tmax.tolist()]
        series_Tmax=pd.Series(list_Tmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Tmax ' +"("+f"{measure_unit_time}"+")")
 
        series_C0=df_concat_PK_pk['C0']
-       list_C0_str_f=[round_to_significant_figures(v, 4) for v in series_C0.tolist()]
+       list_C0_str_f=[v for v in series_C0.tolist()]
        series_C0=pd.Series(list_C0_str_f, index = df_concat_PK_pk.index.tolist(), name='C0 ' +"("+measure_unit_concentration+")")
 
        series_Clast=df_concat_PK_pk['Clast']
-       list_Clast_str_f=[round_to_significant_figures(v, 4) for v in series_Clast.tolist()]
+       list_Clast_str_f=[v for v in series_Clast.tolist()]
        series_Clast=pd.Series(list_Clast_str_f, index = df_concat_PK_pk.index.tolist(), name='Clast ' +"("+measure_unit_concentration+")")
 
        series_Tlast=df_concat_PK_pk['Tlast']
-       list_Tlast_str_f=[round_to_significant_figures(v, 4) for v in series_Tlast.tolist()]
+       list_Tlast_str_f=[v for v in series_Tlast.tolist()]
        series_Tlast=pd.Series(list_Tlast_str_f, index = df_concat_PK_pk.index.tolist(), name='Tlast ' +"("+f"{measure_unit_time}"+")")
        
        series_MRT0_t= df_concat_PK_pk['MRT0→t']
-       list_MRT0_t_str_f=[round_to_significant_figures(v, 4) for v in series_MRT0_t.tolist()]
+       list_MRT0_t_str_f=[v for v in series_MRT0_t.tolist()]
        series_MRT0_t=pd.Series(list_MRT0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='MRT0→t '+"("+f"{measure_unit_time}"+")")
 
        series_MRT0_inf= df_concat_PK_pk['MRT0→∞']
-       list_MRT0_inf_str_f=[round_to_significant_figures(v, 4) for v in series_MRT0_inf.tolist()]
+       list_MRT0_inf_str_f=[v for v in series_MRT0_inf.tolist()]
        series_MRT0_inf=pd.Series(list_MRT0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='MRT0→∞ '+"("+f"{measure_unit_time}"+")")
 
        series_half_live= df_concat_PK_pk['T1/2']
-       list_half_live_str_f=[round_to_significant_figures(v, 4) for v in series_half_live.tolist()]
+       list_half_live_str_f=[v for v in series_half_live.tolist()]
        series_half_live=pd.Series(list_half_live_str_f, index = df_concat_PK_pk.index.tolist(), name='T1/2 '+"("+f"{measure_unit_time}"+")")
 
        series_AUC0_t= df_concat_PK_pk['AUC0-t']
-       list_AUC0_t_str_f=[round_to_significant_figures(v, 4) for v in series_AUC0_t.tolist()]
+       list_AUC0_t_str_f=[v for v in series_AUC0_t.tolist()]
        series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
 
        series_AUC0_inf= df_concat_PK_pk['AUC0→∞']
-       list_AUC0_inf_str_f=[round_to_significant_figures(v, 4) for v in series_AUC0_inf.tolist()]
+       list_AUC0_inf_str_f=[v for v in series_AUC0_inf.tolist()]
        series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
        
        series_AUMC0_t= df_concat_PK_pk['AUMC0-t']
-       list_AUMC0_t_str_f=[round_to_significant_figures(v, 4) for v in series_AUMC0_t.tolist()]
+       list_AUMC0_t_str_f=[v for v in series_AUMC0_t.tolist()]
        series_AUMC0_t=pd.Series(list_AUMC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
 
        series_AUMC0_inf= df_concat_PK_pk['AUMC0-∞']
-       list_AUMC0_inf_str_f=[round_to_significant_figures(v, 4) for v in series_AUMC0_inf.tolist()]
+       list_AUMC0_inf_str_f=[v for v in series_AUMC0_inf.tolist()]
        series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_pk['Сmax/AUC0-t']
-       list_Сmax_dev_AUC0_t_str_f=[round_to_significant_figures(v, 4) for v in series_Сmax_dev_AUC0_t.tolist()]
+       list_Сmax_dev_AUC0_t_str_f=[v for v in series_Сmax_dev_AUC0_t.tolist()]
        series_Сmax_dev_AUC0_t=pd.Series(list_Сmax_dev_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='Сmax/AUC0-t '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
 
        series_Kel= df_concat_PK_pk['Kel']
-       list_Kel_str_f=[round_to_significant_figures(v, 4) for v in series_Kel.tolist()]
+       list_Kel_str_f=[v for v in series_Kel.tolist()]
        series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_pk.index.tolist(), name='Kel '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
 
        series_CL= df_concat_PK_pk['Cl']
-       list_CL_str_f=[round_to_significant_figures(v, 4) for v in series_CL.tolist()]
+       list_CL_str_f=[v for v in series_CL.tolist()]
        series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_pk.index.tolist(), name='Cl ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})/{measure_unit_time}"+")")
 
        series_Vz= df_concat_PK_pk['Vz']
-       list_Vz_str_f=[round_to_significant_figures(v, 4) for v in series_Vz.tolist()]
+       list_Vz_str_f=[v for v in series_Vz.tolist()]
        series_Vz=pd.Series(list_Vz_str_f, index = df_concat_PK_pk.index.tolist(), name='Vz ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
 
        series_Vss= df_concat_PK_pk['Vss']
-       list_Vss_str_f=[round_to_significant_figures(v, 4) for v in series_Vss.tolist()]
+       list_Vss_str_f=[v for v in series_Vss.tolist()]
        series_Vss=pd.Series(list_Vss_str_f, index = df_concat_PK_pk.index.tolist(), name='Vss ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
        
        df_total_PK_pk = pd.concat([series_Cmax, series_Tmax,series_C0,series_Clast, series_Tlast, series_MRT0_t, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_t,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vz,series_Vss], axis= 1) 
