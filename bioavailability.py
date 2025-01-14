@@ -77,7 +77,7 @@ if 'df_total_PK_po_rdf' not in st.session_state:
 
 ################################
 if option == 'Фармакокинетика':
-   
+
     st.header('Расчет фармакокинетических параметров')
 
     col1, col2 = st.columns([0.66, 0.34])
@@ -210,9 +210,6 @@ if option == 'Фармакокинетика':
               
               list_table_word.append(df_concat_round_str_transpose)
               
-              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-           
            ########### графики    
 
            ######индивидуальные    
@@ -395,17 +392,11 @@ if option == 'Фармакокинетика':
                   
                   list_table_word.append(df_total_PK_pk)
 
-                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                  download_excel_button(df_total_PK_pk, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-
                   if st.session_state["agree_cmax2 - фк"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_pk)
-
-                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                     download_excel_button(df_total_PK_additional_double_peaks_pk, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
               else:
                   st.session_state["df_total_PK_pk"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
                   st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
@@ -430,7 +421,7 @@ if option == 'Фармакокинетика':
              
              list_heading_word = st.session_state["list_heading_word"]
              list_table_word = st.session_state["list_table_word"]
-             
+
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
 
@@ -622,9 +613,6 @@ if option == 'Биодоступность':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
               list_table_word.append(df_concat_round_str_transpose)
-
-              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
            ########### графики    
 
            ######индивидуальные    
@@ -808,17 +796,11 @@ if option == 'Биодоступность':
                   
                   list_table_word.append(df_total_PK_iv)
 
-                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                  download_excel_button(df_total_PK_iv, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-
                   if st.session_state["agree_cmax2 - ИБ"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_iv)
-
-                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                     download_excel_button(df_total_PK_additional_double_peaks_iv, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                   ####получение интервала для средних ФК параметров
                   list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -874,7 +856,7 @@ if option == 'Биодоступность':
 
                   list_parametr_round_mean_h_iv= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-                  t_mean_iv = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
+                  t_mean_iv = str(round_to_significant_figures(np.mean(list_PK_Tmax_1_not_round), 4))     
                   list_parametr_round_mean_h_iv.insert(1,t_mean_iv)
 
               else:
@@ -916,11 +898,6 @@ if option == 'Биодоступность':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
               
               list_table_word.append(df_concat_round_str_transpose)
-
-              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-
-              
 
            ########### графики    
 
@@ -1094,17 +1071,11 @@ if option == 'Биодоступность':
                   
                   list_table_word.append(df_total_PK_po_sub)
 
-                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                  download_excel_button(df_total_PK_po_sub, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-
                   if st.session_state["agree_cmax2 - ИБ"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_po_sub)
-
-                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                     download_excel_button(df_total_PK_additional_double_peaks_po_sub, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                   ####получение интервала для средних ФК параметров
                   list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -1203,9 +1174,6 @@ if option == 'Биодоступность':
               df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
               
               list_table_word.append(df_concat_round_str_transpose)
-
-              # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-              download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
            ########### графики    
 
@@ -1379,17 +1347,11 @@ if option == 'Биодоступность':
                   
                   list_table_word.append(df_total_PK_po_rdf)
 
-                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                  download_excel_button(df_total_PK_po_rdf, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-
                   if st.session_state["agree_cmax2 - ИБ"] == True:
                      table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_additional_double_peaks_po_rdf)
-
-                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                     download_excel_button(df_total_PK_additional_double_peaks_po_rdf, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
                   
                   ####получение интервала для средних ФК параметров
                   list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
@@ -1528,9 +1490,6 @@ if option == 'Биодоступность':
                df_total_PK_mean.index.name = 'Параметры, размерность'
                
                list_table_word.append(df_total_PK_mean)
-
-               # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-               download_excel_button(df_total_PK_mean, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
            #####объединенные графики
 
@@ -1861,10 +1820,6 @@ if option == 'Распределение по органам':
                  df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                  list_table_word.append(df_concat_round_str_transpose)
-                 
-                 # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                 download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-                  
 
                  if file_name == "Кровь":
                     measure_unit_org = measure_unit_org_blood
@@ -2064,9 +2019,6 @@ if option == 'Распределение по органам':
                      list_heading_word.append(table_heading)
                      
                      list_table_word.append(df_total_PK_org)
-
-                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                     download_excel_button(df_total_PK_org, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
                      
                      if st.session_state["agree_cmax2 - органы"] == True:
                         table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле '  + "("+file_name+")"
@@ -2074,8 +2026,6 @@ if option == 'Распределение по органам':
                         
                         list_table_word.append(df_total_PK_additional_double_peaks_org)
 
-                        # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                        download_excel_button(df_total_PK_additional_double_peaks_org, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx") 
                      #создание списков фреймов, названий органов и т.д.
 
                      ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -2195,10 +2145,7 @@ if option == 'Распределение по органам':
                 table_heading='Фармакокинетические параметры в различных тканях'
                 list_heading_word.append(table_heading) 
 
-                list_table_word.append(df_total_total_organs_total)
-
-                # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                download_excel_button(df_total_total_organs_total, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")  
+                list_table_word.append(df_total_total_organs_total) 
 
                 ###построение графика "Фармакокинетический профиль в органах"
 
@@ -2545,8 +2492,6 @@ if option == 'Линейность дозирования':
 
                  list_table_word.append(df_concat_round_str_transpose)
 
-                 # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                 download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")  
                  ########### графики    
                  
                  ######индивидуальные    
@@ -2742,17 +2687,11 @@ if option == 'Линейность дозирования':
 
                      list_table_word.append(df_total_PK_lin)
 
-                     # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                     download_excel_button(df_total_PK_lin, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx") 
-
                      if st.session_state["agree_cmax2 - линейность"] == True:
                         table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле ' +file_name +" "+ measure_unit_dose_lin
                         list_heading_word.append(table_heading)
                         
                         list_table_word.append(df_total_PK_additional_double_peaks_lin)
-
-                        # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                        download_excel_button(df_total_PK_additional_double_peaks_lin, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx") 
 
                      #создание списков фреймов, доз и т.д.
 
@@ -2880,9 +2819,6 @@ if option == 'Линейность дозирования':
 
                 list_table_word.append(df_total_total_doses_total)
 
-                # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                download_excel_button(df_total_total_doses_total, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
-
                 ###построение графика "Фармакокинетический профиль в различных дозировках"
 
                 ### в линейных координатах
@@ -2954,33 +2890,65 @@ if option == 'Линейность дозирования':
 
                 graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках'
                 list_heading_graphics_word.append(graphic)
-                #линейность
-
-                list_AUC0_inf_lin_mean=[]
+                
+                # Линейность
+                list_AUC0_inf_lin = []
                 for i in list_df_unrounded: 
-                    mean_auc0inf=i['AUC0→∞'].loc['mean']
-                    list_AUC0_inf_lin_mean.append(mean_auc0inf)
+                    # Получаем значения AUC0→∞ для каждой дозы и добавляем в список
+                    mean_auc0inf = i['AUC0→∞'][:'count'].iloc[:-1].to_list()
+                    list_AUC0_inf_lin.extend(mean_auc0inf)  # Используем extend, чтобы создать плоский список
 
-                list_name_doses_lin_float=[]
-                for i in list_name_doses:
-                 j= float(i)
-                 list_name_doses_lin_float.append(j)
-                
-                df_for_lin = pd.DataFrame(list(zip(list_AUC0_inf_lin_mean,list_name_doses_lin_float)), columns =['AUC0→∞_mean', 'doses'])
+                # Создаем правильный список дозировок, повторяя каждый элемент нужное количество раз
+                list_name_doses_lin_float = [float(dose) for dose in list_name_doses for _ in range(len(mean_auc0inf))]
 
-                doses = df_for_lin['doses']
-                AUC0_inf_mean = df_for_lin['AUC0→∞_mean']
+                # Убедимся, что данные организованы правильно
+                # Создаем DataFrame для анализа
+                df_for_lin = pd.DataFrame({
+                    'AUC0→∞': list_AUC0_inf_lin,
+                    'doses': list_name_doses_lin_float
+                })
 
-                doses = sm.add_constant(doses)
-                model = sm.OLS(AUC0_inf_mean, doses).fit()
-                predictions = model.predict(doses) 
+                # Выводим таблицу, чтобы убедиться в корректности
+                st.write(df_for_lin)
+
+                # Зависимая переменная
+                AUC0_inf = df_for_lin['AUC0→∞']
+
+                # Выводим данные, чтобы убедиться в корректности
+                st.write("AUC0_inf:", AUC0_inf)
+
+                # Добавляем константу для модели
+                doses_with_const = sm.add_constant(df_for_lin['doses'])
+
+                # Строим модель линейной регрессии
+                model = sm.OLS(AUC0_inf, doses_with_const).fit()
                 print_model = model.summary()
-                
+
+                # Выводим результаты модели
+                st.write(print_model)
+
                 graphic='Зависимость значений AUC0→∞ от величин вводимых доз'
-                list_heading_graphics_word.append(graphic) 
+                list_heading_graphics_word.append(graphic)
+
+                # Данные для графика
+                list_AUC0_inf_lin_mean = []
+                for i in list_df_unrounded: 
+                    # Получаем значения AUC0→∞ для каждой дозы и добавляем в список
+                    mean_auc0_inf_mean = i['AUC0→∞'].loc['mean']
+                    list_AUC0_inf_lin_mean.append(mean_auc0_inf_mean)
+                
+                list_name_doses_lin_float = [float(i) for i in list_name_doses]
+
+
+                # Создаем DataFrame для анализа
+                df_for_lin_mean = pd.DataFrame({
+                    'AUC0→∞_mean': list_AUC0_inf_lin_mean,
+                    'doses': list_name_doses_lin_float
+                })
+
                 ###график
                 fig, ax = plt.subplots()
-                sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
+                sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin_mean, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
                 plt.xlabel("Дозировка, " +measure_unit_dose_lin)
                 plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
                 plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
@@ -2988,20 +2956,21 @@ if option == 'Линейность дозирования':
                 list_graphics_word.append(fig)
 
                 graphic='Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞'
-                list_heading_graphics_word.append(graphic) 
+                list_heading_graphics_word.append(graphic)
+
                 # параметры линейной регрессии
                 fig, ax = plt.subplots()
                 table_data_first=[
-                 ["R²","F","Df Residuals","Df Model","p"],
-                 ["%.3f" % round(model.rsquared,3), int(round(model.fvalue,0)),int(round(model.df_resid,0)),int(round(model.df_model,0)),"%.3f" % round(model.pvalues[1],3)]
+                 ["R","R²","F","df1","df2","p"],
+                 ["%.3f" % round(np.sqrt(model.rsquared),3),"%.3f" % round(model.rsquared,3), "%.1f" % round(model.fvalue,1),int(round(model.df_model,0)),int(round(model.df_resid,0)), format_pvalue(model.pvalues[1])]
                  ]
                 table = ax.table(cellText=table_data_first,cellLoc='left',bbox = [0, 0.7, 0.7, 0.1])
                 plt.annotate('Model Fit Measures', xy =(0, 0.9),xytext =(0, 0.9),fontsize=10)
                 plt.annotate('Overall Model Test', xy =(0, 0.85),xytext =(0, 0.85),fontsize=10)
                 table_data_second=[
                  ['Predictor','Estimate','SE','t','p'],
-                 ["Intercept","%.2f" % round(model.params[0],2),"%.3f" % round(model.HC2_se[0],3),"%.3f" % round(model.tvalues[0],3),"%.3f" % round(model.pvalues[0],3)],
-                 ["B","%.2f" % round(model.params[1],2),"%.3f" % round(model.HC2_se[1],3),"%.3f" % round(model.tvalues[1],3),"%.3f" % round(model.pvalues[1],3)]
+                 ["Intercept","%.2f" % round(model.params[0],2),"%.3f" % round(model.bse[0],3),"%.2f" % round(model.tvalues[0],2), format_pvalue(model.pvalues[0]),],
+                 ["B","%.2f" % round(model.params[1],2),"%.3f" % round(model.bse[1],3),"%.2f" % round(model.tvalues[1],2), format_pvalue(model.pvalues[1])]
                  ]
                 table = ax.table(cellText=table_data_second,cellLoc='left',bbox = [0, 0.35, 0.7, 0.2])
                 plt.annotate('Model Coefficients', xy =(0, 0.6),xytext =(0, 0.6),fontsize=10)
@@ -3184,9 +3153,6 @@ if option == 'Экскреция препарата':
                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
 
                 list_table_word.append(df_concat_round_str_transpose)
-                
-                # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                download_excel_button(df_concat_round_str_transpose, f"Cкачать файл {table_heading}", table_heading,f"{table_heading}.xlsx")
 
                 ########### диаграмма    
                 
