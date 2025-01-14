@@ -2958,7 +2958,7 @@ if option == 'Линейность дозирования':
                 plt.xlabel("Дозировка, " +measure_unit_dose_lin)
                 plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
                 plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
-                plt.annotate(r"$y = %.4f x + %.4f$" % (round(model.params[1], 4), round(model.params[0], 4)), xy=(110, 530), xytext=(110, 530), fontsize=10)
+                
                 
                 list_graphics_word.append(fig)
 
