@@ -19,6 +19,10 @@ from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from docx.shared import RGBColor
 
+def format_pvalue(pval, threshold=0.001):
+    """Форматирует p-value для отображения"""
+    return "< .001" if pval < threshold else f"{pval:.4f}"
+
 # Функция для сохранения DataFrame в формате Excel
 def to_excel_results(df):
     output = BytesIO()
@@ -73,7 +77,7 @@ def save_editfile(df_edit,uploadedfile_name):
     df_edit.to_excel(writer,index=False)
     writer.save()
 
-#превращает df в excel файл 
+#превращает df в excel файл-пример
 def to_excel(df_example_file):
        output = BytesIO()
        writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -194,12 +198,16 @@ def create_table(list_heading_word, list_table_word):
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
+#визуализация и выгрузка в excel
 def visualize_table(list_heading_word,list_table_word):
     zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
     #####визуализация
     for heading, df in zip_heading_table:
         st.subheader(heading)
         st.write(df)
+
+        # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+        download_excel_button(df, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
 
 ## функция создания отчета графиков
 def create_graphic(list_graphics_word,list_heading_graphics_word):
