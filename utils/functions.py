@@ -19,9 +19,14 @@ from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from docx.shared import RGBColor
 
+
+# Функция для вычисления критического значения F
+def calculate_f_critical(alpha, df1, df2):
+    return stats.f.ppf(1 - alpha, df1, df2)
+
 def format_pvalue(pval, threshold=0.001):
     """Форматирует p-value для отображения"""
-    return "< .001" if pval < threshold else f"{pval:.4f}"
+    return "< .001" if pval < threshold else f"{pval:.3f}"#нужно добавить инструмент округления
 
 # Функция для сохранения DataFrame в формате Excel
 def to_excel_results(df):
