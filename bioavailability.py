@@ -75,6 +75,12 @@ if 'df_total_PK_po_sub' not in st.session_state:
 if 'df_total_PK_po_rdf' not in st.session_state:
     st.session_state['df_total_PK_po_rdf'] = None
 
+if 'df1_model_lin' not in st.session_state:
+    st.session_state['df1_model_lin'] = 1
+
+if 'df2_model_lin' not in st.session_state:
+    st.session_state['df2_model_lin'] = 1
+
 ################################
 if option == 'Фармакокинетика':
 
@@ -2908,24 +2914,24 @@ if option == 'Линейность дозирования':
                     'doses': list_name_doses_lin_float
                 })
 
-                # Выводим таблицу, чтобы убедиться в корректности
-                st.write(df_for_lin)
-
                 # Зависимая переменная
                 AUC0_inf = df_for_lin['AUC0→∞']
-
-                # Выводим данные, чтобы убедиться в корректности
-                st.write("AUC0_inf:", AUC0_inf)
 
                 # Добавляем константу для модели
                 doses_with_const = sm.add_constant(df_for_lin['doses'])
 
                 # Строим модель линейной регрессии
                 model = sm.OLS(AUC0_inf, doses_with_const).fit()
+                
+                df1_model = int(round(model.df_model,0))
+                st.session_state['df1_model_lin'] = df1_model
+                df2_model = int(round(model.df_resid,0))
+                st.session_state['df2_model_lin'] = df2_model
+                
                 print_model = model.summary()
 
                 # Выводим результаты модели
-                st.write(print_model)
+                #st.write(print_model)
 
                 graphic='Зависимость значений AUC0→∞ от величин вводимых доз'
                 list_heading_graphics_word.append(graphic)
@@ -2952,6 +2958,7 @@ if option == 'Линейность дозирования':
                 plt.xlabel("Дозировка, " +measure_unit_dose_lin)
                 plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
                 plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
+                plt.annotate(r"$y = %.4f x + %.4f$" % (round(model.params[1], 4), round(model.params[0], 4)), xy=(110, 530), xytext=(110, 530), fontsize=10)
                 
                 list_graphics_word.append(fig)
 
@@ -3056,8 +3063,45 @@ if option == 'Линейность дозирования':
                       st.subheader(list_heading_graphics_word[i])
                 if list_heading_graphics_word[i].__contains__("Коэффициент"):
                    if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
+
+                      col3, col4 = st.columns([2, 1])
+
+                      with col3:
+                           st.pyplot(list_graphics_word[i])
+                           st.subheader(list_heading_graphics_word[i])
+
+                      with col4:
+                           # Заголовок
+                           st.text("Критическое значение F")
+
+                           # Установка начальных значений для сессии
+                           if 'alpha' not in st.session_state:
+                               st.session_state.alpha = 0.05
+
+                           if 'df1' not in st.session_state:
+                               st.session_state.df1 = st.session_state['df1_model_lin']
+
+                           if 'df2' not in st.session_state:
+                               st.session_state.df2 = st.session_state['df2_model_lin']
+
+                           # Ввод уровня значимости (alpha)
+                           alpha = st.number_input("Уровень значимости (alpha)", min_value=0.01, max_value=0.10, value=st.session_state.alpha, step=0.01, format="%.2f")
+
+                           # Ввод степеней свободы для числителя (df1)
+                           df1 = st.number_input("Степени свободы для числителя (df1)", min_value=1, value=st.session_state.df1, step=1)
+
+                           # Ввод степеней свободы для знаменателя (df2)
+                           df2 = st.number_input("Степени свободы для знаменателя (df2)", min_value=1, value=st.session_state.df2, step=1)
+
+                           # Обновление значений в сессии
+                           st.session_state.alpha = alpha
+                           st.session_state.df1 = df1
+                           st.session_state.df2 = df2
+
+                           # Кнопка для расчета
+                           if st.button("Рассчитать"):
+                               f_critical = calculate_f_critical(alpha, df1, df2)
+                               st.write(f"Критическое значение F: {f_critical:.3f}")
 
             with col2:
                      
