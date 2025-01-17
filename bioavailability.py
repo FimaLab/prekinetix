@@ -2938,10 +2938,13 @@ if option == 'Линейность дозирования':
 
                 # Данные для графика
                 list_AUC0_inf_lin_mean = []
+                list_AUC0_inf_lin_std = []
                 for i in list_df_unrounded: 
                     # Получаем значения AUC0→∞ для каждой дозы и добавляем в список
-                    mean_auc0_inf_mean = i['AUC0→∞'].loc['mean']
-                    list_AUC0_inf_lin_mean.append(mean_auc0_inf_mean)
+                    mean_auc0_inf = i['AUC0→∞'].loc['mean']
+                    std_auc0_inf = i['AUC0→∞'].loc['std']
+                    list_AUC0_inf_lin_mean.append(mean_auc0_inf)
+                    list_AUC0_inf_lin_std.append(std_auc0_inf)
                 
                 list_name_doses_lin_float = [float(i) for i in list_name_doses]
 
@@ -2949,16 +2952,109 @@ if option == 'Линейность дозирования':
                 # Создаем DataFrame для анализа
                 df_for_lin_mean = pd.DataFrame({
                     'AUC0→∞_mean': list_AUC0_inf_lin_mean,
+                    'AUC0→∞_std': list_AUC0_inf_lin_std,
                     'doses': list_name_doses_lin_float
+                    
                 })
 
                 ###график
+                graph_id = graphic
+
+                #Инициализация состояния чекбокса параметров осей
+                initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+                #Расчет параметров масштаба
+                min_value_X = 0.0
+                max_value_X = df_for_lin_mean['doses'].max() * 1.1
+                major_ticks_X = (df_for_lin_mean['doses'].max() - df_for_lin_mean['doses'].min()) / 5
+                minor_ticks_X = major_ticks_X / 5
+                
+                min_value_Y = 0.0
+                max_value_Y = (df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()) * 1.1
+                major_ticks_Y = ((df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()) / 5)
+                minor_ticks_Y = major_ticks_Y / 5
+                
+                #Инициализация состояний видежтов параметров осей
+                initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,major_ticks_X,minor_ticks_X,
+                                              min_value_Y,max_value_Y,major_ticks_Y,minor_ticks_Y)
+                
+                if f'x_settings_{graph_id}' not in st.session_state:
+                     st.session_state[f'x_settings_{graph_id}'] = {
+                        "min": 0,
+                        "max": 0,
+                        "major": 0,
+                        "minor": 0
+                    }
+                     
+                if f'y_settings_{graph_id}' not in st.session_state:
+                     st.session_state[f'y_settings_{graph_id}'] = {
+                        "min": 0,
+                        "max": 0,
+                        "major": 0,
+                        "minor": 0
+                    }
+
+                if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+                    
+                    x_settings = st.session_state[f'x_settings_{graph_id}']
+
+                    y_settings = st.session_state[f'y_settings_{graph_id}']
+                else:
+                    # Значения осей по умолчанию
+                    x_settings = {
+                        "min": min_value_X,
+                        "max": max_value_X,
+                        "major": major_ticks_X,
+                        "minor": minor_ticks_X
+                    }
+                    y_settings = {
+                        "min": 0,
+                        "max": max_value_Y,
+                        "major": major_ticks_Y,
+                        "minor": minor_ticks_Y
+                    }
+
                 fig, ax = plt.subplots()
+
                 sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin_mean, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
+
+                # Добавляем усы (ошибки)
+                plt.errorbar(
+                   x=df_for_lin_mean['doses'],
+                   y=df_for_lin_mean['AUC0→∞_mean'],
+                   yerr=df_for_lin_mean['AUC0→∞_std'],
+                   fmt='o',
+                   color='black',
+                   ecolor='gray',
+                   elinewidth=1,
+                   capsize=3
+                )
+
                 plt.xlabel("Дозировка, " +measure_unit_dose_lin)
                 plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
-                plt.annotate('y = ' + "%.4f" % round(model.params[1],4) +'x ' + "%.4f" % round(model.params[0],4), xy =(110, 530),xytext =(110, 530),fontsize=10)
                 
+                if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+                   applying_axis_settings(ax, x_settings, y_settings)
+
+                # Определяем положение аннотации динамически
+                max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
+                x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
+                y_pos = max_y * 1.05  # Смещаем немного выше максимального значения
+
+                ax.set_ylim(ax.get_ylim()[0], y_pos * 1.1)
+
+                plt.annotate(
+                    'y = {:.2f}x {} {:.2f}\n$R^2$ = {:.3f}'.format(
+                        round(model.params[1], 2),  # Коэффициент при x
+                        '-' if model.params[0] < 0 else '+',  # Условие для знака перед свободным членом
+                        abs(round(model.params[0], 2)),  # Модуль свободного члена
+                        round(model.rsquared, 3)  # Коэффициент детерминации
+                    ),
+                    xy=(x_pos, y_pos),  # Позиция аннотации
+                    xytext=(x_pos, y_pos),  # Текст аннотации
+                    fontsize=10,
+                    ha='center'  # Горизонтальное выравнивание
+                )
                 
                 list_graphics_word.append(fig)
 
@@ -3059,8 +3155,35 @@ if option == 'Линейность дозирования':
                       st.subheader(list_heading_graphics_word[i])
                 if list_heading_graphics_word[i].__contains__("Зависимость"):
                    if type_graphics == 'Зависимость значений AUC0→∞ от величин вводимых доз':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
+                      
+                      col3, col4 = st.columns([2, 1])
+
+                      with col4:
+                           
+                           graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
+
+                           # Переключатель настройки осей
+                           custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
+                           st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = custom_axis
+
+                           if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+                              # Настройка осей через виджеты
+                              x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
+                                                         f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
+                              y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
+                                                         f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
+                              
+                              st.session_state[f'x_settings_{graph_id}'] = x_settings
+
+                              st.session_state[f'y_settings_{graph_id}'] = y_settings
+
+                              if st.button("Перерисовать график"):
+                                 st.experimental_rerun()
+                      with col3:
+                              st.pyplot(list_graphics_word[i])
+                              st.subheader(list_heading_graphics_word[i])
+                      
+
                 if list_heading_graphics_word[i].__contains__("Коэффициент"):
                    if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
 
