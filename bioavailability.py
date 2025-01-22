@@ -2930,9 +2930,6 @@ if option == 'Линейность дозирования':
                 
                 print_model = model.summary()
 
-                # Выводим результаты модели
-                #st.write(print_model)
-
                 graphic='Зависимость значений AUC0→∞ от величин вводимых доз'
                 list_heading_graphics_word.append(graphic)
 
@@ -3014,47 +3011,25 @@ if option == 'Линейность дозирования':
                         "minor": minor_ticks_Y
                     }
 
-                fig, ax = plt.subplots()
+                # Инициализация данных состояний
+                if "df_for_lin_mean" not in st.session_state:
+                    st.session_state.df_for_lin_mean = df_for_lin_mean  # Здесь можно задать начальное значение, например, DataFrame
 
-                sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin_mean, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
+                if "measure_unit_dose_lin" not in st.session_state:
+                    st.session_state.measure_unit_dose_lin = measure_unit_dose_lin  # Укажите единицы по умолчанию, например, миллиграммы
 
-                # Добавляем усы (ошибки)
-                plt.errorbar(
-                   x=df_for_lin_mean['doses'],
-                   y=df_for_lin_mean['AUC0→∞_mean'],
-                   yerr=df_for_lin_mean['AUC0→∞_std'],
-                   fmt='o',
-                   color='black',
-                   ecolor='gray',
-                   elinewidth=1,
-                   capsize=3
-                )
+                if "measure_unit_lin_concentration" not in st.session_state:
+                    st.session_state.measure_unit_lin_concentration = measure_unit_lin_concentration  # Единицы концентрации
 
-                plt.xlabel("Дозировка, " +measure_unit_dose_lin)
-                plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
-                
-                if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                   applying_axis_settings(ax, x_settings, y_settings)
+                if "measure_unit_lin_time" not in st.session_state:
+                    st.session_state.measure_unit_lin_time = measure_unit_lin_time  # Единицы времени (например, часы)
 
-                # Определяем положение аннотации динамически
-                max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
-                x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
-                y_pos = max_y * 1.05  # Смещаем немного выше максимального значения
+                if "model" not in st.session_state:
+                    st.session_state.model = model  # Модель линейной регрессии или другая информация
 
-                ax.set_ylim(ax.get_ylim()[0], y_pos * 1.1)
-
-                plt.annotate(
-                    'y = {:.2f}x {} {:.2f}\n$R^2$ = {:.3f}'.format(
-                        round(model.params[1], 2),  # Коэффициент при x
-                        '-' if model.params[0] < 0 else '+',  # Условие для знака перед свободным членом
-                        abs(round(model.params[0], 2)),  # Модуль свободного члена
-                        round(model.rsquared, 3)  # Коэффициент детерминации
-                    ),
-                    xy=(x_pos, y_pos),  # Позиция аннотации
-                    xytext=(x_pos, y_pos),  # Текст аннотации
-                    fontsize=10,
-                    ha='center'  # Горизонтальное выравнивание
-                )
+                #вызов функции графика линейной регрессии
+                fig = graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
+                measure_unit_lin_time,graph_id,x_settings,y_settings,model)
                 
                 list_graphics_word.append(fig)
 
@@ -3178,7 +3153,11 @@ if option == 'Линейность дозирования':
                               st.session_state[f'y_settings_{graph_id}'] = y_settings
 
                               if st.button("Перерисовать график"):
-                                 st.experimental_rerun()
+                                  #вызов функции графика линейной регрессии
+                                  fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
+                                  st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
+                                  list_graphics_word[i] = fig
+                                  st.experimental_rerun()
                       with col3:
                               st.pyplot(list_graphics_word[i])
                               st.subheader(list_heading_graphics_word[i])
@@ -3422,5 +3401,5 @@ if option == 'Экскреция препарата':
                      create_graphic(list_graphics_word,list_heading_graphics_word) 
 
 
-st.sidebar.caption('© 2024. Центр биофармацевтического анализа и метаболомных исследований')
+st.sidebar.caption('© 2025. Центр биофармацевтического анализа и метаболомных исследований (Сеченовский университет)')
 
