@@ -13,12 +13,61 @@ from scipy import stats
 
 
 
+
 from docx.shared import Pt, Cm
 from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from docx.shared import RGBColor
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+def graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
+                measure_unit_lin_time,graph_id,x_settings,y_settings,model):
+
+    fig, ax = plt.subplots()
+
+    sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin_mean, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
+
+    # Добавляем усы (ошибки)
+    plt.errorbar(
+        x=df_for_lin_mean['doses'],
+        y=df_for_lin_mean['AUC0→∞_mean'],
+        yerr=df_for_lin_mean['AUC0→∞_std'],
+        fmt='o',
+        color='black',
+        ecolor='gray',
+        elinewidth=1,
+        capsize=3
+    )
+
+    plt.xlabel("Дозировка, " +measure_unit_dose_lin)
+    plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
+
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+        applying_axis_settings(ax, x_settings, y_settings)
+
+    # Определяем положение аннотации динамически
+    max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
+    x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
+    y_pos = max_y * 1.05  # Смещаем немного выше максимального значения
+
+    ax.set_ylim(ax.get_ylim()[0], y_pos * 1.1)
+
+    plt.annotate(
+        'y = {:.2f}x {} {:.2f}\n$R^2$ = {:.3f}'.format(
+            round(model.params[1], 2),  # Коэффициент при x
+            '-' if model.params[0] < 0 else '+',  # Условие для знака перед свободным членом
+            abs(round(model.params[0], 2)),  # Модуль свободного члена
+            round(model.rsquared, 3)  # Коэффициент детерминации
+        ),
+        xy=(x_pos, y_pos),  # Позиция аннотации
+        xytext=(x_pos, y_pos),  # Текст аннотации
+        fontsize=10,
+        ha='center'  # Горизонтальное выравнивание
+    )
+
+    return fig
 
 
 # Применение настроек осей
@@ -237,7 +286,6 @@ def edit_frame(df,uploadedfile_name):
 ## функция создания отчета таблиц
 
 def create_table(list_heading_word, list_table_word):
-    ### таблицы
     zip_heading_table = zip(list_heading_word, list_table_word)
 
     doc = Document()
@@ -253,51 +301,54 @@ def create_table(list_heading_word, list_table_word):
     style = doc.styles['Normal']
     font = style.font
     font.name = 'Times New Roman'
-    font.size = Pt(8)
-    
+    font.size = Pt(10)
+
     for heading, df in zip_heading_table:
         # Добавление заголовка для каждой таблицы
-        
-
-        # Создание параграфа с заголовком
         paragraph = doc.add_paragraph(heading, style='Heading 1')
-
-        # Настройка цвета заголовка
         run = paragraph.runs[0]
-        run.font.color.rgb = RGBColor(0, 0, 0)  # Черный цвет
+        run.font.color.rgb = RGBColor(0, 0, 0)
 
         # Преобразование колонок в DataFrame и добавление индексов
         name_columns = pd.DataFrame(df.columns.tolist()).T
         name_columns.columns = df.columns.tolist()
         df_columns = pd.concat([name_columns, df]).reset_index(drop=True)
 
-        # Добавление индексов
-        total_name_index = df.index.name
+        total_name_index = df.index.name or "Index"
         list_index_names = df.index.tolist()
         list_index_names.insert(0, total_name_index)
         series_index_names = pd.Series(list_index_names, name=total_name_index)
         df_series_index_names = series_index_names.to_frame()
-
-        # Соединение индексов с таблицей
         df_columns_indexes = pd.concat([df_series_index_names, df_columns], axis=1)
 
-        # Создание таблицы в документе
+        # Создание таблицы
         t = doc.add_table(rows=df_columns_indexes.shape[0], cols=df_columns_indexes.shape[1])
         t.style = 'Table Grid'
 
-        # Задание ширины колонок в зависимости от максимальной длины текста в колонке
-        for j in range(df_columns_indexes.shape[1]):
-            # Вычисляем максимальную длину текста в колонке
-            max_len = max([len(str(df_columns_indexes.iat[i, j])) for i in range(df_columns_indexes.shape[0])])
-            width_cm = min(max_len * 0.2, 5)  # Устанавливаем максимальную ширину в 5 см
-            for i in range(df_columns_indexes.shape[0]):
-                t.cell(i, j).width = Cm(width_cm)
+        # Автоматическая настройка ширины колонок
+        max_col_widths = [max([len(str(df_columns_indexes.iat[i, j])) for i in range(df_columns_indexes.shape[0])]) for j in range(df_columns_indexes.shape[1])]
+        total_width = 26.0  # Доступная ширина в см
+        col_widths = [min(w * 0.2, total_width / len(max_col_widths)) for w in max_col_widths]
+
+        for j, width in enumerate(col_widths):
+            for row in t.rows:
+                row.cells[j].width = Cm(width)
 
         # Заполнение таблицы данными
         for i, row_data in df_columns_indexes.iterrows():
-            row = t.rows[i]
             for j, value in enumerate(row_data):
-                row.cells[j].text = str(value)
+                cell = t.cell(i, j)
+                cell.text = str(value)
+                # Настройка стиля текста
+                for paragraph in cell.paragraphs:
+                    for run in paragraph.runs:
+                        run.font.size = Pt(8)
+                        run.font.name = 'Times New Roman'
+
+        # Центрирование текста
+        for row in t.rows:
+            for cell in row.cells:
+                cell.vertical_alignment = 1  # Центрирование по вертикали
 
     # Сохранение документа в память
     bio = BytesIO()
