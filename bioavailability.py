@@ -3158,7 +3158,28 @@ if option == 'Линейность дозирования':
                                   st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
                                   list_graphics_word[i] = fig
                                   st.experimental_rerun()
+                           else:
+                              # Значения осей по умолчанию
+                              x_settings = {
+                                    "min": st.session_state[f"X_graphic_min_value_{graph_id}_default"],
+                                    "max": st.session_state[f"X_graphic_max_value_{graph_id}_default"],
+                                    "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
+                                    "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
+                              }
+                              y_settings = {
+                                    "min": 0,
+                                    "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
+                                    "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
+                                    "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
+                              }
+
+                              #вызов функции графика линейной регрессии
+                              fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
+                              st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
+                              list_graphics_word[i] = fig
+
                       with col3:
+                              
                               st.pyplot(list_graphics_word[i])
                               st.subheader(list_heading_graphics_word[i])
                       
