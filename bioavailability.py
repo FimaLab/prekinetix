@@ -445,9 +445,9 @@ if option == 'Фармакокинетика':
                   })
 
                   if selected == "Cформированный отчeт":
-
-                     ###вызов функции создания Word-отчета таблиц
-                         create_table(list_heading_word,list_table_word)
+                     if st.button("Сформировать отчет"):
+                        ###вызов функции создания Word-отчета таблиц
+                        create_table(list_heading_word,list_table_word)
           else:
              st.error("Введите и загрузите все необходимые данные!")
 
@@ -493,7 +493,8 @@ if option == 'Фармакокинетика':
                    
                   if selected == "Cформированный отчeт":
                      ###вызов функции создания Word-отчета графиков
-                     create_graphic(list_graphics_word,list_heading_graphics_word) 
+                     if st.button("Сформировать отчет"):
+                        create_graphic(list_graphics_word,list_heading_graphics_word) 
           else:
               st.error("Введите и загрузите все необходимые данные!")
 ######################################################################################################################################
@@ -1601,7 +1602,8 @@ if option == 'Биодоступность':
                   if selected == "Cформированный отчeт":
 
                      ###вызов функции создания Word-отчета таблиц
-                     create_table(list_heading_word,list_table_word)
+                     if st.button("Сформировать отчет"):
+                        create_table(list_heading_word,list_table_word)
           else:
              st.error("Введите и загрузите все необходимые данные!")
 
@@ -1653,7 +1655,8 @@ if option == 'Биодоступность':
                    
                   if selected == "Cформированный отчeт":
                      ###вызов функции создания Word-отчета графиков
-                     create_graphic(list_graphics_word,list_heading_graphics_word)
+                     if st.button("Сформировать отчет"):
+                        create_graphic(list_graphics_word,list_heading_graphics_word)
 
           else:
              st.error("Введите и загрузите все необходимые данные!")          
@@ -2281,7 +2284,8 @@ if option == 'Распределение по органам':
                  if selected == "Cформированный отчeт":
 
                     ###вызов функции создания Word-отчета таблиц
-                    create_table(list_heading_word,list_table_word)
+                    if st.button("Сформировать отчет"):
+                       create_table(list_heading_word,list_table_word)
          else:
              st.error("Введите и загрузите все необходимые данные!")
 
@@ -2336,7 +2340,8 @@ if option == 'Распределение по органам':
                   
                  if selected == "Cформированный отчeт":
                     ###вызов функции создания Word-отчета графиков
-                    create_graphic(list_graphics_word,list_heading_graphics_word)
+                    if st.button("Сформировать отчет"):
+                       create_graphic(list_graphics_word,list_heading_graphics_word)
          else:
              st.error("Введите и загрузите все необходимые данные!")
 ################################################################################################
@@ -3093,7 +3098,8 @@ if option == 'Линейность дозирования':
                  if selected == "Cформированный отчeт":
 
                     ###вызов функции создания Word-отчета таблиц
-                    create_table(list_heading_word,list_table_word)
+                    if st.button("Сформировать отчет"):
+                       create_table(list_heading_word,list_table_word)
          else:
              st.error("Введите и загрузите все необходимые данные!")
 
@@ -3240,7 +3246,8 @@ if option == 'Линейность дозирования':
                   
                  if selected == "Cформированный отчeт":
                     ###вызов функции создания Word-отчета графиков
-                    create_graphic(list_graphics_word,list_heading_graphics_word)
+                    if st.button("Сформировать отчет"):
+                       create_graphic(list_graphics_word,list_heading_graphics_word)
          else:
              st.error("Введите и загрузите все необходимые данные!")
 
@@ -3388,7 +3395,8 @@ if option == 'Экскреция препарата':
                   if selected == "Cформированный отчeт":
 
                      ###вызов функции создания Word-отчета таблиц
-                     create_table(list_heading_word,list_table_word)
+                     if st.button("Сформировать отчет"):
+                        create_table(list_heading_word,list_table_word)
 
        if panel == "Графики":
              
@@ -3419,7 +3427,8 @@ if option == 'Экскреция препарата':
                    
                   if selected == "Cформированный отчeт":
                      ###вызов функции создания Word-отчета графиков
-                     create_graphic(list_graphics_word,list_heading_graphics_word) 
+                     if st.button("Сформировать отчет"):
+                        create_graphic(list_graphics_word,list_heading_graphics_word) 
 
 
 st.sidebar.caption('© 2025. Центр биофармацевтического анализа и метаболомных исследований (Сеченовский университет)')
