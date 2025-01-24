@@ -121,6 +121,41 @@ def initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,m
       if f"Y_graphic_minor_ticks_{graph_id}" not in st.session_state:
           st.session_state[f"Y_graphic_minor_ticks_{graph_id}"] = minor_ticks_Y
 
+
+      ###
+      #дефолтные значения осей без пользовательского указания
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"X_graphic_min_value_{graph_id}_default" not in st.session_state:
+          st.session_state[f"X_graphic_min_value_{graph_id}_default"] = min_value_X
+      
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"X_graphic_max_value_{graph_id}_default" not in st.session_state:
+          st.session_state[f"X_graphic_max_value_{graph_id}_default"] = max_value_X
+
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"X_graphic_major_ticks_{graph_id}_default" not in st.session_state:
+          st.session_state[f"X_graphic_major_ticks_{graph_id}_default"] = major_ticks_X
+
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"X_graphic_minor_ticks_{graph_id}_default" not in st.session_state:
+          st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"] = minor_ticks_X
+
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"Y_graphic_min_value_{graph_id}_default" not in st.session_state:
+          st.session_state[f"Y_graphic_min_value_{graph_id}_default"] = min_value_Y
+      
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"Y_graphic_max_value_{graph_id}_default" not in st.session_state:
+          st.session_state[f"Y_graphic_max_value_{graph_id}_default"] = max_value_Y
+
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"Y_graphic_major_ticks_{graph_id}_default" not in st.session_state:
+          st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"] = major_ticks_Y
+
+      #Инизиализация состояния виджетов масштабирования графиков
+      if f"Y_graphic_minor_ticks_{graph_id}_default" not in st.session_state:
+          st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"] = minor_ticks_Y
+
 # Функция для настройки осей
 def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks):
 
