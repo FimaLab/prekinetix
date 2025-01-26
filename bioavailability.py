@@ -410,10 +410,10 @@ if option == 'Фармакокинетика':
            else:
                st.write("")
            ###сохранение состояния 
-           st.session_state["list_heading_word"] = list_heading_word
-           st.session_state["list_table_word"] = list_table_word
-           st.session_state["list_graphics_word"] = list_graphics_word
-           st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+           st.session_state[f"list_heading_word_{option}"] = list_heading_word
+           st.session_state[f"list_table_word_{option}"] = list_table_word
+           st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+           st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
           
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -425,8 +425,8 @@ if option == 'Фармакокинетика':
        if panel == "Таблицы":
           if st.session_state["df_total_PK_pk"] is not None:
              
-             list_heading_word = st.session_state["list_heading_word"]
-             list_table_word = st.session_state["list_table_word"]
+             list_heading_word = st.session_state[f"list_heading_word_{option}"]
+             list_table_word = st.session_state[f"list_table_word_{option}"]
 
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
@@ -453,8 +453,8 @@ if option == 'Фармакокинетика':
 
        if panel == "Графики":
           if st.session_state["df_total_PK_pk"] is not None:
-             list_graphics_word = st.session_state["list_graphics_word"]
-             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+             list_graphics_word = st.session_state[f"list_graphics_word_{option}"]
+             list_heading_graphics_word = st.session_state[f"list_heading_graphics_word_{option}"]
              
              #######визуализация
 
@@ -464,20 +464,24 @@ if option == 'Фармакокинетика':
 
              count_graphics_for_visual = len(list_heading_graphics_word)
              list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+
+             #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
+             create_session_type_graphics_checked_graphics(option,type_graphics)
              
-             for i in list_range_count_graphics_for_visual:
-                 if list_heading_graphics_word[i].__contains__("индивидуального"): 
-                    if type_graphics == 'Индивидуальные фармакокинетические профили':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
-                 if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
-                    if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
-                 if list_heading_graphics_word[i].__contains__("усредненного"):
-                    if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
+             if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
+                for i in list_range_count_graphics_for_visual:
+                    if list_heading_graphics_word[i].__contains__("индивидуального"): 
+                       if type_graphics == 'Индивидуальные фармакокинетические профили':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("усредненного"):
+                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
 
              with col2:
                   
@@ -1565,10 +1569,10 @@ if option == 'Биодоступность':
            ##############################################################################################################
 
            ###сохранение состояния 
-           st.session_state["list_heading_word"] = list_heading_word
-           st.session_state["list_table_word"] = list_table_word
-           st.session_state["list_graphics_word"] = list_graphics_word
-           st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+           st.session_state[f"list_heading_word_{option}"] = list_heading_word
+           st.session_state[f"list_table_word_{option}"] = list_table_word
+           st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+           st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
     
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -1581,8 +1585,8 @@ if option == 'Биодоступность':
           
           if st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
 
-             list_heading_word = st.session_state["list_heading_word"]
-             list_table_word = st.session_state["list_table_word"]
+             list_heading_word = st.session_state[f"list_heading_word_{option}"]
+             list_table_word = st.session_state[f"list_table_word_{option}"]
              
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
@@ -1611,8 +1615,8 @@ if option == 'Биодоступность':
              
           if st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
              
-             list_graphics_word = st.session_state["list_graphics_word"]
-             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+             list_graphics_word = st.session_state[f"list_graphics_word_{option}"]
+             list_heading_graphics_word = st.session_state[f"list_heading_graphics_word_{option}"]
              
              #######визуализация
 
@@ -1622,24 +1626,28 @@ if option == 'Биодоступность':
 
              count_graphics_for_visual = len(list_heading_graphics_word)
              list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+
+             #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
+             create_session_type_graphics_checked_graphics(option,type_graphics)
              
-             for i in list_range_count_graphics_for_visual:
-                 if list_heading_graphics_word[i].__contains__("индивидуального"): 
-                    if type_graphics == 'Индивидуальные фармакокинетические профили':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
-                 if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
-                    if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
-                 if list_heading_graphics_word[i].__contains__("усредненного"):
-                    if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
-                 if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
-                    if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
-                       st.pyplot(list_graphics_word[i])
-                       st.subheader(list_heading_graphics_word[i])
+             if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
+                for i in list_range_count_graphics_for_visual:
+                    if list_heading_graphics_word[i].__contains__("индивидуального"): 
+                       if type_graphics == 'Индивидуальные фармакокинетические профили':
+                             st.pyplot(list_graphics_word[i])
+                             st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("усредненного"):
+                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
+                    if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
+                       if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
+                          st.pyplot(list_graphics_word[i])
+                          st.subheader(list_heading_graphics_word[i])
 
              with col2:
                   
@@ -2249,10 +2257,10 @@ if option == 'Распределение по органам':
                 
 
          ###сохранение состояния 
-         st.session_state["list_heading_word"] = list_heading_word
-         st.session_state["list_table_word"] = list_table_word
-         st.session_state["list_graphics_word"] = list_graphics_word
-         st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+         st.session_state[f"list_heading_word_{option}"] = list_heading_word
+         st.session_state[f"list_table_word_{option}"] = list_table_word
+         st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+         st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
    
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -2263,8 +2271,8 @@ if option == 'Распределение по органам':
       #####Создание word отчета
       if panel == "Таблицы": 
          if st.session_state["df_total_PK_org"] is not None:
-            list_heading_word = st.session_state["list_heading_word"]
-            list_table_word = st.session_state["list_table_word"]
+            list_heading_word = st.session_state[f"list_heading_word_{option}"]
+            list_table_word = st.session_state[f"list_table_word_{option}"]
 
             ###вызов функции визуализации таблиц
             visualize_table(list_heading_word,list_table_word)
@@ -2292,8 +2300,8 @@ if option == 'Распределение по органам':
       if panel == "Графики":
          if st.session_state["df_total_PK_org"] is not None:
 
-            list_graphics_word = st.session_state["list_graphics_word"]
-            list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+            list_graphics_word = st.session_state[f"list_graphics_word_{option}"]
+            list_heading_graphics_word = st.session_state[f"list_heading_graphics_word_{option}"]
             
             #######визуализация
 
@@ -2303,28 +2311,32 @@ if option == 'Распределение по органам':
 
             count_graphics_for_visual = len(list_heading_graphics_word)
             list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
+
+            #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
+            create_session_type_graphics_checked_graphics(option,type_graphics)
             
-            for i in list_range_count_graphics_for_visual:
-                if list_heading_graphics_word[i].__contains__("индивидуального"): 
-                   if type_graphics == 'Индивидуальные фармакокинетические профили':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
-                   if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("усредненного"):
-                   if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
-                   if type_graphics == 'Сравнение фармакокинетических профилей в различных органах':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Тканевая"):
-                   if type_graphics == 'Тканевая доступность в органах':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
+            if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
+               for i in list_range_count_graphics_for_visual:
+                   if list_heading_graphics_word[i].__contains__("индивидуального"): 
+                      if type_graphics == 'Индивидуальные фармакокинетические профили':
+                         st.pyplot(list_graphics_word[i])
+                         st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+                      if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                         st.pyplot(list_graphics_word[i])
+                         st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("усредненного"):
+                      if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                         st.pyplot(list_graphics_word[i])
+                         st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
+                      if type_graphics == 'Сравнение фармакокинетических профилей в различных органах':
+                         st.pyplot(list_graphics_word[i])
+                         st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("Тканевая"):
+                      if type_graphics == 'Тканевая доступность в органах':
+                         st.pyplot(list_graphics_word[i])
+                         st.subheader(list_heading_graphics_word[i])
             
             with col2:
                      
@@ -3010,7 +3022,7 @@ if option == 'Линейность дозирования':
                         "minor": minor_ticks_X
                     }
                     y_settings = {
-                        "min": 0,
+                        "min": min_value_Y,
                         "max": max_value_Y,
                         "major": major_ticks_Y,
                         "minor": minor_ticks_Y
@@ -3062,10 +3074,10 @@ if option == 'Линейность дозирования':
                 list_graphics_word.append(fig)
 
          ###сохранение состояния 
-         st.session_state["list_heading_word"] = list_heading_word
-         st.session_state["list_table_word"] = list_table_word
-         st.session_state["list_graphics_word"] = list_graphics_word
-         st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+         st.session_state[f"list_heading_word_{option}"] = list_heading_word
+         st.session_state[f"list_table_word_{option}"] = list_table_word
+         st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+         st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
 
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -3077,8 +3089,8 @@ if option == 'Линейность дозирования':
       if panel == "Таблицы":
          if st.session_state["df_total_PK_lin"] is not None: 
       
-            list_heading_word = st.session_state["list_heading_word"]
-            list_table_word = st.session_state["list_table_word"]
+            list_heading_word = st.session_state[f"list_heading_word_{option}"]
+            list_table_word = st.session_state[f"list_table_word_{option}"]
             
             ###вызов функции визуализации таблиц
             visualize_table(list_heading_word,list_table_word)
@@ -3105,132 +3117,136 @@ if option == 'Линейность дозирования':
 
       if panel == "Графики":
          if st.session_state["df_total_PK_lin"] is not None: 
-            list_graphics_word = st.session_state["list_graphics_word"]
-            list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+            list_graphics_word = st.session_state[f"list_graphics_word_{option}"]
+            list_heading_graphics_word = st.session_state[f"list_heading_graphics_word_{option}"]
                 
             #######визуализация
 
             #классификация графиков по кнопкам
             type_graphics = st.selectbox('Выберите вид графиков',
-      ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей в различных дозировках", "Зависимость значений AUC0→∞ от величин вводимых доз", "Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞"),disabled = False, key = "Вид графика - ИО" )
+      ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей в различных дозировках", "Зависимость значений AUC0→∞ от величин вводимых доз", "Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞"),disabled = False, key = "Вид графика - ИЛ" )
 
             count_graphics_for_visual = len(list_heading_graphics_word)
             list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
-            
-            for i in list_range_count_graphics_for_visual:
-                if list_heading_graphics_word[i].__contains__("индивидуального"): 
-                   if type_graphics == 'Индивидуальные фармакокинетические профили':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
-                   if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("усредненного"):
-                   if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
-                   if type_graphics == 'Сравнение фармакокинетических профилей в различных дозировках':
-                      st.pyplot(list_graphics_word[i])
-                      st.subheader(list_heading_graphics_word[i])
-                if list_heading_graphics_word[i].__contains__("Зависимость"):
-                   if type_graphics == 'Зависимость значений AUC0→∞ от величин вводимых доз':
-                      
-                      col3, col4 = st.columns([2, 1])
 
-                      with col4:
-                           
-                           graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
+            #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
+            create_session_type_graphics_checked_graphics(option,type_graphics)
 
-                           # Переключатель настройки осей
-                           custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
-                           st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = custom_axis
+            if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
+               for i in list_range_count_graphics_for_visual:
+                   if list_heading_graphics_word[i].__contains__("индивидуального"): 
+                      if type_graphics == 'Индивидуальные фармакокинетические профили':
+                         
+                            st.pyplot(list_graphics_word[i])
+                            st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("Сравнение индивидуальных"):   
+                      if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                            st.pyplot(list_graphics_word[i])
+                            st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("усредненного"):
+                      if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                            st.pyplot(list_graphics_word[i])
+                            st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("Сравнение фармакокинетических"):
+                      if type_graphics == 'Сравнение фармакокинетических профилей в различных дозировках':
+                            st.pyplot(list_graphics_word[i])
+                            st.subheader(list_heading_graphics_word[i])
+                   if list_heading_graphics_word[i].__contains__("Зависимость"):
+                      if type_graphics == 'Зависимость значений AUC0→∞ от величин вводимых доз':
+                         
+                         col3, col4 = st.columns([2, 1])
 
-                           if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                              # Настройка осей через виджеты
-                              x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
-                                                         f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
-                              y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
-                                                         f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
+                         with col4:
                               
-                              st.session_state[f'x_settings_{graph_id}'] = x_settings
+                              graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
 
-                              st.session_state[f'y_settings_{graph_id}'] = y_settings
+                              # Переключатель настройки осей
+                              custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
+                              st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = custom_axis
 
-                              if st.button("Перерисовать график"):
-                                  #вызов функции графика линейной регрессии
-                                  fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
-                                  st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
-                                  list_graphics_word[i] = fig
-                                  st.experimental_rerun()
-                           else:
-                              # Значения осей по умолчанию
-                              x_settings = {
-                                    "min": st.session_state[f"X_graphic_min_value_{graph_id}_default"],
-                                    "max": st.session_state[f"X_graphic_max_value_{graph_id}_default"],
-                                    "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
-                                    "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
-                              }
-                              y_settings = {
-                                    "min": 0,
-                                    "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
-                                    "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
-                                    "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
-                              }
+                              if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+                                 # Настройка осей через виджеты
+                                 x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
+                                                            f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
+                                 y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
+                                                            f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
+                                 
+                                 st.session_state[f'x_settings_{graph_id}'] = x_settings
 
-                              #вызов функции графика линейной регрессии
-                              fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
-                              st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
-                              list_graphics_word[i] = fig
+                                 st.session_state[f'y_settings_{graph_id}'] = y_settings
 
-                      with col3:
-                              
+                                 if st.button("Перерисовать график"):
+                                     #вызов функции графика линейной регрессии
+                                     fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
+                                     st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
+                                     list_graphics_word[i] = fig
+                                     st.experimental_rerun()
+                              else:
+                                 # Значения осей по умолчанию
+                                 x_settings = {
+                                       "min": st.session_state[f"X_graphic_min_value_{graph_id}_default"],
+                                       "max": st.session_state[f"X_graphic_max_value_{graph_id}_default"],
+                                       "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
+                                       "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
+                                 }
+                                 y_settings = {
+                                       "min": 0,
+                                       "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
+                                       "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
+                                       "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
+                                 }
+
+                                 #вызов функции графика линейной регрессии
+                                 fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
+                                 st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
+                                 list_graphics_word[i] = fig
+
+                         with col3:
                               st.pyplot(list_graphics_word[i])
                               st.subheader(list_heading_graphics_word[i])
-                      
+                         
 
-                if list_heading_graphics_word[i].__contains__("Коэффициент"):
-                   if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
+                   if list_heading_graphics_word[i].__contains__("Коэффициент"):
+                      if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
 
-                      col3, col4 = st.columns([2, 1])
+                         col3, col4 = st.columns([2, 1])
 
-                      with col3:
-                           st.pyplot(list_graphics_word[i])
-                           st.subheader(list_heading_graphics_word[i])
+                         with col3:
+                              st.pyplot(list_graphics_word[i])
+                              st.subheader(list_heading_graphics_word[i])
 
-                      with col4:
-                           # Заголовок
-                           st.text("Критическое значение F")
+                         with col4:
+                              # Заголовок
+                              st.text("Критическое значение F")
 
-                           # Установка начальных значений для сессии
-                           if 'alpha' not in st.session_state:
-                               st.session_state.alpha = 0.05
+                              # Установка начальных значений для сессии
+                              if 'alpha' not in st.session_state:
+                                  st.session_state.alpha = 0.05
 
-                           if 'df1' not in st.session_state:
-                               st.session_state.df1 = st.session_state['df1_model_lin']
+                              if 'df1' not in st.session_state:
+                                  st.session_state.df1 = st.session_state['df1_model_lin']
 
-                           if 'df2' not in st.session_state:
-                               st.session_state.df2 = st.session_state['df2_model_lin']
+                              if 'df2' not in st.session_state:
+                                  st.session_state.df2 = st.session_state['df2_model_lin']
 
-                           # Ввод уровня значимости (alpha)
-                           alpha = st.number_input("Уровень значимости (alpha)", min_value=0.01, max_value=0.10, value=st.session_state.alpha, step=0.01, format="%.2f")
+                              # Ввод уровня значимости (alpha)
+                              alpha = st.number_input("Уровень значимости (alpha)", min_value=0.01, max_value=0.10, value=st.session_state.alpha, step=0.01, format="%.2f")
 
-                           # Ввод степеней свободы для числителя (df1)
-                           df1 = st.number_input("Степени свободы для числителя (df1)", min_value=1, value=st.session_state.df1, step=1)
+                              # Ввод степеней свободы для числителя (df1)
+                              df1 = st.number_input("Степени свободы для числителя (df1)", min_value=1, value=st.session_state.df1, step=1)
 
-                           # Ввод степеней свободы для знаменателя (df2)
-                           df2 = st.number_input("Степени свободы для знаменателя (df2)", min_value=1, value=st.session_state.df2, step=1)
+                              # Ввод степеней свободы для знаменателя (df2)
+                              df2 = st.number_input("Степени свободы для знаменателя (df2)", min_value=1, value=st.session_state.df2, step=1)
 
-                           # Обновление значений в сессии
-                           st.session_state.alpha = alpha
-                           st.session_state.df1 = df1
-                           st.session_state.df2 = df2
+                              # Обновление значений в сессии
+                              st.session_state.alpha = alpha
+                              st.session_state.df1 = df1
+                              st.session_state.df2 = df2
 
-                           # Кнопка для расчета
-                           if st.button("Рассчитать"):
-                               f_critical = calculate_f_critical(alpha, df1, df2)
-                               st.write(f"Критическое значение F: {f_critical:.3f}")
+                              # Кнопка для расчета
+                              if st.button("Рассчитать"):
+                                  f_critical = calculate_f_critical(alpha, df1, df2)
+                                  st.write(f"Критическое значение F: {f_critical:.3f}")
 
             with col2:
                      
@@ -3360,10 +3376,10 @@ if option == 'Экскреция препарата':
             ##############################################################################################################
 
             ###сохранение состояния 
-            st.session_state["list_heading_word"] = list_heading_word
-            st.session_state["list_table_word"] = list_table_word
-            st.session_state["list_graphics_word"] = list_graphics_word
-            st.session_state["list_heading_graphics_word"] = list_heading_graphics_word
+            st.session_state[f"list_heading_word_{option}"] = list_heading_word
+            st.session_state[f"list_table_word_{option}"] = list_table_word
+            st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+            st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
          
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -3374,8 +3390,8 @@ if option == 'Экскреция препарата':
        #####Создание word отчета
        if panel == "Таблицы":
 
-             list_heading_word = st.session_state["list_heading_word"]
-             list_table_word = st.session_state["list_table_word"]
+             list_heading_word = st.session_state[f"list_heading_word_{option}"]
+             list_table_word = st.session_state[f"list_table_word_{option}"]
 
              ###вызов функции визуализации таблиц
              visualize_table(list_heading_word,list_table_word)
@@ -3400,8 +3416,8 @@ if option == 'Экскреция препарата':
 
        if panel == "Графики":
              
-             list_graphics_word = st.session_state["list_graphics_word"]
-             list_heading_graphics_word = st.session_state["list_heading_graphics_word"]
+             list_graphics_word = st.session_state[f"list_graphics_word_{option}"]
+             list_heading_graphics_word = st.session_state[f"list_heading_graphics_word_{option}"]
 
              #######визуализация
 
