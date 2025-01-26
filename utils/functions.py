@@ -19,6 +19,13 @@ from docx.shared import RGBColor
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+def save_session_lists_tables_graphics(option,list_heading_word,list_table_word,list_graphics_word,list_heading_graphics_word):
+    ###сохранение состояния 
+    st.session_state[f"list_heading_word_{option}"] = list_heading_word
+    st.session_state[f"list_table_word_{option}"] = list_table_word
+    st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+    st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+
 def create_session_type_graphics_checked_graphics(option,type_graphics):
     # Проверяем, есть ли в session_state ключ для данного чекбокса
     if f"{type_graphics}_{option}_checked_graphics" not in st.session_state:
