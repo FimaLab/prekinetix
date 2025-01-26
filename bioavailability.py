@@ -410,10 +410,8 @@ if option == 'Фармакокинетика':
            else:
                st.write("")
            ###сохранение состояния 
-           st.session_state[f"list_heading_word_{option}"] = list_heading_word
-           st.session_state[f"list_table_word_{option}"] = list_table_word
-           st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
-           st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+           save_session_lists_tables_graphics(option,list_heading_word,list_table_word,
+                                              list_graphics_word,list_heading_graphics_word)
           
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -1569,10 +1567,8 @@ if option == 'Биодоступность':
            ##############################################################################################################
 
            ###сохранение состояния 
-           st.session_state[f"list_heading_word_{option}"] = list_heading_word
-           st.session_state[f"list_table_word_{option}"] = list_table_word
-           st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
-           st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+           save_session_lists_tables_graphics(option,list_heading_word,list_table_word,
+                                              list_graphics_word,list_heading_graphics_word)
     
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -2257,10 +2253,8 @@ if option == 'Распределение по органам':
                 
 
          ###сохранение состояния 
-         st.session_state[f"list_heading_word_{option}"] = list_heading_word
-         st.session_state[f"list_table_word_{option}"] = list_table_word
-         st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
-         st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+         save_session_lists_tables_graphics(option,list_heading_word,list_table_word,
+                                              list_graphics_word,list_heading_graphics_word)
    
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -3074,10 +3068,8 @@ if option == 'Линейность дозирования':
                 list_graphics_word.append(fig)
 
          ###сохранение состояния 
-         st.session_state[f"list_heading_word_{option}"] = list_heading_word
-         st.session_state[f"list_table_word_{option}"] = list_table_word
-         st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
-         st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+         save_session_lists_tables_graphics(option,list_heading_word,list_table_word,
+                                              list_graphics_word,list_heading_graphics_word)
 
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -3376,10 +3368,8 @@ if option == 'Экскреция препарата':
             ##############################################################################################################
 
             ###сохранение состояния 
-            st.session_state[f"list_heading_word_{option}"] = list_heading_word
-            st.session_state[f"list_table_word_{option}"] = list_table_word
-            st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
-            st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+            save_session_lists_tables_graphics(option,list_heading_word,list_table_word,
+                                               list_graphics_word,list_heading_graphics_word)
          
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
