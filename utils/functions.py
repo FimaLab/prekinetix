@@ -11,9 +11,6 @@ import math
 from sklearn.linear_model import LinearRegression
 from scipy import stats
 
-
-
-
 from docx.shared import Pt, Cm
 from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import nsdecls
@@ -21,6 +18,15 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+def create_session_type_graphics_checked_graphics(option,type_graphics):
+    # Проверяем, есть ли в session_state ключ для данного чекбокса
+    if f"{type_graphics}_{option}_checked_graphics" not in st.session_state:
+       st.session_state[f"{type_graphics}_{option}_checked_graphics"] = False
+    
+    checked_graphics = st.checkbox("Отрисовать графики", value = st.session_state[f"{type_graphics}_{option}_checked_graphics"], key=f"{type_graphics}")
+    st.session_state[f"{type_graphics}_{option}_checked_graphics"] = checked_graphics
+
 
 def graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
                 measure_unit_lin_time,graph_id,x_settings,y_settings,model):
@@ -70,6 +76,7 @@ def graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentra
     return fig
 
 
+
 # Применение настроек осей
 def applying_axis_settings(ax, x_settings, y_settings):
   if x_settings["min"] < x_settings["max"]:
@@ -82,9 +89,11 @@ def applying_axis_settings(ax, x_settings, y_settings):
       ax.yaxis.set_major_locator(plt.MultipleLocator(y_settings["major"]))
       ax.yaxis.set_minor_locator(plt.MultipleLocator(y_settings["minor"]))
 
+
 def initializing_checkbox_status_graph_scaling_widgets(graph_id):
    if f'checkbox_status_graph_scaling_widgets_{graph_id}' not in st.session_state:
       st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = False
+
 
 # Функция для инициализации состояния параметров осей
 def initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,major_ticks_X,minor_ticks_X,
@@ -156,6 +165,7 @@ def initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,m
       if f"Y_graphic_minor_ticks_{graph_id}_default" not in st.session_state:
           st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"] = minor_ticks_Y
 
+
 # Функция для настройки осей
 def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks):
 
@@ -213,13 +223,16 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
              "minor": minor_ticks,
          }
 
+
 # Функция для вычисления критического значения F
 def calculate_f_critical(alpha, df1, df2):
     return stats.f.ppf(1 - alpha, df1, df2)
 
+
 def format_pvalue(pval, threshold=0.001):
     """Форматирует p-value для отображения"""
     return "< .001" if pval < threshold else f"{pval:.3f}"#нужно добавить инструмент округления
+
 
 # Функция для сохранения DataFrame в формате Excel
 def to_excel_results(df):
@@ -228,6 +241,7 @@ def to_excel_results(df):
         df.to_excel(writer, index=True)
     output.seek(0)  # Возвращаем курсор в начало файла
     return output
+
 
 # Обертка для скачивания файла в формате Excel с поддержкой ключа
 def download_excel_button(df, label, key, file_name):
@@ -239,6 +253,7 @@ def download_excel_button(df, label, key, file_name):
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         key=key  # Добавлен параметр key
     )
+
 
 #округление до определенного значения значищих цифр
 def round_to_significant_figures(num, sig_figs):
@@ -275,6 +290,7 @@ def save_editfile(df_edit,uploadedfile_name):
     df_edit.to_excel(writer,index=False)
     writer.save()
 
+
 #превращает df в excel файл-пример
 def to_excel(df_example_file):
        output = BytesIO()
@@ -288,7 +304,8 @@ def to_excel(df_example_file):
        processed_data = output.getvalue()
        return processed_data
  
- ###возможность редактирования фрейма исходных данных
+
+###возможность редактирования фрейма исходных данных
 def edit_frame(df,uploadedfile_name):
        new_df = df
        list_columns_str = []
@@ -316,6 +333,7 @@ def edit_frame(df,uploadedfile_name):
        
        df = df_change
        return df
+
 
 ###создание Word-отчета
 ## функция создания отчета таблиц
@@ -410,6 +428,7 @@ def visualize_table(list_heading_word,list_table_word):
         download_excel_button(df, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
 
 ## функция создания отчета графиков
+
 def create_graphic(list_graphics_word,list_heading_graphics_word):
     ### документ Word
     zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
@@ -1622,29 +1641,6 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
        return dict_PK_parametrs
        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measure_unit_concentration,measure_unit_time,measure_unit_dose):
     
     ############ Параметры ФК
