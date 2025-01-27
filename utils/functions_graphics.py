@@ -2,6 +2,9 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+import numpy as np
+
+#####Общие функции
 
 def create_session_type_graphics_checked_graphics(option,type_graphics):
     # Проверяем, есть ли в session_state ключ для данного чекбокса
@@ -10,55 +13,6 @@ def create_session_type_graphics_checked_graphics(option,type_graphics):
     
     checked_graphics = st.checkbox("Отрисовать графики", value = st.session_state[f"{type_graphics}_{option}_checked_graphics"], key=f"{type_graphics}")
     st.session_state[f"{type_graphics}_{option}_checked_graphics"] = checked_graphics
-
-def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
-                measure_unit_lin_time,graph_id,x_settings,y_settings,model):
-
-    fig, ax = plt.subplots()
-
-    sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin_mean, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
-
-    # Добавляем усы (ошибки)
-    plt.errorbar(
-        x=df_for_lin_mean['doses'],
-        y=df_for_lin_mean['AUC0→∞_mean'],
-        yerr=df_for_lin_mean['AUC0→∞_std'],
-        fmt='o',
-        color='black',
-        ecolor='gray',
-        elinewidth=1,
-        capsize=3
-    )
-
-    plt.xlabel("Дозировка, " +measure_unit_dose_lin)
-    plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
-
-    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-        applying_axis_settings(ax, x_settings, y_settings)
-
-    # Определяем положение аннотации динамически
-    max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
-    x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
-    y_pos = max_y * 1.05  # Смещаем немного выше максимального значения
-
-    ax.set_ylim(ax.get_ylim()[0], y_pos * 1.1)
-
-    plt.annotate(
-        'y = {:.2f}x {} {:.2f}\n$R^2$ = {:.3f}'.format(
-            round(model.params[1], 2),  # Коэффициент при x
-            '-' if model.params[0] < 0 else '+',  # Условие для знака перед свободным членом
-            abs(round(model.params[0], 2)),  # Модуль свободного члена
-            round(model.rsquared, 3)  # Коэффициент детерминации
-        ),
-        xy=(x_pos, y_pos),  # Позиция аннотации
-        xytext=(x_pos, y_pos),  # Текст аннотации
-        fontsize=10,
-        ha='center'  # Горизонтальное выравнивание
-    )
-
-    return fig
-
-
 
 # Применение настроек осей
 def applying_axis_settings(ax, x_settings, y_settings):
@@ -72,11 +26,9 @@ def applying_axis_settings(ax, x_settings, y_settings):
       ax.yaxis.set_major_locator(plt.MultipleLocator(y_settings["major"]))
       ax.yaxis.set_minor_locator(plt.MultipleLocator(y_settings["minor"]))
 
-
 def initializing_checkbox_status_graph_scaling_widgets(graph_id):
    if f'checkbox_status_graph_scaling_widgets_{graph_id}' not in st.session_state:
       st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = False
-
 
 # Функция для инициализации состояния параметров осей
 def initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,major_ticks_X,minor_ticks_X,
@@ -206,6 +158,76 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
              "minor": minor_ticks,
          }
 
+#####частные функции
+
+###линейная регрессия
+def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
+                measure_unit_lin_time,graph_id,x_settings,y_settings,model):
+
+    fig, ax = plt.subplots()
+
+    sns.regplot(x='doses',y='AUC0→∞_mean',data=df_for_lin_mean, color="black",ci=None,scatter_kws = {'s': 30}, line_kws = {'linewidth': 1})
+
+    # Добавляем усы (ошибки)
+    plt.errorbar(
+        x=df_for_lin_mean['doses'],
+        y=df_for_lin_mean['AUC0→∞_mean'],
+        yerr=df_for_lin_mean['AUC0→∞_std'],
+        fmt='o',
+        color='black',
+        ecolor='gray',
+        elinewidth=1,
+        capsize=3
+    )
+
+    plt.xlabel("Дозировка, " +measure_unit_dose_lin)
+    plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
+
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+        applying_axis_settings(ax, x_settings, y_settings)
+
+    # Определяем положение аннотации динамически
+    max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
+    x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
+    y_pos = max_y * 1.05  # Смещаем немного выше максимального значения
+
+    ax.set_ylim(ax.get_ylim()[0], y_pos * 1.1)
+
+    plt.annotate(
+        'y = {:.2f}x {} {:.2f}\n$R^2$ = {:.3f}'.format(
+            round(model.params[1], 2),  # Коэффициент при x
+            '-' if model.params[0] < 0 else '+',  # Условие для знака перед свободным членом
+            abs(round(model.params[0], 2)),  # Модуль свободного члена
+            round(model.rsquared, 3)  # Коэффициент детерминации
+        ),
+        xy=(x_pos, y_pos),  # Позиция аннотации
+        xytext=(x_pos, y_pos),  # Текст аннотации
+        fontsize=10,
+        ha='center'  # Горизонтальное выравнивание
+    )
+
+    return fig
+
+#рисунок параметры линейной регрессии
+def create_graphic_lin_parameters(model):
+    fig, ax = plt.subplots()
+    table_data_first=[
+        ["R","R²","F","df1","df2","p"],
+        ["%.3f" % round(np.sqrt(model.rsquared),3),"%.3f" % round(model.rsquared,3), "%.1f" % round(model.fvalue,1),int(round(model.df_model,0)),int(round(model.df_resid,0)), format_pvalue(model.pvalues[1])]
+        ]
+    table = ax.table(cellText=table_data_first,cellLoc='left',bbox = [0, 0.7, 0.7, 0.1])
+    plt.annotate('Model Fit Measures', xy =(0, 0.9),xytext =(0, 0.9),fontsize=10)
+    plt.annotate('Overall Model Test', xy =(0, 0.85),xytext =(0, 0.85),fontsize=10)
+    table_data_second=[
+        ['Predictor','Estimate','SE','t','p'],
+        ["Intercept","%.2f" % round(model.params[0],2),"%.3f" % round(model.bse[0],3),"%.2f" % round(model.tvalues[0],2), format_pvalue(model.pvalues[0]),],
+        ["B","%.2f" % round(model.params[1],2),"%.3f" % round(model.bse[1],3),"%.2f" % round(model.tvalues[1],2), format_pvalue(model.pvalues[1])]
+        ]
+    table = ax.table(cellText=table_data_second,cellLoc='left',bbox = [0, 0.35, 0.7, 0.2])
+    plt.annotate('Model Coefficients', xy =(0, 0.6),xytext =(0, 0.6),fontsize=10)
+    plt.axis('off')
+
+    return fig
 
 # Функция для вычисления критического значения F
 def calculate_f_critical(alpha, df1, df2):
