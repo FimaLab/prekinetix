@@ -21,6 +21,7 @@ import streamlit.components.v1 as components
 import codecs
 from utils.functions import *
 from utils.functions_graphics import *
+from utils.functions_calculation import *
 from utils.radio_unit import *
 from style_python.style import *
 
