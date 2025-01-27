@@ -20,6 +20,7 @@ from streamlit_option_menu import option_menu
 import streamlit.components.v1 as components 
 import codecs
 from utils.functions import *
+from utils.functions_graphics import *
 from utils.radio_unit import *
 from style_python.style import *
 
@@ -231,9 +232,6 @@ if option == 'Фармакокинетика':
                   numer=float(i)
                   list_time.append(numer)
               
-              #if st.session_state["agree_injection - фк"] == True: 
-                 #list_time.remove(0)
-
               for r in range(0,count_row_df):
 
                   list_concentration=df.iloc[r].tolist()
@@ -343,11 +341,6 @@ if option == 'Фармакокинетика':
               df_averaged_concentrations=df.describe()
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_pk=df_averaged_concentrations.loc['std'].tolist()
-              
-              #if st.session_state["agree_injection - фк"] == True:
-                 #list_time.remove(0) ###т.к. внутривенное
-                 #list_concentration.remove(0)
-                 #err_y_pk.remove(0)
 
               fig, ax = plt.subplots()
               plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -358,13 +351,6 @@ if option == 'Фармакокинетика':
 
               graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после введения ЛС'
               list_heading_graphics_word.append(graphic)  
-
-           #в полулогарифмических координатах
-              #if st.session_state["agree_injection - фк"] == False:
-                 #list_time.remove(0) ###т.к. внутривенное
-                 #list_concentration.remove(0)
-                 #err_y_pk.remove(0) 
-
 
               fig, ax = plt.subplots()
               plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -637,8 +623,6 @@ if option == 'Биодоступность':
                   numer=float(i)
                   list_time.append(numer)
 
-              #list_time.remove(0) ###т.к. внутривенное
-
               for r in range(0,count_row_df):
 
                   list_concentration=df.iloc[r].tolist()
@@ -746,10 +730,6 @@ if option == 'Биодоступность':
               df_averaged_concentrations=df.describe()
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_1=df_averaged_concentrations.loc['std'].tolist()
-              
-              #list_time.remove(0) ###т.к. внутривенное
-              #list_concentration.remove(0)
-              #err_y_1.remove(0) 
               
               fig, ax = plt.subplots()
               plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -1854,9 +1834,6 @@ if option == 'Распределение по органам':
                      list_time.append(numer)
                  list_t_graph.append(list_time)
 
-                 #if st.session_state["agree_injection - органы"] == True: 
-                    #list_time.remove(0)
-
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
@@ -1966,12 +1943,7 @@ if option == 'Распределение по органам':
                  df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
-                 
-                 #if st.session_state["agree_injection - органы"] == True:
-                    #list_time.remove(0) ###т.к. внутривенное
-                    #list_concentration.remove(0)
-                    #err_y_1.remove(0)
-
+                 ы
                  fig, ax = plt.subplots()
                  plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  plt.xlabel(f"Время, {measure_unit_org_time}")
@@ -2525,9 +2497,6 @@ if option == 'Линейность дозирования':
                      list_time.append(numer)
                  list_t_graph.append(list_time) 
 
-                 #if st.session_state["agree_injection - линейность"] == True: 
-                    #list_time.remove(0)
-
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
@@ -2637,11 +2606,6 @@ if option == 'Линейность дозирования':
                  df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
-
-                 #if st.session_state["agree_injection - линейность"] == True:
-                    #list_time.remove(0) ###т.к. внутривенное
-                    #list_concentration.remove(0)
-                    #err_y_1.remove(0)
 
                  fig, ax = plt.subplots()
                  plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
@@ -3039,7 +3003,7 @@ if option == 'Линейность дозирования':
                     st.session_state.model = model  # Модель линейной регрессии или другая информация
 
                 #вызов функции графика линейной регрессии
-                fig = graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
+                fig = create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
                 measure_unit_lin_time,graph_id,x_settings,y_settings,model)
                 
                 list_graphics_word.append(fig)
@@ -3047,7 +3011,7 @@ if option == 'Линейность дозирования':
                 graphic='Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞'
                 list_heading_graphics_word.append(graphic)
 
-                # параметры линейной регрессии
+                #рисунок параметры линейной регрессии
                 fig, ax = plt.subplots()
                 table_data_first=[
                  ["R","R²","F","df1","df2","p"],
@@ -3169,7 +3133,7 @@ if option == 'Линейность дозирования':
 
                                  if st.button("Перерисовать график"):
                                      #вызов функции графика линейной регрессии
-                                     fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
+                                     fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
                                      st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
                                      list_graphics_word[i] = fig
                                      st.experimental_rerun()
@@ -3189,7 +3153,7 @@ if option == 'Линейность дозирования':
                                  }
 
                                  #вызов функции графика линейной регрессии
-                                 fig = graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
+                                 fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
                                  st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
                                  list_graphics_word[i] = fig
 
