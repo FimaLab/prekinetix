@@ -413,15 +413,8 @@ if option == 'Фармакокинетика':
 
              with col2:
                   
-                  selected = option_menu(None, ["Cформированный отчeт"], 
-                  icons=['file-earmark-arrow-down-fill'], 
-                  menu_icon="cast", default_index=0, orientation="vertical",
-                  styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                  })
+                  #вызов функции оформлительского элемента сформированный отчет
+                  selected = style_icon_report()
 
                   if selected == "Cформированный отчeт":
                      if st.button("Сформировать отчет"):
@@ -464,15 +457,8 @@ if option == 'Фармакокинетика':
 
              with col2:
                   
-                  selected = option_menu(None, ["Cформированный отчeт"], 
-                  icons=['file-earmark-arrow-down-fill'], 
-                  menu_icon="cast", default_index=0, orientation="vertical",
-                  styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                  })
+                  #вызов функции оформлительского элемента сформированный отчет
+                  selected = style_icon_report()
                    
                   if selected == "Cформированный отчeт":
                      ###вызов функции создания Word-отчета графиков
@@ -775,7 +761,7 @@ if option == 'Биодоступность':
                   
                   st.session_state["df_total_PK_iv"] = df_total_PK_iv
 
-                  table_heading='Фармакокинетические показатели в крови после введения ЛС'
+                  table_heading='Фармакокинетические показатели в крови после внутривенного введения ЛС'
                   list_heading_word.append(table_heading)
                   
                   list_table_word.append(df_total_PK_iv)
@@ -1050,7 +1036,7 @@ if option == 'Биодоступность':
                   
                   st.session_state["df_total_PK_po_sub"] = df_total_PK_po_sub
 
-                  table_heading='Фармакокинетические показатели в крови после введения ЛС'
+                  table_heading='Фармакокинетические показатели в крови после перорального введения субстанции'
                   list_heading_word.append(table_heading)
                   
                   list_table_word.append(df_total_PK_po_sub)
@@ -1326,7 +1312,7 @@ if option == 'Биодоступность':
                   
                   st.session_state["df_total_PK_po_rdf"] = df_total_PK_po_rdf
 
-                  table_heading='Фармакокинетические показатели в крови после введения ЛС'
+                  table_heading='Фармакокинетические показатели в крови после перорального введения ГЛФ'
                   list_heading_word.append(table_heading)
                   
                   list_table_word.append(df_total_PK_po_rdf)
@@ -1564,15 +1550,8 @@ if option == 'Биодоступность':
 
              with col2:
                   
-                  selected = option_menu(None, ["Cформированный отчeт"], 
-                  icons=['file-earmark-arrow-down-fill'], 
-                  menu_icon="cast", default_index=0, orientation="vertical",
-                  styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                  })
+                  #вызов функции оформлительского элемента сформированный отчет
+                  selected = style_icon_report()
 
                   if selected == "Cформированный отчeт":
 
@@ -1622,15 +1601,8 @@ if option == 'Биодоступность':
 
              with col2:
                   
-                  selected = option_menu(None, ["Cформированный отчeт"], 
-                  icons=['file-earmark-arrow-down-fill'], 
-                  menu_icon="cast", default_index=0, orientation="vertical",
-                  styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                  })
+                  #вызов функции оформлительского элемента сформированный отчет
+                  selected = style_icon_report()
                    
                   if selected == "Cформированный отчeт":
                      ###вызов функции создания Word-отчета графиков
@@ -2240,15 +2212,8 @@ if option == 'Распределение по органам':
 
             with col2:
                  
-                 selected = option_menu(None, ["Cформированный отчeт"], 
-                 icons=['file-earmark-arrow-down-fill'], 
-                 menu_icon="cast", default_index=0, orientation="vertical",
-                 styles={
-                        "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                        "nav-link-selected": {"background-color": "#73b5f2"},
-                 })
+                 #вызов функции оформлительского элемента сформированный отчет
+                 selected = style_icon_report()
 
                  if selected == "Cформированный отчeт":
 
@@ -2301,15 +2266,8 @@ if option == 'Распределение по органам':
             
             with col2:
                      
-                 selected = option_menu(None, ["Cформированный отчeт"], 
-                 icons=['file-earmark-arrow-down-fill'], 
-                 menu_icon="cast", default_index=0, orientation="vertical",
-                 styles={
-                        "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                        "nav-link-selected": {"background-color": "#73b5f2"},
-                 })
+                 #вызов функции оформлительского элемента сформированный отчет
+                 selected = style_icon_report()
                   
                  if selected == "Cформированный отчeт":
                     ###вызов функции создания Word-отчета графиков
@@ -3033,15 +2991,8 @@ if option == 'Линейность дозирования':
 
             with col2:
                  
-                 selected = option_menu(None, ["Cформированный отчeт"], 
-                 icons=['file-earmark-arrow-down-fill'], 
-                 menu_icon="cast", default_index=0, orientation="vertical",
-                 styles={
-                        "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                        "nav-link-selected": {"background-color": "#73b5f2"},
-                 })
+                 #вызов функции оформлительского элемента сформированный отчет
+                 selected = style_icon_report()
 
                  if selected == "Cформированный отчeт":
 
@@ -3186,15 +3137,8 @@ if option == 'Линейность дозирования':
 
             with col2:
                      
-                 selected = option_menu(None, ["Cформированный отчeт"], 
-                 icons=['file-earmark-arrow-down-fill'], 
-                 menu_icon="cast", default_index=0, orientation="vertical",
-                 styles={
-                        "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                        "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                        "nav-link-selected": {"background-color": "#73b5f2"},
-                 })
+                 #вызов функции оформлительского элемента сформированный отчет
+                 selected = style_icon_report()
                   
                  if selected == "Cформированный отчeт":
                     ###вызов функции создания Word-отчета графиков
@@ -3332,15 +3276,8 @@ if option == 'Экскреция препарата':
 
              with col2:
                   
-                  selected = option_menu(None, ["Cформированный отчeт"], 
-                  icons=['file-earmark-arrow-down-fill'], 
-                  menu_icon="cast", default_index=0, orientation="vertical",
-                  styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                  })
+                  #вызов функции оформлительского элемента сформированный отчет
+                  selected = style_icon_report()
 
                   if selected == "Cформированный отчeт":
 
@@ -3365,15 +3302,8 @@ if option == 'Экскреция препарата':
                     
              with col2:
              
-                  selected = option_menu(None, ["Cформированный отчeт"], 
-                  icons=['file-earmark-arrow-down-fill'], 
-                  menu_icon="cast", default_index=0, orientation="vertical",
-                  styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                  })
+                  #вызов функции оформлительского элемента сформированный отчет
+                  selected = style_icon_report()
                    
                   if selected == "Cформированный отчeт":
                      ###вызов функции создания Word-отчета графиков
@@ -3382,4 +3312,3 @@ if option == 'Экскреция препарата':
 
 
 st.sidebar.caption('© 2025. Центр биофармацевтического анализа и метаболомных исследований (Сеченовский университет)')
-
