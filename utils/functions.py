@@ -12,7 +12,20 @@ from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from docx.shared import RGBColor
+from streamlit_option_menu import option_menu
 
+
+def style_icon_report():
+    selected = option_menu(None, ["Cформированный отчeт"], 
+               icons=['file-earmark-arrow-down-fill'], 
+               menu_icon="cast", default_index=0, orientation="vertical",
+               styles={
+                   "container": {"padding": "0!important", "background-color": "#1f3b57"},
+                   "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                   "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
+                   "nav-link-selected": {"background-color": "#73b5f2"},
+               })
+    return selected
 
 def save_session_lists_tables_graphics(option,list_heading_word,list_table_word,list_graphics_word,list_heading_graphics_word):
     ###сохранение состояния 
@@ -29,7 +42,6 @@ def to_excel_results(df):
     output.seek(0)  # Возвращаем курсор в начало файла
     return output
 
-
 # Обертка для скачивания файла в формате Excel с поддержкой ключа
 def download_excel_button(df, label, key, file_name):
     excel_data = to_excel_results(df)
@@ -40,7 +52,6 @@ def download_excel_button(df, label, key, file_name):
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         key=key  # Добавлен параметр key
     )
-
 
 #округление до определенного значения значищих цифр
 def round_to_significant_figures(num, sig_figs):
