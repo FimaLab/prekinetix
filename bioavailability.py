@@ -7,18 +7,12 @@ st.set_page_config(page_title="Доклинические исследовани
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-import math
 import statistics  
 import seaborn as sns
 import statsmodels.api as sm
-import streamlit.components as stc
-from pyxlsb import open_workbook as open_xlsb
 import os
 from cycler import cycler
 from streamlit_option_menu import option_menu
-import streamlit.components.v1 as components 
-import codecs
 from utils.functions import *
 from utils.functions_graphics import *
 from utils.functions_calculation import *
@@ -1944,7 +1938,7 @@ if option == 'Распределение по органам':
                  df_averaged_concentrations=df.describe()
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
-                 ы
+                 
                  fig, ax = plt.subplots()
                  plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  plt.xlabel(f"Время, {measure_unit_org_time}")
@@ -3006,29 +3000,14 @@ if option == 'Линейность дозирования':
                 #вызов функции графика линейной регрессии
                 fig = create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
                 measure_unit_lin_time,graph_id,x_settings,y_settings,model)
-                
+ 
                 list_graphics_word.append(fig)
 
                 graphic='Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞'
                 list_heading_graphics_word.append(graphic)
 
-                #рисунок параметры линейной регрессии
-                fig, ax = plt.subplots()
-                table_data_first=[
-                 ["R","R²","F","df1","df2","p"],
-                 ["%.3f" % round(np.sqrt(model.rsquared),3),"%.3f" % round(model.rsquared,3), "%.1f" % round(model.fvalue,1),int(round(model.df_model,0)),int(round(model.df_resid,0)), format_pvalue(model.pvalues[1])]
-                 ]
-                table = ax.table(cellText=table_data_first,cellLoc='left',bbox = [0, 0.7, 0.7, 0.1])
-                plt.annotate('Model Fit Measures', xy =(0, 0.9),xytext =(0, 0.9),fontsize=10)
-                plt.annotate('Overall Model Test', xy =(0, 0.85),xytext =(0, 0.85),fontsize=10)
-                table_data_second=[
-                 ['Predictor','Estimate','SE','t','p'],
-                 ["Intercept","%.2f" % round(model.params[0],2),"%.3f" % round(model.bse[0],3),"%.2f" % round(model.tvalues[0],2), format_pvalue(model.pvalues[0]),],
-                 ["B","%.2f" % round(model.params[1],2),"%.3f" % round(model.bse[1],3),"%.2f" % round(model.tvalues[1],2), format_pvalue(model.pvalues[1])]
-                 ]
-                table = ax.table(cellText=table_data_second,cellLoc='left',bbox = [0, 0.35, 0.7, 0.2])
-                plt.annotate('Model Coefficients', xy =(0, 0.6),xytext =(0, 0.6),fontsize=10)
-                plt.axis('off')
+                #вызов функции построения рисунка параметры линейной регрессии
+                fig = create_graphic_lin_parameters(model)
                 
                 list_graphics_word.append(fig)
 
