@@ -2514,8 +2514,6 @@ if option == 'Линейность дозирования':
                  
                  graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
                  list_heading_graphics_word.append(graphic) 
-
-                 st.write(df_for_plot_conc_1)
                  
               # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
                  df_for_plot_conc_1_log = df_for_plot_conc_1.copy()  # Создаем копию исходного DataFrame
@@ -2879,56 +2877,7 @@ if option == 'Линейность дозирования':
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
 
-                #Расчет параметров масштаба
-                min_value_X = 0.0
-                max_value_X = df_for_lin_mean['doses'].max() * 1.1
-                major_ticks_X = (df_for_lin_mean['doses'].max() - df_for_lin_mean['doses'].min()) / 5
-                minor_ticks_X = major_ticks_X / 5
                 
-                min_value_Y = 0.0
-                max_value_Y = (df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()) * 1.1
-                major_ticks_Y = ((df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()) / 5)
-                minor_ticks_Y = major_ticks_Y / 5
-                
-                #Инициализация состояний видежтов параметров осей
-                initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,major_ticks_X,minor_ticks_X,
-                                              min_value_Y,max_value_Y,major_ticks_Y,minor_ticks_Y)
-                
-                if f'x_settings_{graph_id}' not in st.session_state:
-                     st.session_state[f'x_settings_{graph_id}'] = {
-                        "min": 0,
-                        "max": 0,
-                        "major": 0,
-                        "minor": 0
-                    }
-                     
-                if f'y_settings_{graph_id}' not in st.session_state:
-                     st.session_state[f'y_settings_{graph_id}'] = {
-                        "min": 0,
-                        "max": 0,
-                        "major": 0,
-                        "minor": 0
-                    }
-
-                if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                    
-                    x_settings = st.session_state[f'x_settings_{graph_id}']
-
-                    y_settings = st.session_state[f'y_settings_{graph_id}']
-                else:
-                    # Значения осей по умолчанию
-                    x_settings = {
-                        "min": min_value_X,
-                        "max": max_value_X,
-                        "major": major_ticks_X,
-                        "minor": minor_ticks_X
-                    }
-                    y_settings = {
-                        "min": min_value_Y,
-                        "max": max_value_Y,
-                        "major": major_ticks_Y,
-                        "minor": minor_ticks_Y
-                    }
 
                 # Инициализация данных состояний
                 if "df_for_lin_mean" not in st.session_state:
@@ -2948,7 +2897,7 @@ if option == 'Линейность дозирования':
 
                 #вызов функции графика линейной регрессии
                 fig = create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
-                measure_unit_lin_time,graph_id,x_settings,y_settings,model)
+                measure_unit_lin_time,graph_id,x_settings=None,y_settings=None, model=model)
  
                 list_graphics_word.append(fig)
 
@@ -3037,6 +2986,35 @@ if option == 'Линейность дозирования':
                          with col4:
                               
                               graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
+
+      
+                              
+                              #Инициализация состояний видежтов параметров осей
+                              initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
+                                                            min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
+                              
+                              if f'x_settings_{graph_id}' not in st.session_state:
+                                   st.session_state[f'x_settings_{graph_id}'] = {
+                                      "min": 0,
+                                      "max": 0,
+                                      "major": 0,
+                                      "minor": 0
+                                  }
+                                   
+                              if f'y_settings_{graph_id}' not in st.session_state:
+                                   st.session_state[f'y_settings_{graph_id}'] = {
+                                      "min": 0,
+                                      "max": 0,
+                                      "major": 0,
+                                      "minor": 0
+                                  }
+
+                              if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+                                  
+                                  x_settings = st.session_state[f'x_settings_{graph_id}']
+
+                                  y_settings = st.session_state[f'y_settings_{graph_id}']
+
 
                               # Переключатель настройки осей
                               custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
