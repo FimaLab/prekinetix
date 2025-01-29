@@ -14,6 +14,16 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 from streamlit_option_menu import option_menu
 
+def style_icon_report():
+    selected = option_menu(None, ["Настройка дополнительных параметров"], 
+               icons=['menu-button'], 
+               menu_icon="cast", default_index=0, orientation="vertical",
+               styles={
+                 "container": {"padding": "0!important", "background-color": "#1f3b57"},
+                 "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                 "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
+                 "nav-link-selected": {"background-color": "#73b5f2"},
+               })
 
 def style_icon_report():
     selected = option_menu(None, ["Cформированный отчeт"], 
