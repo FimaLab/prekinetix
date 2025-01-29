@@ -2131,18 +2131,11 @@ if option == 'Распределение по органам':
                 
                 list_t_organs=list(df_concat_mean_std.index)
 
-                #if st.session_state["agree_injection - органы"] == True:
-                   #list_t_organs.remove(0)
-                   #df_concat_mean_std=df_concat_mean_std.drop([0])
-
                 list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)    
 
-                fig, ax = plt.subplots()
-                for i,j,c in list_zip_mean_std_colors:
-                     plt.errorbar(list_t_organs,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
-                     plt.xlabel(f"Время, {measure_unit_org_time}")
-                     plt.ylabel("Концентрация, "+ measure_unit_org_blood)
-                     ax.legend(fontsize = 5)
+                #вызов функции построения графика сравнения срединных профелей линейные
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,measure_unit_org_time,
+                                                             measure_unit_org_blood,'lin')
                 
                 list_graphics_word.append(fig)
 
@@ -2151,21 +2144,14 @@ if option == 'Распределение по органам':
 
                 ### в полулог. координатах
 
-                list_t_organs=list(df_concat_mean_std.index)
-
-                if st.session_state["agree_injection - органы"] == False:
-                   list_t_organs.remove(0)
-                   df_concat_mean_std=df_concat_mean_std.drop([0])
+                #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
+                df_concat_mean_std = replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std)
 
                 list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)
 
-                fig, ax = plt.subplots()
-                for i,j,c in list_zip_mean_std_colors:
-                     plt.errorbar(list_t_organs,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
-                     ax.set_yscale("log")
-                     plt.xlabel(f"Время, {measure_unit_org_time}")
-                     plt.ylabel("Концентрация, "+ measure_unit_org_blood)
-                     ax.legend(fontsize = 5)
+                #вызов функции построения графика сравнения срединных профелей полулогарифм
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,measure_unit_org_time,
+                                                             measure_unit_org_blood,'log')
                 
                 list_graphics_word.append(fig)
 
@@ -2174,7 +2160,6 @@ if option == 'Распределение по органам':
 
                 ###построение диаграммы для тканевой доступности
 
-                #list_zip_list_ft_list_name_organs=zip(list_ft,list_name_organs)
                 list_name_organs.remove("Кровь")
 
                 fig, ax = plt.subplots()
@@ -2769,46 +2754,27 @@ if option == 'Линейность дозирования':
                 list_t_doses=list(df_concat_mean_std.index)
 
                 list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
+                
+                #вызов функции построения графика сравнения срединных профелей линейные
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,measure_unit_lin_time,
+                                                             measure_unit_lin_concentration,'lin')
 
-                fig, ax = plt.subplots()
-                for i,j,c in list_zip_mean_std_colors:
-                     plt.errorbar(list_t_doses,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
-                     plt.xlabel(f"Время, {measure_unit_lin_time}")
-                     plt.ylabel("Концентрация, "+ measure_unit_lin_concentration)
-                     ax.legend(fontsize = 8)
-                     
-               
                 list_graphics_word.append(fig)
 
                 graphic='Сравнение фармакокинетических профилей (в линейных координатах) в различных дозировках'
                 list_heading_graphics_word.append(graphic) 
 
                 ### в полулог. координатах
-
-                list_t_doses=list(df_concat_mean_std.index)
                 
                 #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
-                #Определяем колонки без "std" в названии
-                cols_without_std = [col for col in df_concat_mean_std.columns if "std" not in col]
-                # Применяем замену только к этим колонкам
-                df_concat_mean_std[cols_without_std] = df_concat_mean_std[cols_without_std].mask(df_concat_mean_std[cols_without_std] < 1, np.nan)
+                df_concat_mean_std = replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std)
 
-                cols_std = [col for col in df_concat_mean_std.columns if "std" in col]
-                # Применяем замену только к этим колонкам
-                df_concat_mean_std[cols_std] = df_concat_mean_std[cols_std].mask(df_concat_mean_std[cols_std] == 0, np.nan)
-
-                
                 list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
-                fig, ax = plt.subplots()
-                for i,j,c in list_zip_mean_std_colors:
-                     plt.errorbar(list_t_doses,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
-                     ax.set_yscale("log")
-                     plt.xlabel(f"Время, {measure_unit_lin_time}")
-                     plt.ylabel("Концентрация, "+ measure_unit_lin_concentration)
-                     ax.legend(fontsize = 8)
-                     
-                
+                #вызов функции построения графика сравнения срединных профелей полулогарифм
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,measure_unit_lin_time,
+                                                             measure_unit_lin_concentration,'log')
+
                 list_graphics_word.append(fig)
 
                 graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках'
@@ -2871,13 +2837,11 @@ if option == 'Линейность дозирования':
                     
                 })
 
-                ###график
+                ###график линейной регресии
                 graph_id = graphic
 
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
-
-                
 
                 # Инициализация данных состояний
                 if "df_for_lin_mean" not in st.session_state:
@@ -2987,8 +2951,6 @@ if option == 'Линейность дозирования':
                               
                               graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
 
-      
-                              
                               #Инициализация состояний видежтов параметров осей
                               initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
                                                             min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
