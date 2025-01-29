@@ -6,6 +6,34 @@ import numpy as np
 
 #####Общие функции
 
+#получение параметров осей
+def get_parameters_axis(graph_id, ax):
+    # Фиксация максимальных значений осей
+    st.session_state[f"X_graphic_max_value_{graph_id}"] = ax.get_xlim()[1]
+    st.session_state[f"Y_graphic_max_value_{graph_id}"] = ax.get_ylim()[1]
+
+    # Получение локаторов
+    major_locator_X = ax.xaxis.get_major_locator()
+    minor_locator_X = ax.xaxis.get_minor_locator()
+    major_locator_Y = ax.yaxis.get_major_locator()
+    minor_locator_Y = ax.yaxis.get_minor_locator()
+
+    # Проверка типа локатора и получение шага
+    def get_tick_step(locator, axis):
+        if isinstance(locator, plt.MultipleLocator):
+            return locator.base  # Если это MultipleLocator, берем base
+        else:
+            ticks = axis.get_majorticklocs()  # Получаем расположение тиков
+            if len(ticks) > 1:
+                return np.diff(ticks).mean()  # Берем среднюю разницу между тик-метками
+            return None  # Если недостаточно тиков для расчета
+
+    # Определение шагов
+    st.session_state[f"X_graphic_major_ticks_{graph_id}"] = get_tick_step(major_locator_X, ax.xaxis)
+    st.session_state[f"X_graphic_minor_ticks_{graph_id}"] = get_tick_step(minor_locator_X, ax.xaxis)
+    st.session_state[f"Y_graphic_major_ticks_{graph_id}"] = get_tick_step(major_locator_Y, ax.yaxis)
+    st.session_state[f"Y_graphic_minor_ticks_{graph_id}"] = get_tick_step(minor_locator_Y, ax.yaxis)
+
 def create_session_type_graphics_checked_graphics(option,type_graphics):
     # Проверяем, есть ли в session_state ключ для данного чекбокса
     if f"{type_graphics}_{option}_checked_graphics" not in st.session_state:
@@ -188,31 +216,7 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
-        # Фиксация максимальных значений осей
-        st.session_state[f"X_graphic_max_value_{graph_id}"] = ax.get_xlim()[1]
-        st.session_state[f"Y_graphic_max_value_{graph_id}"] = ax.get_ylim()[1]
-
-        # Получение локаторов
-        major_locator_X = ax.xaxis.get_major_locator()
-        minor_locator_X = ax.xaxis.get_minor_locator()
-        major_locator_Y = ax.yaxis.get_major_locator()
-        minor_locator_Y = ax.yaxis.get_minor_locator()
-
-        # Проверка типа локатора и получение шага
-        def get_tick_step(locator, axis):
-            if isinstance(locator, plt.MultipleLocator):
-                return locator.base  # Если это MultipleLocator, берем base
-            else:
-                ticks = axis.get_majorticklocs()  # Получаем расположение тиков
-                if len(ticks) > 1:
-                    return np.diff(ticks).mean()  # Берем среднюю разницу между тик-метками
-                return None  # Если недостаточно тиков для расчета
-
-        # Определение шагов
-        st.session_state[f"X_graphic_major_ticks_{graph_id}"] = get_tick_step(major_locator_X, ax.xaxis)
-        st.session_state[f"X_graphic_minor_ticks_{graph_id}"] = get_tick_step(minor_locator_X, ax.xaxis)
-        st.session_state[f"Y_graphic_major_ticks_{graph_id}"] = get_tick_step(major_locator_Y, ax.yaxis)
-        st.session_state[f"Y_graphic_minor_ticks_{graph_id}"] = get_tick_step(minor_locator_Y, ax.yaxis)
+        get_parameters_axis(graph_id, ax)
 
     # Определяем положение аннотации динамически
     max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
