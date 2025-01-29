@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 import numpy as np
+import pandas as pd
 
 #####Общие функции
 
@@ -187,6 +188,63 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
          }
 
 #####частные функции
+
+###подготов действия "построение графика "Фармакокинетический профиль в различных дозировках" в линейных координатах"
+""" def preparatory_actions_plot_pk_profile_different_doses_linear(list_df_for_mean_unround_for_graphics,list_name_doses_with_measure_unit,list_t_graph):
+    ### в линейных координатах
+    list_list_mean_conc=[]
+    list_list_std_conc=[]
+    for i in list_df_for_mean_unround_for_graphics: 
+        mean_conc_list=i.loc['mean'].tolist()
+        std_conc_list=i.loc['std'].tolist()
+        list_list_mean_conc.append(mean_conc_list)
+        list_list_std_conc.append(std_conc_list)
+
+    list_name_doses_with_measure_unit_std=[]
+    for i in list_name_doses_with_measure_unit:
+        j= i + " std"
+        list_name_doses_with_measure_unit_std.append(j)
+
+    list_time_new_df = list_t_graph[0]
+
+    df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_new_df,index=list_name_doses_with_measure_unit)
+    df_mean_conc_graph_1=df_mean_conc_graph.transpose()
+    df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_time_new_df,index=list_name_doses_with_measure_unit_std)
+    df_std_conc_graph_1=df_std_conc_graph.transpose()
+    df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
+
+    list_colors = ["black","red","blue","green","#D6870C"]
+
+    list_t_doses=list(df_concat_mean_std.index)
+
+    list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
+
+    return [list_colors,list_t_doses,list_zip_mean_std_colors] """
+
+def replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std):
+    #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
+    #Определяем колонки без "std" в названии
+    cols_without_std = [col for col in df_concat_mean_std.columns if "std" not in col]
+    # Применяем замену только к этим колонкам
+    df_concat_mean_std[cols_without_std] = df_concat_mean_std[cols_without_std].mask(df_concat_mean_std[cols_without_std] < 1, np.nan)
+
+    cols_std = [col for col in df_concat_mean_std.columns if "std" in col]
+    # Применяем замену только к этим колонкам
+    df_concat_mean_std[cols_std] = df_concat_mean_std[cols_std].mask(df_concat_mean_std[cols_std] == 0, np.nan)
+
+    return df_concat_mean_std
+
+###построение графика "Фармакокинетический профиль в различных органах или дозировках" сравнительные срединные
+def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,df_concat_mean_std,measure_unit_time,measure_unit_concentration,kind_graphic):
+    fig, ax = plt.subplots()
+    for i,j,c in list_zip_mean_std_colors:
+            plt.errorbar(list_t,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+            if kind_graphic == 'log':
+               ax.set_yscale("log")
+            plt.xlabel(f"Время, {measure_unit_time}")
+            plt.ylabel("Концентрация, "+ measure_unit_concentration)
+            ax.legend(fontsize = 8)
+    return fig
 
 ###линейная регрессия
 def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
