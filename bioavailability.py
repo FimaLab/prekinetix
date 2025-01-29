@@ -2460,9 +2460,6 @@ if option == 'Линейность дозирования':
 
                      list_concentration = [float(v) for v in list_concentration]
 
-                     #if st.session_state["agree_injection - линейность"] == True:
-                        #list_concentration.remove(0)
-
                      fig, ax = plt.subplots()
                      plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      plt.xlabel(f"Время, {measure_unit_lin_time}")
@@ -2473,19 +2470,13 @@ if option == 'Линейность дозирования':
                      graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
                      list_heading_graphics_word.append(graphic) 
 
-                  #в полулогарифмических координатах методом удаления точек
-                     count_for_0_1=len(list_concentration)
-                     list_range_for_0_1=range(0,count_for_0_1)
+                  #в полулогарифмических координатах методом np.nan
 
-                     list_time_0=[]
-                     list_for_log_1=[]
-                     for i in list_range_for_0_1:
-                         if list_concentration[i] !=0:
-                            list_for_log_1.append(list_concentration[i])
-                            list_time_0.append(list_time[i]) 
+                     # Заменяем все значения меньше 1 на np.nan
+                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                      fig, ax = plt.subplots()
-                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
+                     plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
                      ax.set_yscale("log")
                      plt.xlabel(f"Время, {measure_unit_lin_time}")
                      plt.ylabel("Концентрация, "+measure_unit_lin_concentration)
@@ -2500,9 +2491,6 @@ if option == 'Линейность дозирования':
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
-
-                 if st.session_state["agree_injection - линейность"] == True:
-                    df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
 
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
@@ -2526,10 +2514,12 @@ if option == 'Линейность дозирования':
                  
                  graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
                  list_heading_graphics_word.append(graphic) 
-          
-              # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
-                 df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
 
+                 st.write(df_for_plot_conc_1)
+                 
+              # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
+                 df_for_plot_conc_1_log = df_for_plot_conc_1.copy()  # Создаем копию исходного DataFrame
+                 df_for_plot_conc_1_log[df_for_plot_conc_1_log < 1] = np.nan  # Заменяем значения меньше 1 на np.nan
 
                  fig, ax = plt.subplots()
 
@@ -2549,6 +2539,7 @@ if option == 'Линейность дозирования':
                  
                  graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
                  list_heading_graphics_word.append(graphic) 
+
                   ###усредненные    
               # в линейных координатах
                  list_time = []
@@ -2572,11 +2563,9 @@ if option == 'Линейность дозирования':
 
               #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
-                 if st.session_state["agree_injection - линейность"] == False:
-                    list_time.remove(0)
-                    list_concentration.remove(0)
-                    err_y_1.remove(0) 
-
+                 # Заменяем все значения меньше 1 на np.nan
+                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                    
                  fig, ax = plt.subplots()
                  plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
                  ax.set_yscale("log")
@@ -2771,9 +2760,6 @@ if option == 'Линейность дозирования':
 
                 list_time_new_df = list_t_graph[0]
 
-                #if st.session_state["agree_injection - линейность"] == True:
-                   #list_time_new_df.insert(0,0)
-
                 df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_new_df,index=list_name_doses_with_measure_unit)
                 df_mean_conc_graph_1=df_mean_conc_graph.transpose()
                 df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_time_new_df,index=list_name_doses_with_measure_unit_std)
@@ -2784,10 +2770,6 @@ if option == 'Линейность дозирования':
 
                 list_t_doses=list(df_concat_mean_std.index)
 
-                #if st.session_state["agree_injection - линейность"] == True:
-                   #list_t_doses.remove(0)
-                   #df_concat_mean_std=df_concat_mean_std.drop([0])
-                    
                 list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
                 fig, ax = plt.subplots()
@@ -2796,6 +2778,7 @@ if option == 'Линейность дозирования':
                      plt.xlabel(f"Время, {measure_unit_lin_time}")
                      plt.ylabel("Концентрация, "+ measure_unit_lin_concentration)
                      ax.legend(fontsize = 8)
+                     
                
                 list_graphics_word.append(fig)
 
@@ -2805,10 +2788,17 @@ if option == 'Линейность дозирования':
                 ### в полулог. координатах
 
                 list_t_doses=list(df_concat_mean_std.index)
+                
+                #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
+                #Определяем колонки без "std" в названии
+                cols_without_std = [col for col in df_concat_mean_std.columns if "std" not in col]
+                # Применяем замену только к этим колонкам
+                df_concat_mean_std[cols_without_std] = df_concat_mean_std[cols_without_std].mask(df_concat_mean_std[cols_without_std] < 1, np.nan)
 
-                if st.session_state["agree_injection - линейность"] == False:
-                   list_t_doses.remove(0)
-                   df_concat_mean_std=df_concat_mean_std.drop([0])
+                cols_std = [col for col in df_concat_mean_std.columns if "std" in col]
+                # Применяем замену только к этим колонкам
+                df_concat_mean_std[cols_std] = df_concat_mean_std[cols_std].mask(df_concat_mean_std[cols_std] == 0, np.nan)
+
                 
                 list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
@@ -2819,6 +2809,7 @@ if option == 'Линейность дозирования':
                      plt.xlabel(f"Время, {measure_unit_lin_time}")
                      plt.ylabel("Концентрация, "+ measure_unit_lin_concentration)
                      ax.legend(fontsize = 8)
+                     
                 
                 list_graphics_word.append(fig)
 
