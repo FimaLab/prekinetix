@@ -186,6 +186,34 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
     if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
         applying_axis_settings(ax, x_settings, y_settings)
 
+    #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+    else:
+        # Фиксация максимальных значений осей
+        st.session_state[f"X_graphic_max_value_{graph_id}"] = ax.get_xlim()[1]
+        st.session_state[f"Y_graphic_max_value_{graph_id}"] = ax.get_ylim()[1]
+
+        # Получение локаторов
+        major_locator_X = ax.xaxis.get_major_locator()
+        minor_locator_X = ax.xaxis.get_minor_locator()
+        major_locator_Y = ax.yaxis.get_major_locator()
+        minor_locator_Y = ax.yaxis.get_minor_locator()
+
+        # Проверка типа локатора и получение шага
+        def get_tick_step(locator, axis):
+            if isinstance(locator, plt.MultipleLocator):
+                return locator.base  # Если это MultipleLocator, берем base
+            else:
+                ticks = axis.get_majorticklocs()  # Получаем расположение тиков
+                if len(ticks) > 1:
+                    return np.diff(ticks).mean()  # Берем среднюю разницу между тик-метками
+                return None  # Если недостаточно тиков для расчета
+
+        # Определение шагов
+        st.session_state[f"X_graphic_major_ticks_{graph_id}"] = get_tick_step(major_locator_X, ax.xaxis)
+        st.session_state[f"X_graphic_minor_ticks_{graph_id}"] = get_tick_step(minor_locator_X, ax.xaxis)
+        st.session_state[f"Y_graphic_major_ticks_{graph_id}"] = get_tick_step(major_locator_Y, ax.yaxis)
+        st.session_state[f"Y_graphic_minor_ticks_{graph_id}"] = get_tick_step(minor_locator_Y, ax.yaxis)
+
     # Определяем положение аннотации динамически
     max_y = df_for_lin_mean['AUC0→∞_mean'].max() + df_for_lin_mean['AUC0→∞_std'].max()  # Максимальное значение Y с учетом ошибок
     x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
