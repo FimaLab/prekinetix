@@ -1774,36 +1774,21 @@ if option == 'Распределение по органам':
 
                      list_concentration = [float(v) for v in list_concentration]
 
-                     #if st.session_state["agree_injection - органы"] == True:
-                        #list_concentration.remove(0)
-
-                     fig, ax = plt.subplots()
-                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
-                     plt.xlabel(f"Время, {measure_unit_org_time}")
-                     plt.ylabel("Концентрация, "+measure_unit_org)
+                     #вызов функции индивидуальный график в линейной шкале
+                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_org_time, measure_unit_org, "lin")
       
                      list_graphics_word.append(fig)
 
                      graphic='График индивидуального фармакокинетического профиля в линейных координатах '  + "("+file_name+")"',  '+numer_animal
                      list_heading_graphics_word.append(graphic)  
                      
+                     #в полулогарифмических координатах методом np.nan
 
-                  #в полулогарифмических координатах методом удаления точек
-                     count_for_0_1=len(list_concentration)
-                     list_range_for_0_1=range(0,count_for_0_1)
+                     # Заменяем все значения меньше 1 на np.nan
+                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                     list_time_0=[]
-                     list_for_log_1=[]
-                     for i in list_range_for_0_1:
-                         if list_concentration[i] !=0:
-                            list_for_log_1.append(list_concentration[i])
-                            list_time_0.append(list_time[i]) 
-
-                     fig, ax = plt.subplots()
-                     plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
-                     ax.set_yscale("log")
-                     plt.xlabel(f"Время, {measure_unit_org_time}")
-                     plt.ylabel("Концентрация, "+measure_unit_org)
+                     #вызов функции индивидуальный график в полулогарифмической шкале
+                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_org_time, measure_unit_org, "log")
 
                      
                      list_graphics_word.append(fig)
@@ -2373,26 +2358,21 @@ if option == 'Линейность дозирования':
 
                      list_concentration = [float(v) for v in list_concentration]
 
-                     fig, ax = plt.subplots()
-                     plt.plot(list_time,list_concentration,marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
-                     plt.xlabel(f"Время, {measure_unit_lin_time}")
-                     plt.ylabel("Концентрация, "+measure_unit_lin_concentration)
+                     #вызов функции индивидуальный график в линейной шкале
+                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_lin_time, measure_unit_lin_concentration, "lin")
                      
                      list_graphics_word.append(fig)
         
                      graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
                      list_heading_graphics_word.append(graphic) 
 
-                  #в полулогарифмических координатах методом np.nan
+                     #в полулогарифмических координатах методом np.nan
 
                      # Заменяем все значения меньше 1 на np.nan
                      list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                     fig, ax = plt.subplots()
-                     plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
-                     ax.set_yscale("log")
-                     plt.xlabel(f"Время, {measure_unit_lin_time}")
-                     plt.ylabel("Концентрация, "+measure_unit_lin_concentration)
+                     #вызов функции индивидуальный график в полулогарифмической шкале
+                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_lin_time, measure_unit_lin_concentration, "log")
 
                      
                      list_graphics_word.append(fig)
