@@ -1911,10 +1911,9 @@ if option == 'Распределение по органам':
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
                  
-                 fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
-                 plt.xlabel(f"Время, {measure_unit_org_time}")
-                 plt.ylabel("Концентрация, "+measure_unit_org)
+                 #вызов функции построения графика индивидуального срединных профелей линейный
+                 fig = plot_pk_profile_individual_mean_std_doses_organs(list_time,list_concentration,err_y_1,measure_unit_org_time,
+                                                                        measure_unit_org,'lin')
                  
                  list_graphics_word.append(fig)
 
@@ -1923,16 +1922,12 @@ if option == 'Распределение по органам':
 
               #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
-                 if st.session_state["agree_injection - органы"] == False:
-                    list_time.remove(0)
-                    list_concentration.remove(0)
-                    err_y_1.remove(0) 
+                 # Заменяем все значения меньше 1 на np.nan
+                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                 fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
-                 ax.set_yscale("log")
-                 plt.xlabel(f"Время, {measure_unit_org_time}")
-                 plt.ylabel("Концентрация, "+measure_unit_org)
+                 #вызов функции построения графика индивидуального срединных профелей логарифм
+                 fig = plot_pk_profile_individual_mean_std_doses_organs(list_time,list_concentration,err_y_1,measure_unit_org_time,
+                                                                        measure_unit_org,'log')
 
                  list_graphics_word.append(fig)
 
@@ -2534,10 +2529,9 @@ if option == 'Линейность дозирования':
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
-                 fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
-                 plt.xlabel(f"Время, {measure_unit_lin_time}")
-                 plt.ylabel("Концентрация, "+measure_unit_lin_concentration)
+                 #вызов функции построения графика индивидуального срединных профелей линейный
+                 fig = plot_pk_profile_individual_mean_std_doses_organs(list_time,list_concentration,err_y_1,measure_unit_lin_time,
+                                                                        measure_unit_lin_concentration,'lin')
                   
                  list_graphics_word.append(fig)
                  
@@ -2548,12 +2542,10 @@ if option == 'Линейность дозирования':
                  #для полулогарифм. посторим без нуля
                  # Заменяем все значения меньше 1 на np.nan
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
-                    
-                 fig, ax = plt.subplots()
-                 plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
-                 ax.set_yscale("log")
-                 plt.xlabel(f"Время, {measure_unit_lin_time}")
-                 plt.ylabel("Концентрация, "+measure_unit_lin_concentration)
+                 
+                 #вызов функции построения графика индивидуального срединных профелей полулогарифм
+                 fig = plot_pk_profile_individual_mean_std_doses_organs(list_time,list_concentration,err_y_1,measure_unit_lin_time,
+                                                                        measure_unit_lin_concentration,'log')
 
                  list_graphics_word.append(fig)
                  
