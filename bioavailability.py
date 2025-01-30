@@ -1816,48 +1816,25 @@ if option == 'Распределение по органам':
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
                  
-                 #if st.session_state["agree_injection - органы"] == True:
-                    #df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
-
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
                  list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
-                 fig, ax = plt.subplots()
-                 
-                 ax.set_prop_cycle(cycler(color=list_color))
-
-                 plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
-                 ax.set_xlabel(f"Время, {measure_unit_org_time}")
-                 ax.set_ylabel("Концентрация, "+measure_unit_org)
-                 if count_numer_animal > 20:
-                    ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
-                 else:
-                    ax.legend(bbox_to_anchor=(1, 1))
+                 #вызов функции построения графика общего индивидуальных профелей линейный
+                 fig = plot_total_individual_pk_profiles_doses_organs(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
+                                                                      measure_unit_org_time,measure_unit_org,count_numer_animal,'lin')
                  
                  list_graphics_word.append(fig)
 
                  graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")"
                  list_heading_graphics_word.append(graphic)     
               # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
-                 df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
+                 df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles_doses_organs(df_for_plot_conc_1)
 
-
-                 fig, ax = plt.subplots()
-
-                 ax.set_prop_cycle(cycler(color=list_color))
-
-                 plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
-                 ax.set_xlabel(f"Время, {measure_unit_org_time}")
-                 ax.set_ylabel("Концентрация, "+measure_unit_org)
-                 ax.set_yscale("log")
-                 if count_numer_animal > 20:
-                    ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
-                 else:
-                    ax.legend(bbox_to_anchor=(1, 1))
+                 #вызов функции построения графика общего индивидуальных профелей полулогарифм
+                 fig = plot_total_individual_pk_profiles_doses_organs(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
+                                                                      measure_unit_org_time,measure_unit_org,count_numer_animal,'log')
                  
                  list_graphics_word.append(fig)
 
@@ -2423,7 +2400,7 @@ if option == 'Линейность дозирования':
                      graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
                      list_heading_graphics_word.append(graphic) 
 
-              # объединенные индивидуальные в линейных координатах
+                 # объединенные индивидуальные в линейных координатах
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
@@ -2433,41 +2410,21 @@ if option == 'Линейность дозирования':
 
                  list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
-                 fig, ax = plt.subplots()
-
-                 ax.set_prop_cycle(cycler(color=list_color))
-
-                 plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
-                 ax.set_xlabel(f"Время, {measure_unit_lin_time}")
-                 ax.set_ylabel("Концентрация, "+measure_unit_lin_concentration)
-                 if count_numer_animal > 20:
-                    ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
-                 else:
-                    ax.legend(bbox_to_anchor=(1, 1))
+                 #вызов функции построения графика общего индивидуальных профелей линейный
+                 fig = plot_total_individual_pk_profiles_doses_organs(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
+                                                                      measure_unit_lin_time,measure_unit_lin_concentration,count_numer_animal,'lin')
                  
                  list_graphics_word.append(fig)
                  
                  graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
                  list_heading_graphics_word.append(graphic) 
                  
-              # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
-                 df_for_plot_conc_1_log = df_for_plot_conc_1.copy()  # Создаем копию исходного DataFrame
-                 df_for_plot_conc_1_log[df_for_plot_conc_1_log < 1] = np.nan  # Заменяем значения меньше 1 на np.nan
+                 # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
+                 df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles_doses_organs(df_for_plot_conc_1)
 
-                 fig, ax = plt.subplots()
-
-                 ax.set_prop_cycle(cycler(color=list_color))
-
-                 plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
-                 ax.set_xlabel(f"Время, {measure_unit_lin_time}")
-                 ax.set_ylabel("Концентрация, "+measure_unit_lin_concentration)
-                 ax.set_yscale("log")
-                 if count_numer_animal > 20:
-                    ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
-                 else:
-                    ax.legend(bbox_to_anchor=(1, 1))
+                 #вызов функции построения графика общего индивидуальных профелей полулогарифм
+                 fig = plot_total_individual_pk_profiles_doses_organs(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
+                                                                      measure_unit_lin_time,measure_unit_lin_concentration,count_numer_animal,'log')
                  
                  list_graphics_word.append(fig)
                  
