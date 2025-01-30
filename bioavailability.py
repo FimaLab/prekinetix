@@ -53,23 +53,7 @@ text_contents = '''1)Оглавлять колонку с номерами жи�
 st.sidebar.download_button('Инструкция по заполнению 📝', text_contents)
 
 #Инизиализация состояния фреймов с результатами исследований
-if "df_total_PK_pk" not in st.session_state:
-    st.session_state["df_total_PK_pk"] = None
-
-if 'df_total_PK_org' not in st.session_state:
-    st.session_state['df_total_PK_org'] = None
-
-if 'df_total_PK_lin' not in st.session_state:
-    st.session_state['df_total_PK_lin'] = None
-
-if 'df_total_PK_iv' not in st.session_state:
-    st.session_state["df_total_PK_iv"] = None
-
-if 'df_total_PK_po_sub' not in st.session_state:
-    st.session_state['df_total_PK_po_sub'] = None
-
-if 'df_total_PK_po_rdf' not in st.session_state:
-    st.session_state['df_total_PK_po_rdf'] = None
+initializing_session_state_frames_research_results()
 
 if 'df1_model_lin' not in st.session_state:
     st.session_state['df1_model_lin'] = 1
