@@ -2080,15 +2080,7 @@ if option == 'Распределение по органам':
 
                 ###построение диаграммы для тканевой доступности
 
-                list_name_organs.remove("Кровь")
-
-                fig, ax = plt.subplots()
-
-                sns.barplot(x=list_name_organs, y=list_ft,color='blue',width=0.3)
-
-                plt.ylabel("Тканевая доступность")
-
-                ax.set_xticklabels(list_name_organs,fontdict={'fontsize': 6.0})
+                fig = plot_tissue_accessibility(list_name_organs,list_ft)
 
                 list_graphics_word.append(fig)
                 
@@ -3039,27 +3031,9 @@ if option == 'Экскреция препарата':
 
                 list_table_word.append(df_concat_round_str_transpose)
 
-                ########### диаграмма    
+                ########### диаграмма экскреции   
                 
-                col_mapping = df.columns.tolist()
-                col_mapping.remove('Номер')
-
-                list_time = []
-                for i in col_mapping:
-                    numer=float(i)
-                    list_time.append(numer)
-                
-                df_averaged_concentrations=df.describe()
-                list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-
-                list_concentration.remove(0)
-                list_time.remove(0)
-
-                fig, ax = plt.subplots()
-
-                sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
-                plt.xlabel(f"Время, {measure_unit_ex_time}")
-                plt.ylabel("Концентрация, "+measure_unit_ex_concentration)
+                fig = excretion_diagram(df,measure_unit_ex_time,measure_unit_ex_concentration)
 
                 list_graphics_word.append(fig)
 
