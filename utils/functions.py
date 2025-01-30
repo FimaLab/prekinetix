@@ -14,6 +14,26 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 from streamlit_option_menu import option_menu
 
+#Инизиализация состояния фреймов с результатами исследований
+def initializing_session_state_frames_research_results():
+    if "df_total_PK_pk" not in st.session_state:
+        st.session_state["df_total_PK_pk"] = None
+
+    if 'df_total_PK_org' not in st.session_state:
+        st.session_state['df_total_PK_org'] = None
+
+    if 'df_total_PK_lin' not in st.session_state:
+        st.session_state['df_total_PK_lin'] = None
+
+    if 'df_total_PK_iv' not in st.session_state:
+        st.session_state["df_total_PK_iv"] = None
+
+    if 'df_total_PK_po_sub' not in st.session_state:
+        st.session_state['df_total_PK_po_sub'] = None
+
+    if 'df_total_PK_po_rdf' not in st.session_state:
+        st.session_state['df_total_PK_po_rdf'] = None
+
 def style_icon_report():
     selected = option_menu(None, ["Настройка дополнительных параметров"], 
                icons=['menu-button'], 
