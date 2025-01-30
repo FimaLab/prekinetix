@@ -91,15 +91,8 @@ if option == 'Фармакокинетика':
            ######### боковое меню справа
            with col2:
                 
-                selected = option_menu(None, ["Настройка дополнительных параметров"], 
-                   icons=['menu-button'], 
-                   menu_icon="cast", default_index=0, orientation="vertical",
-                   styles={
-                     "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                     "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                     "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                     "nav-link-selected": {"background-color": "#73b5f2"},
-                   })
+                #оформительский элемент настройки дополнительных параметров исследования
+                selected = style_icon_setting_additional_parameters()
 
                 if selected == "Настройка дополнительных параметров":
                    type_parameter = st.selectbox('Выберите параметр',
@@ -486,15 +479,8 @@ if option == 'Биодоступность':
            ######### боковое меню справа
            with col2:
                  
-                 selected = option_menu(None, ["Настройка дополнительных параметров"], 
-                    icons=['menu-button'], 
-                    menu_icon="cast", default_index=0, orientation="vertical",
-                    styles={
-                      "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                      "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                      "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                      "nav-link-selected": {"background-color": "#73b5f2"},
-                    })
+                 #оформительский элемент настройки дополнительных параметров исследования
+                 selected = style_icon_setting_additional_parameters()
 
                  if selected == "Настройка дополнительных параметров":
                     type_parameter = st.selectbox('Выберите параметр',
@@ -1625,15 +1611,8 @@ if option == 'Распределение по органам':
          ######### боковое меню справа
          with col2:
               
-              selected = option_menu(None, ["Настройка дополнительных параметров"], 
-                    icons=['menu-button'], 
-                    menu_icon="cast", default_index=0, orientation="vertical",
-                    styles={
-                      "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                      "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                      "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                      "nav-link-selected": {"background-color": "#73b5f2"},
-                    })
+              #оформительский элемент настройки дополнительных параметров исследования
+              selected = style_icon_setting_additional_parameters()
 
               if selected == "Настройка дополнительных параметров":
                     type_parameter = st.selectbox('Выберите параметр',
@@ -2266,15 +2245,8 @@ if option == 'Линейность дозирования':
          ######### боковое меню справа
          with col2:
               
-              selected = option_menu(None, ["Настройка дополнительных параметров"], 
-                    icons=['menu-button'], 
-                    menu_icon="cast", default_index=0, orientation="vertical",
-                    styles={
-                      "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                      "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                      "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                      "nav-link-selected": {"background-color": "#73b5f2"},
-                    })
+              #оформительский элемент настройки дополнительных параметров исследования
+              selected = style_icon_setting_additional_parameters()
 
               if selected == "Настройка дополнительных параметров":
                  type_parameter = st.selectbox('Выберите параметр',
@@ -3077,7 +3049,6 @@ if option == 'Экскреция препарата':
 
          if panel == "Загрузка файлов":
             
-
             #cостояние радио-кнопки "type_ex"
             if "index_type_ex" not in st.session_state:
                 st.session_state["index_type_ex"] = 0
