@@ -1434,7 +1434,7 @@ if option == 'Биодоступность':
            #####объединенные графики
 
            ### в линейных координатах
-               col_mapping = df_intravenous_substance.columns.tolist() ### можно указать любой фрейм
+               col_mapping = df_oral_substance.columns.tolist() ### можно указать только фрейм для перорального
                col_mapping.remove('Номер')
                list_time = []
                for i in col_mapping:
@@ -1444,49 +1444,34 @@ if option == 'Биодоступность':
                err_y_1=df_averaged_concentrations_intravenous_substance.loc['std'].tolist()
                err_y_2=df_averaged_concentrations_oral_substance.loc['std'].tolist()
                err_y_3=df_averaged_concentrations_oral_rdf.loc['std'].tolist()
-               
-               df_total_injection = pd.DataFrame(list(zip(list_concentration__intravenous_substance, list_concentration__oral_substance, list_concentration__oral_rdf)),columns =['внутривенное введение','пероральное введение субстанции','пероральное введение ГЛФ'])
-               df_total_injection.loc[df_total_injection["внутривенное введение"] == 0, "внутривенное введение"] = np.nan #т.к. внутривенное введение
-               
-               df_total_error = pd.DataFrame(list(zip(err_y_1, err_y_2, err_y_3)),columns =['внутривенное введение','пероральное введение субстанции','пероральное введение ГЛФ'])
-               df_total_error.loc[df_total_injection["внутривенное введение"] == 0, "внутривенное введение"] = np.nan #т.к. внутривенное введение
-               list_name_injection = ['внутривенное введение','пероральное введение субстанции','пероральное введение ГЛФ']
-               list_name_colors = ["black","red","blue"]
-               zip_injection_colors_error = zip(list_name_injection,list_name_colors)
 
-
-               fig, ax = plt.subplots()
+               list_concentration__intravenous_substance = [np.nan] + list_concentration__intravenous_substance #чтобы длина была одинаковая
+               err_y_1 = [np.nan] + err_y_1 #чтобы длина была одинаковая
                
-               for injection,color in zip_injection_colors_error:
-                   plt.errorbar(list_time,df_total_injection[injection],yerr=df_total_error[injection],color= color, marker='o',markersize=4.0,markeredgecolor=color,markerfacecolor=color,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = injection)
-                   ax.set_xlabel(f"Время, {measure_unit_rb_time}")
-                   ax.set_ylabel("Концентрация, "+measure_unit_rb_concentration)
-                   ax.legend()
+               #вызов функции
+               fig = plot_total_mean_pk_profiles_bioavailability(list_time,list_concentration__intravenous_substance,
+                                                list_concentration__oral_substance,
+                                                list_concentration__oral_rdf,
+                                                err_y_1,err_y_2,err_y_3,
+                                                measure_unit_rb_time,measure_unit_rb_concentration,'lin')
 
                list_graphics_word.append(fig) 
 
                graphic="Сравнение фармакокинетических профилей (в линейных координатах) после внутривенного введения субстанции, перорального введения субстанции и перорального введения ГЛФ"
-               list_heading_graphics_word.append(graphic) 
-           ### в полулогарифмических координатах
-               if 0 in list_time:
-                  list_time.remove(0)
-               
-               list_concentration__oral_substance.remove(0)
-               list_concentration__oral_rdf.remove(0)
-               
-               err_y_2.remove(0) 
-               err_y_3.remove(0) 
+               list_heading_graphics_word.append(graphic)
 
-               fig, ax = plt.subplots()    
+               ### в полулогарифмических координатах
+               # Заменяем все значения меньше 1 на np.nan
+               list_concentration__intravenous_substance = [np.nan if x < 1 else x for x in list_concentration__intravenous_substance]
+               list_concentration__oral_substance = [np.nan if x < 1 else x for x in list_concentration__oral_substance]
+               list_concentration__oral_rdf = [np.nan if x < 1 else x for x in list_concentration__oral_rdf]
 
-               plt.errorbar(list_time,list_concentration__intravenous_substance,yerr=err_y_1,color="black", marker='o',markersize=4.0,markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'внутривенное введение')
-               plt.errorbar(list_time,list_concentration__oral_substance,yerr=err_y_2,color= "red", marker='o',markersize=4.0,markeredgecolor="red",markerfacecolor="red",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'пероральное введение субстанции')
-               plt.errorbar(list_time,list_concentration__oral_rdf,yerr=err_y_3,color= "blue", marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'пероральное введение ГЛФ')
-
-               ax.set_yscale("log")
-               ax.set_xlabel(f"Время, {measure_unit_rb_time}")
-               ax.set_ylabel("Концентрация, "+measure_unit_rb_concentration)
-               ax.legend()
+               #вызов функции
+               fig = plot_total_mean_pk_profiles_bioavailability(list_time,list_concentration__intravenous_substance,
+                                                list_concentration__oral_substance,
+                                                list_concentration__oral_rdf,
+                                                err_y_1,err_y_2,err_y_3,
+                                                measure_unit_rb_time,measure_unit_rb_concentration,'log')
 
                list_graphics_word.append(fig) 
 
@@ -2037,9 +2022,6 @@ if option == 'Распределение по органам':
                  list_name_organs_std.append(j)
                 
                 list_time_new_df = list_t_graph[0]
-
-                #if st.session_state["agree_injection - органы"] == True:
-                   #list_time_new_df.insert(0,0)
 
                 df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_new_df,index=list_name_organs)
                 df_mean_conc_graph_1=df_mean_conc_graph.transpose()
