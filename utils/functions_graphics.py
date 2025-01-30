@@ -263,6 +263,17 @@ def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,
             ax.legend(fontsize = 8)
     return fig
 
+def plot_tissue_accessibility(list_name_organs,list_ft):
+    ###построение диаграммы для тканевой доступности
+    list_name_organs.remove("Кровь")
+
+    fig, ax = plt.subplots()
+    sns.barplot(x=list_name_organs, y=list_ft,color='blue',width=0.3)
+    plt.ylabel("Тканевая доступность")
+    ax.set_xticklabels(list_name_organs,fontdict={'fontsize': 6.0})
+
+    return fig
+
 ###линейная регрессия
 def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
                 measure_unit_lin_time,graph_id,x_settings,y_settings,model):
@@ -344,3 +355,28 @@ def calculate_f_critical(alpha, df1, df2):
 def format_pvalue(pval, threshold=0.001):
     """Форматирует p-value для отображения"""
     return "< .001" if pval < threshold else f"{pval:.3f}"#нужно добавить инструмент округления
+
+###диаграмма экскреции
+def excretion_diagram(df,measure_unit_ex_time,measure_unit_ex_concentration):
+
+    col_mapping = df.columns.tolist()
+    col_mapping.remove('Номер')
+
+    list_time = []
+    for i in col_mapping:
+        numer=float(i)
+        list_time.append(numer)
+    
+    df_averaged_concentrations=df.describe()
+    list_concentration=df_averaged_concentrations.loc['mean'].tolist()
+
+    list_concentration.remove(0)
+    list_time.remove(0)
+
+    fig, ax = plt.subplots()
+
+    sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
+    plt.xlabel(f"Время, {measure_unit_ex_time}")
+    plt.ylabel("Концентрация, "+measure_unit_ex_concentration)
+
+    return fig
