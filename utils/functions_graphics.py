@@ -190,6 +190,16 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
 
 #####частные функции
 
+def create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic):
+    fig, ax = plt.subplots()
+    plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
+    if kind_graphic == 'log':
+        ax.set_yscale("log")
+    plt.xlabel(f"Время, {measure_unit_time}")
+    plt.ylabel("Концентрация, "+measure_unit_concentration)
+
+    return fig
+
 # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
 def replace_value_less_one_plot_total_individual_pk_profiles_doses_organs(df_for_plot_conc_1):
     # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
