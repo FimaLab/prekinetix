@@ -4,6 +4,7 @@ import seaborn as sns
 from scipy import stats
 import numpy as np
 import pandas as pd
+from cycler import cycler
 
 #####Общие функции
 
@@ -188,6 +189,35 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
          }
 
 #####частные функции
+
+# объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
+def replace_value_less_one_plot_total_individual_pk_profiles_doses_organs(df_for_plot_conc_1):
+    # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
+    df_for_plot_conc_1_log = df_for_plot_conc_1.copy()  # Создаем копию исходного DataFrame
+    df_for_plot_conc_1_log[df_for_plot_conc_1_log < 1] = np.nan  # Заменяем значения меньше 1 на np.nan
+
+    return df_for_plot_conc_1_log
+
+#функция построения графика объединенного индивидуальных профелей
+def plot_total_individual_pk_profiles_doses_organs(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_time,measure_unit_concentration,count_numer_animal,kind_graphic):
+    fig, ax = plt.subplots()
+
+    ax.set_prop_cycle(cycler(color=list_color))
+
+    plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
+
+    ax.set_xlabel(f"Время, {measure_unit_time}")
+    ax.set_ylabel("Концентрация, "+ measure_unit_concentration)
+    if kind_graphic == 'log':
+        ax.set_yscale("log")
+    if count_numer_animal > 20:
+        ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
+    else:
+        ax.legend(bbox_to_anchor=(1, 1))
+
+    return fig
+
+#функция построения графика индивидуального срединных профелей
 def plot_pk_profile_individual_mean_std_doses_organs(list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic):
     fig, ax = plt.subplots()
     plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
