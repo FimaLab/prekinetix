@@ -245,10 +245,6 @@ def replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat
     # Применяем замену только к этим колонкам
     df_concat_mean_std[cols_without_std] = df_concat_mean_std[cols_without_std].mask(df_concat_mean_std[cols_without_std] < 1, np.nan)
 
-    cols_std = [col for col in df_concat_mean_std.columns if "std" in col]
-    # Применяем замену только к этим колонкам
-    df_concat_mean_std[cols_std] = df_concat_mean_std[cols_std].mask(df_concat_mean_std[cols_std] == 0, np.nan)
-
     return df_concat_mean_std
 
 ###построение графика "Фармакокинетический профиль в различных органах или дозировках" сравнительные срединные
@@ -261,6 +257,25 @@ def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,
             plt.xlabel(f"Время, {measure_unit_time}")
             plt.ylabel("Концентрация, "+ measure_unit_concentration)
             ax.legend(fontsize = 8)
+    return fig
+
+#сравнение разных видов введения
+def plot_total_mean_pk_profiles_bioavailability(list_time,list_concentration__intravenous_substance,
+                                                list_concentration__oral_substance,
+                                                list_concentration__oral_rdf,
+                                                err_y_1,err_y_2,err_y_3,
+                                                measure_unit_rb_time,measure_unit_rb_concentration,kind_graphic):
+    fig, ax = plt.subplots()    
+
+    plt.errorbar(list_time,list_concentration__intravenous_substance,yerr=err_y_1,color="black", marker='o',markersize=4.0,markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'внутривенное введение')
+    plt.errorbar(list_time,list_concentration__oral_substance,yerr=err_y_2,color= "red", marker='o',markersize=4.0,markeredgecolor="red",markerfacecolor="red",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'пероральное введение субстанции')
+    plt.errorbar(list_time,list_concentration__oral_rdf,yerr=err_y_3,color= "blue", marker='o',markersize=4.0,markeredgecolor="blue",markerfacecolor="blue",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0, label = 'пероральное введение ГЛФ')
+    if kind_graphic == 'log':
+       ax.set_yscale("log")
+    ax.set_xlabel(f"Время, {measure_unit_rb_time}")
+    ax.set_ylabel("Концентрация, "+measure_unit_rb_concentration)
+    ax.legend()
+
     return fig
 
 def plot_tissue_accessibility(list_name_organs,list_ft):
