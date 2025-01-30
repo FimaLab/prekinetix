@@ -6,13 +6,9 @@ st.set_page_config(page_title="Доклинические исследовани
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import statistics  
-import seaborn as sns
 import statsmodels.api as sm
 import os
-from cycler import cycler
-from streamlit_option_menu import option_menu
 from utils.functions import *
 from utils.functions_graphics import *
 from utils.functions_calculation import *
@@ -214,36 +210,17 @@ if option == 'Фармакокинетика':
 
                   list_concentration = [float(v) for v in list_concentration]
 
-                  #if st.session_state["agree_injection - фк"] == True:
-                     #list_concentration.remove(0)
-
-
-                  fig, ax = plt.subplots()
-                  plt.plot(list_time,list_concentration,marker='o',markersize=4.0, color = "black", markeredgecolor="black",markerfacecolor="black")
-                  plt.xlabel(f"Время, {measure_unit_pk_time}")
-                  plt.ylabel("Концентрация, "+measure_unit_pk_concentration)
+                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_pk_time, measure_unit_pk_concentration, 'lin')
                  
                   list_graphics_word.append(fig)  
 
                   graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после введения ЛС,  '+numer_animal
                   list_heading_graphics_word.append(graphic)
 
-               #в полулогарифмических координатах методом удаления точек
-                  count_for_0_1=len(list_concentration)
-                  list_range_for_0_1=range(0,count_for_0_1)
+                  #в полулогарифмических координатах методом удаления точек
+                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                  list_time_0=[]
-                  list_for_log_1=[]
-                  for i in list_range_for_0_1:
-                      if list_concentration[i] !=0:
-                         list_for_log_1.append(list_concentration[i])
-                         list_time_0.append(list_time[i]) 
-
-                  fig, ax = plt.subplots()
-                  plt.plot(list_time_0,list_for_log_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
-                  ax.set_yscale("log")
-                  plt.xlabel(f"Время, {measure_unit_pk_time}")
-                  plt.ylabel("Концентрация, "+measure_unit_pk_concentration)
+                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_pk_time, measure_unit_pk_concentration, 'log')
 
                   list_graphics_word.append(fig) 
 
@@ -255,55 +232,30 @@ if option == 'Фармакокинетика':
               df_for_plot_conc=df.drop(['Номер'], axis=1)
               df_for_plot_conc_1 = df_for_plot_conc.transpose()
 
-              if st.session_state["agree_injection - фк"] == True:
-                 df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
-
               list_numer_animal_for_plot=df['Номер'].tolist()
               count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
               list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
-              fig, ax = plt.subplots()
-              
-              ax.set_prop_cycle(cycler(color=list_color))
-
-              plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
-              ax.set_xlabel(f"Время, {measure_unit_pk_time}")
-              ax.set_ylabel("Концентрация, "+measure_unit_pk_concentration)
-              if count_numer_animal > 20:
-                 ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
-              else:
-                 ax.legend(bbox_to_anchor=(1, 1))
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_pk_time,measure_unit_pk_concentration,count_numer_animal,'lin')
 
               list_graphics_word.append(fig) 
 
               graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после введения ЛС"
-              list_heading_graphics_word.append(graphic)    
-           # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
-              df_for_plot_conc_1_log=df_for_plot_conc_1.replace(0, None)
+              list_heading_graphics_word.append(graphic)
 
-              fig, ax = plt.subplots()
-              
-              ax.set_prop_cycle(cycler(color=list_color))
+              # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
+              df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
-              plt.plot(df_for_plot_conc_1_log,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
-
-              ax.set_xlabel(f"Время, {measure_unit_pk_time}")
-              ax.set_ylabel("Концентрация, "+measure_unit_pk_concentration)
-              ax.set_yscale("log")
-              if count_numer_animal > 20:
-                 ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
-              else:
-                 ax.legend(bbox_to_anchor=(1, 1))
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_pk_time,measure_unit_pk_concentration,count_numer_animal,'log')
 
               list_graphics_word.append(fig) 
        
               graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после введения ЛС"
               list_heading_graphics_word.append(graphic) 
 
-           ### усреденные    
-           #в линейных    
+              ### усреденные    
+              #в линейных    
 
               list_time = []
               for i in col_mapping:
@@ -314,21 +266,17 @@ if option == 'Фармакокинетика':
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_pk=df_averaged_concentrations.loc['std'].tolist()
 
-              fig, ax = plt.subplots()
-              plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
-              plt.xlabel(f"Время, {measure_unit_pk_time}")
-              plt.ylabel("Концентрация, "+measure_unit_pk_concentration)
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,measure_unit_pk_time,measure_unit_pk_concentration,'lin')
 
               list_graphics_word.append(fig) 
 
               graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после введения ЛС'
               list_heading_graphics_word.append(graphic)  
 
-              fig, ax = plt.subplots()
-              plt.errorbar(list_time,list_concentration,yerr=err_y_pk, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
-              ax.set_yscale("log")
-              plt.xlabel(f"Время, {measure_unit_pk_time}")
-              plt.ylabel("Концентрация, "+measure_unit_pk_concentration)
+              #в полулогарифмических координатах
+              list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+               
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,measure_unit_pk_time,measure_unit_pk_concentration,'log')
 
               list_graphics_word.append(fig) 
 
@@ -606,8 +554,6 @@ if option == 'Биодоступность':
 
               df_for_plot_conc=df.drop(['Номер'], axis=1)
               df_for_plot_conc_1 = df_for_plot_conc.transpose()
-
-              df_for_plot_conc_1=df_for_plot_conc_1.replace(0, None) ###т.к. внутривенное
 
               list_numer_animal_for_plot=df['Номер'].tolist()
               count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
