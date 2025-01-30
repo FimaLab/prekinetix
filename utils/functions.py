@@ -34,7 +34,7 @@ def initializing_session_state_frames_research_results():
     if 'df_total_PK_po_rdf' not in st.session_state:
         st.session_state['df_total_PK_po_rdf'] = None
 
-def style_icon_report():
+def style_icon_setting_additional_parameters():
     selected = option_menu(None, ["Настройка дополнительных параметров"], 
                icons=['menu-button'], 
                menu_icon="cast", default_index=0, orientation="vertical",
@@ -44,6 +44,8 @@ def style_icon_report():
                  "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
                  "nav-link-selected": {"background-color": "#73b5f2"},
                })
+    
+    return selected
 
 def style_icon_report():
     selected = option_menu(None, ["Cформированный отчeт"], 
