@@ -51,12 +51,6 @@ st.sidebar.download_button('Инструкция по заполнению 📝'
 #Инизиализация состояния фреймов с результатами исследований
 initializing_session_state_frames_research_results()
 
-if 'df1_model_lin' not in st.session_state:
-    st.session_state['df1_model_lin'] = 1
-
-if 'df2_model_lin' not in st.session_state:
-    st.session_state['df2_model_lin'] = 1
-
 ################################
 if option == 'Фармакокинетика':
 
@@ -134,10 +128,13 @@ if option == 'Фармакокинетика':
                        custom_success("Выбрано: Внутривенное введение!")
                    else:
                        custom_success("Выбрано: Внесосудистое введение!")
-
+           
            measure_unit_pk_time  = select_time_unit("фк")
            measure_unit_pk_concentration  = select_concentration_unit("фк")
            measure_unit_pk_dose  = select_dose_unit("фк")
+           #сохранение состояния выбора единиц измерения для данного исследования
+           save_session_state_measure_unit_value(measure_unit_pk_time,measure_unit_pk_concentration,"фк",measure_unit_pk_dose) 
+           
 
 
            #cостояние радио-кнопки "method_auc"
@@ -166,7 +163,7 @@ if option == 'Фармакокинетика':
            
            st.session_state["dose_pk"] = dose_pk
            
-           if "uploaded_file_pk" in st.session_state and dose_pk and measure_unit_pk_concentration:
+           if "uploaded_file_pk" in st.session_state and dose_pk and st.session_state['measure_unit_фк_concentration']:
 
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_pk"]))
               st.subheader('Индивидуальные значения концентраций в крови после введения ЛС')
@@ -210,7 +207,7 @@ if option == 'Фармакокинетика':
 
                   list_concentration = [float(v) for v in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_pk_time, measure_unit_pk_concentration, 'lin')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_фк_time'], st.session_state['measure_unit_фк_concentration'], 'lin')
                  
                   list_graphics_word.append(fig)  
 
@@ -220,7 +217,7 @@ if option == 'Фармакокинетика':
                   #в полулогарифмических координатах методом удаления точек
                   list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_pk_time, measure_unit_pk_concentration, 'log')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_фк_time'], st.session_state['measure_unit_фк_concentration'], 'log')
 
                   list_graphics_word.append(fig) 
 
@@ -237,7 +234,7 @@ if option == 'Фармакокинетика':
 
               list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_pk_time,measure_unit_pk_concentration,count_numer_animal,'lin')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_concentration'],count_numer_animal,'lin')
 
               list_graphics_word.append(fig) 
 
@@ -247,7 +244,7 @@ if option == 'Фармакокинетика':
               # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
               df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_pk_time,measure_unit_pk_concentration,count_numer_animal,'log')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_concentration'],count_numer_animal,'log')
 
               list_graphics_word.append(fig) 
        
@@ -266,7 +263,7 @@ if option == 'Фармакокинетика':
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_pk=df_averaged_concentrations.loc['std'].tolist()
 
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,measure_unit_pk_time,measure_unit_pk_concentration,'lin')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_concentration'],'lin')
 
               list_graphics_word.append(fig) 
 
@@ -276,7 +273,7 @@ if option == 'Фармакокинетика':
               #в полулогарифмических координатах
               list_concentration = [np.nan if x < 1 else x for x in list_concentration]
                
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,measure_unit_pk_time,measure_unit_pk_concentration,'log')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_concentration'],'log')
 
               list_graphics_word.append(fig) 
 
@@ -285,9 +282,9 @@ if option == 'Фармакокинетика':
 
               ############ Параметры ФК
               if st.session_state["agree_injection - фк"] == False:
-                  result_PK = pk_parametrs_total_extravascular(df,"фк",method_auc,dose_pk,measure_unit_pk_concentration,measure_unit_pk_time,measure_unit_pk_dose)
+                  result_PK = pk_parametrs_total_extravascular(df,"фк",method_auc,dose_pk,st.session_state['measure_unit_фк_concentration'],st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_dose'])
               else:
-                  result_PK = pk_parametrs_total_intravenously(df,"фк",method_auc,dose_pk,measure_unit_pk_concentration,measure_unit_pk_time,measure_unit_pk_dose)
+                  result_PK = pk_parametrs_total_intravenously(df,"фк",method_auc,dose_pk,st.session_state['measure_unit_фк_concentration'],st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_dose'])
               
               
               if result_PK is not None:
@@ -460,6 +457,9 @@ if option == 'Биодоступность':
            measure_unit_rb_time  = select_time_unit("ИБ")
            measure_unit_rb_concentration = select_concentration_unit("ИБ")
            measure_unit_rb_dose  = select_dose_unit("ИБ")
+           #сохранение состояния выбора единиц измерения для данного исследования
+           save_session_state_measure_unit_value(measure_unit_rb_time,measure_unit_rb_concentration,"ИБ",measure_unit_rb_dose)
+
            
            #cостояние радио-кнопки "method_auc"
            if "index_method_auc - ИБ" not in st.session_state:
@@ -488,7 +488,7 @@ if option == 'Биодоступность':
            
            st.session_state["dose_iv"] = dose_iv
 
-           if "uploaded_file_1" in st.session_state and dose_iv and measure_unit_rb_concentration:
+           if "uploaded_file_1" in st.session_state and dose_iv and st.session_state['measure_unit_ИБ_concentration']:
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
               st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения субстанции')
               
@@ -532,7 +532,7 @@ if option == 'Биодоступность':
 
                   list_concentration = [float(v) for v in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_rb_time, measure_unit_rb_concentration, 'lin')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_concentration'], 'lin')
                   
                   list_graphics_word.append(fig) 
                   
@@ -543,7 +543,7 @@ if option == 'Биодоступность':
                   #в полулогарифмических координатах
                   list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_rb_time, measure_unit_rb_concentration, 'log')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_concentration'], 'log')
                   
                   list_graphics_word.append(fig)
                   
@@ -560,7 +560,7 @@ if option == 'Биодоступность':
 
               list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
               
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_rb_time,measure_unit_rb_concentration,count_numer_animal,'lin')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,'lin')
                  
               list_graphics_word.append(fig)
 
@@ -570,7 +570,7 @@ if option == 'Биодоступность':
               # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
               df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_rb_time,measure_unit_rb_concentration,count_numer_animal,'log')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,'log')
               
               list_graphics_word.append(fig)
 
@@ -587,7 +587,7 @@ if option == 'Биодоступность':
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_1=df_averaged_concentrations.loc['std'].tolist()
               
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_rb_time,measure_unit_rb_concentration,'lin')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
               
               list_graphics_word.append(fig) 
 
@@ -597,7 +597,7 @@ if option == 'Биодоступность':
               #в полулогарифмических координатах
               list_concentration = [np.nan if x < 1 else x for x in list_concentration]
                
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_rb_time,measure_unit_rb_concentration,'log')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
               
               list_graphics_word.append(fig)
 
@@ -607,7 +607,7 @@ if option == 'Биодоступность':
 
               ############ Параметры ФК
 
-              result_PK = pk_parametrs_total_intravenously(df,"ИБ_iv",method_auc,dose_iv,measure_unit_rb_concentration,measure_unit_rb_time, measure_unit_rb_dose)
+              result_PK = pk_parametrs_total_intravenously(df,"ИБ_iv",method_auc,dose_iv,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
 
               if result_PK is not None:
                   if st.session_state["agree_cmax2 - ИБ"] == False:
@@ -714,7 +714,7 @@ if option == 'Биодоступность':
            
            st.session_state["dose_po_sub"] = dose_po_sub
 
-           if "uploaded_file_2" in st.session_state and dose_po_sub and measure_unit_rb_concentration:
+           if "uploaded_file_2" in st.session_state and dose_po_sub and st.session_state['measure_unit_ИБ_concentration']:
 
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
               st.subheader('Индивидуальные значения концентраций в крови после перорального введения субстанции')
@@ -758,7 +758,7 @@ if option == 'Биодоступность':
 
                   list_concentration = [float(v) for v in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_rb_time, measure_unit_rb_concentration, 'lin')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_concentration'], 'lin')
                  
                   list_graphics_word.append(fig)  
 
@@ -768,7 +768,7 @@ if option == 'Биодоступность':
                   #в полулогарифмических координатах
                   list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_rb_time, measure_unit_rb_concentration, 'log')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_concentration'], 'log')
 
                   list_graphics_word.append(fig) 
 
@@ -784,7 +784,7 @@ if option == 'Биодоступность':
 
               list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_rb_time,measure_unit_rb_concentration,count_numer_animal,'lin')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,'lin')
 
               list_graphics_word.append(fig) 
 
@@ -794,7 +794,7 @@ if option == 'Биодоступность':
               # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
               df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_rb_time,measure_unit_rb_concentration,count_numer_animal,'log')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,'log')
 
               list_graphics_word.append(fig) 
        
@@ -813,7 +813,7 @@ if option == 'Биодоступность':
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_2=df_averaged_concentrations.loc['std'].tolist()
 
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_2,measure_unit_rb_time,measure_unit_rb_concentration,'lin')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
 
               list_graphics_word.append(fig) 
 
@@ -823,7 +823,7 @@ if option == 'Биодоступность':
               #в полулогарифмических координатах
               list_concentration = [np.nan if x < 1 else x for x in list_concentration]
                
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_2,measure_unit_rb_time,measure_unit_rb_concentration,'log')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
 
               list_graphics_word.append(fig) 
 
@@ -832,7 +832,7 @@ if option == 'Биодоступность':
 
               ############ Параметры ФК
 
-              result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_sub",method_auc,dose_po_sub,measure_unit_rb_concentration,measure_unit_rb_time, measure_unit_rb_dose)
+              result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_sub",method_auc,dose_po_sub,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
 
               if result_PK is not None:
                   if st.session_state["agree_cmax2 - ИБ"] == False:
@@ -940,7 +940,7 @@ if option == 'Биодоступность':
            
            st.session_state["dose_po_rdf"] = dose_po_rdf
 
-           if "uploaded_file_3" in st.session_state and dose_po_rdf and measure_unit_rb_concentration:
+           if "uploaded_file_3" in st.session_state and dose_po_rdf and st.session_state['measure_unit_ИБ_concentration']:
 
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_3"]))
               st.subheader('Индивидуальные значения концентраций в крови после перорального введения ГЛФ')
@@ -984,7 +984,7 @@ if option == 'Биодоступность':
 
                   list_concentration = [float(v) for v in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_rb_time, measure_unit_rb_concentration, 'lin')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_concentration'], 'lin')
                  
                   list_graphics_word.append(fig)  
 
@@ -994,7 +994,7 @@ if option == 'Биодоступность':
                   #в полулогарифмических координатах
                   list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                  fig = create_individual_graphics(list_time,list_concentration,measure_unit_rb_time, measure_unit_rb_concentration, 'log')
+                  fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_concentration'], 'log')
 
                   list_graphics_word.append(fig) 
 
@@ -1010,7 +1010,7 @@ if option == 'Биодоступность':
 
               list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_rb_time,measure_unit_rb_concentration,count_numer_animal,'lin')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,'lin')
 
               list_graphics_word.append(fig) 
 
@@ -1020,7 +1020,7 @@ if option == 'Биодоступность':
               # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
               df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
-              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_rb_time,measure_unit_rb_concentration,count_numer_animal,'log')
+              fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,'log')
 
               list_graphics_word.append(fig) 
        
@@ -1039,7 +1039,7 @@ if option == 'Биодоступность':
               list_concentration=df_averaged_concentrations.loc['mean'].tolist()
               err_y_3=df_averaged_concentrations.loc['std'].tolist()
 
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_3,measure_unit_rb_time,measure_unit_rb_concentration,'lin')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
 
               list_graphics_word.append(fig) 
 
@@ -1049,7 +1049,7 @@ if option == 'Биодоступность':
               #в полулогарифмических координатах
               list_concentration = [np.nan if x < 1 else x for x in list_concentration]
                
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_3,measure_unit_rb_time,measure_unit_rb_concentration,'log')
+              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
 
               list_graphics_word.append(fig) 
 
@@ -1058,7 +1058,7 @@ if option == 'Биодоступность':
 
               ############### Параметры ФК
 
-              result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_rdf",method_auc,dose_po_rdf,measure_unit_rb_concentration,measure_unit_rb_time, measure_unit_rb_dose)
+              result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_rdf",method_auc,dose_po_rdf,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
 
               if result_PK is not None:
                   if st.session_state["agree_cmax2 - ИБ"] == False:
@@ -1152,7 +1152,7 @@ if option == 'Биодоступность':
            ###Биодоступность
            button_calculation_bioavailability = False
            
-           if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit_rb_concentration and dose_iv and dose_po_sub and dose_po_rdf and st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
+           if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and st.session_state['measure_unit_ИБ_concentration'] and dose_iv and dose_po_sub and dose_po_rdf and st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
               
               condition_iv_cmax1 =  len(list_cmax_1_iv) == count_rows_number_iv
               condition_sub_cmax1 = len(list_cmax_1_sub) == count_rows_number_sub
@@ -1175,7 +1175,7 @@ if option == 'Биодоступность':
               else:   
                  st.error('Заполните все поля ввода и загрузите файлы!')
 
-           if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and measure_unit_rb_concentration and dose_iv and dose_po_sub and dose_po_rdf and button_calculation_bioavailability:
+           if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and st.session_state['measure_unit_ИБ_concentration'] and dose_iv and dose_po_sub and dose_po_rdf and button_calculation_bioavailability:
                
                table_heading='Усредненные фармакокинетические параметры в крови после внутривенного введения субстанции, перорального введения субстанции и перорального введения ГЛФ, а также абсолютная и относительная биодоступность'
                list_heading_word.append(table_heading)
@@ -1207,7 +1207,7 @@ if option == 'Биодоступность':
 
            ### итоговый фрейм по PK параметрам
 
-               list_index_for_df_total_PK_mean = ['Cmax ' +"("+measure_unit_rb_concentration+")",'Tmax ' +"("+f"{measure_unit_rb_time}"+")",'AUC0-t '+"("+measure_unit_rb_concentration+f"×{measure_unit_rb_time}" +")",'Kel '+"("+f"{measure_unit_rb_time}\u207B\u00B9"+")",'AUC0→∞ '+"("+measure_unit_rb_concentration+f"×{measure_unit_rb_time}" +")",'T1/2 '+"("+f"{measure_unit_rb_time}"+")",'AUMC0-∞ '+"("+measure_unit_rb_concentration+f"×{measure_unit_rb_time}\u00B2"+")",'MRT0→∞ '+"("+f"{measure_unit_rb_time}"+")",'Сmax/AUC0-t '+"("+f"{measure_unit_rb_time}\u207B\u00B9"+")","F(абсолютная биодоступность),%","Относительная биодоступность,% (по сравнению с пероральным введением субстанции)"]
+               list_index_for_df_total_PK_mean = ['Cmax ' +"("+st.session_state['measure_unit_ИБ_concentration']+")",'Tmax ' +"("+f"{st.session_state['measure_unit_ИБ_time']}"+")",'AUC0-t '+"("+st.session_state['measure_unit_ИБ_concentration']+f"×{st.session_state['measure_unit_ИБ_time']}" +")",'Kel '+"("+f"{st.session_state['measure_unit_ИБ_time']}\u207B\u00B9"+")",'AUC0→∞ '+"("+st.session_state['measure_unit_ИБ_concentration']+f"×{st.session_state['measure_unit_ИБ_time']}" +")",'T1/2 '+"("+f"{st.session_state['measure_unit_ИБ_time']}"+")",'AUMC0-∞ '+"("+st.session_state['measure_unit_ИБ_concentration']+f"×{st.session_state['measure_unit_ИБ_time']}\u00B2"+")",'MRT0→∞ '+"("+f"{st.session_state['measure_unit_ИБ_time']}"+")",'Сmax/AUC0-t '+"("+f"{st.session_state['measure_unit_ИБ_time']}\u207B\u00B9"+")","F(абсолютная биодоступность),%","Относительная биодоступность,% (по сравнению с пероральным введением субстанции)"]
                
                #добавление значений биодоступности
                list_parametr_round_mean_h_iv.append("-")
@@ -1247,7 +1247,7 @@ if option == 'Биодоступность':
                                                 list_concentration__oral_substance,
                                                 list_concentration__oral_rdf,
                                                 err_y_1,err_y_2,err_y_3,
-                                                measure_unit_rb_time,measure_unit_rb_concentration,'lin')
+                                                st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
 
                list_graphics_word.append(fig) 
 
@@ -1265,7 +1265,7 @@ if option == 'Биодоступность':
                                                 list_concentration__oral_substance,
                                                 list_concentration__oral_rdf,
                                                 err_y_1,err_y_2,err_y_3,
-                                                measure_unit_rb_time,measure_unit_rb_concentration,'log')
+                                                st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
 
                list_graphics_word.append(fig) 
 
@@ -1442,6 +1442,8 @@ if option == 'Распределение по органам':
          measure_unit_org_blood = select_concentration_unit("органы")
          measure_unit_org_organs = select_organ_concentration_unit("органы")
          measure_unit_org_dose = select_dose_unit("органы")
+         #сохранение состояния выбора единиц измерения для данного исследования
+         save_session_state_measure_unit_value(measure_unit_org_time,measure_unit_org_blood,"органы",measure_unit_org_dose,measure_unit_org_organs=measure_unit_org_organs)
          
          dose = st.text_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных', value = st.session_state["dose_org"])
          
@@ -1484,7 +1486,7 @@ if option == 'Распределение по органам':
                 list_keys_file_org.append(i)
 
 
-         if (list_keys_file_org != []) and dose and measure_unit_org_blood and measure_unit_org_organs:
+         if (list_keys_file_org != []) and dose and st.session_state['measure_unit_органы_concentration'] and st.session_state['measure_unit_органы_organs']:
 
              list_name_organs=[]
              list_df_unrounded=[]
@@ -1524,9 +1526,9 @@ if option == 'Распределение по органам':
                  list_table_word.append(df_concat_round_str_transpose)
 
                  if file_name == "Кровь":
-                    measure_unit_org = measure_unit_org_blood
+                    measure_unit_org = st.session_state['measure_unit_органы_concentration']
                  else:
-                    measure_unit_org = measure_unit_org_organs
+                    measure_unit_org = st.session_state['measure_unit_органы_organs']
                  ########### графики    
 
                  ######индивидуальные    
@@ -1554,7 +1556,7 @@ if option == 'Распределение по органам':
                      list_concentration = [float(v) for v in list_concentration]
 
                      #вызов функции индивидуальный график в линейной шкале
-                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_org_time, measure_unit_org, "lin")
+                     fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_органы_time'], measure_unit_org, "lin")
       
                      list_graphics_word.append(fig)
 
@@ -1567,7 +1569,7 @@ if option == 'Распределение по органам':
                      list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                      #вызов функции индивидуальный график в полулогарифмической шкале
-                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_org_time, measure_unit_org, "log")
+                     fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_органы_time'], measure_unit_org, "log")
 
                      
                      list_graphics_word.append(fig)
@@ -1587,7 +1589,7 @@ if option == 'Распределение по органам':
 
                  #вызов функции построения графика общего индивидуальных профелей линейный
                  fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      measure_unit_org_time,measure_unit_org,count_numer_animal,'lin')
+                                                                      st.session_state['measure_unit_органы_time'],measure_unit_org,count_numer_animal,'lin')
                  
                  list_graphics_word.append(fig)
 
@@ -1599,7 +1601,7 @@ if option == 'Распределение по органам':
 
                  #вызов функции построения графика общего индивидуальных профелей полулогарифм
                  fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      measure_unit_org_time,measure_unit_org,count_numer_animal,'log')
+                                                                      st.session_state['measure_unit_органы_time'],measure_unit_org,count_numer_animal,'log')
                  
                  list_graphics_word.append(fig)
 
@@ -1617,7 +1619,7 @@ if option == 'Распределение по органам':
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
                  
                  #вызов функции построения графика индивидуального срединных профелей линейный
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_org_time,
+                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_органы_time'],
                                                                         measure_unit_org,'lin')
                  
                  list_graphics_word.append(fig)
@@ -1631,7 +1633,7 @@ if option == 'Распределение по органам':
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                  #вызов функции построения графика индивидуального срединных профелей логарифм
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_org_time,
+                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_органы_time'],
                                                                         measure_unit_org,'log')
 
                  list_graphics_word.append(fig)
@@ -1649,9 +1651,9 @@ if option == 'Распределение по органам':
 
 
                  if st.session_state["agree_injection - органы"] == False:
-                     result_PK = pk_parametrs_total_extravascular(df,f"органы {file_name}",method_auc,dose,measure_unit_org,measure_unit_org_time,measure_unit_org_dose)
+                     result_PK = pk_parametrs_total_extravascular(df,f"органы {file_name}",method_auc,dose,measure_unit_org,st.session_state['measure_unit_органы_time'],st.session_state['measure_unit_органы_dose'])
                  else:
-                     result_PK = pk_parametrs_total_intravenously(df,f"органы {file_name}",method_auc,dose,measure_unit_org,measure_unit_org_time,measure_unit_org_dose)
+                     result_PK = pk_parametrs_total_intravenously(df,f"органы {file_name}",method_auc,dose,measure_unit_org,st.session_state['measure_unit_органы_time'],st.session_state['measure_unit_органы_dose'])
 
                  if result_PK is not None:
                      if st.session_state["agree_cmax2 - органы"] == False:
@@ -1693,7 +1695,7 @@ if option == 'Распределение по органам':
              ###Кнопка активации дальнейших действий
              button_calculation = False
              
-             if (list_keys_file_org != []) and dose and measure_unit_org_blood and measure_unit_org_organs and result_PK is not None:
+             if (list_keys_file_org != []) and dose and st.session_state['measure_unit_органы_concentration'] and st.session_state['measure_unit_органы_organs'] and result_PK is not None:
               
                 condition_cmax1 =  len(list_cmax_1_org) == count_rows_number_org
                 
@@ -1712,7 +1714,7 @@ if option == 'Распределение по органам':
                 else:   
                    st.error('Заполните все поля ввода и загрузите файлы!')
              
-             if (list_keys_file_org != []) and dose and measure_unit_org_blood and measure_unit_org_organs and button_calculation:
+             if (list_keys_file_org != []) and dose and st.session_state['measure_unit_органы_concentration'] and st.session_state['measure_unit_органы_organs'] and button_calculation:
                 
                 list_list_PK_par_mean=[]
                 for i in list_df_unrounded: 
@@ -1752,35 +1754,35 @@ if option == 'Распределение по органам':
                 df_PK_organs_total_transpose.loc[ len(df_PK_organs_total_transpose.index )] = list_ft_round
 
 
-                df_PK_organs_total_transpose.index=['Cmax ' +"("+measure_unit_org_blood+")",'Tmax ' +"("+f"{measure_unit_org_time}"+")",'MRT0→∞ '+"("+f"{measure_unit_org_time}"+")",'T1/2 '+"("+f"{measure_unit_org_time}"+")",'AUC0-t '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}" +")",'AUC0→∞ '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}" +")",'AUMC0-∞ '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}\u00B2" +")",'Kel '+"("+f"{measure_unit_org_time}\u207B\u00B9"+")",'fт']
+                df_PK_organs_total_transpose.index=['Cmax ' +"("+st.session_state['measure_unit_органы_concentration']+")",'Tmax ' +"("+f"{st.session_state['measure_unit_органы_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state['measure_unit_органы_time']}"+")",'T1/2 '+"("+f"{st.session_state['measure_unit_органы_time']}"+")",'AUC0-t '+"("+st.session_state['measure_unit_органы_concentration']+f"×{st.session_state['measure_unit_органы_time']}" +")",'AUC0→∞ '+"("+st.session_state['measure_unit_органы_concentration']+f"×{st.session_state['measure_unit_органы_time']}" +")",'AUMC0-∞ '+"("+st.session_state['measure_unit_органы_concentration']+f"×{st.session_state['measure_unit_органы_time']}\u00B2" +")",'Kel '+"("+f"{st.session_state['measure_unit_органы_time']}\u207B\u00B9"+")",'fт']
                 
                 #округление фрейма df_PK_organs_total_transpose
 
                 df_organs_trans_trans=df_PK_organs_total_transpose.transpose()
 
 
-                series_Cmax=df_organs_trans_trans['Cmax ' +"("+measure_unit_org_blood+")"].tolist() 
+                series_Cmax=df_organs_trans_trans['Cmax ' +"("+st.session_state['measure_unit_органы_concentration']+")"].tolist() 
                 series_Cmax=pd.Series([v for v in series_Cmax])
 
-                series_Tmax=df_organs_trans_trans['Tmax ' +"("+f"{measure_unit_org_time}"+")"].tolist()       
+                series_Tmax=df_organs_trans_trans['Tmax ' +"("+f"{st.session_state['measure_unit_органы_time']}"+")"].tolist()       
                 series_Tmax=pd.Series([v for v in series_Tmax]) 
                 
-                series_MRT0_inf= df_organs_trans_trans['MRT0→∞ '+"("+f"{measure_unit_org_time}"+")"].tolist()   
+                series_MRT0_inf= df_organs_trans_trans['MRT0→∞ '+"("+f"{st.session_state['measure_unit_органы_time']}"+")"].tolist()   
                 series_MRT0_inf=pd.Series([v for v in series_MRT0_inf])
 
-                series_half_live= df_organs_trans_trans['T1/2 '+"("+f"{measure_unit_org_time}"+")"].tolist()   
+                series_half_live= df_organs_trans_trans['T1/2 '+"("+f"{st.session_state['measure_unit_органы_time']}"+")"].tolist()   
                 series_half_live=pd.Series([v for v in series_half_live]) 
 
-                series_AUC0_t= df_organs_trans_trans['AUC0-t '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}" +")"].tolist()   
+                series_AUC0_t= df_organs_trans_trans['AUC0-t '+"("+st.session_state['measure_unit_органы_concentration']+f"×{st.session_state['measure_unit_органы_time']}" +")"].tolist()   
                 series_AUC0_t=pd.Series([v for v in series_AUC0_t])
 
-                series_AUC0_inf= df_organs_trans_trans['AUC0→∞ '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}" +")"].tolist()  
+                series_AUC0_inf= df_organs_trans_trans['AUC0→∞ '+"("+st.session_state['measure_unit_органы_concentration']+f"×{st.session_state['measure_unit_органы_time']}" +")"].tolist()  
                 series_AUC0_inf=pd.Series([v for v in series_AUC0_inf]) 
 
-                series_AUMC0_inf= df_organs_trans_trans['AUMC0-∞ '+"("+measure_unit_org_blood+f"×{measure_unit_org_time}\u00B2" +")"].tolist()   
+                series_AUMC0_inf= df_organs_trans_trans['AUMC0-∞ '+"("+st.session_state['measure_unit_органы_concentration']+f"×{st.session_state['measure_unit_органы_time']}\u00B2" +")"].tolist()   
                 series_AUMC0_inf=pd.Series([v for v in series_AUMC0_inf])
           
-                series_Kel= df_organs_trans_trans['Kel '+"("+f"{measure_unit_org_time}\u207B\u00B9"+")"].tolist()   
+                series_Kel= df_organs_trans_trans['Kel '+"("+f"{st.session_state['measure_unit_органы_time']}\u207B\u00B9"+")"].tolist()   
                 series_Kel=pd.Series([v for v in series_Kel])
 
                 series_ft= df_organs_trans_trans['fт'].tolist() ##уже округлен
@@ -1831,8 +1833,8 @@ if option == 'Распределение по органам':
                 list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)    
 
                 #вызов функции построения графика сравнения срединных профелей линейные
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,measure_unit_org_time,
-                                                             measure_unit_org_blood,'lin')
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,st.session_state['measure_unit_органы_time'],
+                                                             st.session_state['measure_unit_органы_concentration'],'lin')
                 
                 list_graphics_word.append(fig)
 
@@ -1847,8 +1849,8 @@ if option == 'Распределение по органам':
                 list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)
 
                 #вызов функции построения графика сравнения срединных профелей полулогарифм
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,measure_unit_org_time,
-                                                             measure_unit_org_blood,'log')
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,st.session_state['measure_unit_органы_time'],
+                                                             st.session_state['measure_unit_органы_concentration'],'log')
                 
                 list_graphics_word.append(fig)
 
@@ -2027,6 +2029,8 @@ if option == 'Линейность дозирования':
          measure_unit_lin_time = select_time_unit("линейность")
          measure_unit_lin_concentration = select_concentration_unit("линейность")
          measure_unit_dose_lin = select_dose_unit("линейность")
+         #сохранение состояния выбора единиц измерения для данного исследования
+         save_session_state_measure_unit_value(measure_unit_lin_time,measure_unit_lin_concentration,"линейность",measure_unit_dose_lin)
 
          #cостояние радио-кнопки "method_auc"
          if "index_method_auc - ЛД" not in st.session_state:
@@ -2063,7 +2067,7 @@ if option == 'Линейность дозирования':
              if i.__contains__("xlsx") and i.__contains__("Дозировка") and (not i.__contains__("edited_df")): ###слово дозировка нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
                 list_keys_file_lin.append(i)
 
-         if (list_keys_file_lin != []) and measure_unit_lin_concentration and measure_unit_dose_lin:
+         if (list_keys_file_lin != []) and st.session_state['measure_unit_линейность_concentration'] and st.session_state['measure_unit_линейность_dose']:
 
              list_name_doses=[]
              list_df_unrounded=[]
@@ -2085,7 +2089,7 @@ if option == 'Линейность дозирования':
 
                  file_name=i[10:-5]
 
-                 st.subheader('Индивидуальные значения концентраций в дозировке ' +file_name+" "+ measure_unit_dose_lin)
+                 st.subheader('Индивидуальные значения концентраций в дозировке ' +file_name+" "+ st.session_state['measure_unit_линейность_dose'])
                  
                  ###интерактивная таблица
                  df = edit_frame(df,i)
@@ -2093,7 +2097,7 @@ if option == 'Линейность дозирования':
                  ###количество животных 
                  count_rows_number_lin= len(df.axes[0])
 
-                 table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ measure_unit_dose_lin
+                 table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  list_heading_word.append(table_heading)
 
                  ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -2128,11 +2132,11 @@ if option == 'Линейность дозирования':
                      list_concentration = [float(v) for v in list_concentration]
 
                      #вызов функции индивидуальный график в линейной шкале
-                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_lin_time, measure_unit_lin_concentration, "lin")
+                     fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_линейность_time'], st.session_state['measure_unit_линейность_concentration'], "lin")
                      
                      list_graphics_word.append(fig)
         
-                     graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
+                     graphic='График индивидуального фармакокинетического профиля в линейных координатах в дозировке '  +file_name+" "+ st.session_state['measure_unit_линейность_dose']+',  '+numer_animal
                      list_heading_graphics_word.append(graphic) 
 
                      #в полулогарифмических координатах методом np.nan
@@ -2141,12 +2145,12 @@ if option == 'Линейность дозирования':
                      list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                      #вызов функции индивидуальный график в полулогарифмической шкале
-                     fig = create_individual_graphics(list_time,list_concentration,measure_unit_lin_time, measure_unit_lin_concentration, "log")
+                     fig = create_individual_graphics(list_time,list_concentration,st.session_state['measure_unit_линейность_time'], st.session_state['measure_unit_линейность_concentration'], "log")
 
                      
                      list_graphics_word.append(fig)
                      
-                     graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ measure_unit_dose_lin+',  '+numer_animal
+                     graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']+',  '+numer_animal
                      list_heading_graphics_word.append(graphic) 
 
                  # объединенные индивидуальные в линейных координатах
@@ -2161,11 +2165,11 @@ if option == 'Линейность дозирования':
 
                  #вызов функции построения графика общего индивидуальных профелей линейный
                  fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      measure_unit_lin_time,measure_unit_lin_concentration,count_numer_animal,'lin')
+                                                                      st.session_state['measure_unit_линейность_time'],st.session_state['measure_unit_линейность_concentration'],count_numer_animal,'lin')
                  
                  list_graphics_word.append(fig)
                  
-                 graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
+                 graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  list_heading_graphics_word.append(graphic) 
                  
                  # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
@@ -2173,11 +2177,11 @@ if option == 'Линейность дозирования':
 
                  #вызов функции построения графика общего индивидуальных профелей полулогарифм
                  fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      measure_unit_lin_time,measure_unit_lin_concentration,count_numer_animal,'log')
+                                                                      st.session_state['measure_unit_линейность_time'],st.session_state['measure_unit_линейность_concentration'],count_numer_animal,'log')
                  
                  list_graphics_word.append(fig)
                  
-                 graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ measure_unit_dose_lin
+                 graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  list_heading_graphics_word.append(graphic) 
 
                   ###усредненные    
@@ -2192,12 +2196,12 @@ if option == 'Линейность дозирования':
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
                  #вызов функции построения графика индивидуального срединных профелей линейный
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_lin_time,
-                                                                        measure_unit_lin_concentration,'lin')
+                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
+                                                                        st.session_state['measure_unit_линейность_concentration'],'lin')
                   
                  list_graphics_word.append(fig)
                  
-                 graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ measure_unit_dose_lin
+                 graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  list_heading_graphics_word.append(graphic)
 
               #в полулогарифмических координатах
@@ -2206,12 +2210,12 @@ if option == 'Линейность дозирования':
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
                  
                  #вызов функции построения графика индивидуального срединных профелей полулогарифм
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_lin_time,
-                                                                        measure_unit_lin_concentration,'log')
+                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
+                                                                        st.session_state['measure_unit_линейность_concentration'],'log')
 
                  list_graphics_word.append(fig)
                  
-                 graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ measure_unit_dose_lin
+                 graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  list_heading_graphics_word.append(graphic)
 
                  ############ Параметры ФК
@@ -2224,9 +2228,9 @@ if option == 'Линейность дозирования':
 
 
                  if st.session_state["agree_injection - линейность"] == False:
-                     result_PK = pk_parametrs_total_extravascular(df,f"линейность {file_name}",method_auc,float(file_name),measure_unit_lin_concentration,measure_unit_lin_time,measure_unit_dose_lin)
+                     result_PK = pk_parametrs_total_extravascular(df,f"линейность {file_name}",method_auc,float(file_name),st.session_state['measure_unit_линейность_concentration'],st.session_state['measure_unit_линейность_time'],st.session_state['measure_unit_линейность_dose'])
                  else:
-                     result_PK = pk_parametrs_total_intravenously(df,f"линейность {file_name}",method_auc,float(file_name),measure_unit_lin_concentration,measure_unit_lin_time,measure_unit_dose_lin)
+                     result_PK = pk_parametrs_total_intravenously(df,f"линейность {file_name}",method_auc,float(file_name),st.session_state['measure_unit_линейность_concentration'],st.session_state['measure_unit_линейность_time'],st.session_state['measure_unit_линейность_dose'])
 
                  if result_PK is not None:
                      if st.session_state["agree_cmax2 - линейность"] == False:
@@ -2242,13 +2246,13 @@ if option == 'Линейность дозирования':
                          
                      st.session_state["df_total_PK_lin"] = df_total_PK_lin
 
-                     table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ measure_unit_dose_lin
+                     table_heading='Фармакокинетические показатели препарата в дозировке ' +file_name +" "+ st.session_state['measure_unit_линейность_dose']
                      list_heading_word.append(table_heading)
 
                      list_table_word.append(df_total_PK_lin)
 
                      if st.session_state["agree_cmax2 - линейность"] == True:
-                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле ' +file_name +" "+ measure_unit_dose_lin
+                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле ' +file_name +" "+ st.session_state['measure_unit_линейность_dose']
                         list_heading_word.append(table_heading)
                         
                         list_table_word.append(df_total_PK_additional_double_peaks_lin)
@@ -2268,7 +2272,7 @@ if option == 'Линейность дозирования':
              ###Кнопка активации дальнейших действий
              button_calculation = False
              
-             if (list_keys_file_lin != []) and measure_unit_lin_concentration and measure_unit_dose_lin  and result_PK is not None:
+             if (list_keys_file_lin != []) and st.session_state['measure_unit_линейность_concentration'] and st.session_state['measure_unit_линейность_dose']  and result_PK is not None:
               
                 condition_cmax1 =  len(list_cmax_1_lin) == count_rows_number_lin
                 
@@ -2287,7 +2291,7 @@ if option == 'Линейность дозирования':
                 else:   
                    st.error('🔧Заполните все поля ввода и загрузите файлы!')
              
-             if (list_keys_file_lin != []) and measure_unit_lin_concentration and measure_unit_dose_lin and button_calculation:
+             if (list_keys_file_lin != []) and st.session_state['measure_unit_линейность_concentration'] and st.session_state['measure_unit_линейность_dose'] and button_calculation:
                 
                 
                 list_list_PK_par_mean=[]
@@ -2311,14 +2315,14 @@ if option == 'Линейность дозирования':
 
                 list_name_doses_with_measure_unit=[]
                 for i in list_name_doses:
-                 j= i + " " + measure_unit_dose_lin
+                 j= i + " " + st.session_state['measure_unit_линейность_dose']
                  list_name_doses_with_measure_unit.append(j)
 
                 ### получение итогового фрейма ФК параметров доз
                 if st.session_state["agree_injection - линейность"] == False:
-                   df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin_concentration+")",'Tmax ' +"("+f"{measure_unit_lin_time}"+")",'MRT0→∞ '+"("+f"{measure_unit_lin_time}"+")",'T1/2 '+"("+f"{measure_unit_lin_time}"+")",'AUC0-t '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")",'AUC0→∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")",'AUMC0-∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")",'Kel '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")",'Cl/F ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})/{measure_unit_lin_time}"+")",'Vz/F ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})"+")"],index=list_name_doses_with_measure_unit)
+                   df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+st.session_state['measure_unit_линейность_concentration']+")",'Tmax ' +"("+f"{st.session_state['measure_unit_линейность_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state['measure_unit_линейность_time']}"+")",'T1/2 '+"("+f"{st.session_state['measure_unit_линейность_time']}"+")",'AUC0-t '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}" +")",'AUC0→∞ '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}" +")",'AUMC0-∞ '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state['measure_unit_линейность_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state['measure_unit_линейность_time']}\u207B\u00B9"+")",'Cl/F ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})/{st.session_state['measure_unit_линейность_time']}"+")",'Vz/F ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})"+")"],index=list_name_doses_with_measure_unit)
                 else:
-                   df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+measure_unit_lin_concentration+")",'Tmax ' +"("+f"{measure_unit_lin_time}"+")",'MRT0→∞ '+"("+f"{measure_unit_lin_time}"+")",'T1/2 '+"("+f"{measure_unit_lin_time}"+")",'AUC0-t '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")",'AUC0→∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")",'AUMC0-∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")",'Kel '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")",'Cl ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})/{measure_unit_lin_time}"+")",'Vz ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})"+")"],index=list_name_doses_with_measure_unit)
+                   df_PK_doses_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax ' +"("+st.session_state['measure_unit_линейность_concentration']+")",'Tmax ' +"("+f"{st.session_state['measure_unit_линейность_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state['measure_unit_линейность_time']}"+")",'T1/2 '+"("+f"{st.session_state['measure_unit_линейность_time']}"+")",'AUC0-t '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}" +")",'AUC0→∞ '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}" +")",'AUMC0-∞ '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state['measure_unit_линейность_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state['measure_unit_линейность_time']}\u207B\u00B9"+")",'Cl ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})/{st.session_state['measure_unit_линейность_time']}"+")",'Vz ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})"+")"],index=list_name_doses_with_measure_unit)
                 
                 df_PK_doses_total_transpose=df_PK_doses_total.transpose()
 
@@ -2326,44 +2330,44 @@ if option == 'Линейность дозирования':
 
                 df_doses_trans_trans=df_PK_doses_total_transpose.transpose()
 
-                series_Cmax=df_doses_trans_trans['Cmax ' +"("+measure_unit_lin_concentration+")"].tolist() 
+                series_Cmax=df_doses_trans_trans['Cmax ' +"("+st.session_state['measure_unit_линейность_concentration']+")"].tolist() 
                 series_Cmax=pd.Series([v for v in series_Cmax])
 
-                series_Tmax=df_doses_trans_trans['Tmax ' +"("+f"{measure_unit_lin_time}"+")"].tolist()       
+                series_Tmax=df_doses_trans_trans['Tmax ' +"("+f"{st.session_state['measure_unit_линейность_time']}"+")"].tolist()       
                 series_Tmax=pd.Series([v for v in series_Tmax])
 
-                series_MRT0_inf= df_doses_trans_trans['MRT0→∞ '+"("+f"{measure_unit_lin_time}"+")"].tolist()   
+                series_MRT0_inf= df_doses_trans_trans['MRT0→∞ '+"("+f"{st.session_state['measure_unit_линейность_time']}"+")"].tolist()   
                 series_MRT0_inf=pd.Series([v for v in series_MRT0_inf])
 
-                series_half_live= df_doses_trans_trans['T1/2 '+"("+f"{measure_unit_lin_time}"+")"].tolist()   
+                series_half_live= df_doses_trans_trans['T1/2 '+"("+f"{st.session_state['measure_unit_линейность_time']}"+")"].tolist()   
                 series_half_live=pd.Series([v for v in series_half_live]) 
 
-                series_AUC0_t= df_doses_trans_trans['AUC0-t '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")"].tolist()   
+                series_AUC0_t= df_doses_trans_trans['AUC0-t '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}" +")"].tolist()   
                 series_AUC0_t=pd.Series([v for v in series_AUC0_t])
 
-                series_AUC0_inf= df_doses_trans_trans['AUC0→∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}" +")"].tolist()  
+                series_AUC0_inf= df_doses_trans_trans['AUC0→∞ '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}" +")"].tolist()  
                 series_AUC0_inf=pd.Series([v for v in series_AUC0_inf]) 
 
-                series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞ '+"("+measure_unit_lin_concentration+f"×{measure_unit_lin_time}\u00B2" +")"].tolist()   
+                series_AUMC0_inf= df_doses_trans_trans['AUMC0-∞ '+"("+st.session_state['measure_unit_линейность_concentration']+f"×{st.session_state['measure_unit_линейность_time']}\u00B2" +")"].tolist()   
                 series_AUMC0_inf=pd.Series([v for v in series_AUMC0_inf])
 
-                series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")"].tolist()  
+                series_Сmax_dev_AUC0_t= df_doses_trans_trans['Сmax/AUC0-t '+"("+f"{st.session_state['measure_unit_линейность_time']}\u207B\u00B9"+")"].tolist()  
                 series_Сmax_dev_AUC0_t=pd.Series([v for v in series_Сmax_dev_AUC0_t]) 
 
-                series_Kel= df_doses_trans_trans['Kel '+"("+f"{measure_unit_lin_time}\u207B\u00B9"+")"].tolist()   
+                series_Kel= df_doses_trans_trans['Kel '+"("+f"{st.session_state['measure_unit_линейность_time']}\u207B\u00B9"+")"].tolist()   
                 series_Kel=pd.Series([v for v in series_Kel])
                 
                 if st.session_state["agree_injection - линейность"] == False:
-                   series_CL= df_doses_trans_trans['Cl/F ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})/{measure_unit_lin_time}"+")"].tolist()  
+                   series_CL= df_doses_trans_trans['Cl/F ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})/{st.session_state['measure_unit_линейность_time']}"+")"].tolist()  
                    series_CL=pd.Series([v for v in series_CL]) 
 
-                   series_Vd= df_doses_trans_trans['Vz/F ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})"+")"].tolist()   
+                   series_Vd= df_doses_trans_trans['Vz/F ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})"+")"].tolist()   
                    series_Vd=pd.Series([v for v in series_Vd])
                 else:
-                   series_CL= df_doses_trans_trans['Cl ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})/{measure_unit_lin_time}"+")"].tolist()  
+                   series_CL= df_doses_trans_trans['Cl ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})/{st.session_state['measure_unit_линейность_time']}"+")"].tolist()  
                    series_CL=pd.Series([v for v in series_CL]) 
 
-                   series_Vd= df_doses_trans_trans['Vz ' +"("+f"({measure_unit_dose_lin})/({measure_unit_lin_concentration})"+")"].tolist()   
+                   series_Vd= df_doses_trans_trans['Vz ' +"("+f"({st.session_state['measure_unit_линейность_dose']})/({st.session_state['measure_unit_линейность_concentration']})"+")"].tolist()   
                    series_Vd=pd.Series([v for v in series_Vd])
                 
                 df_total_total_doses = pd.concat([series_Cmax, series_Tmax,series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vd], axis= 1)
@@ -2410,8 +2414,8 @@ if option == 'Линейность дозирования':
                 list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
                 
                 #вызов функции построения графика сравнения срединных профелей линейные
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,measure_unit_lin_time,
-                                                             measure_unit_lin_concentration,'lin')
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state['measure_unit_линейность_time'],
+                                                             st.session_state['measure_unit_линейность_concentration'],'lin')
 
                 list_graphics_word.append(fig)
 
@@ -2426,8 +2430,8 @@ if option == 'Линейность дозирования':
                 list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
 
                 #вызов функции построения графика сравнения срединных профелей полулогарифм
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,measure_unit_lin_time,
-                                                             measure_unit_lin_concentration,'log')
+                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state['measure_unit_линейность_time'],
+                                                             st.session_state['measure_unit_линейность_concentration'],'log')
 
                 list_graphics_word.append(fig)
 
@@ -2494,6 +2498,12 @@ if option == 'Линейность дозирования':
                 ###график линейной регресии
                 graph_id = graphic
 
+                if 'df1_model_lin' not in st.session_state:
+                   st.session_state['df1_model_lin'] = 1
+
+                if 'df2_model_lin' not in st.session_state:
+                   st.session_state['df2_model_lin'] = 1
+
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
 
@@ -2501,21 +2511,12 @@ if option == 'Линейность дозирования':
                 if "df_for_lin_mean" not in st.session_state:
                     st.session_state.df_for_lin_mean = df_for_lin_mean  # Здесь можно задать начальное значение, например, DataFrame
 
-                if "measure_unit_dose_lin" not in st.session_state:
-                    st.session_state.measure_unit_dose_lin = measure_unit_dose_lin  # Укажите единицы по умолчанию, например, миллиграммы
-
-                if "measure_unit_lin_concentration" not in st.session_state:
-                    st.session_state.measure_unit_lin_concentration = measure_unit_lin_concentration  # Единицы концентрации
-
-                if "measure_unit_lin_time" not in st.session_state:
-                    st.session_state.measure_unit_lin_time = measure_unit_lin_time  # Единицы времени (например, часы)
-
                 if "model" not in st.session_state:
                     st.session_state.model = model  # Модель линейной регрессии или другая информация
 
                 #вызов функции графика линейной регрессии
-                fig = create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
-                measure_unit_lin_time,graph_id,x_settings=None,y_settings=None, model=model)
+                fig = create_graphic_lin(df_for_lin_mean,st.session_state['measure_unit_линейность_dose'],st.session_state['measure_unit_линейность_concentration'],
+                st.session_state['measure_unit_линейность_time'],graph_id,x_settings=None,y_settings=None, model=model)
  
                 list_graphics_word.append(fig)
 
@@ -2649,8 +2650,8 @@ if option == 'Линейность дозирования':
 
                                  if st.button("Перерисовать график"):
                                      #вызов функции графика линейной регрессии
-                                     fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
-                                     st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
+                                     fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state['measure_unit_линейность_dose'],st.session_state["measure_unit_линейность_concentration"],
+                                     st.session_state["measure_unit_линейность_time"],graph_id,x_settings,y_settings,st.session_state["model"])
                                      list_graphics_word[i] = fig
                                      st.experimental_rerun()
                               else:
@@ -2669,8 +2670,8 @@ if option == 'Линейность дозирования':
                                  }
 
                                  #вызов функции графика линейной регрессии
-                                 fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state["measure_unit_dose_lin"],st.session_state["measure_unit_lin_concentration"],
-                                 st.session_state["measure_unit_lin_time"],graph_id,x_settings,y_settings,st.session_state["model"])
+                                 fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state['measure_unit_линейность_dose'],st.session_state["measure_unit_линейность_concentration"],
+                                 st.session_state["measure_unit_линейность_time"],graph_id,x_settings,y_settings,st.session_state["model"])
                                  list_graphics_word[i] = fig
 
                          with col3:
@@ -2780,8 +2781,10 @@ if option == 'Экскреция препарата':
 
             st.subheader('Исследование экскреции с ' + excretion_tv)
 
-            measure_unit_ex_time =select_time_unit("экскреция")
+            measure_unit_ex_time = select_time_unit("экскреция")
             measure_unit_ex_concentration = select_concentration_unit("экскреция")
+            #сохранение состояния выбора единиц измерения для данного исследования
+            save_session_state_measure_unit_value(measure_unit_ex_time,measure_unit_ex_concentration,"экскреция")
 
             uploaded_file_excrement = st.file_uploader("Выбрать файл экскреции (формат XLSX)", key="Файл экскреции")
 
@@ -2792,7 +2795,7 @@ if option == 'Экскреция препарата':
             if "uploaded_file_excrement" in st.session_state: 
                custom_success(f"Файл загружен: {st.session_state['uploaded_file_excrement']}")
 
-            if "uploaded_file_excrement" in st.session_state and measure_unit_ex_concentration:
+            if "uploaded_file_excrement" in st.session_state and st.session_state['measure_unit_экскреция_concentration']:
                 
                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_excrement"]))
                 st.subheader('Индивидуальные значения концентраций в ' + excretion_pr)
@@ -2810,7 +2813,7 @@ if option == 'Экскреция препарата':
 
                 ########### диаграмма экскреции   
                 
-                fig = excretion_diagram(df,measure_unit_ex_time,measure_unit_ex_concentration)
+                fig = excretion_diagram(df,st.session_state['measure_unit_экскреция_time'],st.session_state['measure_unit_экскреция_concentration'])
 
                 list_graphics_word.append(fig)
 
