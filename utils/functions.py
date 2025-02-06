@@ -14,6 +14,15 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 from streamlit_option_menu import option_menu
 
+#сохранение состояния единиц измерения исследований после выбора их пользователем
+def save_session_state_measure_unit_value(measure_unit_time,measure_unit_concentration,key,measure_unit_dose=None,measure_unit_org_organs=None):
+    st.session_state[f'measure_unit_{key}_time'] = measure_unit_time
+    st.session_state[f'measure_unit_{key}_concentration'] = measure_unit_concentration
+    st.session_state[f'measure_unit_{key}_dose'] = measure_unit_dose
+    if key == 'органы' and measure_unit_org_organs is not None:
+       st.session_state[f'measure_unit_{key}_organs'] = measure_unit_org_organs
+
+
 #Инизиализация состояния фреймов с результатами исследований
 def initializing_session_state_frames_research_results():
     if "df_total_PK_pk" not in st.session_state:
