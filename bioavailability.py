@@ -1843,7 +1843,7 @@ if option == 'Распределение по органам':
                 
                 list_t_organs=list(df_concat_mean_std.index)
 
-                list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)  
+                list_zip_mean_std_colors=list(zip(list_name_organs,list_name_organs_std,list_colors))  
 
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)  
@@ -1862,7 +1862,7 @@ if option == 'Распределение по органам':
                 #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
                 df_concat_mean_std = replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std)
 
-                list_zip_mean_std_colors=zip(list_name_organs,list_name_organs_std,list_colors)
+                list_zip_mean_std_colors=list(zip(list_name_organs,list_name_organs_std,list_colors))
 
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
@@ -2424,28 +2424,24 @@ if option == 'Линейность дозирования':
 
                 list_t_doses=list(df_concat_mean_std.index)
 
-                list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
-
-                # Инициализация данных состояний
-                if f"list_zip_mean_std_colors{graph_id}" not in st.session_state:
-                    st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                list_zip_mean_std_colors=list(zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors))
                 
-                # Инициализация данных состояний
-                if f"list_t_doses{graph_id}" not in st.session_state:
-                    st.session_state[f"list_t_doses{graph_id}"] = list_t_doses
-
-                # Инициализация данных состояний
-                if f"df_concat_mean_std{graph_id}" not in st.session_state:
-                    st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
-
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
                 
-                #вызов функции построения графика сравнения срединных профелей линейные
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state['measure_unit_линейность_time'],
-                                                             st.session_state['measure_unit_линейность_concentration'],'lin',graph_id)
+                #Сохранение состояний данных графика
+                st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                st.session_state[f"list_t_doses{graph_id}"] = list_t_doses
+                st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
 
-                add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                if f"first_creating_graphic{graph_id}" not in st.session_state:
+                    st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+                
+                if st.session_state[f"first_creating_graphic{graph_id}"]:
+                   #вызов функции построения графика сравнения срединных профелей линейные
+                   fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state['measure_unit_линейность_time'],
+                                                                st.session_state['measure_unit_линейность_concentration'],'lin',graph_id)
+                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
 
                 ### в полулог. координатах
                 graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в различных дозировках'
@@ -2456,28 +2452,24 @@ if option == 'Линейность дозирования':
                 df_concat_mean_std = df_concat_mean_std.copy(deep=True)
                 df_concat_mean_std = replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std)
 
-                list_zip_mean_std_colors=zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors)
-
-                # Инициализация данных состояний
-                if f"list_zip_mean_std_colors{graph_id}" not in st.session_state:
-                    st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                list_zip_mean_std_colors=list(zip(list_name_doses_with_measure_unit,list_name_doses_with_measure_unit_std,list_colors))
                 
-                # Инициализация данных состояний
-                if f"list_t_doses{graph_id}" not in st.session_state:
-                    st.session_state[f"list_t_doses{graph_id}"] = list_t_doses
-
-                # Инициализация данных состояний
-                if f"df_concat_mean_std{graph_id}" not in st.session_state:
-                    st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
-
                 #Инициализация состояния чекбокса параметров осей
-                initializing_checkbox_status_graph_scaling_widgets(graph_id)    
+                initializing_checkbox_status_graph_scaling_widgets(graph_id) 
 
-                #вызов функции построения графика сравнения срединных профелей полулогарифм
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state['measure_unit_линейность_time'],
-                                                             st.session_state['measure_unit_линейность_concentration'],'log',graph_id)
+                #Сохранение состояний данных графика
+                st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                st.session_state[f"list_t_doses{graph_id}"] = list_t_doses
+                st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
                 
-                add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                if f"first_creating_graphic{graph_id}" not in st.session_state:
+                    st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+                
+                if st.session_state[f"first_creating_graphic{graph_id}"]:
+                   #вызов функции построения графика сравнения срединных профелей полулогарифм
+                   fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state['measure_unit_линейность_time'],
+                                                                st.session_state['measure_unit_линейность_concentration'],'log',graph_id)
+                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
  
                 # Линейность дозирования
                 list_AUC0_inf_lin = []
@@ -2513,6 +2505,7 @@ if option == 'Линейность дозирования':
                 print_model = model.summary()
 
                 graphic='Зависимость значений AUC0→∞ от величин вводимых доз'
+                graph_id = graphic
                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
                 # Данные для графика
@@ -2536,19 +2529,18 @@ if option == 'Линейность дозирования':
                     
                 })
 
-                ###график линейной регресии
-                graph_id = graphic
-
                 if 'df1_model_lin' not in st.session_state:
                    st.session_state['df1_model_lin'] = 1
 
                 if 'df2_model_lin' not in st.session_state:
                    st.session_state['df2_model_lin'] = 1
 
+                ###график линейной регресии
+
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
 
-                #Сохранение данных состояний данных графика
+                #Сохранение состояний данных графика
                 st.session_state.df_for_lin_mean = df_for_lin_mean  # Здесь можно задать начальное значение, например, DataFrame
                 st.session_state.model = model  # Модель линейной регрессии
 
@@ -2628,186 +2620,29 @@ if option == 'Линейность дозирования':
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                       if type_graphics == 'Сравнение фармакокинетических профилей в различных дозировках':
                          
-                         col3, col4 = st.columns([2, 1])
-                         
-                         with col4: 
-                                 
-                                 
-                                 
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                            kind_graphic = 'lin'
+                         else:
+                            kind_graphic = 'log'
 
-                                 if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                                    graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
-                                    kind_graphic = 'lin'
-
-                                    st.write(st.session_state[f"df_concat_mean_std{graph_id}"])
-                                 
-
-                                    #Инициализация состояний видежтов параметров осей
-                                    initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
-                                                                  min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
-                                    
-                                    if f'x_settings_{graph_id}' not in st.session_state:
-                                         st.session_state[f'x_settings_{graph_id}'] = {
-                                            "min": 0,
-                                            "max": 0,
-                                            "major": 0,
-                                            "minor": 0
-                                        }
-                                         
-                                    if f'y_settings_{graph_id}' not in st.session_state:
-                                         st.session_state[f'y_settings_{graph_id}'] = {
-                                            "min": 0,
-                                            "max": 0,
-                                            "major": 0,
-                                            "minor": 0
-                                        }
-                                    
-                                    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                                        
-                                        x_settings = st.session_state[f'x_settings_{graph_id}']
-
-                                        y_settings = st.session_state[f'y_settings_{graph_id}']
-
-
-                                    # Переключатель настройки осей
-                                    custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
-                                    st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = custom_axis
-
-                                    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                                         # Настройка осей через виджеты
-                                         x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
-                                                                    f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
-                                         y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
-                                                                    f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
-                                         
-                                         st.session_state[f'x_settings_{graph_id}'] = x_settings
-
-                                         st.session_state[f'y_settings_{graph_id}'] = y_settings
-                                         
-                                         if st.button("Перерисовать график",key = f'Перерисовать график{graph_id}'):
-                                             #вызов функции 
-                                             fig = plot_pk_profile_total_mean_std_doses_organs(st.session_state[f"list_zip_mean_std_colors{graph_id}"],
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
                                                                    st.session_state[f"list_t_doses{graph_id}"],
                                                                    st.session_state[f"df_concat_mean_std{graph_id}"],
                                                                    st.session_state['measure_unit_линейность_time'],
                                                                    st.session_state['measure_unit_линейность_concentration'],
-                                                                   kind_graphic,graph_id,x_settings,y_settings)
-                                                                   
-                                             st.session_state[f"list_graphics_word_{option}"][i] = fig
-                                             st.experimental_rerun()
-                                    else:
-                                       # Значения осей по умолчанию
-                                       x_settings = {
-                                             "min": st.session_state[f"X_graphic_min_value_{graph_id}_default"],
-                                             "max": st.session_state[f"X_graphic_max_value_{graph_id}_default"],
-                                             "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
-                                             "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
-                                       }
-                                       y_settings = {
-                                             "min": 0,
-                                             "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
-                                             "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
-                                             "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
-                                       }
+                                                                   kind_graphic,graph_id)
 
-                                       #вызов функции 
-                                       fig = plot_pk_profile_total_mean_std_doses_organs(st.session_state[f"list_zip_mean_std_colors{graph_id}"],
-                                                                   st.session_state[f"list_t_doses{graph_id}"],
-                                                                   st.session_state[f"df_concat_mean_std{graph_id}"],
-                                                                   st.session_state['measure_unit_линейность_time'],
-                                                                   st.session_state['measure_unit_линейность_concentration'],
-                                                                   kind_graphic,graph_id,x_settings,y_settings)
-                                       
-                                       st.session_state[f"list_graphics_word_{option}"][i] = fig
-
-                              
-
-                         with col3:
-                              st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                              st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
-                         
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Зависимость"):
                       if type_graphics == 'Зависимость значений AUC0→∞ от величин вводимых доз':
                          
-                         col3, col4 = st.columns([2, 1])
+                         graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
 
-                         with col4:
-                              
-                              graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
-
-                              #Инициализация состояний видежтов параметров осей
-                              initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
-                                                            min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
-                              
-                              if f'x_settings_{graph_id}' not in st.session_state:
-                                   st.session_state[f'x_settings_{graph_id}'] = {
-                                      "min": 0,
-                                      "max": 0,
-                                      "major": 0,
-                                      "minor": 0
-                                  }
-                                   
-                              if f'y_settings_{graph_id}' not in st.session_state:
-                                   st.session_state[f'y_settings_{graph_id}'] = {
-                                      "min": 0,
-                                      "max": 0,
-                                      "major": 0,
-                                      "minor": 0
-                                  }
-
-                              if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                                  
-                                  x_settings = st.session_state[f'x_settings_{graph_id}']
-
-                                  y_settings = st.session_state[f'y_settings_{graph_id}']
-
-
-                              # Переключатель настройки осей
-                              custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
-                              st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = custom_axis
-
-                              if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-                                 # Настройка осей через виджеты
-                                 x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
-                                                            f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
-                                 y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
-                                                            f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
-                                 
-                                 st.session_state[f'x_settings_{graph_id}'] = x_settings
-
-                                 st.session_state[f'y_settings_{graph_id}'] = y_settings
-
-                                 if st.button("Перерисовать график",key = f'Перерисовать график{graph_id}'):
-                                     #вызов функции графика линейной регрессии
-                                     fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state['measure_unit_линейность_dose'],st.session_state["measure_unit_линейность_concentration"],
-                                     st.session_state["measure_unit_линейность_time"],graph_id,st.session_state["model"],x_settings,y_settings)
-                                     st.session_state[f"list_graphics_word_{option}"][i] = fig
-                                     st.session_state[f"first_creating_graphic{graph_id}"] = False
-                                     st.experimental_rerun()
-                              else:
-                                 # Значения осей по умолчанию
-                                 x_settings = {
-                                       "min": st.session_state[f"X_graphic_min_value_{graph_id}_default"],
-                                       "max": st.session_state[f"X_graphic_max_value_{graph_id}_default"],
-                                       "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
-                                       "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
-                                 }
-                                 y_settings = {
-                                       "min": 0,
-                                       "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
-                                       "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
-                                       "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
-                                 }
-
-                                 #вызов функции графика линейной регрессии
-                                 fig = create_graphic_lin(st.session_state["df_for_lin_mean"],st.session_state['measure_unit_линейность_dose'],st.session_state["measure_unit_линейность_concentration"],
-                                 st.session_state["measure_unit_линейность_time"],graph_id,st.session_state["model"],x_settings,y_settings)
-                                 st.session_state[f"list_graphics_word_{option}"][i] = fig
-
-                         with col3:
-                              st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                              st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
-                         
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,create_graphic_lin, st.session_state["df_for_lin_mean"],
+                                                             st.session_state['measure_unit_линейность_dose'],
+                                                             st.session_state["measure_unit_линейность_concentration"],
+                                                             st.session_state["measure_unit_линейность_time"],
+                                                             graph_id,st.session_state["model"])
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Коэффициент"):
                       if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
