@@ -248,7 +248,7 @@ def replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat
     return df_concat_mean_std
 
 ###построение графика "Фармакокинетический профиль в различных органах или дозировках" сравнительные срединные
-def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,df_concat_mean_std,measure_unit_time,measure_unit_concentration,kind_graphic):
+def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,df_concat_mean_std,measure_unit_time,measure_unit_concentration,kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
     for i,j,c in list_zip_mean_std_colors:
             plt.errorbar(list_t,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
@@ -257,6 +257,14 @@ def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,
             plt.xlabel(f"Время, {measure_unit_time}")
             plt.ylabel("Концентрация, "+ measure_unit_concentration)
             ax.legend(fontsize = 8)
+            
+            if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+                applying_axis_settings(ax, x_settings, y_settings)
+
+            #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+            else:
+                get_parameters_axis(graph_id, ax)
+
     return fig
 
 #сравнение разных видов введения
@@ -291,7 +299,7 @@ def plot_tissue_accessibility(list_name_organs,list_ft):
 
 ###линейная регрессия
 def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
-                measure_unit_lin_time,graph_id,x_settings,y_settings,model):
+                measure_unit_lin_time,graph_id,model,x_settings=None,y_settings=None):
 
     fig, ax = plt.subplots()
 
@@ -312,7 +320,7 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
     plt.xlabel("Дозировка, " +measure_unit_dose_lin)
     plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
 
-    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
         applying_axis_settings(ax, x_settings, y_settings)
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков

@@ -14,6 +14,24 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 from streamlit_option_menu import option_menu
 
+
+
+#чтобы не добавлять по несколько раз в session_state
+def add_or_replace_df_graph(list_heading,list_element,heading,element):
+    try:
+        index = list_heading.index(heading)  # Ищем индекс элемента
+        list_element[index] = element  # Заменяем его
+    except IndexError:
+        list_element.append(element)  # Добавляем в конец, если элемента нет
+
+#чтобы не добавлять названия графиков, таблиц по несколько раз в session_state
+def add_or_replace(list, element):
+    try:
+        index = list.index(element)  # Ищем индекс элемента
+        list[index] = element  # Заменяем его
+    except ValueError:
+        list.append(element)  # Добавляем в конец, если элемента нет
+
 #сохранение состояния единиц измерения исследований после выбора их пользователем
 def save_session_state_measure_unit_value(measure_unit_time,measure_unit_concentration,key,measure_unit_dose=None,measure_unit_org_organs=None):
     st.session_state[f'measure_unit_{key}_time'] = measure_unit_time
@@ -68,12 +86,13 @@ def style_icon_report():
                })
     return selected
 
-def save_session_lists_tables_graphics(option,list_heading_word,list_table_word,list_graphics_word,list_heading_graphics_word):
-    ###сохранение состояния 
-    st.session_state[f"list_heading_word_{option}"] = list_heading_word
-    st.session_state[f"list_table_word_{option}"] = list_table_word
-    st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
-    st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
+def initializing_session_lists_tables_graphics(option,list_heading_word,list_table_word,list_graphics_word,list_heading_graphics_word):
+    ###инициализация состояния
+    if f"list_heading_word_{option}" not in st.session_state: 
+        st.session_state[f"list_heading_word_{option}"] = list_heading_word
+        st.session_state[f"list_table_word_{option}"] = list_table_word
+        st.session_state[f"list_graphics_word_{option}"] = list_graphics_word
+        st.session_state[f"list_heading_graphics_word_{option}"] = list_heading_graphics_word
 
 # Функция для сохранения DataFrame в формате Excel
 def to_excel_results(df):
