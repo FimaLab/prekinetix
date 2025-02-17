@@ -8,6 +8,94 @@ from cycler import cycler
 
 #####Общие функции
 
+#функция отрисовки графиков с виджетами масштаба 
+
+def rendering_graphs_with_scale_widgets(graph_id,option,i,child_func_create_graphic, *args, **kwargs):
+
+    col3, col4 = st.columns([2, 1])
+                         
+    with col4: 
+            
+        #Инициализация состояний видежтов параметров осей
+        initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
+                                    min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
+        
+        if f'x_settings_{graph_id}' not in st.session_state:
+            st.session_state[f'x_settings_{graph_id}'] = {
+                "min": 0,
+                "max": 0,
+                "major": 0,
+                "minor": 0
+            }
+            
+        if f'y_settings_{graph_id}' not in st.session_state:
+            st.session_state[f'y_settings_{graph_id}'] = {
+                "min": 0,
+                "max": 0,
+                "major": 0,
+                "minor": 0
+            }
+        
+        if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+            
+            x_settings = st.session_state[f'x_settings_{graph_id}']
+
+            y_settings = st.session_state[f'y_settings_{graph_id}']
+
+
+        # Переключатель настройки осей
+        custom_axis = st.checkbox("Настроить параметры осей вручную", value = st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'], key = f"Настроить параметры осей вручную {graph_id}")
+        st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] = custom_axis
+
+        new_kwargs = kwargs.copy() if kwargs else {}  # Создаем пустой словарь, если kwargs = None
+
+        if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
+            # Настройка осей через виджеты
+            x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
+                                        f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
+            y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
+                                        f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
+            
+            new_kwargs["x_settings"] = x_settings
+            new_kwargs["y_settings"] = y_settings
+            
+            st.session_state[f'x_settings_{graph_id}'] = x_settings
+
+            st.session_state[f'y_settings_{graph_id}'] = y_settings
+            
+            if st.button("Перерисовать график",key = f'Перерисовать график{graph_id}'):
+                #вызов функции 
+                fig = child_func_create_graphic(*args, **new_kwargs)         
+                st.session_state[f"list_graphics_word_{option}"][i] = fig
+                st.session_state[f"first_creating_graphic{graph_id}"] = False
+                st.experimental_rerun()
+        else:
+            # Значения осей по умолчанию
+            x_settings = {
+                    "min": st.session_state[f"X_graphic_min_value_{graph_id}_default"],
+                    "max": st.session_state[f"X_graphic_max_value_{graph_id}_default"],
+                    "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
+                    "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
+            }
+            y_settings = {
+                    "min": 0,
+                    "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
+                    "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
+                    "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
+            }
+            
+            new_kwargs["x_settings"] = x_settings
+            new_kwargs["y_settings"] = y_settings
+
+            #вызов функции 
+            fig = child_func_create_graphic(*args, **new_kwargs)
+
+            st.session_state[f"list_graphics_word_{option}"][i] = fig
+
+    with col3:
+        st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
+        st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+
 #получение параметров осей
 def get_parameters_axis(graph_id, ax):
     # Фиксация максимальных значений осей
@@ -320,7 +408,7 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
     plt.xlabel("Дозировка, " +measure_unit_dose_lin)
     plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
 
-    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
         applying_axis_settings(ax, x_settings, y_settings)
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков

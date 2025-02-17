@@ -196,7 +196,7 @@ def edit_frame(df,uploadedfile_name):
 ###создание Word-отчета
 ## функция создания отчета таблиц
 def create_table(list_heading_word, list_table_word):
-    zip_heading_table = zip(list_heading_word, list_table_word)
+    zip_heading_table = list(zip(list_heading_word, list_table_word))
 
     doc = Document()
 
@@ -275,7 +275,7 @@ def create_table(list_heading_word, list_table_word):
 
 #визуализация и выгрузка в excel
 def visualize_table(list_heading_word,list_table_word):
-    zip_heading_table = zip(list_heading_word,list_table_word) ###еще раз объявляем, иначе не видит zip-объект
+    zip_heading_table = list(zip(list_heading_word,list_table_word)) ###еще раз объявляем, иначе не видит zip-объект
     #####визуализация
     for heading, df in zip_heading_table:
         st.subheader(heading)
@@ -287,7 +287,7 @@ def visualize_table(list_heading_word,list_table_word):
 ## функция создания отчета графиков
 def create_graphic(list_graphics_word,list_heading_graphics_word):
     ### документ Word
-    zip_graphics_heading = zip(list_graphics_word,list_heading_graphics_word)
+    zip_graphics_heading = list(zip(list_graphics_word,list_heading_graphics_word))
     doc = Document()
 
     # Settings

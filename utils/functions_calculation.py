@@ -632,7 +632,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               list_AUC_0_T.append(AUC_O_T)
 
        ####Сmax/AUC0-t
-       list_Сmax_division_AUC0_t_for_division=zip(list_cmax_True_pk,list_AUC_0_T)
+       list_Сmax_division_AUC0_t_for_division=list(zip(list_cmax_True_pk,list_AUC_0_T))
        list_Сmax_division_AUC0_t=[]
        for i,j in list_Сmax_division_AUC0_t_for_division:
                list_Сmax_division_AUC0_t.append(i/j)
@@ -695,7 +695,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            list_for_kel_t.pop(-1) #удаление списка с одной точкой
            list_for_kel_t.pop(-1) #удаление списка с двумя точками 
 
-           list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
+           list_ct_zip=list(zip(list_for_kel_c,list_for_kel_t))
 
            list_kel=[]
            list_r=[]
@@ -764,7 +764,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
            list_of_list_c.append(list_c)
 
-       list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
+       list_zip_c_AUCt_inf=list(zip(list_kel_total,list_of_list_c))
 
            #AUCt-inf 
        list_auc_t_inf=[]     
@@ -776,7 +776,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            auc_t_inf=clast_true/i
            list_auc_t_inf.append(auc_t_inf)
 
-       list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
+       list_auc_t_inf_and_AUC_0_T_zip=list(zip(list_AUC_0_T,list_auc_t_inf))
 
        for i,j in list_auc_t_inf_and_AUC_0_T_zip:
            auc0_inf=i+j    
@@ -794,7 +794,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        ####Vz_F
        list_Vz_F=[]
 
-       list_zip_kel_Cl_F=zip(list_kel_total,list_Cl_F)
+       list_zip_kel_Cl_F=list(zip(list_kel_total,list_Cl_F))
 
        for i,j in list_zip_kel_Cl_F:
            Vz_F = j/i
@@ -927,7 +927,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               list_AUMC0_t.append(AUMC_O_T)
 
        ########AUMC0-inf конечный подсчет
-       list_zip_for_AUMC_inf=zip(list_kel_total,list_C_last,list_T_last)
+       list_zip_for_AUMC_inf=list(zip(list_kel_total,list_C_last,list_T_last))
 
        list_AUMCt_inf=[]
        for k,c,t in list_zip_for_AUMC_inf:
@@ -935,7 +935,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            list_AUMCt_inf.append(AUMCt_inf)
 
 
-       list_AUMC_zip=zip(list_AUMC0_t,list_AUMCt_inf)
+       list_AUMC_zip=list(zip(list_AUMC0_t,list_AUMCt_inf))
 
        for i,j in list_AUMC_zip:
            AUMCO_inf=i+j
@@ -944,7 +944,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        ###MRT0-t
        list_MRT0_t=[]
 
-       list_zip_AUMCO_t_auc0_t = zip(list_AUMC0_t,list_AUC_0_T)
+       list_zip_AUMCO_t_auc0_t = list(zip(list_AUMC0_t,list_AUC_0_T))
 
        for i,j in list_zip_AUMCO_t_auc0_t:
            MRT0_t=i/j
@@ -953,7 +953,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        ###MRT0-inf
        list_MRT0_inf=[]
 
-       list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
+       list_zip_AUMCO_inf_auc0_inf = list(zip(list_AUMCO_inf,list_auc0_inf))
 
        for i,j in list_zip_AUMCO_inf_auc0_inf:
            MRT0_inf=i/j
@@ -1457,7 +1457,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_AUC_0_T.append(AUC_0_T)
 
        ####Сmax/AUC0-t
-       list_Сmax_division_AUC0_t_for_division=zip(list_cmax_True_pk,list_AUC_0_T)
+       list_Сmax_division_AUC0_t_for_division=list(zip(list_cmax_True_pk,list_AUC_0_T))
        list_Сmax_division_AUC0_t=[]
        for i,j in list_Сmax_division_AUC0_t_for_division:
                list_Сmax_division_AUC0_t.append(i/j)
@@ -1519,7 +1519,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            list_for_kel_t.pop(-1) #удаление списка с одной точкой
            #list_for_kel_t.pop(-1) #удаление списка с двумя точками 
 
-           list_ct_zip=zip(list_for_kel_c,list_for_kel_t)
+           list_ct_zip=list(zip(list_for_kel_c,list_for_kel_t))
 
            list_kel=[]
            list_r=[]
@@ -1589,7 +1589,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
            list_of_list_c.append(list_c)
 
-       list_zip_c_AUCt_inf=zip(list_kel_total,list_of_list_c)
+       list_zip_c_AUCt_inf=list(zip(list_kel_total,list_of_list_c))
 
            #AUCt-inf 
        list_auc_t_inf=[]     
@@ -1601,7 +1601,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            auc_t_inf=clast_true/i
            list_auc_t_inf.append(auc_t_inf)
 
-       list_auc_t_inf_and_AUC_0_T_zip=zip(list_AUC_0_T,list_auc_t_inf)
+       list_auc_t_inf_and_AUC_0_T_zip=list(zip(list_AUC_0_T,list_auc_t_inf))
 
        for i,j in list_auc_t_inf_and_AUC_0_T_zip:
            auc0_inf=i+j    
@@ -1619,7 +1619,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        ####Vz
        list_Vz=[]
 
-       list_zip_kel_cl=zip(list_kel_total,list_cl)
+       list_zip_kel_cl=list(zip(list_kel_total,list_cl))
 
        for i,j in list_zip_kel_cl:
            Vz = j/i
@@ -1760,7 +1760,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_AUMC0_t.append(AUMC_0_T)
 
        ########AUMC0-inf конечный подсчет
-       list_zip_for_AUMC_inf=zip(list_kel_total,list_C_last,list_T_last)
+       list_zip_for_AUMC_inf=list(zip(list_kel_total,list_C_last,list_T_last))
 
        list_AUMCt_inf=[]
        for k,c,t in list_zip_for_AUMC_inf:
@@ -1768,7 +1768,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            list_AUMCt_inf.append(AUMCt_inf)
 
 
-       list_AUMC_zip=zip(list_AUMC0_t,list_AUMCt_inf)
+       list_AUMC_zip=list(zip(list_AUMC0_t,list_AUMCt_inf))
 
        for i,j in list_AUMC_zip:
            AUMCO_inf=i+j
@@ -1777,7 +1777,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        ###MRT0-t
        list_MRT0_t=[]
 
-       list_zip_AUMCO_t_auc0_t = zip(list_AUMC0_t,list_AUC_0_T)
+       list_zip_AUMCO_t_auc0_t = list(zip(list_AUMC0_t,list_AUC_0_T))
 
        for i,j in list_zip_AUMCO_t_auc0_t:
            MRT0_t=i/j
@@ -1786,7 +1786,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        ###MRT0-inf
        list_MRT0_inf=[]
 
-       list_zip_AUMCO_inf_auc0_inf = zip(list_AUMCO_inf,list_auc0_inf)
+       list_zip_AUMCO_inf_auc0_inf = list(zip(list_AUMCO_inf,list_auc0_inf))
 
        for i,j in list_zip_AUMCO_inf_auc0_inf:
            MRT0_inf=i/j
@@ -1795,7 +1795,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        ####Vss
        list_Vss=[]
 
-       list_zip_MRT0_inf_cl=zip(list_MRT0_inf,list_cl)
+       list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_cl))
 
        for i,j in list_zip_MRT0_inf_cl:
            Vss = j*i
