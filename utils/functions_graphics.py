@@ -341,6 +341,25 @@ def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,mea
 
     return fig
 
+def first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic,add_or_replace_df_graph, child_args):
+    #Инициализация состояния чекбокса параметров осей
+    initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+    #Сохранение состояний данных графика
+    st.session_state[f"list_time{graph_id}"] = list_time
+    st.session_state[f"list_concentration{graph_id}"] = list_concentration
+    st.session_state[f"err_y_1{graph_id}"] = err_y_1
+
+    if f"first_creating_graphic{graph_id}" not in st.session_state:
+        st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+
+    if st.session_state[f"first_creating_graphic{graph_id}"]:
+        #вызов функции построения графика индивидуального срединных профелей линейный
+        fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_time,
+                                                            measure_unit_concentration,kind_graphic,graph_id)
+
+        add_or_replace_df_graph(*child_args,fig)
+
 def replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std):
     #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
     #Определяем колонки без "std" в названии
