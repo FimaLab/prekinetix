@@ -278,6 +278,14 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
 
 #####частные функции
 
+def checking_file_names_organ_graphs(file_name):
+    if file_name == "Кровь":
+        measure_unit_org = st.session_state['measure_unit_органы_concentration']
+    else:
+        measure_unit_org = st.session_state['measure_unit_органы_organs']
+    
+    return measure_unit_org
+
 def create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic):
     fig, ax = plt.subplots()
     plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
