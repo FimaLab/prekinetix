@@ -2232,11 +2232,22 @@ if option == 'Линейность дозирования':
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
-                 #вызов функции построения графика индивидуального срединных профелей линейный
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
-                                                                        st.session_state['measure_unit_линейность_concentration'],'lin')
-                  
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 #Инициализация состояния чекбокса параметров осей
+                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+                 #Сохранение состояний данных графика
+                 st.session_state[f"list_time{graph_id}"] = list_time
+                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
+                 st.session_state[f"err_y_1{graph_id}"] = err_y_1
+
+                 if f"first_creating_graphic{graph_id}" not in st.session_state:
+                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+
+                 if st.session_state[f"first_creating_graphic{graph_id}"]:
+                   #вызов функции построения графика индивидуального срединных профелей линейный
+                   fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
+                                                                        st.session_state['measure_unit_линейность_concentration'],'lin',graph_id)
+                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
 
               #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
@@ -2247,12 +2258,23 @@ if option == 'Линейность дозирования':
 
 
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
-                 
-                 #вызов функции построения графика индивидуального срединных профелей полулогарифм
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
-                                                                        st.session_state['measure_unit_линейность_concentration'],'log')
 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 #Инициализация состояния чекбокса параметров осей
+                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+                 #Сохранение состояний данных графика
+                 st.session_state[f"list_time{graph_id}"] = list_time
+                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
+                 st.session_state[f"err_y_1{graph_id}"] = err_y_1
+
+                 if f"first_creating_graphic{graph_id}" not in st.session_state:
+                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+                 
+                 if st.session_state[f"first_creating_graphic{graph_id}"]:
+                    #вызов функции построения графика индивидуального срединных профелей линейный
+                    fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
+                                                                         st.session_state['measure_unit_линейность_concentration'],'log',graph_id)
+                    add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
 
                  ############ Параметры ФК
 
@@ -2642,8 +2664,21 @@ if option == 'Линейность дозирования':
                             st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                            st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                            st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                            
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                            kind_graphic = 'lin'
+                         else:
+                            kind_graphic = 'log'
+
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                                                                   st.session_state[f"list_concentration{graph_id}"],
+                                                                   st.session_state[f"err_y_1{graph_id}"],
+                                                                   st.session_state['measure_unit_линейность_time'],
+                                                                   st.session_state['measure_unit_линейность_concentration'],
+                                                                   kind_graphic,graph_id)
+     
+
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                       if type_graphics == 'Сравнение фармакокинетических профилей в различных дозировках':
                          
