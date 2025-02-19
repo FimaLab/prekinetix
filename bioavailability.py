@@ -1843,16 +1843,25 @@ if option == 'Распределение по органам':
                 
                 list_t_organs=list(df_concat_mean_std.index)
 
-                list_zip_mean_std_colors=list(zip(list_name_organs,list_name_organs_std,list_colors))  
+                list_zip_mean_std_colors=list(zip(list_name_organs,list_name_organs_std,list_colors))
 
                 #Инициализация состояния чекбокса параметров осей
-                initializing_checkbox_status_graph_scaling_widgets(graph_id)  
+                initializing_checkbox_status_graph_scaling_widgets(graph_id)
 
-                #вызов функции построения графика сравнения срединных профелей линейные
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,st.session_state['measure_unit_органы_time'],
-                                                             st.session_state['measure_unit_органы_concentration'],'lin',graph_id)
+                #Сохранение состояний данных графика
+                st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                st.session_state[f"list_t_organs{graph_id}"] = list_t_organs
+                st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
+
+                if f"first_creating_graphic{graph_id}" not in st.session_state:
+                    st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
                 
-                add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                if st.session_state[f"first_creating_graphic{graph_id}"]:
+                   #вызов функции построения графика сравнения срединных профелей линейные
+                   fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,st.session_state['measure_unit_органы_time'],
+                                                                st.session_state['measure_unit_органы_concentration'],'lin',graph_id)
+                   
+                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)  
 
                 ### в полулог. координатах
                 graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в органах'
@@ -1867,11 +1876,19 @@ if option == 'Распределение по органам':
                 #Инициализация состояния чекбокса параметров осей
                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
 
-                #вызов функции построения графика сравнения срединных профелей полулогарифм
-                fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,st.session_state['measure_unit_органы_time'],
-                                                             st.session_state['measure_unit_органы_concentration'],'log',graph_id)
+                #Сохранение состояний данных графика
+                st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                st.session_state[f"list_t_organs{graph_id}"] = list_t_organs
+                st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
                 
-                add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                if f"first_creating_graphic{graph_id}" not in st.session_state:
+                    st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+                
+                if st.session_state[f"first_creating_graphic{graph_id}"]:
+                   #вызов функции построения графика сравнения срединных профелей полулогарифм
+                   fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_organs,df_concat_mean_std,st.session_state['measure_unit_органы_time'],
+                                                                st.session_state['measure_unit_органы_concentration'],'log',graph_id)
+                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
 
                 ###построение диаграммы для тканевой доступности
                 graphic='Тканевая доступность в органах'
@@ -1938,8 +1955,20 @@ if option == 'Распределение по органам':
                          st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                       if type_graphics == 'Сравнение фармакокинетических профилей в различных органах':
-                         st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                         st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                         
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                            kind_graphic = 'lin'
+                         else:
+                            kind_graphic = 'log'
+
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
+                                                                   st.session_state[f"list_t_organs{graph_id}"],
+                                                                   st.session_state[f"df_concat_mean_std{graph_id}"],
+                                                                   st.session_state['measure_unit_органы_time'],
+                                                                   st.session_state['measure_unit_органы_concentration'],
+                                                                   kind_graphic,graph_id)
+                         
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Тканевая"):
                       if type_graphics == 'Тканевая доступность в органах':
                          st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
@@ -2193,8 +2222,6 @@ if option == 'Линейность дозирования':
                  graphic='График усредненного фармакокинетического профиля в линейных координатах в дозировке ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 
 
                  list_time = []
                  for i in col_mapping:
