@@ -635,21 +635,25 @@ if option == 'Биодоступность':
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
                  graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения ЛС'
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
                  
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],'lin',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
 
                  #в полулогарифмических координатах
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения ЛС'
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
                   
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],'log',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
 
                  ############ Параметры ФК
 
@@ -847,22 +851,25 @@ if option == 'Биодоступность':
                  err_y_2=df_averaged_concentrations.loc['std'].tolist()
 
                  graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения ЛС'
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
-
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],'lin',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))   
 
                  #в полулогарифмических координатах
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ЛС'
-
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
                   
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
-
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],'log',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))  
 
                  ############ Параметры ФК
 
@@ -1057,23 +1064,24 @@ if option == 'Биодоступность':
                  err_y_3=df_averaged_concentrations.loc['std'].tolist()
 
                  graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения ГЛФ'
-
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)  
 
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
-
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
-
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],'lin',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))  
                  #в полулогарифмических координатах
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ГЛФ'
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
                   
-                 fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
-
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
-
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],'log',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
                  ############### Параметры ФК
 
                  result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_rdf",method_auc,dose_po_rdf,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
@@ -1350,8 +1358,19 @@ if option == 'Биодоступность':
                           st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                        if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                          st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                          st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                             kind_graphic = 'lin'
+                          else:
+                             kind_graphic = 'log'
+
+                          rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                                                                    st.session_state[f"list_concentration{graph_id}"],
+                                                                    st.session_state[f"err_y_1{graph_id}"],
+                                                                    st.session_state['measure_unit_ИБ_time'],
+                                                                    st.session_state['measure_unit_ИБ_concentration'],
+                                                                    kind_graphic,graph_id)
+                          
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                        if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
                           st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
@@ -1630,51 +1649,23 @@ if option == 'Распределение по органам':
                  graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                 #Инициализация состояния чекбокса параметров осей
-                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
-
-                 #Сохранение состояний данных графика
-                 st.session_state[f"list_time{graph_id}"] = list_time
-                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
-                 st.session_state[f"err_y_1{graph_id}"] = err_y_1
-
-                 if f"first_creating_graphic{graph_id}" not in st.session_state:
-                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
-
-                 if st.session_state[f"first_creating_graphic{graph_id}"]:
-                   #вызов функции построения графика индивидуального срединных профелей линейный
-                   fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_органы_time'],
-                                                                        measure_unit_org,'lin',graph_id)
-                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
-                 
-
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_органы_time'],
+                                                                    measure_unit_org,'lin',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
                  #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
                  # Заменяем все значения меньше 1 на np.nan
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                 
                  graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"
                  graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                 #Инициализация состояния чекбокса параметров осей
-                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
-
-                 #Сохранение состояний данных графика
-                 st.session_state[f"list_time{graph_id}"] = list_time
-                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
-                 st.session_state[f"err_y_1{graph_id}"] = err_y_1
-
-                 if f"first_creating_graphic{graph_id}" not in st.session_state:
-                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
-
-                 if st.session_state[f"first_creating_graphic{graph_id}"]:
-                   #вызов функции построения графика индивидуального срединных профелей линейный
-                   fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_органы_time'],
-                                                                        measure_unit_org,'log',graph_id)
-                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
-
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_органы_time'],
+                                                                    measure_unit_org,'log',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
                  ############ Параметры ФК
                  
                  if f"agree_cmax2 - органы {file_name}" not in st.session_state:
@@ -2274,22 +2265,10 @@ if option == 'Линейность дозирования':
                  list_concentration=df_averaged_concentrations.loc['mean'].tolist()
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
-                 #Инициализация состояния чекбокса параметров осей
-                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
-
-                 #Сохранение состояний данных графика
-                 st.session_state[f"list_time{graph_id}"] = list_time
-                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
-                 st.session_state[f"err_y_1{graph_id}"] = err_y_1
-
-                 if f"first_creating_graphic{graph_id}" not in st.session_state:
-                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
-
-                 if st.session_state[f"first_creating_graphic{graph_id}"]:
-                   #вызов функции построения графика индивидуального срединных профелей линейный
-                   fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
-                                                                        st.session_state['measure_unit_линейность_concentration'],'lin',graph_id)
-                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
+                                                                    st.session_state['measure_unit_линейность_concentration'],'lin',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
 
                  #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
@@ -2301,22 +2280,10 @@ if option == 'Линейность дозирования':
 
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
-                 #Инициализация состояния чекбокса параметров осей
-                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
-
-                 #Сохранение состояний данных графика
-                 st.session_state[f"list_time{graph_id}"] = list_time
-                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
-                 st.session_state[f"err_y_1{graph_id}"] = err_y_1
-
-                 if f"first_creating_graphic{graph_id}" not in st.session_state:
-                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
-                 
-                 if st.session_state[f"first_creating_graphic{graph_id}"]:
-                    #вызов функции построения графика индивидуального срединных профелей линейный
-                    fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
-                                                                         st.session_state['measure_unit_линейность_concentration'],'log',graph_id)
-                    add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
+                                                                    st.session_state['measure_unit_линейность_concentration'],'log',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
 
                  ############ Параметры ФК
 
