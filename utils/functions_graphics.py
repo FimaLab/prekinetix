@@ -316,13 +316,20 @@ def plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_a
     return fig
 
 #функция построения графика индивидуального срединных профелей
-def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic):
+def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
     plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
     if kind_graphic == 'log':
         ax.set_yscale("log")
     plt.xlabel(f"Время, {measure_unit_time}")
     plt.ylabel("Концентрация, "+measure_unit_concentration)
+
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+                applying_axis_settings(ax, x_settings, y_settings)
+
+    #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+    else:
+        get_parameters_axis(graph_id, ax)
 
     return fig
 
