@@ -305,7 +305,7 @@ def replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
     return df_for_plot_conc_1_log
 
 #функция построения графика объединенного индивидуальных профелей
-def plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_time,measure_unit_concentration,count_numer_animal,kind_graphic):
+def plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_time,measure_unit_concentration,count_numer_animal,kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
 
     ax.set_prop_cycle(cycler(color=list_color))
@@ -321,7 +321,34 @@ def plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_a
     else:
         ax.legend(bbox_to_anchor=(1, 1))
 
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+                applying_axis_settings(ax, x_settings, y_settings)
+
+    #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+    else:
+        get_parameters_axis(graph_id, ax)
+
     return fig
+
+def first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_time,measure_unit_concentration,count_numer_animal,kind_graphic,add_or_replace_df_graph, child_args):
+    #Инициализация состояния чекбокса параметров осей
+    initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+    #Сохранение состояний данных графика
+    st.session_state[f"list_color{graph_id}"] = list_color
+    st.session_state[f"df_for_plot_conc_1{graph_id}"] = df_for_plot_conc_1
+    st.session_state[f"list_numer_animal_for_plot{graph_id}"] = list_numer_animal_for_plot
+    st.session_state[f"count_numer_animal{graph_id}"] = count_numer_animal
+
+    if f"first_creating_graphic{graph_id}" not in st.session_state:
+        st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+
+    if st.session_state[f"first_creating_graphic{graph_id}"]:
+        #вызов функции построения графика индивидуального срединных профелей линейный
+        fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,measure_unit_time,
+                                                            measure_unit_concentration,count_numer_animal,kind_graphic,graph_id)
+
+        add_or_replace_df_graph(*child_args,fig)
 
 #функция построения графика индивидуального срединных профелей
 def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic,graph_id,x_settings=None,y_settings=None):
