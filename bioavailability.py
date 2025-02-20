@@ -1629,24 +1629,25 @@ if option == 'Распределение по органам':
                  list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
                  
                  graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах " + "("+file_name+")"
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
-                 #вызов функции построения графика общего индивидуальных профелей линейный
-                 fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      st.session_state['measure_unit_органы_time'],measure_unit_org,count_numer_animal,'lin')
                  
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_органы_time'],
+                                                                  measure_unit_org,count_numer_animal,
+                                                                  'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
 
                  # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
                  df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
                  graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах " + "("+file_name+")"
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                 #вызов функции построения графика общего индивидуальных профелей полулогарифм
-                 fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      st.session_state['measure_unit_органы_time'],measure_unit_org,count_numer_animal,'log')
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_органы_time'],
+                                                                  measure_unit_org,count_numer_animal,
+                                                                  'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
 
                  ###усредненные    
                  # в линейных координатах
@@ -1976,8 +1977,27 @@ if option == 'Распределение по органам':
                          st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                         st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                         st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                         
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+
+                         match = re.search(r'\(([^)]+)\)$', graph_id)
+                         file_name = match.group(1)
+                         
+                         measure_unit_org = checking_file_names_organ_graphs(file_name)
+
+                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                            kind_graphic = 'lin'
+                         else:
+                            kind_graphic = 'log'
+
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                                                                   st.session_state[f"df_for_plot_conc_1{graph_id}"],
+                                                                   st.session_state[f"list_numer_animal_for_plot{graph_id}"],
+                                                                   st.session_state['measure_unit_органы_time'],
+                                                                   measure_unit_org, 
+                                                                   len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
+                                                                   kind_graphic,graph_id)
+
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
                          
@@ -2245,24 +2265,25 @@ if option == 'Линейность дозирования':
                  list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
                  
                  graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах в дозировке " +file_name+" "+ st.session_state['measure_unit_линейность_dose']
+                 graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
-                 #вызов функции построения графика общего индивидуальных профелей линейный
-                 fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      st.session_state['measure_unit_линейность_time'],st.session_state['measure_unit_линейность_concentration'],count_numer_animal,'lin')
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+
+                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_линейность_time'],
+                                                                  st.session_state['measure_unit_линейность_concentration'],count_numer_animal,
+                                                                  'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
                  
                  # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
                  df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
                  graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах в дозировке " +file_name+" "+ st.session_state['measure_unit_линейность_dose']
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
+                 graph_id = graphic
+                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                 #вызов функции построения графика общего индивидуальных профелей полулогарифм
-                 fig = plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_animal_for_plot,
-                                                                      st.session_state['measure_unit_линейность_time'],st.session_state['measure_unit_линейность_concentration'],count_numer_animal,'log')
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_линейность_time'],
+                                                                  st.session_state['measure_unit_линейность_concentration'],count_numer_animal,
+                                                                  'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
 
                   ###усредненные    
                  # в линейных координатах
@@ -2290,7 +2311,6 @@ if option == 'Линейность дозирования':
                  graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
 
                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
@@ -2683,8 +2703,21 @@ if option == 'Линейность дозирования':
                             st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
-                            st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                            st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                            
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                            kind_graphic = 'lin'
+                         else:
+                            kind_graphic = 'log'
+
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                                                                   st.session_state[f"df_for_plot_conc_1{graph_id}"],
+                                                                   st.session_state[f"list_numer_animal_for_plot{graph_id}"],
+                                                                   st.session_state['measure_unit_линейность_time'],
+                                                                   st.session_state['measure_unit_линейность_concentration'], 
+                                                                   len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
+                                                                   kind_graphic,graph_id)
+
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
                             
