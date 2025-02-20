@@ -268,21 +268,25 @@ if option == 'Фармакокинетика':
               err_y_pk=df_averaged_concentrations.loc['std'].tolist()
 
               graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после введения ЛС'
+              graph_id = graphic
               add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)  
 
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_concentration'],'lin')
-
-              add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
+              first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_pk,st.session_state['measure_unit_фк_time'],
+                                                                    st.session_state['measure_unit_фк_concentration'],'lin',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
 
               #в полулогарифмических координатах
               list_concentration = [np.nan if x < 1 else x for x in list_concentration]
 
               graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС'
+              graph_id = graphic
               add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-               
-              fig = plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_pk,st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_concentration'],'log')
 
-              add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
+              first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_pk,st.session_state['measure_unit_фк_time'],
+                                                                    st.session_state['measure_unit_фк_concentration'],'log',
+                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
 
               ############ Параметры ФК
               if st.session_state["agree_injection - фк"] == False:
@@ -369,8 +373,18 @@ if option == 'Фармакокинетика':
                           st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                        if type_graphics == 'Графики усредненного фармакокинетического профиля':
-                          st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                          st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                             kind_graphic = 'lin'
+                          else:
+                             kind_graphic = 'log'
+
+                          rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                                                                    st.session_state[f"list_concentration{graph_id}"],
+                                                                    st.session_state[f"err_y_1{graph_id}"],
+                                                                    st.session_state['measure_unit_фк_time'],
+                                                                    st.session_state['measure_unit_фк_concentration'],
+                                                                    kind_graphic,graph_id)
 
              with col2:
                   
