@@ -7,6 +7,25 @@ import pandas as pd
 from cycler import cycler
 
 #####Общие функции
+def radio_create_individual_graphics(option,list_keys_file):
+    # Генерируем варианты выбора
+    options = [f"{i[:-5]}" for i in list_keys_file]
+
+    # Ключ для сохранения состояния
+    radio_key = f"radio_create_individual_graphics{option}"
+
+    # Если в session_state еще нет значения, устанавливаем его по умолчанию
+    if radio_key not in st.session_state:
+        st.session_state[radio_key] = options[0]  # Первый вариант по умолчанию
+
+    # Отображаем радиокнопку с сохранением состояния
+    selected = st.radio(f"Выберите вариант:", options, index=options.index(st.session_state[radio_key]), key = f'key_radio_create_individual_graphics{option}',horizontal=True)
+
+    # Обновляем session_state, если выбор изменился
+    if selected != st.session_state[radio_key]:
+        st.session_state[radio_key] = selected
+
+    return st.session_state[radio_key]
 
 #функция отрисовки графиков с виджетами масштаба 
 
@@ -286,7 +305,7 @@ def checking_file_names_organ_graphs(file_name):
     
     return measure_unit_org
 
-def create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic):
+def create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
     plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
     if kind_graphic == 'log':
@@ -294,7 +313,31 @@ def create_individual_graphics(list_time,list_concentration,measure_unit_time, m
     plt.xlabel(f"Время, {measure_unit_time}")
     plt.ylabel("Концентрация, "+measure_unit_concentration)
 
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+                applying_axis_settings(ax, x_settings, y_settings)
+
+    #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+    else:
+        get_parameters_axis(graph_id, ax)
+
     return fig
+
+def first_creating_create_individual_graphics(graph_id,list_time,list_concentration,measure_unit_time,measure_unit_concentration,kind_graphic,add_or_replace_df_graph, child_args):
+    #Инициализация состояния чекбокса параметров осей
+    initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+    #Сохранение состояний данных графика
+    st.session_state[f"list_time{graph_id}"] = list_time
+    st.session_state[f"list_concentration{graph_id}"] = list_concentration
+
+    if f"first_creating_graphic{graph_id}" not in st.session_state:
+        st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+
+    if st.session_state[f"first_creating_graphic{graph_id}"]:
+        
+        fig = create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic,graph_id)
+
+        add_or_replace_df_graph(*child_args,fig)
 
 # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
 def replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1):
