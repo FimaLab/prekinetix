@@ -199,12 +199,16 @@ if option == 'Фармакокинетика':
               for i in col_mapping:
                   numer=float(i)
                   list_time.append(numer)
+
+              list_number_animal = []
               
               for r in range(0,count_row_df):
 
                   list_concentration=df.iloc[r].tolist()
 
                   numer_animal=list_concentration[0]
+
+                  list_number_animal.append(numer_animal)
 
                   list_concentration.pop(0) #удаление номера животного
 
@@ -229,8 +233,9 @@ if option == 'Фармакокинетика':
                   first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_фк_time'],
                                                             st.session_state['measure_unit_фк_concentration'],"log",add_or_replace_df_graph, 
                                                             (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                           st.session_state[f"list_graphics_word_{option}"],graphic)) 
-    
+                                                                                           st.session_state[f"list_graphics_word_{option}"],graphic))
+                   
+              st.session_state[f'list_number_animal_{option}'] = list_number_animal
 
            # объединенные индивидуальные в линейных координатах
 
@@ -367,6 +372,10 @@ if option == 'Фармакокинетика':
 
              #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
              create_session_type_graphics_checked_graphics(option,type_graphics)
+
+             if type_graphics == 'Индивидуальные фармакокинетические профили':
+
+                selected_subject_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_number_animal_{option}'],True)
              
              if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
                 for i in list_range_count_graphics_for_visual:
@@ -375,16 +384,20 @@ if option == 'Фармакокинетика':
                           
                           graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
 
-                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                             kind_graphic = 'lin'
-                          else:
-                             kind_graphic = 'log'
+                          match =  (re.match(r".*№(\S+)", graph_id))
+                          number_animal = "№" + match.group(1)
 
-                          rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
-                                                                 st.session_state[f"list_concentration{graph_id}"],
-                                                                 st.session_state['measure_unit_фк_time'],
-                                                                 st.session_state['measure_unit_фк_concentration'],
-                                                                 kind_graphic,graph_id)
+                          if selected_subject_individual_graphics == number_animal:
+                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                                kind_graphic = 'lin'
+                             else:
+                                kind_graphic = 'log'
+
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                                                                    st.session_state[f"list_concentration{graph_id}"],
+                                                                    st.session_state['measure_unit_фк_time'],
+                                                                    st.session_state['measure_unit_фк_concentration'],
+                                                                    kind_graphic,graph_id)
 
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
                        if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
@@ -613,11 +626,15 @@ if option == 'Биодоступность':
                      numer=float(i)
                      list_time.append(numer)
 
+                 list_number_animal = []
+
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
 
                      numer_animal=list_concentration[0]
+
+                     list_number_animal.append(numer_animal)
 
                      list_concentration.pop(0) #удаление номера животного
 
@@ -644,7 +661,8 @@ if option == 'Биодоступность':
                                                                st.session_state['measure_unit_ИБ_concentration'],"log",add_or_replace_df_graph, 
                                                                (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
-
+                 
+                 st.session_state[f'list_number_animal_{option}_после внутривенного введения ЛС'] = list_number_animal
               # объединенные индивидуальные в линейных координатах
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
@@ -822,9 +840,8 @@ if option == 'Биодоступность':
                  
                  add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
 
-              ########### графики    
-
-              ######индивидуальные    
+                 ########### графики    
+                 ######индивидуальные    
 
                  # в линейных координатах
                  col_mapping = df.columns.tolist()
@@ -837,11 +854,14 @@ if option == 'Биодоступность':
                      numer=float(i)
                      list_time.append(numer)
 
+                 list_number_animal = []
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
 
                      numer_animal=list_concentration[0]
+
+                     list_number_animal.append(numer_animal)
 
                      list_concentration.pop(0) #удаление номера животного
 
@@ -867,10 +887,9 @@ if option == 'Биодоступность':
                                                                st.session_state['measure_unit_ИБ_concentration'],"log",add_or_replace_df_graph, 
                                                                (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic)) 
-
-                     
-
-              # объединенные индивидуальные в линейных координатах
+                 
+                 st.session_state[f'list_number_animal_{option}_после перорального введения ЛС'] = list_number_animal
+                 # объединенные индивидуальные в линейных координатах
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
                  df_for_plot_conc_1 = df_for_plot_conc.transpose()
@@ -900,9 +919,8 @@ if option == 'Биодоступность':
                                                                   'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic)) 
  
-              ### усреденные    
-              #в линейных    
-
+                ### усреденные    
+                #в линейных    
                  list_time = []
                  for i in col_mapping:
                      numer=float(i)
@@ -1059,12 +1077,15 @@ if option == 'Биодоступность':
                  for i in col_mapping:
                      numer=float(i)
                      list_time.append(numer)
-
+                 
+                 list_number_animal = []
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
 
                      numer_animal=list_concentration[0]
+
+                     list_number_animal.append(numer_animal)
 
                      list_concentration.pop(0) #удаление номера животного
 
@@ -1090,7 +1111,8 @@ if option == 'Биодоступность':
                                                                st.session_state['measure_unit_ИБ_concentration'],"log",add_or_replace_df_graph, 
                                                                (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
-
+                     
+                 st.session_state[f'list_number_animal_{option}_после перорального введения ГЛФ'] = list_number_animal
               # объединенные индивидуальные в линейных координатах
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
@@ -1321,9 +1343,9 @@ if option == 'Биодоступность':
                   
                   add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_mean)
 
-              #####объединенные графики
+                  #####объединенные графики
 
-              ### в линейных координатах
+                  ### в линейных координатах
                   col_mapping = df_oral_substance.columns.tolist() ### можно указать только фрейм для перорального
                   col_mapping.remove('Номер')
                   list_time = []
@@ -1415,6 +1437,12 @@ if option == 'Биодоступность':
 
              #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
              create_session_type_graphics_checked_graphics(option,type_graphics)
+
+             if type_graphics == 'Индивидуальные фармакокинетические профили' or type_graphics == 'Сравнение индивидуальных фармакокинетических профилей' or type_graphics == 'Графики усредненного фармакокинетического профиля':
+               selected_kind_individual_graphics = radio_create_individual_graphics(option,["после внутривенного введения ЛС.xlsx", "после перорального введения ЛС.xlsx","после перорального введения ГЛФ.xlsx"])
+
+               if type_graphics == 'Индивидуальные фармакокинетические профили':
+                  selected_subject_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_number_animal_{option}_{selected_kind_individual_graphics}'],True,selected_kind_individual_graphics)
              
              if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
                 for i in list_range_count_graphics_for_visual:
@@ -1423,53 +1451,74 @@ if option == 'Биодоступность':
                              
                              graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
 
-                             #match = re.search(r'\bдозировке\s+(\d+(?:[.,]\d+)*)', graph_id)
-                             #number = match.group(1)
-                             #file_name = f"Дозировка {number}"
+                             match = re.match(r".*№(\S+)", graph_id)
+                             number_animal = "№" + match.group(1)
+                             
+                             pattern = r"(?<=\bпосле\b )\w+\sвведения\s(?:ЛС|ГЛФ)\b"
+                             match = re.search(pattern, graph_id)
+                             file_name = match.group()
+                             file_name = f"после {file_name}"
 
-                             #if selected_kind_individual_graphics == file_name:
-                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                                kind_graphic = 'lin'
-                             else:
-                                kind_graphic = 'log'
+                             if selected_kind_individual_graphics == file_name and selected_subject_individual_graphics == number_animal:
 
-                             rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
-                                                                    st.session_state[f"list_concentration{graph_id}"],
-                                                                    st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],
-                                                                    kind_graphic,graph_id)
+                                if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                                   kind_graphic = 'lin'
+                                else:
+                                   kind_graphic = 'log'
+
+                                rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                                                                       st.session_state[f"list_concentration{graph_id}"],
+                                                                       st.session_state['measure_unit_ИБ_time'],
+                                                                       st.session_state['measure_unit_ИБ_concentration'],
+                                                                       kind_graphic,graph_id)
 
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
                        if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
                           
                           graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
-                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                             kind_graphic = 'lin'
-                          else:
-                             kind_graphic = 'log'
 
-                          rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
-                                                                    st.session_state[f"df_for_plot_conc_1{graph_id}"],
-                                                                    st.session_state[f"list_numer_animal_for_plot{graph_id}"],
-                                                                    st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'], 
-                                                                    len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
-                                                                    kind_graphic,graph_id)
+                          pattern = r"(?<=\bпосле\b )\w+\sвведения\s(?:ЛС|ГЛФ)\b"
+                          match = re.search(pattern, graph_id)
+                          file_name = match.group()
+                          file_name = f"после {file_name}"
+
+                          if selected_kind_individual_graphics == file_name:
+                          
+                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                                kind_graphic = 'lin'
+                             else:
+                                kind_graphic = 'log'
+
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                                                                       st.session_state[f"df_for_plot_conc_1{graph_id}"],
+                                                                       st.session_state[f"list_numer_animal_for_plot{graph_id}"],
+                                                                       st.session_state['measure_unit_ИБ_time'],
+                                                                       st.session_state['measure_unit_ИБ_concentration'], 
+                                                                       len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
+                                                                       kind_graphic,graph_id)
 
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                        if type_graphics == 'Графики усредненного фармакокинетического профиля':
                           graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
-                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                             kind_graphic = 'lin'
-                          else:
-                             kind_graphic = 'log'
 
-                          rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
-                                                                    st.session_state[f"list_concentration{graph_id}"],
-                                                                    st.session_state[f"err_y_1{graph_id}"],
-                                                                    st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],
-                                                                    kind_graphic,graph_id)
+                          pattern = r"(?<=\bпосле\b )\w+\sвведения\s(?:ЛС|ГЛФ)\b"
+                          match = re.search(pattern, graph_id)
+                          file_name = match.group()
+                          file_name = f"после {file_name}"
+
+                          if selected_kind_individual_graphics == file_name:
+
+                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                                kind_graphic = 'lin'
+                             else:
+                                kind_graphic = 'log'
+
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                                                                       st.session_state[f"list_concentration{graph_id}"],
+                                                                       st.session_state[f"err_y_1{graph_id}"],
+                                                                       st.session_state['measure_unit_ИБ_time'],
+                                                                       st.session_state['measure_unit_ИБ_concentration'],
+                                                                       kind_graphic,graph_id)
                           
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                        if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
@@ -1673,12 +1722,16 @@ if option == 'Распределение по органам':
                      numer=float(i)
                      list_time.append(numer)
                  list_t_graph.append(list_time)
+                 
+                 list_number_animal = []
 
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
 
                      numer_animal=list_concentration[0]
+
+                     list_number_animal.append(numer_animal)
 
                      list_concentration.pop(0) #удаление номера животного
 
@@ -1704,7 +1757,8 @@ if option == 'Распределение по органам':
                                                                measure_unit_org,"log",add_or_replace_df_graph, 
                                                                (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
-       
+
+                 st.session_state[f'list_number_animal_{option}_{file_name}'] = list_number_animal
               # объединенные индивидуальные в линейных координатах
 
                  df_for_plot_conc=df.drop(['Номер'], axis=1)
@@ -2056,8 +2110,12 @@ if option == 'Распределение по органам':
             #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
             create_session_type_graphics_checked_graphics(option,type_graphics)
 
-            selected_kind_individual_graphics = radio_create_individual_graphics(option,st.session_state["list_keys_file_org"])
-            
+            if type_graphics == 'Индивидуальные фармакокинетические профили' or type_graphics == 'Сравнение индивидуальных фармакокинетических профилей' or type_graphics == 'Графики усредненного фармакокинетического профиля':
+               selected_kind_individual_graphics = radio_create_individual_graphics(option,st.session_state["list_keys_file_org"])
+               
+               if type_graphics == 'Индивидуальные фармакокинетические профили':
+                  selected_subject_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_number_animal_{option}_{selected_kind_individual_graphics}'],True,selected_kind_individual_graphics)
+
             if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
                for i in list_range_count_graphics_for_visual:
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("индивидуального"): 
@@ -2068,8 +2126,11 @@ if option == 'Распределение по органам':
                          file_name = match.group(1)
                          
                          measure_unit_org = checking_file_names_organ_graphs(file_name)
+
+                         match =  (re.match(r".*№(\S+)", graph_id))
+                         number_animal = "№" + match.group(1)
                          
-                         if selected_kind_individual_graphics == file_name: 
+                         if selected_kind_individual_graphics == file_name and selected_subject_individual_graphics == number_animal:
                          
                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
                                kind_graphic = 'lin'
@@ -2091,19 +2152,20 @@ if option == 'Распределение по органам':
                          file_name = match.group(1)
                          
                          measure_unit_org = checking_file_names_organ_graphs(file_name)
+                         
+                         if selected_kind_individual_graphics == file_name:
+                            if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                               kind_graphic = 'lin'
+                            else:
+                               kind_graphic = 'log'
 
-                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                            kind_graphic = 'lin'
-                         else:
-                            kind_graphic = 'log'
-
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
-                                                                   st.session_state[f"df_for_plot_conc_1{graph_id}"],
-                                                                   st.session_state[f"list_numer_animal_for_plot{graph_id}"],
-                                                                   st.session_state['measure_unit_органы_time'],
-                                                                   measure_unit_org, 
-                                                                   len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
-                                                                   kind_graphic,graph_id)
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                                                                      st.session_state[f"df_for_plot_conc_1{graph_id}"],
+                                                                      st.session_state[f"list_numer_animal_for_plot{graph_id}"],
+                                                                      st.session_state['measure_unit_органы_time'],
+                                                                      measure_unit_org, 
+                                                                      len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
+                                                                      kind_graphic,graph_id)
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
@@ -2115,22 +2177,25 @@ if option == 'Распределение по органам':
                          
                          measure_unit_org = checking_file_names_organ_graphs(file_name)
 
-                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                            kind_graphic = 'lin'
-                         else:
-                            kind_graphic = 'log'
+                         if selected_kind_individual_graphics == file_name:
 
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
-                                                                   st.session_state[f"list_concentration{graph_id}"],
-                                                                   st.session_state[f"err_y_1{graph_id}"],
-                                                                   st.session_state['measure_unit_органы_time'],
-                                                                   measure_unit_org,
-                                                                   kind_graphic,graph_id)
+                            if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                               kind_graphic = 'lin'
+                            else:
+                               kind_graphic = 'log'
+
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                                                                      st.session_state[f"list_concentration{graph_id}"],
+                                                                      st.session_state[f"err_y_1{graph_id}"],
+                                                                      st.session_state['measure_unit_органы_time'],
+                                                                      measure_unit_org,
+                                                                      kind_graphic,graph_id)
                          
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                       if type_graphics == 'Сравнение фармакокинетических профилей в различных органах':
                          
                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+
                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
                             kind_graphic = 'lin'
                          else:
@@ -2140,7 +2205,7 @@ if option == 'Распределение по органам':
                                                                    st.session_state[f"list_t_organs{graph_id}"],
                                                                    st.session_state[f"df_concat_mean_std{graph_id}"],
                                                                    st.session_state['measure_unit_органы_time'],
-                                                                   measure_unit_org,
+                                                                   st.session_state['measure_unit_органы_concentration'],
                                                                    kind_graphic,graph_id)
                          
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Тканевая"):
@@ -2290,8 +2355,9 @@ if option == 'Линейность дозирования':
                  else:
                     list_keys_file_lin_float.append(int(i[10:-5]))
              list_keys_file_lin_float.sort()
-
+             
              list_keys_file_lin = [f"Дозировка {str(float)}.xlsx" for float in list_keys_file_lin_float]
+             st.session_state['list_keys_file_lin'] = list_keys_file_lin
 
              for i in list_keys_file_lin:
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
@@ -2330,12 +2396,16 @@ if option == 'Линейность дозирования':
                      numer=float(i)
                      list_time.append(numer)
                  list_t_graph.append(list_time) 
+                 
+                 list_number_animal = []
 
                  for r in range(0,count_row_df):
 
                      list_concentration=df.iloc[r].tolist()
 
                      numer_animal=list_concentration[0]
+
+                     list_number_animal.append(numer_animal)
 
                      list_concentration.pop(0) #удаление номера животного
 
@@ -2362,6 +2432,8 @@ if option == 'Линейность дозирования':
                                                                st.session_state['measure_unit_линейность_concentration'],"log",add_or_replace_df_graph, 
                                                                (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
+                 
+                 st.session_state[f'list_number_animal_{option}_{f"Дозировка {file_name}"}'] = list_number_animal
 
                  # объединенные индивидуальные в линейных координатах
 
@@ -2417,7 +2489,7 @@ if option == 'Линейность дозирования':
                  #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
                  # Заменяем все значения меньше 1 на np.nan
-                 graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
+                 graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах в дозировке ' +file_name+" "+ st.session_state['measure_unit_линейность_dose']
                  graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
@@ -2803,7 +2875,11 @@ if option == 'Линейность дозирования':
             #создание чекбокса и инициация состояния, отвеч. за отрисовку графиков
             create_session_type_graphics_checked_graphics(option,type_graphics)
 
-            selected_kind_individual_graphics = radio_create_individual_graphics(option,st.session_state['list_files_name_doses'])
+            if type_graphics == 'Индивидуальные фармакокинетические профили' or type_graphics == 'Сравнение индивидуальных фармакокинетических профилей' or type_graphics == 'Графики усредненного фармакокинетического профиля':
+               selected_kind_individual_graphics = radio_create_individual_graphics(option,st.session_state['list_keys_file_lin'])
+
+               if type_graphics == 'Индивидуальные фармакокинетические профили':
+                  selected_subject_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_number_animal_{option}_{selected_kind_individual_graphics}'],True,selected_kind_individual_graphics)
 
             if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
                for i in list_range_count_graphics_for_visual:
@@ -2816,7 +2892,10 @@ if option == 'Линейность дозирования':
                          number = match.group(1)
                          file_name = f"Дозировка {number}"
 
-                         if selected_kind_individual_graphics == file_name:
+                         match =  (re.match(r".*№(\S+)", graph_id))
+                         number_animal = "№" + match.group(1)
+
+                         if selected_kind_individual_graphics == file_name and selected_subject_individual_graphics == number_animal:
                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
                                kind_graphic = 'lin'
                             else:
@@ -2832,34 +2911,47 @@ if option == 'Линейность дозирования':
                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
                             
                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
-                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                            kind_graphic = 'lin'
-                         else:
-                            kind_graphic = 'log'
 
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
-                                                                   st.session_state[f"df_for_plot_conc_1{graph_id}"],
-                                                                   st.session_state[f"list_numer_animal_for_plot{graph_id}"],
-                                                                   st.session_state['measure_unit_линейность_time'],
-                                                                   st.session_state['measure_unit_линейность_concentration'], 
-                                                                   len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
-                                                                   kind_graphic,graph_id)
+                         match = re.search(r'\bдозировке\s+(\d+(?:[.,]\d+)*)', graph_id)
+                         number = match.group(1)
+                         file_name = f"Дозировка {number}"
+
+                         if selected_kind_individual_graphics == file_name:
+                            if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                               kind_graphic = 'lin'
+                            else:
+                               kind_graphic = 'log'
+
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                                                                      st.session_state[f"df_for_plot_conc_1{graph_id}"],
+                                                                      st.session_state[f"list_numer_animal_for_plot{graph_id}"],
+                                                                      st.session_state['measure_unit_линейность_time'],
+                                                                      st.session_state['measure_unit_линейность_concentration'], 
+                                                                      len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
+                                                                      kind_graphic,graph_id)
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                       if type_graphics == 'Графики усредненного фармакокинетического профиля':
                             
                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
-                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                            kind_graphic = 'lin'
-                         else:
-                            kind_graphic = 'log'
 
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
-                                                                   st.session_state[f"list_concentration{graph_id}"],
-                                                                   st.session_state[f"err_y_1{graph_id}"],
-                                                                   st.session_state['measure_unit_линейность_time'],
-                                                                   st.session_state['measure_unit_линейность_concentration'],
-                                                                   kind_graphic,graph_id)
+                         match = re.search(r'\bдозировке\s+(\d+(?:[.,]\d+)*)', graph_id)
+                         number = match.group(1)
+                         file_name = f"Дозировка {number}"
+
+                         if selected_kind_individual_graphics == file_name:
+                            
+                            if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                               kind_graphic = 'lin'
+                            else:
+                               kind_graphic = 'log'
+
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                                                                      st.session_state[f"list_concentration{graph_id}"],
+                                                                      st.session_state[f"err_y_1{graph_id}"],
+                                                                      st.session_state['measure_unit_линейность_time'],
+                                                                      st.session_state['measure_unit_линейность_concentration'],
+                                                                      kind_graphic,graph_id)
      
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
