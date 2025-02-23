@@ -7,25 +7,26 @@ import pandas as pd
 from cycler import cycler
 
 #####Общие функции
-def radio_create_individual_graphics(option,list_keys_file):
-    # Генерируем варианты выбора
-    options = [f"{i[:-5]}" for i in list_keys_file]
+def radio_create_individual_graphics(option,list_keys_file,selected_subject=None,file_name=None):
+    
+    if selected_subject is not None:
+        # Генерируем варианты выбора
+        options = [f"{i}" for i in list_keys_file]
+    else:
+        options = [f"{i[:-5]}" for i in list_keys_file]
 
-    # Ключ для сохранения состояния
-    radio_key = f"radio_create_individual_graphics{option}"
+    if selected_subject is not None:
 
-    # Если в session_state еще нет значения, устанавливаем его по умолчанию
-    if radio_key not in st.session_state:
-        st.session_state[radio_key] = options[0]  # Первый вариант по умолчанию
+       # Отображаем радиокнопку с сохранением состояния
+       if file_name is not None:
+          selected = st.radio(f"Выберите субъект:", options, key = f'key_subject_radio_create_individual_graphics{option}_{file_name}',horizontal=True)
+       else:
+          selected = st.radio(f"Выберите субъект:", options, key = f'key_subject_radio_create_individual_graphics{option}',horizontal=True)
+    else:
 
-    # Отображаем радиокнопку с сохранением состояния
-    selected = st.radio(f"Выберите вариант:", options, index=options.index(st.session_state[radio_key]), key = f'key_radio_create_individual_graphics{option}',horizontal=True)
+       selected = st.radio(f"Выберите вариант:", options, key = f'key_radio_create_individual_graphics{option}',horizontal=True)
 
-    # Обновляем session_state, если выбор изменился
-    if selected != st.session_state[radio_key]:
-        st.session_state[radio_key] = selected
-
-    return st.session_state[radio_key]
+    return selected
 
 #функция отрисовки графиков с виджетами масштаба 
 
