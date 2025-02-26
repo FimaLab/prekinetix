@@ -5,6 +5,7 @@ from scipy import stats
 import numpy as np
 import pandas as pd
 from cycler import cycler
+from matplotlib.ticker import LogLocator, FuncFormatter
 
 #####Общие функции
 def radio_create_individual_graphics(option,list_keys_file,selected_subject=None,file_name=None):
@@ -30,15 +31,40 @@ def radio_create_individual_graphics(option,list_keys_file,selected_subject=None
 
 #функция отрисовки графиков с виджетами масштаба 
 
-def rendering_graphs_with_scale_widgets(graph_id,option,i,child_func_create_graphic, *args, **kwargs):
+def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_func_create_graphic, *args, **kwargs):
 
     col3, col4 = st.columns([2, 1])
                          
     with col4: 
+        
+        if kind_graphic == 'log':
+
+           #Инициализация состояний видежтов параметров осей
+           initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
+                                       min_value_Y=1.0,max_value_Y=1.0,major_ticks_Y=10.0,minor_ticks_Y=10.0)
+           
+
+           if f'y_settings_{graph_id}' not in st.session_state:
+            st.session_state[f'y_settings_{graph_id}'] = {
+                "min": 1.0,
+                "max": 0,
+                "major": 10.0,
+                "minor": 10.0
+            }
+
+        else:
             
-        #Инициализация состояний видежтов параметров осей
-        initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
-                                    min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
+            #Инициализация состояний видежтов параметров осей
+           initializing_status_graph_scaling_widgets(graph_id,min_value_X=0.0,max_value_X=1.0,major_ticks_X=1.0,minor_ticks_X=1.0,
+                                       min_value_Y=0.0,max_value_Y=1.0,major_ticks_Y=1.0,minor_ticks_Y=1.0)
+           
+           if f'y_settings_{graph_id}' not in st.session_state:
+            st.session_state[f'y_settings_{graph_id}'] = {
+                "min": 0,
+                "max": 0,
+                "major": 0,
+                "minor": 0
+            }
         
         if f'x_settings_{graph_id}' not in st.session_state:
             st.session_state[f'x_settings_{graph_id}'] = {
@@ -48,13 +74,7 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,child_func_create_grap
                 "minor": 0
             }
             
-        if f'y_settings_{graph_id}' not in st.session_state:
-            st.session_state[f'y_settings_{graph_id}'] = {
-                "min": 0,
-                "max": 0,
-                "major": 0,
-                "minor": 0
-            }
+        
         
         if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
             
@@ -97,12 +117,24 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,child_func_create_grap
                     "major": st.session_state[f"X_graphic_major_ticks_{graph_id}_default"],
                     "minor": st.session_state[f"X_graphic_minor_ticks_{graph_id}_default"]
             }
-            y_settings = {
-                    "min": 0,
-                    "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
-                    "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
-                    "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
-            }
+
+            if kind_graphic == 'log':
+
+               y_settings = {
+                       "min": 1.0,
+                       "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
+                       "major": 10.0,
+                       "minor": 10.0
+               }
+
+            else:
+               
+               y_settings = {
+                       "min": 0,
+                       "max": st.session_state[f"Y_graphic_max_value_{graph_id}_default"],
+                       "major": st.session_state[f"Y_graphic_major_ticks_{graph_id}_default"],
+                       "minor": st.session_state[f"Y_graphic_minor_ticks_{graph_id}_default"]
+               }
             
             new_kwargs["x_settings"] = x_settings
             new_kwargs["y_settings"] = y_settings
@@ -153,16 +185,43 @@ def create_session_type_graphics_checked_graphics(option,type_graphics):
     st.session_state[f"{type_graphics}_{option}_checked_graphics"] = checked_graphics
 
 # Применение настроек осей
-def applying_axis_settings(ax, x_settings, y_settings):
-  if x_settings["min"] < x_settings["max"]:
-      ax.set_xlim(x_settings["min"], x_settings["max"])
-      ax.xaxis.set_major_locator(plt.MultipleLocator(x_settings["major"]))
-      ax.xaxis.set_minor_locator(plt.MultipleLocator(x_settings["minor"]))
 
-  if y_settings["min"] < y_settings["max"]:
-      ax.set_ylim(y_settings["min"], y_settings["max"])
-      ax.yaxis.set_major_locator(plt.MultipleLocator(y_settings["major"]))
-      ax.yaxis.set_minor_locator(plt.MultipleLocator(y_settings["minor"]))
+# Функция для форматирования чисел в целые значения
+def format_y_ticks(value, _):
+    return f"{int(value)}"
+
+def applying_axis_settings(ax, x_settings, y_settings,kind_graphic):
+    
+    ymin, ymax = ax.get_ylim()
+    padding_x_1 = (x_settings["max"] - x_settings["min"]) * 0.01
+    padding_x_2 = (x_settings["max"] - x_settings["min"]) * 0.05
+    padding_y_lin = (y_settings["max"] - y_settings["min"]) * 0.02
+
+    if kind_graphic == 'log':
+       if x_settings["min"] < x_settings["max"]:
+           ax.set_xlim(0 - padding_x_1, x_settings["max"] + padding_x_2)
+           ax.xaxis.set_major_locator(plt.MultipleLocator(x_settings["major"]))
+           ax.xaxis.set_minor_locator(plt.MultipleLocator(x_settings["minor"]))
+
+       if y_settings["min"] < y_settings["max"]:
+          y_range = y_settings["max"] - y_settings["min"]
+          ax.set_ylim(0, ymax)  # Минимум всегда 1
+          ax.yaxis.set_major_locator(LogLocator(base=10.0))
+          ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+          # Используем ScalarFormatter для отображения чисел в обычном формате
+          ax.yaxis.set_major_formatter(FuncFormatter(format_y_ticks))
+
+    
+    else:
+       if x_settings["min"] < x_settings["max"]:
+           ax.set_xlim(0 - padding_x_1, x_settings["max"] + padding_x_2)
+           ax.xaxis.set_major_locator(plt.MultipleLocator(x_settings["major"]))
+           ax.xaxis.set_minor_locator(plt.MultipleLocator(x_settings["minor"]))
+
+       if y_settings["min"] < y_settings["max"]:
+           ax.set_ylim(0 - padding_y_lin,ymax)
+           ax.yaxis.set_major_locator(plt.MultipleLocator(y_settings["major"]))
+           ax.yaxis.set_minor_locator(plt.MultipleLocator(y_settings["minor"]))
 
 def initializing_checkbox_status_graph_scaling_widgets(graph_id):
    if f'checkbox_status_graph_scaling_widgets_{graph_id}' not in st.session_state:
@@ -308,18 +367,54 @@ def checking_file_names_organ_graphs(file_name):
 
 def create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
-    plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black")
+
+    plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",zorder=10)
+    # Убираем рамку вокруг графика
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    
+
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+    ax.axhline(0, color='grey', linewidth=1.3, zorder=2)  # Ось X
+    ax.axvline(0, color='grey', linewidth=1.3, zorder=2)  # Ось Y
+
     if kind_graphic == 'log':
         ax.set_yscale("log")
+        ax.axhline(1, color='grey', linewidth=1.3, zorder=2)  # Ось X
     plt.xlabel(f"Время, {measure_unit_time}")
     plt.ylabel("Концентрация, "+measure_unit_concentration)
 
+    # Убираем основные и дополнительные насечки
+    ax.tick_params(axis='both', which='both', length=0)
+   
     if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
-                applying_axis_settings(ax, x_settings, y_settings)
+                applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
         get_parameters_axis(graph_id, ax)
+
+    
+    
+    if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
+       ymin, ymax = ax.get_ylim()
+       padding_x_1 = (max(list_time) - min(list_time)) * 0.01
+       padding_x_2 = (max(list_time) - min(list_time)) * 0.05
+       padding_y_lin = (np.nanmax(list_concentration) - np.nanmin(list_concentration)) * 0.02 #игнорировать Nan для полулогарифм
+
+       ax.set_xlim(0 - padding_x_1, max(list_time) + padding_x_2)
+       if kind_graphic == 'log':       
+          ax.set_ylim(0, ymax)  # Минимум всегда 1
+          ax.yaxis.set_major_locator(LogLocator(base=10.0))
+          ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+          # Используем ScalarFormatter для отображения чисел в обычном формате
+          ax.yaxis.set_major_formatter(FuncFormatter(format_y_ticks))
+
+       else:
+          ax.set_ylim(0 - padding_y_lin,ymax)
+
 
     return fig
 
@@ -354,23 +449,57 @@ def plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_a
 
     ax.set_prop_cycle(cycler(color=list_color))
 
-    plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot)
+    plt.plot(df_for_plot_conc_1,marker='o',markersize=4.0,label = list_numer_animal_for_plot,zorder=10)
+
+     # Убираем рамку вокруг графика
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    
+
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+    ax.axhline(0, color='grey', linewidth=1.3, zorder=2)  # Ось X
+    ax.axvline(0, color='grey', linewidth=1.3, zorder=2)  # Ось Y
+
+    if kind_graphic == 'log':
+        ax.set_yscale("log")
+        ax.axhline(1, color='grey', linewidth=1.3, zorder=2)  # Ось X
 
     ax.set_xlabel(f"Время, {measure_unit_time}")
     ax.set_ylabel("Концентрация, "+ measure_unit_concentration)
-    if kind_graphic == 'log':
-        ax.set_yscale("log")
+
     if count_numer_animal > 20:
         ax.legend(fontsize=(160/count_numer_animal),bbox_to_anchor=(1, 1))
     else:
         ax.legend(bbox_to_anchor=(1, 1))
+    
+    ax.tick_params(axis='both', which='both', length=0)
 
     if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
-                applying_axis_settings(ax, x_settings, y_settings)
+                applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
         get_parameters_axis(graph_id, ax)
+    
+    
+    if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
+       ymin, ymax = ax.get_ylim()
+       padding_x_1 = (max(df_for_plot_conc_1.index.tolist()) - min(df_for_plot_conc_1.index.tolist())) * 0.01
+       padding_x_2 = (max(df_for_plot_conc_1.index.tolist()) - min(df_for_plot_conc_1.index.tolist())) * 0.05
+       padding_y_lin = (np.nanmax(df_for_plot_conc_1.values) - np.nanmin(df_for_plot_conc_1.values)) * 0.02 #игнорировать Nan для полулогарифм
+
+       ax.set_xlim(0 - padding_x_1, max(df_for_plot_conc_1.index.tolist()) + padding_x_2)
+       if kind_graphic == 'log':       
+          ax.set_ylim(0, ymax)  # Минимум всегда 1
+          ax.yaxis.set_major_locator(LogLocator(base=10.0))
+          ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+          # Используем ScalarFormatter для отображения чисел в обычном формате
+          ax.yaxis.set_major_formatter(FuncFormatter(format_y_ticks))
+
+       else:
+          ax.set_ylim(0 - padding_y_lin,ymax)
 
     return fig
 
@@ -397,18 +526,50 @@ def first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_
 #функция построения графика индивидуального срединных профелей
 def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
-    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0)
+    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,zorder=10)
+    # Убираем рамку вокруг графика
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    
+
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+    ax.axhline(0, color='grey', linewidth=1.3, zorder=2)  # Ось X
+    ax.axvline(0, color='grey', linewidth=1.3, zorder=2)  # Ось Y
+
     if kind_graphic == 'log':
         ax.set_yscale("log")
+        ax.axhline(1, color='grey', linewidth=1.3, zorder=2)  # Ось X
     plt.xlabel(f"Время, {measure_unit_time}")
     plt.ylabel("Концентрация, "+measure_unit_concentration)
 
+    ax.tick_params(axis='both', which='both', length=0)
+
     if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
-                applying_axis_settings(ax, x_settings, y_settings)
+                applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
         get_parameters_axis(graph_id, ax)
+    
+
+    if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
+       ymin, ymax = ax.get_ylim()
+       padding_x_1 = (max(list_time) - min(list_time)) * 0.01
+       padding_x_2 = (max(list_time) - min(list_time)) * 0.05
+       padding_y_lin = (np.nanmax(list_concentration) - np.nanmin(list_concentration)) * 0.02 #игнорировать Nan для полулогарифм
+
+       ax.set_xlim(0 - padding_x_1, max(list_time) + padding_x_2)
+       if kind_graphic == 'log':       
+          ax.set_ylim(0, ymax)  # Минимум всегда 1
+          ax.yaxis.set_major_locator(LogLocator(base=10.0))
+          ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+          # Используем ScalarFormatter для отображения чисел в обычном формате
+          ax.yaxis.set_major_formatter(FuncFormatter(format_y_ticks))
+
+       else:
+          ax.set_ylim(0 - padding_y_lin,ymax)
 
     return fig
 
@@ -442,21 +603,56 @@ def replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat
 
 ###построение графика "Фармакокинетический профиль в различных органах или дозировках" сравнительные срединные
 def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,df_concat_mean_std,measure_unit_time,measure_unit_concentration,kind_graphic,graph_id,x_settings=None,y_settings=None):
+
     fig, ax = plt.subplots()
+
     for i,j,c in list_zip_mean_std_colors:
-            plt.errorbar(list_t,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i)
+            plt.errorbar(list_t,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i,zorder=10)
+            # Убираем рамку вокруг графика
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            
+
+            # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+            ax.axhline(0, color='grey', linewidth=1.3, zorder=2)  # Ось X
+            ax.axvline(0, color='grey', linewidth=1.3, zorder=2)  # Ось Y
+
             if kind_graphic == 'log':
-               ax.set_yscale("log")
+                ax.set_yscale("log")
+                ax.axhline(1, color='grey', linewidth=1.3, zorder=2)  # Ось X
             plt.xlabel(f"Время, {measure_unit_time}")
             plt.ylabel("Концентрация, "+ measure_unit_concentration)
             ax.legend(fontsize = 8)
+
+            # Убираем основные и дополнительные насечки
+            ax.tick_params(axis='both', which='both', length=0)
             
             if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
-                applying_axis_settings(ax, x_settings, y_settings)
+                applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
 
             #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
             else:
                 get_parameters_axis(graph_id, ax)
+    
+    if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
+       ymin, ymax = ax.get_ylim()
+       padding_x_1 = (max(list_t) - min(list_t)) * 0.01
+       padding_x_2 = (max(list_t) - min(list_t)) * 0.05
+       padding_y_lin = (np.nanmax(df_concat_mean_std.values) - np.nanmin(df_concat_mean_std.values)) * 0.02 #игнорировать Nan для полулогарифм
+
+       ax.set_xlim(0 - padding_x_1, max(list_t) + padding_x_2)
+       if kind_graphic == 'log':       
+          ax.set_ylim(0, ymax)  # Минимум всегда 1
+          ax.yaxis.set_major_locator(LogLocator(base=10.0))
+          ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+          # Используем ScalarFormatter для отображения чисел в обычном формате
+          ax.yaxis.set_major_formatter(FuncFormatter(format_y_ticks))
+
+       else:
+          ax.set_ylim(0 - padding_y_lin,ymax)
+          
 
     return fig
 
@@ -492,7 +688,7 @@ def plot_tissue_accessibility(list_name_organs,list_ft):
 
 ###линейная регрессия
 def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_concentration,
-                measure_unit_lin_time,graph_id,model,x_settings=None,y_settings=None):
+                measure_unit_lin_time,graph_id,model,kind_graphic,x_settings=None,y_settings=None):
 
     fig, ax = plt.subplots()
 
@@ -507,14 +703,29 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
         color='black',
         ecolor='gray',
         elinewidth=1,
-        capsize=3
+        capsize=3,
+        zorder=10
     )
+
+    # Убираем рамку вокруг графика
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    
+
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+    ax.axhline(0, color='grey', linewidth=1.3, zorder=2)  # Ось X
+    ax.axvline(0, color='grey', linewidth=1.3, zorder=2)  # Ось Y
 
     plt.xlabel("Дозировка, " +measure_unit_dose_lin)
     plt.ylabel("AUC0→∞, "+ measure_unit_lin_concentration + f"*{measure_unit_lin_time}")
 
+    # Убираем основные и дополнительные насечки
+    ax.tick_params(axis='both', which='both', length=0) 
+
     if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}']:
-        applying_axis_settings(ax, x_settings, y_settings)
+        applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
@@ -525,7 +736,6 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
     x_pos = df_for_lin_mean['doses'].mean()  # Среднее значение доз для X
     y_pos = max_y * 1.05  # Смещаем немного выше максимального значения
 
-    ax.set_ylim(ax.get_ylim()[0], y_pos * 1.1)
 
     plt.annotate(
         'y = {:.2f}x {} {:.2f}\n$R^2$ = {:.3f}'.format(
@@ -539,6 +749,16 @@ def create_graphic_lin(df_for_lin_mean,measure_unit_dose_lin,measure_unit_lin_co
         fontsize=10,
         ha='center'  # Горизонтальное выравнивание
     )
+
+    if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
+       ymin, ymax = ax.get_ylim()
+       padding_x_1 = (max(df_for_lin_mean['doses']) - min(df_for_lin_mean['doses'])) * 0.01
+       padding_x_2 = (max(df_for_lin_mean['doses']) - min(df_for_lin_mean['doses'])) * 0.05
+       padding_y_lin = (np.nanmax(df_for_lin_mean['AUC0→∞_mean']) - np.nanmin(df_for_lin_mean['AUC0→∞_mean'])) * 0.02 #игнорировать Nan для полулогарифм
+
+       ax.set_xlim(0 - padding_x_1, max(df_for_lin_mean['doses']) + padding_x_2)
+       
+       ax.set_ylim(0 - padding_y_lin,ymax)
 
     return fig
 
