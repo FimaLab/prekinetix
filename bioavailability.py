@@ -70,7 +70,10 @@ if option == 'Фармакокинетика':
       
         if "dose_pk" not in st.session_state:
            st.session_state["dose_pk"] = ""
-        
+
+        if "infusion_time_pk" not in st.session_state:
+            st.session_state["infusion_time_pk"] = ""
+
         #cписки для word-отчета
         list_heading_word=[]
         list_table_word=[]
@@ -101,7 +104,7 @@ if option == 'Фармакокинетика':
                       custom_success('Параметр добавлен!')
 
                 if "agree_injection - фк" not in st.session_state:
-                      st.session_state["agree_injection - фк"] = False
+                      st.session_state["agree_injection - фк"] = "extravascular"
 
                 if type_parameter == "Вид введения":
 
@@ -112,24 +115,29 @@ if option == 'Фармакокинетика':
                    # Радиокнопка для выбора типа введения
                    injection_type = st.radio(
                        "Выберите тип введения:",
-                       options=["Внутривенное введение", "Внесосудистое введение"],
+                       options=["Внутривенное введение", "Внесосудистое введение", "Инфузионное введение"],
                        index=st.session_state["injection_choice - фк"],
                        key="injection_choice_фк",  # Ключ для сохранения выбора в сессии
                    )
 
                    # Логика для обновления состояния сессии
                    if injection_type == "Внутривенное введение":
-                       st.session_state["agree_injection - фк"] = True
+                       st.session_state["agree_injection - фк"] = "intravenously"
                        st.session_state["injection_choice - фк"] = 0
-                   else:
-                       st.session_state["agree_injection - фк"] = False
+                   elif injection_type == "Внесосудистое введение":
+                       st.session_state["agree_injection - фк"] = "extravascular"
                        st.session_state["injection_choice - фк"] = 1
+                   else:
+                       st.session_state["agree_injection - фк"] = "infusion"
+                       st.session_state["injection_choice - фк"] = 2
 
                    # Сообщение в зависимости от выбора
-                   if st.session_state["agree_injection - фк"]:
+                   if st.session_state["agree_injection - фк"] == "intravenously":
                        custom_success("Выбрано: Внутривенное введение!")
-                   else:
+                   elif st.session_state["agree_injection - фк"] == "extravascular":
                        custom_success("Выбрано: Внесосудистое введение!")
+                   else:
+                       custom_success("Выбрано: Инфузионное введение!")
            
            measure_unit_pk_time  = select_time_unit("фк")
            measure_unit_pk_concentration  = select_concentration_unit("фк")
@@ -161,11 +169,23 @@ if option == 'Фармакокинетика':
               custom_success(f"Файл загружен: {st.session_state['uploaded_file_pk']}")
               
 
-           dose_pk = st.text_input("Доза при введении ЛС", key='Доза при введении ЛС при при расчете фк', value = st.session_state["dose_pk"])
+           dose_pk = st.text_input("Доза при введении ЛС", key='Доза при введении ЛС при расчете фк', value = st.session_state["dose_pk"])
            
            st.session_state["dose_pk"] = dose_pk
+
+           if st.session_state["agree_injection - фк"] == "infusion":
+              
+              infusion_time = st.text_input("Время введения инфузии", key='Время введения инфузии при расчете фк', value = st.session_state["infusion_time_pk"])
+              st.session_state["infusion_time_pk"] = infusion_time
            
-           if "uploaded_file_pk" in st.session_state and dose_pk and st.session_state['measure_unit_фк_concentration']:
+           if ("uploaded_file_pk" in st.session_state and dose_pk and (st.session_state["agree_injection - фк"] == "infusion" and st.session_state["infusion_time_pk"] != "") and st.session_state['measure_unit_фк_concentration']):
+              start = True
+           elif ("uploaded_file_pk" in st.session_state and dose_pk and (st.session_state["agree_injection - фк"] != "infusion" and st.session_state["infusion_time_pk"] == "") and st.session_state['measure_unit_фк_concentration']):
+              start = True
+           else:
+              start = False
+
+           if start:
 
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_pk"]))
               st.subheader('Индивидуальные значения концентраций в крови после введения ЛС')
@@ -301,11 +321,12 @@ if option == 'Фармакокинетика':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic)) 
 
               ############ Параметры ФК
-              if st.session_state["agree_injection - фк"] == False:
+              if st.session_state["agree_injection - фк"] == "extravascular":
                   result_PK = pk_parametrs_total_extravascular(df,"фк",method_auc,dose_pk,st.session_state['measure_unit_фк_concentration'],st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_dose'])
-              else:
+              elif st.session_state["agree_injection - фк"] == "intravenously":
                   result_PK = pk_parametrs_total_intravenously(df,"фк",method_auc,dose_pk,st.session_state['measure_unit_фк_concentration'],st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_dose'])
-              
+              else:
+                  result_PK = pk_parametrs_total_infusion(df,"фк",method_auc,dose_pk,st.session_state['measure_unit_фк_concentration'],st.session_state['measure_unit_фк_time'],st.session_state['measure_unit_фк_dose'],infusion_time)
               
               if result_PK is not None:
                   if st.session_state["agree_cmax2 - фк"] == False:
