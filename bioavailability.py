@@ -393,7 +393,7 @@ if option == 'Фармакокинетика':
                              else:
                                 kind_graphic = 'log'
 
-                             rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
                                                                     st.session_state[f"list_concentration{graph_id}"],
                                                                     st.session_state['measure_unit_фк_time'],
                                                                     st.session_state['measure_unit_фк_concentration'],
@@ -408,7 +408,7 @@ if option == 'Фармакокинетика':
                           else:
                              kind_graphic = 'log'
 
-                          rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                          rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
                                                                     st.session_state[f"df_for_plot_conc_1{graph_id}"],
                                                                     st.session_state[f"list_numer_animal_for_plot{graph_id}"],
                                                                     st.session_state['measure_unit_фк_time'],
@@ -424,7 +424,7 @@ if option == 'Фармакокинетика':
                           else:
                              kind_graphic = 'log'
 
-                          rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                          rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
                                                                     st.session_state[f"list_concentration{graph_id}"],
                                                                     st.session_state[f"err_y_1{graph_id}"],
                                                                     st.session_state['measure_unit_фк_time'],
@@ -1466,7 +1466,7 @@ if option == 'Биодоступность':
                                 else:
                                    kind_graphic = 'log'
 
-                                rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                                rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
                                                                        st.session_state[f"list_concentration{graph_id}"],
                                                                        st.session_state['measure_unit_ИБ_time'],
                                                                        st.session_state['measure_unit_ИБ_concentration'],
@@ -1489,7 +1489,7 @@ if option == 'Биодоступность':
                              else:
                                 kind_graphic = 'log'
 
-                             rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
                                                                        st.session_state[f"df_for_plot_conc_1{graph_id}"],
                                                                        st.session_state[f"list_numer_animal_for_plot{graph_id}"],
                                                                        st.session_state['measure_unit_ИБ_time'],
@@ -1513,7 +1513,7 @@ if option == 'Биодоступность':
                              else:
                                 kind_graphic = 'log'
 
-                             rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
                                                                        st.session_state[f"list_concentration{graph_id}"],
                                                                        st.session_state[f"err_y_1{graph_id}"],
                                                                        st.session_state['measure_unit_ИБ_time'],
@@ -2137,7 +2137,7 @@ if option == 'Распределение по органам':
                             else:
                                kind_graphic = 'log'
 
-                            rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
                                                                       st.session_state[f"list_concentration{graph_id}"],
                                                                       st.session_state['measure_unit_органы_time'],
                                                                       measure_unit_org,
@@ -2159,7 +2159,7 @@ if option == 'Распределение по органам':
                             else:
                                kind_graphic = 'log'
 
-                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
                                                                       st.session_state[f"df_for_plot_conc_1{graph_id}"],
                                                                       st.session_state[f"list_numer_animal_for_plot{graph_id}"],
                                                                       st.session_state['measure_unit_органы_time'],
@@ -2184,7 +2184,7 @@ if option == 'Распределение по органам':
                             else:
                                kind_graphic = 'log'
 
-                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
                                                                       st.session_state[f"list_concentration{graph_id}"],
                                                                       st.session_state[f"err_y_1{graph_id}"],
                                                                       st.session_state['measure_unit_органы_time'],
@@ -2201,7 +2201,7 @@ if option == 'Распределение по органам':
                          else:
                             kind_graphic = 'log'
 
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
                                                                    st.session_state[f"list_t_organs{graph_id}"],
                                                                    st.session_state[f"df_concat_mean_std{graph_id}"],
                                                                    st.session_state['measure_unit_органы_time'],
@@ -2822,8 +2822,9 @@ if option == 'Линейность дозирования':
                 
                 if st.session_state[f"first_creating_graphic{graph_id}"]:
                    #вызов функции графика линейной регрессии
+                   kind_graphic = 'lin'
                    fig = create_graphic_lin(df_for_lin_mean,st.session_state['measure_unit_линейность_dose'],st.session_state['measure_unit_линейность_concentration'],
-                   st.session_state['measure_unit_линейность_time'],graph_id, model)
+                   st.session_state['measure_unit_линейность_time'],graph_id, model,kind_graphic)
     
                    add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
 
@@ -2901,7 +2902,7 @@ if option == 'Линейность дозирования':
                             else:
                                kind_graphic = 'log'
 
-                            rendering_graphs_with_scale_widgets(graph_id,option,i,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
                                                                    st.session_state[f"list_concentration{graph_id}"],
                                                                    st.session_state['measure_unit_линейность_time'],
                                                                    st.session_state['measure_unit_линейность_concentration'],
@@ -2922,7 +2923,7 @@ if option == 'Линейность дозирования':
                             else:
                                kind_graphic = 'log'
 
-                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
                                                                       st.session_state[f"df_for_plot_conc_1{graph_id}"],
                                                                       st.session_state[f"list_numer_animal_for_plot{graph_id}"],
                                                                       st.session_state['measure_unit_линейность_time'],
@@ -2946,7 +2947,7 @@ if option == 'Линейность дозирования':
                             else:
                                kind_graphic = 'log'
 
-                            rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
+                            rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
                                                                       st.session_state[f"list_concentration{graph_id}"],
                                                                       st.session_state[f"err_y_1{graph_id}"],
                                                                       st.session_state['measure_unit_линейность_time'],
@@ -2963,7 +2964,7 @@ if option == 'Линейность дозирования':
                          else:
                             kind_graphic = 'log'
 
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
                                                                    st.session_state[f"list_t_doses{graph_id}"],
                                                                    st.session_state[f"df_concat_mean_std{graph_id}"],
                                                                    st.session_state['measure_unit_линейность_time'],
@@ -2975,11 +2976,13 @@ if option == 'Линейность дозирования':
                          
                          graph_id = 'Зависимость значений AUC0→∞ от величин вводимых доз'
 
-                         rendering_graphs_with_scale_widgets(graph_id,option,i,create_graphic_lin, st.session_state["df_for_lin_mean"],
+                         kind_graphic = 'lin'
+
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_graphic_lin, st.session_state["df_for_lin_mean"],
                                                              st.session_state['measure_unit_линейность_dose'],
                                                              st.session_state["measure_unit_линейность_concentration"],
                                                              st.session_state["measure_unit_линейность_time"],
-                                                             graph_id,st.session_state["model"])
+                                                             graph_id,st.session_state["model"],kind_graphic)
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Коэффициент"):
                       if type_graphics == 'Коэффициент линейной регрессии и критерий Фишера значимости линейной регрессии для параметра AUC0→∞':
