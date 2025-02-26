@@ -366,6 +366,7 @@ def checking_file_names_organ_graphs(file_name):
     return measure_unit_org
 
 def create_individual_graphics(list_time,list_concentration,measure_unit_time, measure_unit_concentration, kind_graphic,graph_id,x_settings=None,y_settings=None):
+
     fig, ax = plt.subplots()
 
     plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",zorder=10)
@@ -526,14 +527,17 @@ def first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_
 #функция построения графика индивидуального срединных профелей
 def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,measure_unit_time,measure_unit_concentration,kind_graphic,graph_id,x_settings=None,y_settings=None):
     fig, ax = plt.subplots()
-    plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,zorder=10)
+    if kind_graphic == 'log':
+       plt.plot(list_time,list_concentration, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black", zorder=10)
+    else:
+       plt.errorbar(list_time,list_concentration,yerr=err_y_1, marker='o',markersize=4.0,color = "black",markeredgecolor="black",markerfacecolor="black",ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,zorder=10)
+    
     # Убираем рамку вокруг графика
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     
-
     # Добавляем пользовательские оси (чтобы маркеры не обрезались)
     ax.axhline(0, color='grey', linewidth=1.3, zorder=2)  # Ось X
     ax.axvline(0, color='grey', linewidth=1.3, zorder=2)  # Ось Y
@@ -607,7 +611,11 @@ def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,
     fig, ax = plt.subplots()
 
     for i,j,c in list_zip_mean_std_colors:
-            plt.errorbar(list_t,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i,zorder=10)
+            if kind_graphic == 'log':
+               plt.plot(list_t,df_concat_mean_std[i], color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,label=i,zorder=10)
+            else:
+               plt.errorbar(list_t,df_concat_mean_std[i],yerr=df_concat_mean_std[j],color= c, marker='o',markersize=4.0,markeredgecolor=c,markerfacecolor=c,ecolor="black",elinewidth=0.8,capsize=2.0,capthick=1.0,label=i,zorder=10)
+            
             # Убираем рамку вокруг графика
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
