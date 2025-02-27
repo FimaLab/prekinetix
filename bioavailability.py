@@ -244,7 +244,7 @@ if option == 'Фармакокинетика':
                                                                                            st.session_state[f"list_graphics_word_{option}"],graphic))  
 
                   #в полулогарифмических координатах методом удаления точек
-                  list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                  list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                   graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС,  '+numer_animal
                   graph_id = graphic
@@ -309,7 +309,7 @@ if option == 'Фармакокинетика':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
               #в полулогарифмических координатах
-              list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+              list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
               graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС'
               graph_id = graphic
@@ -672,7 +672,7 @@ if option == 'Биодоступность':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic)) 
                      
                      #в полулогарифмических координатах
-                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                      graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения ЛС,  '+numer_animal
                      graph_id = graphic
@@ -737,7 +737,7 @@ if option == 'Биодоступность':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic)) 
 
                  #в полулогарифмических координатах
-                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения ЛС'
                  graph_id = graphic
@@ -898,7 +898,7 @@ if option == 'Биодоступность':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))  
 
                      #в полулогарифмических координатах
-                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                      graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ЛС,  '+numer_animal
                      graph_id = graphic
@@ -961,7 +961,7 @@ if option == 'Биодоступность':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))   
 
                  #в полулогарифмических координатах
-                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ЛС'
                  graph_id = graphic
@@ -1122,7 +1122,7 @@ if option == 'Биодоступность':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
                      #в полулогарифмических координатах
-                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                      graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ГЛФ,  '+numer_animal
                      graph_id = graphic
@@ -1185,7 +1185,7 @@ if option == 'Биодоступность':
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))  
                  #в полулогарифмических координатах
-                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ГЛФ'
                  graph_id = graphic
@@ -1395,9 +1395,9 @@ if option == 'Биодоступность':
 
                   ### в полулогарифмических координатах
                   # Заменяем все значения меньше 1 на np.nan
-                  list_concentration__intravenous_substance = [np.nan if x < 1 else x for x in list_concentration__intravenous_substance]
-                  list_concentration__oral_substance = [np.nan if x < 1 else x for x in list_concentration__oral_substance]
-                  list_concentration__oral_rdf = [np.nan if x < 1 else x for x in list_concentration__oral_rdf]
+                  list_concentration__intravenous_substance = [np.nan if x <= 0 else x for x in list_concentration__intravenous_substance]
+                  list_concentration__oral_substance = [np.nan if x <= 0 else x for x in list_concentration__oral_substance]
+                  list_concentration__oral_rdf = [np.nan if x <= 0 else x for x in list_concentration__oral_rdf]
 
                   graphic="Сравнение фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения ЛС, перорального введения ЛС и перорального введения ГЛФ"
                   add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
@@ -1768,7 +1768,7 @@ if option == 'Распределение по органам':
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
                      #в полулогарифмических координатах методом np.nan
                      # Заменяем все значения меньше 1 на np.nan
-                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                      graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"',  '+numer_animal
                      graph_id = graphic
@@ -1833,7 +1833,7 @@ if option == 'Распределение по органам':
                  #в полулогарифмических координатах
                  #для полулогарифм. посторим без нуля
                  # Заменяем все значения меньше 1 на np.nan
-                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                  graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах ' + "("+file_name+")"
                  graph_id = graphic
@@ -2447,7 +2447,7 @@ if option == 'Линейность дозирования':
                      add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
                      # Заменяем все значения меньше 1 на np.nan
-                     list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
                      
                      first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_линейность_time'],
                                                                st.session_state['measure_unit_линейность_concentration'],"log",add_or_replace_df_graph, 
@@ -2514,7 +2514,7 @@ if option == 'Линейность дозирования':
                  graph_id = graphic
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                 list_concentration = [np.nan if x < 1 else x for x in list_concentration]
+                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_линейность_time'],
                                                                     st.session_state['measure_unit_линейность_concentration'],'log',
