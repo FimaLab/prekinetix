@@ -149,10 +149,18 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
         st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
 
 #получение параметров осей
-def get_parameters_axis(graph_id, ax):
+def get_parameters_axis(graph_id, ax,list_time=None):
     # Фиксация максимальных значений осей
-    st.session_state[f"X_graphic_max_value_{graph_id}"] = ax.get_xlim()[1]
+    
     st.session_state[f"Y_graphic_max_value_{graph_id}"] = ax.get_ylim()[1]
+    
+    if "линейных" in graph_id:
+       X_graphic_max_value_lin = ax.get_xlim()[1]
+       st.session_state[f"X_graphic_max_value_{graph_id}"] = ax.get_xlim()[1]
+
+
+    if "полулога" in graph_id and list_time is not None:
+       st.session_state[f"X_graphic_max_value_{graph_id}"] = max(list_time)
 
     # Получение локаторов
     major_locator_X = ax.xaxis.get_major_locator()
@@ -390,7 +398,7 @@ def create_individual_graphics(list_time,list_concentration,measure_unit_time, m
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
-        get_parameters_axis(graph_id, ax)
+        get_parameters_axis(graph_id, ax,list_time)
     
     if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
        ymin, ymax = ax.get_ylim()
@@ -551,7 +559,7 @@ def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,mea
 
     #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
     else:
-        get_parameters_axis(graph_id, ax)
+        get_parameters_axis(graph_id, ax, list_time)
     
     if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
        ymin, ymax = ax.get_ylim()
