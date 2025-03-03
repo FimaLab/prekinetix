@@ -161,6 +161,8 @@ def get_parameters_axis(graph_id, ax,list_time=None):
 
     if "полулога" in graph_id and list_time is not None:
        st.session_state[f"X_graphic_max_value_{graph_id}"] = max(list_time)
+    else:
+       st.session_state[f"X_graphic_max_value_{graph_id}"] = ax.get_xlim()[1] #этот случай для объед графиков
 
     # Получение локаторов
     major_locator_X = ax.xaxis.get_major_locator()
@@ -213,7 +215,7 @@ def applying_axis_settings(ax, x_settings, y_settings,kind_graphic):
     if kind_graphic == 'log':
        
        if y_settings["min"] < y_settings["max"]:
-          ax.set_ylim(ymin, ymax)
+          ax.set_ylim(ymin, y_settings["max"])
           ax.yaxis.set_major_locator(LogLocator(base=10.0))
           ax.yaxis.set_minor_locator(LogLocator(base=10.0))
           # Используем ScalarFormatter для отображения чисел в обычном формате
@@ -222,7 +224,7 @@ def applying_axis_settings(ax, x_settings, y_settings,kind_graphic):
     else:
        
        if y_settings["min"] < y_settings["max"]:
-           ax.set_ylim(0 - padding_y_lin,ymax)
+           ax.set_ylim(0 - padding_y_lin,y_settings["max"])
            ax.yaxis.set_major_locator(plt.MultipleLocator(y_settings["major"]))
            ax.yaxis.set_minor_locator(plt.MultipleLocator(y_settings["minor"]))
 
@@ -303,21 +305,40 @@ def initializing_status_graph_scaling_widgets(graph_id,min_value_X,max_value_X,m
 
 # Функция для настройки осей
 def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks):
-
+    
     # Сохранение значений в сессии
     with st.expander(f"Настройка параметров оси {axis_name} '{graph_id}'"):
-         min_value = st.number_input(f"Граница Минимум ({axis_name})", value=st.session_state[min_value], step=1.0, key=f"{axis_name}_min_{graph_id}")
+
+         min_value = st.session_state[min_value]
          st.session_state[f"{axis_name}_graphic_min_value_{graph_id}"] = min_value
 
          max_value = st.number_input(f"Граница Максимум ({axis_name})", value=st.session_state[max_value], step=1.0, key=f"{axis_name}_max_{graph_id}")
          st.session_state[f"{axis_name}_graphic_max_value_{graph_id}"] = max_value
+         
+         if "линейных" in graph_id:
+            if axis_name == "X":
+               major_ticks = st.number_input(f"Основная единица измерения ({axis_name})", value=st.session_state[major_ticks], step=0.1, key=f"{axis_name}_major_{graph_id}")
+               st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
+            else:
+               major_ticks = st.number_input(f"Основная единица измерения ({axis_name})", value=st.session_state[major_ticks], step=0.1, key=f"{axis_name}_major_{graph_id}")
+               st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
+         elif "полулогариф" in graph_id:
+              if axis_name == "X":
+                 major_ticks = st.number_input(f"Основная единица измерения ({axis_name})", value=st.session_state[major_ticks], step=0.1, key=f"{axis_name}_major_{graph_id}")
+                 st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
+              else:
+                 major_ticks = st.session_state[major_ticks]
+                 st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
+         else:
+             if axis_name == "X":
+               major_ticks = st.number_input(f"Основная единица измерения ({axis_name})", value=st.session_state[major_ticks], step=0.1, key=f"{axis_name}_major_{graph_id}")
+               st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
+             else:
+                major_ticks = st.number_input(f"Основная единица измерения ({axis_name})", value=st.session_state[major_ticks], step=0.1, key=f"{axis_name}_major_{graph_id}")
+                st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
 
-         major_ticks = st.number_input(f"Основная единица измерения ({axis_name})", value=st.session_state[major_ticks], step=0.1, key=f"{axis_name}_major_{graph_id}")
-         st.session_state[f"{axis_name}_graphic_major_ticks_{graph_id}"] = major_ticks
-
-         minor_ticks = st.number_input(f"Дополнительная единица измерения ({axis_name})", value=st.session_state[minor_ticks], step=0.1, key=f"{axis_name}_minor_{graph_id}")
+         minor_ticks = st.session_state[minor_ticks]
          st.session_state[f"{axis_name}_graphic_minor_ticks_{graph_id}"] = minor_ticks
-
 
          # Проверка корректности значений
          errors = []
