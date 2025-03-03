@@ -343,29 +343,30 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
          # Проверка корректности значений
          errors = []
          if min_value >= max_value:
-             errors.append("Минимальное значение должно быть меньше максимального.")
+             errors.append("Максимальное значение должно быть больше минимального.")
 
          if major_ticks <= 0:
              errors.append("Основная единица измерения должна быть больше 0.")
 
-         if minor_ticks <= 0:
-             errors.append("Дополнительная единица измерения должна быть больше 0.")
+         #if minor_ticks <= 0:
+             #errors.append("Дополнительная единица измерения должна быть больше 0.")
 
-         if minor_ticks >= major_ticks:
-             errors.append("Дополнительная единица измерения должна быть меньше основной.")
+         #if minor_ticks >= major_ticks:
+             #errors.append("Дополнительная единица измерения должна быть меньше основной.")
+         
+         if ("линейных" in graph_id) or ("полулогариф" in graph_id and axis_name == "X"):
+            range_size = max_value - min_value
+            if range_size < major_ticks:
+                errors.append("Основная единица измерения должна быть меньше диапазона оси.")
 
-         range_size = max_value - min_value
-         if range_size < major_ticks:
-             errors.append("Основная единица измерения должна быть меньше диапазона оси.")
+         #if range_size < minor_ticks:
+             #errors.append("Дополнительная единица измерения должна быть меньше диапазона оси.")
 
-         if range_size < minor_ticks:
-             errors.append("Дополнительная единица измерения должна быть меньше диапазона оси.")
+         #if range_size % major_ticks != 0:
+             #errors.append("Основная единица измерения не делит диапазон оси без остатка.")
 
-         if range_size % major_ticks != 0:
-             errors.append("Основная единица измерения не делит диапазон оси без остатка.")
-
-         if range_size % minor_ticks != 0:
-             errors.append("Дополнительная единица измерения не делит диапазон оси без остатка.")
+         #if range_size % minor_ticks != 0:
+             #errors.append("Дополнительная единица измерения не делит диапазон оси без остатка.")
 
          # Вывод ошибок
          if errors:
