@@ -6,6 +6,58 @@ import math
 import pandas as pd
 import streamlit as st
 
+import numpy as np
+
+#Для Tlag
+def find_first_positive_index(lst):
+    for i, num in enumerate(lst):
+        if num > 0:
+            return i
+
+def calculate_aucall(list_list_concentration, list_list_columns_T, list_AUClast):
+    
+
+    list_AUCall = []
+    
+    for list_concentration,list_columns_T, AUC_last in list(zip(list_list_concentration,list_list_columns_T,list_AUClast)):
+        
+
+        # Проверяем, является ли последний замер концентрации положительным
+        if list_concentration[-1] > 0:
+            AUCall = AUC_last
+            list_AUCall.append(AUCall)
+        else:
+            time = np.array(list_columns_T)
+            conc = np.array(list_concentration)
+            # Последняя положительная концентрация
+            last_pos_index = np.max(np.where(conc > 0))
+
+            # AUCall включает дополнительную область от последнего положительного значения до нуля
+            extended_time = time[last_pos_index:]
+            extended_conc = conc[last_pos_index:]
+
+            AUC_extra = np.trapz(extended_conc, extended_time)
+
+            AUCall = AUC_last + AUC_extra
+
+            list_AUCall.append(AUCall)
+
+    return list_AUCall
+
+
+def remove_second_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Удаляет вторую колонку из DataFrame.
+
+    :param df: DataFrame, из которого нужно удалить вторую колонку.
+    :return: Новый DataFrame без второй колонки.
+    """
+    if df.shape[1] > 1:  # Проверяем, что в DataFrame есть хотя бы две колонки
+        return df.drop(columns=df.columns[1])
+    else:
+        print("В DataFrame недостаточно колонок для удаления второй.")
+        return df
+
 ## функция подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
 def create_table_descriptive_statistics(df):
     col_mapping = df.columns.tolist()
@@ -397,12 +449,30 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
     count_row=df_without_numer.shape[0]
 
     list_count_row=range(count_row)
+    
+    ###N_Samples
+    list_N_Samples=[]
+    for i in range(0,count_row):
+        Sample=int(len(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_N_Samples.append(Sample)
+
+    ###Dose
+    list_Dose=[]
+    for i in range(0,count_row):
+        Dose=float(dose)
+        list_Dose.append(Dose)
 
     ###Cmax_True
     list_cmax_True_pk=[]
     for i in range(0,count_row):
         cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
         list_cmax_True_pk.append(cmax)
+
+    ###Cmax_D
+    list_cmax_D_pk=[]
+    for i in range(0,count_row):
+        cmax_d =float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))/float(dose)
+        list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
     if st.session_state[f"agree_cmax2 - {selector_research}"] == True:
@@ -630,6 +700,40 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               
               
               list_AUC_0_T.append(AUC_O_T)
+       
+       ###AUC0-t/D
+       list_AUC_0_T_D=[]
+       for i in list_AUC_0_T:
+           AUC_0_T_D = i/float(dose)
+           list_AUC_0_T_D.append(AUC_0_T_D)
+
+       ####AUCall
+       list_list_columns_T = []
+       list_list_concentration = []
+
+       for i in range(0,count_row):
+           list_columns_T=[]
+           for column in df_without_numer.columns:
+               list_columns_T.append(float(column))
+
+           list_list_columns_T.append(list_columns_T)
+
+           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+           list_list_concentration.append(list_concentration)
+
+       list_AUCall = calculate_aucall(list_list_concentration, list_list_columns_T, list_AUC_0_T)
+       
+       ###Tlag
+       list_Tlag=[]
+       for i in range(0,count_row):
+           
+           list_columns_T=[]
+           for column in df_without_numer.columns:
+               list_columns_T.append(float(column))
+           Tlag = list_columns_T[find_first_positive_index(df_without_numer.iloc[[i]].iloc[0].tolist())-1]
+           
+           list_Tlag.append(Tlag)
 
        ####Сmax/AUC0-t
        list_Сmax_division_AUC0_t_for_division=list(zip(list_cmax_True_pk,list_AUC_0_T))
@@ -638,8 +742,15 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
                list_Сmax_division_AUC0_t.append(i/j)
 
 
-       ####KEL
+       ####KEL,Rsq_adjusted,Rsq,Corr_XY,No_points_lambda_z,Lambda_z_intercept,Lambda_z_lower,Lambda_z_upper
        list_kel_total=[]
+       list_Rsq_adjusted=[]
+       list_Rsq = []
+       list_Corr_XY = []
+       list_No_points_lambda_z = []
+       list_Lambda_z_intercept = []
+       list_Lambda_z_lower = []
+       list_Lambda_z_upper = []
        for i in range(0,count_row):
            list_columns_T=[]
            for column in df_without_numer.columns:
@@ -699,9 +810,19 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
            list_kel=[]
            list_r=[]
+           list_r_orig=[]
+           list_Corr = []
+           list_n_points_used = []
+           list_intercept = []
+           list_Lambda_lower = []
+           list_Lambda_upper = []
            for i,j in list_ct_zip:
 
                n_points_r=len(i)
+               
+               list_n_points_used.append(n_points_r)
+               list_Lambda_lower.append(min(j))
+               list_Lambda_upper.append(max(j))
 
                np_c=np.asarray(i)
                np_t_1=np.asarray(j).reshape((-1,1))
@@ -714,6 +835,10 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
                a=np.corrcoef(np_t, np_c_log)
                cor=((a[0])[1])
                r_sq=cor**2
+
+               list_Corr.append(cor)
+               list_r_orig.append(r_sq)
+               list_intercept.append(model.intercept_)
 
                adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
@@ -739,10 +864,17 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
                if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
                   list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                  list_Rsq_adjusted.append(list_r1[i])
+                  list_Rsq.append(list_r_orig[i])
+                  list_Corr_XY.append(list_Corr[i])
+                  list_No_points_lambda_z.append(list_n_points_used[i])
+                  list_Lambda_z_intercept.append(list_intercept[i])
+                  list_Lambda_z_lower.append(list_Lambda_lower[i])
+                  list_Lambda_z_upper.append(list_Lambda_upper[i])
                   break #самая ранняя удовлетовряющая условию
 
            for i in list_kel_total_1:
-               list_kel_total.append(i) 
+               list_kel_total.append(i)  
 
 
        ####T1/2
@@ -750,7 +882,12 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        for i in list_kel_total:
            half_live=math.log(2)/i
            list_half_live.append(half_live)
-
+       
+       ####Span
+       list_Span=[]
+       for upper,lower,half_live in list(zip(list_Lambda_z_upper,list_Lambda_z_lower,list_half_live)):
+           Span= (upper - lower)/half_live
+           list_Span.append(Span)
 
        ###AUC0-inf 
 
@@ -766,7 +903,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
        list_zip_c_AUCt_inf=list(zip(list_kel_total,list_of_list_c))
 
-           #AUCt-inf 
+       #AUCt-inf 
        list_auc_t_inf=[]     
        for i,j in list_zip_c_AUCt_inf:
            for clast in j:
@@ -781,8 +918,20 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        for i,j in list_auc_t_inf_and_AUC_0_T_zip:
            auc0_inf=i+j    
            list_auc0_inf.append(auc0_inf)
+       
+       ###AUC0-inf/D
+       list_auc0_inf_D=[]
+       for i in list_auc0_inf:
+           auc0_inf_D = i/float(dose)
+           list_auc0_inf_D.append(auc0_inf_D)
 
 
+       ###AUC_%Extrap
+       list_AUC_extrap=[]
+       for i,j in list(zip(list_auc0_inf,list_AUC_0_T)):
+           AUC_extrap = ((i-j)/i)*100
+           list_AUC_extrap.append(AUC_extrap)
+ 
        ####Cl_F
        list_Cl_F=[]
 
@@ -940,6 +1089,12 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        for i,j in list_AUMC_zip:
            AUMCO_inf=i+j
            list_AUMCO_inf.append(AUMCO_inf)
+       
+       ###AUMC_%Extrap
+       list_AUMC_extrap=[]
+       for i,j in list(zip(list_AUMCO_inf,list_AUMC0_t)):
+           AUMC_extrap = ((i-j)/i)*100
+           list_AUMC_extrap.append(AUMC_extrap)
 
        ###MRT0-t
        list_MRT0_t=[]
@@ -965,8 +1120,8 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
        ### пользовательский индекс
        list_for_index=df["Номер"].tolist()
-       df_PK=pd.DataFrame(list(zip(list_cmax_True_pk,list_Tmax_float_True_pk,list_C_last,list_T_last,list_MRT0_t,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMC0_t,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_Cl_F,list_Vz_F)),columns=['Cmax','Tmax','Clast','Tlast','MRT0→t','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-t','AUMC0-∞','Сmax/AUC0-t','Kel','Cl/F','Vz/F'],index=list_for_index)
-    
+       df_PK=pd.DataFrame(list(zip(list_N_Samples,list_Dose,list_cmax_True_pk,list_cmax_D_pk,list_Tmax_float_True_pk,list_C_last,list_T_last,list_MRT0_t,list_MRT0_inf,list_half_live,list_AUC_0_T,list_AUC_0_T_D,list_AUCall,list_auc0_inf,list_auc0_inf_D,list_AUC_extrap,list_AUMC0_t,list_AUMCO_inf,list_AUMC_extrap,list_Сmax_division_AUC0_t,list_kel_total,list_Rsq_adjusted,list_Rsq,list_Corr_XY,list_No_points_lambda_z,list_Lambda_z_intercept,list_Lambda_z_lower,list_Lambda_z_upper,list_Span,list_Tlag,list_Cl_F,list_Vz_F)),columns=['N_Samples','Dose','Cmax','Cmax/D','Tmax','Clast','Tlast','MRT0→t','MRT0→∞','T1/2','AUC0-t','AUC0-t/D','AUCall','AUC0→∞','AUC0→∞/D',f'AUC_%Extrap','AUMC0-t','AUMC0-∞',f'AUMC_%Extrap','Сmax/AUC0-t','Kel','Rsq_adjusted','Rsq','Corr_XY','No_points_lambda_z','Lambda_z_intercept','Lambda_z_lower','Lambda_z_upper','Span','Tlag','Cl/F','Vz/F'],index=list_for_index)
+
     checking_condition_cmax2 = False
 
     if st.session_state[f"agree_cmax2 - {selector_research}"] == True:
@@ -1089,10 +1244,22 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
        ###округление описательной статистики и ФК параметров
+       
+       series_N_Samples=df_concat_PK_pk['N_Samples']
+       list_N_Samples_str_f=[v for v in series_N_Samples.tolist()]
+       series_N_Samples=pd.Series(list_N_Samples_str_f, index = df_concat_PK_pk.index.tolist(), name='N_Samples')
+
+       series_Dose=df_concat_PK_pk['Dose']
+       list_Dose_str_f=[v for v in series_Dose.tolist()]
+       series_Dose=pd.Series(list_Dose_str_f, index = df_concat_PK_pk.index.tolist(), name='Dose')
 
        series_Cmax=df_concat_PK_pk['Cmax']
        list_Cmax_str_f=[v for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax ' +"("+measure_unit_concentration+")")
+
+       series_Cmax_D=df_concat_PK_pk['Cmax/D']
+       list_Cmax_D_str_f=[v for v in series_Cmax_D.tolist()]
+       series_Cmax_D=pd.Series(list_Cmax_D_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax/D ' +"("+measure_unit_concentration+'/'+'('+measure_unit_dose+')'+")")
 
        series_Tmax=df_concat_PK_pk['Tmax']
        list_Tmax_str_f=[v for v in series_Tmax.tolist()]
@@ -1121,11 +1288,27 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        series_AUC0_t= df_concat_PK_pk['AUC0-t']
        list_AUC0_t_str_f=[v for v in series_AUC0_t.tolist()]
        series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
+       
+       series_AUC0_t_D= df_concat_PK_pk['AUC0-t/D']
+       list_AUC0_t_D_str_f=[v for v in series_AUC0_t_D.tolist()]
+       series_AUC0_t_D=pd.Series(list_AUC0_t_D_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t/D '+"("+measure_unit_concentration+f"×{measure_unit_time}"+'/('+measure_unit_dose+')' +")")
+       
+       series_AUCall= df_concat_PK_pk['AUCall']
+       list_AUCall_str_f=[v for v in series_AUCall.tolist()]
+       series_AUCall=pd.Series(list_AUCall_str_f, index = df_concat_PK_pk.index.tolist(), name='AUCall '+"("+measure_unit_concentration+f"×{measure_unit_time}"+")")
 
        series_AUC0_inf= df_concat_PK_pk['AUC0→∞']
        list_AUC0_inf_str_f=[v for v in series_AUC0_inf.tolist()]
        series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
        
+       series_AUC0_inf_D= df_concat_PK_pk['AUC0→∞/D']
+       list_AUC0_inf_D_str_f=[v for v in series_AUC0_inf_D.tolist()]
+       series_AUC0_inf_D=pd.Series(list_AUC0_inf_D_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞/D '+"("+measure_unit_concentration+f"×{measure_unit_time}"+'/('+measure_unit_dose+')' +")")
+       
+       series_AUC_extrap= df_concat_PK_pk[f'AUC_%Extrap']
+       list_AUC_extrap_str_f=[v for v in series_AUC_extrap.tolist()]
+       series_AUC_extrap=pd.Series(list_AUC_extrap_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUC_%Extrap '+"("+"%"+")")
+
        series_AUMC0_t= df_concat_PK_pk['AUMC0-t']
        list_AUMC0_t_str_f=[v for v in series_AUMC0_t.tolist()]
        series_AUMC0_t=pd.Series(list_AUMC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
@@ -1133,6 +1316,10 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        series_AUMC0_inf= df_concat_PK_pk['AUMC0-∞']
        list_AUMC0_inf_str_f=[v for v in series_AUMC0_inf.tolist()]
        series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
+       
+       series_AUMC_extrap= df_concat_PK_pk[f'AUMC_%Extrap']
+       list_AUMC_extrap_str_f=[v for v in series_AUMC_extrap.tolist()]
+       series_AUMC_extrap=pd.Series(list_AUMC_extrap_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUMC_%Extrap '+"("+"%"+")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_pk['Сmax/AUC0-t']
        list_Сmax_dev_AUC0_t_str_f=[v for v in series_Сmax_dev_AUC0_t.tolist()]
@@ -1141,6 +1328,42 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        series_Kel= df_concat_PK_pk['Kel']
        list_Kel_str_f=[v for v in series_Kel.tolist()]
        series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_pk.index.tolist(), name='Kel '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
+       
+       series_Rsq_adjusted= df_concat_PK_pk['Rsq_adjusted']
+       list_Rsq_adjusted_str_f=[v for v in series_Rsq_adjusted.tolist()]
+       series_Rsq_adjusted=pd.Series(list_Rsq_adjusted_str_f, index = df_concat_PK_pk.index.tolist(), name='Rsq_adjusted')
+
+       series_Rsq= df_concat_PK_pk['Rsq']
+       list_Rsq_str_f=[v for v in series_Rsq.tolist()]
+       series_Rsq=pd.Series(list_Rsq_str_f, index = df_concat_PK_pk.index.tolist(), name='Rsq')
+
+       series_Corr_XY= df_concat_PK_pk['Corr_XY']
+       list_Corr_XY_str_f=[v for v in series_Corr_XY.tolist()]
+       series_Corr_XY=pd.Series(list_Corr_XY_str_f, index = df_concat_PK_pk.index.tolist(), name='Corr_XY')
+
+       series_No_points_lambda_z= df_concat_PK_pk['No_points_lambda_z']
+       list_No_points_lambda_z_str_f=[v for v in series_No_points_lambda_z.tolist()]
+       series_No_points_lambda_z=pd.Series(list_No_points_lambda_z_str_f, index = df_concat_PK_pk.index.tolist(), name='No_points_lambda_z')
+       
+       series_Lambda_z_intercept= df_concat_PK_pk['Lambda_z_intercept']
+       list_Lambda_z_intercept_str_f=[v for v in series_Lambda_z_intercept.tolist()]
+       series_Lambda_z_intercept=pd.Series(list_Lambda_z_intercept_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_intercept')
+
+       series_Lambda_z_lower= df_concat_PK_pk['Lambda_z_lower']
+       list_Lambda_z_lower_str_f=[v for v in series_Lambda_z_lower.tolist()]
+       series_Lambda_z_lower=pd.Series(list_Lambda_z_lower_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_lower')
+
+       series_Lambda_z_upper = df_concat_PK_pk['Lambda_z_upper']
+       list_Lambda_z_upper_str_f=[v for v in series_Lambda_z_upper.tolist()]
+       series_Lambda_z_upper=pd.Series(list_Lambda_z_upper_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_upper')
+
+       series_Span = df_concat_PK_pk['Span']
+       list_Span_str_f=[v for v in series_Span.tolist()]
+       series_Span=pd.Series(list_Span_str_f, index = df_concat_PK_pk.index.tolist(), name='Span')
+
+       series_Tlag = df_concat_PK_pk['Tlag']
+       list_Tlag_str_f=[v for v in series_Tlag.tolist()]
+       series_Tlag=pd.Series(list_Tlag_str_f, index = df_concat_PK_pk.index.tolist(), name='Tlag')
 
        series_Cl_F= df_concat_PK_pk['Cl/F']
        list_Cl_F_str_f=[v for v in series_Cl_F.tolist()]
@@ -1150,8 +1373,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        list_Vz_F_str_f=[v for v in series_Vz_F.tolist()]
        series_Vz_F=pd.Series(list_Vz_F_str_f, index = df_concat_PK_pk.index.tolist(), name='Vz/F ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
        
-       df_total_PK_pk = pd.concat([series_Cmax, series_Tmax, series_Clast, series_Tlast, series_MRT0_t, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_t,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_Cl_F,series_Vz_F], axis= 1) 
-        
+       df_total_PK_pk = pd.concat([series_N_Samples,series_Dose,series_Rsq,series_Rsq_adjusted,series_Corr_XY,series_No_points_lambda_z,series_Kel,series_Lambda_z_intercept,series_Lambda_z_lower,series_Lambda_z_upper,series_half_live,series_Span,series_Tlag,series_Tmax,series_Cmax,series_Cmax_D,series_Tlast, series_Clast,series_AUC0_t,series_AUC0_t_D,series_AUCall,series_AUC0_inf,series_AUC0_inf_D,series_AUC_extrap,series_Vz_F,series_Cl_F,series_AUMC0_t,series_AUMC0_inf,series_AUMC_extrap, series_MRT0_t, series_MRT0_inf,series_Сmax_dev_AUC0_t], axis= 1) 
        
        df_total_PK_pk.index.name = 'Номер'
 
@@ -1195,12 +1417,30 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
     count_row=df_without_numer.shape[0]
 
     list_count_row=range(count_row)
+    
+    ###N_Samples
+    list_N_Samples=[]
+    for i in range(0,count_row):
+        Sample=int(len(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_N_Samples.append(Sample)
+
+    ###Dose
+    list_Dose=[]
+    for i in range(0,count_row):
+        Dose=float(dose)
+        list_Dose.append(Dose)
 
     ###Cmax_True
     list_cmax_True_pk=[]
     for i in range(0,count_row):
         cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
         list_cmax_True_pk.append(cmax)
+
+    ###Cmax_D
+    list_cmax_D_pk=[]
+    for i in range(0,count_row):
+        cmax_d =float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))/float(dose)
+        list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
     if st.session_state[f"agree_cmax2 - {selector_research}"] == True:
@@ -1354,8 +1594,9 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
                  C0 = list_concentration[0]
                  list_C0_total.append(C0)
 
-       ###AUC0-t
+       ###AUC0-t,AUC_Back_Ext
        list_AUC_0_T=[]
+       list_AUC_Back_Ext=[]
        if method_auc == 'linear':
           for i in range(0,count_row):
               list_columns_T=[]
@@ -1406,6 +1647,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               # добавили эксрополяцию для подсчета AUC
               AUC_0_T=np.trapz(list_C0 + list_concentration,[0] + list_columns_T)
               list_AUC_0_T.append(AUC_0_T)
+              list_AUC_Back_Ext.append(AUC_0_T-np.trapz(list_concentration,list_columns_T))
 
        if method_auc == 'linear-up/log-down':
           for i in range(0,count_row):
@@ -1429,13 +1671,33 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               while list_concentration and list_concentration[-1] == 0:
                   list_concentration.pop()
                   list_columns_T.pop()
+              
+
+              # Вычисление AUC без экстраполяции
+              AUC_0_T_without_ext = 0
+              for i in range(len(list_concentration) - 1):
+                  delta_t = list_columns_T[i+1] - list_columns_T[i]
+                  c_current = list_concentration[i]
+                  c_next = list_concentration[i+1]
+
+                  if c_next > c_current:
+                      # Линейный метод
+                      AUC_increment = ((c_current + c_next) / 2) * delta_t
+                  elif c_next < c_current and c_next > 0 and c_current > 0:
+                      # Логарифмический метод
+                      AUC_increment = (c_current - c_next) * delta_t / np.log(c_current / c_next)
+                  else:
+                      # Линейный метод для равных или нулевых концентраций
+                      AUC_increment = ((c_current + c_next) / 2) * delta_t
+
+                  AUC_0_T_without_ext += AUC_increment
 
               # Вставка C₀ в начало списков
               if list_columns_T[0] != 0:
                   list_columns_T.insert(0, 0)
                   list_concentration.insert(0, C0)
 
-              # Вычисление AUC
+              # Вычисление AUC с С0
               AUC_0_T = 0
               for i in range(len(list_concentration) - 1):
                   delta_t = list_columns_T[i+1] - list_columns_T[i]
@@ -1455,6 +1717,33 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
                   AUC_0_T += AUC_increment
 
               list_AUC_0_T.append(AUC_0_T)
+              
+              ###AUC_Back_Ext
+
+              list_AUC_Back_Ext.append(AUC_0_T-AUC_0_T_without_ext)
+       
+       ###AUC0-t/D
+       list_AUC_0_T_D=[]
+       for i in list_AUC_0_T:
+           AUC_0_T_D = i/float(dose)
+           list_AUC_0_T_D.append(AUC_0_T_D)
+
+       ####AUCall
+       list_list_columns_T = []
+       list_list_concentration = []
+
+       for i in range(0,count_row):
+           list_columns_T=[]
+           for column in df_without_numer.columns:
+               list_columns_T.append(float(column))
+
+           list_list_columns_T.append(list_columns_T)
+
+           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+           list_list_concentration.append(list_concentration)
+
+       list_AUCall = calculate_aucall(list_list_concentration, list_list_columns_T, list_AUC_0_T)
 
        ####Сmax/AUC0-t
        list_Сmax_division_AUC0_t_for_division=list(zip(list_cmax_True_pk,list_AUC_0_T))
@@ -1463,8 +1752,15 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
                list_Сmax_division_AUC0_t.append(i/j)
 
 
-       ####KEL
+       ####KEL,Rsq_adjusted,Rsq,Corr_XY,No_points_lambda_z,Lambda_z_intercept,Lambda_z_lower,Lambda_z_upper
        list_kel_total=[]
+       list_Rsq_adjusted=[]
+       list_Rsq = []
+       list_Corr_XY = []
+       list_No_points_lambda_z = []
+       list_Lambda_z_intercept = []
+       list_Lambda_z_lower = []
+       list_Lambda_z_upper = []
        for i in range(0,count_row):
            list_columns_T=[]
            for column in df_without_numer.columns:
@@ -1482,10 +1778,9 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            #срез_без_cmax
            max_value_c=max(list_c)
            index_cmax=list_c.index(max_value_c)
-           
-           #сохраняем cmax, списки названы по старому
-           list_c_without_cmax=list_c[index_cmax:]
-           list_t_without_cmax=list_t[index_cmax:]
+
+           list_c_without_cmax=list_c[index_cmax+1:]
+           list_t_without_cmax=list_t[index_cmax+1:]
 
            #удаление всех нулей из массивов
            count_for_0_1=len(list_c_without_cmax)
@@ -1509,7 +1804,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
                   list_c_new=list_conc_0[j:n_points]
                   list_for_kel_c.append(list_c_new)
            list_for_kel_c.pop(-1) #удаление списка с одной точкой
-           #list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
+           list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
 
            list_for_kel_t=[]
            for j in list_n_points:
@@ -1517,15 +1812,25 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
                   list_t_new=list_time_0[j:n_points]
                   list_for_kel_t.append(list_t_new)
            list_for_kel_t.pop(-1) #удаление списка с одной точкой
-           #list_for_kel_t.pop(-1) #удаление списка с двумя точками 
+           list_for_kel_t.pop(-1) #удаление списка с двумя точками 
 
            list_ct_zip=list(zip(list_for_kel_c,list_for_kel_t))
 
            list_kel=[]
            list_r=[]
+           list_r_orig=[]
+           list_Corr = []
+           list_n_points_used = []
+           list_intercept = []
+           list_Lambda_lower = []
+           list_Lambda_upper = []
            for i,j in list_ct_zip:
 
                n_points_r=len(i)
+               
+               list_n_points_used.append(n_points_r)
+               list_Lambda_lower.append(min(j))
+               list_Lambda_upper.append(max(j))
 
                np_c=np.asarray(i)
                np_t_1=np.asarray(j).reshape((-1,1))
@@ -1538,6 +1843,10 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
                a=np.corrcoef(np_t, np_c_log)
                cor=((a[0])[1])
                r_sq=cor**2
+
+               list_Corr.append(cor)
+               list_r_orig.append(r_sq)
+               list_intercept.append(model.intercept_)
 
                adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
@@ -1563,18 +1872,29 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
 
                if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
                   list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                  list_Rsq_adjusted.append(list_r1[i])
+                  list_Rsq.append(list_r_orig[i])
+                  list_Corr_XY.append(list_Corr[i])
+                  list_No_points_lambda_z.append(list_n_points_used[i])
+                  list_Lambda_z_intercept.append(list_intercept[i])
+                  list_Lambda_z_lower.append(list_Lambda_lower[i])
+                  list_Lambda_z_upper.append(list_Lambda_upper[i])
                   break #самая ранняя удовлетовряющая условию
 
            for i in list_kel_total_1:
                list_kel_total.append(i) 
-
 
        ####T1/2
        list_half_live=[]
        for i in list_kel_total:
            half_live=math.log(2)/i
            list_half_live.append(half_live)
-
+       
+       ####Span
+       list_Span=[]
+       for upper,lower,half_live in list(zip(list_Lambda_z_upper,list_Lambda_z_lower,list_half_live)):
+           Span= (upper - lower)/half_live
+           list_Span.append(Span)
 
        ###AUC0-inf 
 
@@ -1591,7 +1911,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
 
        list_zip_c_AUCt_inf=list(zip(list_kel_total,list_of_list_c))
 
-           #AUCt-inf 
+       #AUCt-inf 
        list_auc_t_inf=[]     
        for i,j in list_zip_c_AUCt_inf:
            for clast in j:
@@ -1607,19 +1927,37 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            auc0_inf=i+j    
            list_auc0_inf.append(auc0_inf)
 
+       ###AUC0-inf/D
+       list_auc0_inf_D=[]
+       for i in list_auc0_inf:
+           auc0_inf_D = i/float(dose)
+           list_auc0_inf_D.append(auc0_inf_D)
+
+
+       ###AUC_%Extrap
+       list_AUC_extrap=[]
+       for i,j in list(zip(list_auc0_inf,list_AUC_0_T)):
+           AUC_extrap = ((i-j)/i)*100
+           list_AUC_extrap.append(AUC_extrap)
+       
+       ###AUC_%Back_Ext
+       list_AUC_perc_Back_Ext=[]
+       for i,j in list(zip(list_AUC_Back_Ext,list_auc0_inf)):
+           AUC_perc_Back_Ext = i/j*100
+           list_AUC_perc_Back_Ext.append(AUC_perc_Back_Ext)
 
        ####Cl
-       list_cl=[]
+       list_Cl=[]
 
        for i in list_auc0_inf:
-           cl = float(dose)/i
-           list_cl.append(cl) 
+           Cl = float(dose)/i
+           list_Cl.append(Cl) 
 
 
        ####Vz
        list_Vz=[]
 
-       list_zip_kel_cl=list(zip(list_kel_total,list_cl))
+       list_zip_kel_cl=list(zip(list_kel_total,list_Cl))
 
        for i,j in list_zip_kel_cl:
            Vz = j/i
@@ -1773,7 +2111,13 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        for i,j in list_AUMC_zip:
            AUMCO_inf=i+j
            list_AUMCO_inf.append(AUMCO_inf)
-
+       
+       ###AUMC_%Extrap
+       list_AUMC_extrap=[]
+       for i,j in list(zip(list_AUMCO_inf,list_AUMC0_t)):
+           AUMC_extrap = ((i-j)/i)*100
+           list_AUMC_extrap.append(AUMC_extrap)
+       
        ###MRT0-t
        list_MRT0_t=[]
 
@@ -1795,7 +2139,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        ####Vss
        list_Vss=[]
 
-       list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_cl))
+       list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_Cl))
 
        for i,j in list_zip_MRT0_inf_cl:
            Vss = j*i
@@ -1805,7 +2149,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
 
        ### пользовательский индекс
        list_for_index=df["Номер"].tolist()
-       df_PK=pd.DataFrame(list(zip(list_cmax_True_pk,list_Tmax_float_True_pk,list_C0_total,list_C_last,list_T_last,list_MRT0_t,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMC0_t,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_cl,list_Vz,list_Vss)),columns=['Cmax','Tmax','C0','Clast','Tlast','MRT0→t','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-t','AUMC0-∞','Сmax/AUC0-t','Kel','Cl','Vz','Vss'],index=list_for_index)
+       df_PK=pd.DataFrame(list(zip(list_N_Samples,list_Dose,list_cmax_True_pk,list_cmax_D_pk,list_C0_total,list_Tmax_float_True_pk,list_C_last,list_T_last,list_MRT0_t,list_MRT0_inf,list_half_live,list_AUC_0_T,list_AUC_0_T_D,list_AUCall,list_auc0_inf,list_auc0_inf_D,list_AUC_extrap,list_AUC_perc_Back_Ext,list_AUMC0_t,list_AUMCO_inf,list_AUMC_extrap,list_Сmax_division_AUC0_t,list_kel_total,list_Rsq_adjusted,list_Rsq,list_Corr_XY,list_No_points_lambda_z,list_Lambda_z_intercept,list_Lambda_z_lower,list_Lambda_z_upper,list_Span,list_Cl,list_Vz,list_Vss)),columns=['N_Samples','Dose','Cmax','Cmax/D','C0','Tmax','Clast','Tlast','MRT0→t','MRT0→∞','T1/2','AUC0-t','AUC0-t/D','AUCall','AUC0→∞','AUC0→∞/D',f'AUC_%Extrap',f'AUC_%Back_Ext','AUMC0-t','AUMC0-∞',f'AUMC_%Extrap','Сmax/AUC0-t','Kel','Rsq_adjusted','Rsq','Corr_XY','No_points_lambda_z','Lambda_z_intercept','Lambda_z_lower','Lambda_z_upper','Span','Cl','Vz','Vss'],index=list_for_index)
     
     checking_condition_cmax2 = False
 
@@ -1930,9 +2274,21 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
 
        ###округление описательной статистики и ФК параметров
 
+       series_N_Samples=df_concat_PK_pk['N_Samples']
+       list_N_Samples_str_f=[v for v in series_N_Samples.tolist()]
+       series_N_Samples=pd.Series(list_N_Samples_str_f, index = df_concat_PK_pk.index.tolist(), name='N_Samples')
+
+       series_Dose=df_concat_PK_pk['Dose']
+       list_Dose_str_f=[v for v in series_Dose.tolist()]
+       series_Dose=pd.Series(list_Dose_str_f, index = df_concat_PK_pk.index.tolist(), name='Dose')
+
        series_Cmax=df_concat_PK_pk['Cmax']
        list_Cmax_str_f=[v for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax ' +"("+measure_unit_concentration+")")
+
+       series_Cmax_D=df_concat_PK_pk['Cmax/D']
+       list_Cmax_D_str_f=[v for v in series_Cmax_D.tolist()]
+       series_Cmax_D=pd.Series(list_Cmax_D_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax/D ' +"("+measure_unit_concentration+'/'+'('+measure_unit_dose+')'+")")
 
        series_Tmax=df_concat_PK_pk['Tmax']
        list_Tmax_str_f=[v for v in series_Tmax.tolist()]
@@ -1965,11 +2321,31 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        series_AUC0_t= df_concat_PK_pk['AUC0-t']
        list_AUC0_t_str_f=[v for v in series_AUC0_t.tolist()]
        series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
+       
+       series_AUC0_t_D= df_concat_PK_pk['AUC0-t/D']
+       list_AUC0_t_D_str_f=[v for v in series_AUC0_t_D.tolist()]
+       series_AUC0_t_D=pd.Series(list_AUC0_t_D_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t/D '+"("+measure_unit_concentration+f"×{measure_unit_time}"+'/('+measure_unit_dose+')' +")")
+       
+       series_AUCall= df_concat_PK_pk['AUCall']
+       list_AUCall_str_f=[v for v in series_AUCall.tolist()]
+       series_AUCall=pd.Series(list_AUCall_str_f, index = df_concat_PK_pk.index.tolist(), name='AUCall '+"("+measure_unit_concentration+f"×{measure_unit_time}"+")")
 
        series_AUC0_inf= df_concat_PK_pk['AUC0→∞']
        list_AUC0_inf_str_f=[v for v in series_AUC0_inf.tolist()]
        series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
        
+       series_AUC0_inf_D= df_concat_PK_pk['AUC0→∞/D']
+       list_AUC0_inf_D_str_f=[v for v in series_AUC0_inf_D.tolist()]
+       series_AUC0_inf_D=pd.Series(list_AUC0_inf_D_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞/D '+"("+measure_unit_concentration+f"×{measure_unit_time}"+'/('+measure_unit_dose+')' +")")
+       
+       series_AUC_extrap= df_concat_PK_pk[f'AUC_%Extrap']
+       list_AUC_extrap_str_f=[v for v in series_AUC_extrap.tolist()]
+       series_AUC_extrap=pd.Series(list_AUC_extrap_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUC_%Extrap '+"("+"%"+")")
+       
+       series_AUC_perc_Back_Ext= df_concat_PK_pk[ f'AUC_%Back_Ext']
+       list_AUC_perc_Back_Ext_str_f=[v for v in series_AUC_perc_Back_Ext.tolist()]
+       series_AUC_perc_Back_Ext=pd.Series(list_AUC_perc_Back_Ext_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUC_%Back_Ext '+"("+"%"+")")
+
        series_AUMC0_t= df_concat_PK_pk['AUMC0-t']
        list_AUMC0_t_str_f=[v for v in series_AUMC0_t.tolist()]
        series_AUMC0_t=pd.Series(list_AUMC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
@@ -1977,6 +2353,10 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        series_AUMC0_inf= df_concat_PK_pk['AUMC0-∞']
        list_AUMC0_inf_str_f=[v for v in series_AUMC0_inf.tolist()]
        series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
+       
+       series_AUMC_extrap= df_concat_PK_pk[f'AUMC_%Extrap']
+       list_AUMC_extrap_str_f=[v for v in series_AUMC_extrap.tolist()]
+       series_AUMC_extrap=pd.Series(list_AUMC_extrap_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUMC_%Extrap '+"("+"%"+")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_pk['Сmax/AUC0-t']
        list_Сmax_dev_AUC0_t_str_f=[v for v in series_Сmax_dev_AUC0_t.tolist()]
@@ -1985,10 +2365,42 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        series_Kel= df_concat_PK_pk['Kel']
        list_Kel_str_f=[v for v in series_Kel.tolist()]
        series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_pk.index.tolist(), name='Kel '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
+       
+       series_Rsq_adjusted= df_concat_PK_pk['Rsq_adjusted']
+       list_Rsq_adjusted_str_f=[v for v in series_Rsq_adjusted.tolist()]
+       series_Rsq_adjusted=pd.Series(list_Rsq_adjusted_str_f, index = df_concat_PK_pk.index.tolist(), name='Rsq_adjusted')
 
-       series_CL= df_concat_PK_pk['Cl']
-       list_CL_str_f=[v for v in series_CL.tolist()]
-       series_CL=pd.Series(list_CL_str_f, index = df_concat_PK_pk.index.tolist(), name='Cl ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})/{measure_unit_time}"+")")
+       series_Rsq= df_concat_PK_pk['Rsq']
+       list_Rsq_str_f=[v for v in series_Rsq.tolist()]
+       series_Rsq=pd.Series(list_Rsq_str_f, index = df_concat_PK_pk.index.tolist(), name='Rsq')
+
+       series_Corr_XY= df_concat_PK_pk['Corr_XY']
+       list_Corr_XY_str_f=[v for v in series_Corr_XY.tolist()]
+       series_Corr_XY=pd.Series(list_Corr_XY_str_f, index = df_concat_PK_pk.index.tolist(), name='Corr_XY')
+
+       series_No_points_lambda_z= df_concat_PK_pk['No_points_lambda_z']
+       list_No_points_lambda_z_str_f=[v for v in series_No_points_lambda_z.tolist()]
+       series_No_points_lambda_z=pd.Series(list_No_points_lambda_z_str_f, index = df_concat_PK_pk.index.tolist(), name='No_points_lambda_z')
+       
+       series_Lambda_z_intercept= df_concat_PK_pk['Lambda_z_intercept']
+       list_Lambda_z_intercept_str_f=[v for v in series_Lambda_z_intercept.tolist()]
+       series_Lambda_z_intercept=pd.Series(list_Lambda_z_intercept_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_intercept')
+
+       series_Lambda_z_lower= df_concat_PK_pk['Lambda_z_lower']
+       list_Lambda_z_lower_str_f=[v for v in series_Lambda_z_lower.tolist()]
+       series_Lambda_z_lower=pd.Series(list_Lambda_z_lower_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_lower')
+
+       series_Lambda_z_upper = df_concat_PK_pk['Lambda_z_upper']
+       list_Lambda_z_upper_str_f=[v for v in series_Lambda_z_upper.tolist()]
+       series_Lambda_z_upper=pd.Series(list_Lambda_z_upper_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_upper')
+
+       series_Span = df_concat_PK_pk['Span']
+       list_Span_str_f=[v for v in series_Span.tolist()]
+       series_Span=pd.Series(list_Span_str_f, index = df_concat_PK_pk.index.tolist(), name='Span')
+
+       series_Cl= df_concat_PK_pk['Cl']
+       list_Cl_str_f=[v for v in series_Cl.tolist()]
+       series_Cl=pd.Series(list_Cl_str_f, index = df_concat_PK_pk.index.tolist(), name='Cl ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})/{measure_unit_time}"+")")
 
        series_Vz= df_concat_PK_pk['Vz']
        list_Vz_str_f=[v for v in series_Vz.tolist()]
@@ -1998,8 +2410,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        list_Vss_str_f=[v for v in series_Vss.tolist()]
        series_Vss=pd.Series(list_Vss_str_f, index = df_concat_PK_pk.index.tolist(), name='Vss ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
        
-       df_total_PK_pk = pd.concat([series_Cmax, series_Tmax,series_C0,series_Clast, series_Tlast, series_MRT0_t, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_t,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_CL,series_Vz,series_Vss], axis= 1) 
-       
+       df_total_PK_pk = pd.concat([series_N_Samples,series_Dose,series_Rsq,series_Rsq_adjusted,series_Corr_XY,series_No_points_lambda_z,series_Kel,series_Lambda_z_intercept,series_Lambda_z_lower,series_Lambda_z_upper,series_half_live,series_Span,series_Tmax,series_Cmax,series_Cmax_D,series_C0,series_Tlast, series_Clast,series_AUC0_t,series_AUC0_t_D,series_AUCall,series_AUC0_inf,series_AUC0_inf_D,series_AUC_extrap,series_AUC_perc_Back_Ext,series_Vz,series_Cl,series_AUMC0_t,series_AUMC0_inf,series_AUMC_extrap, series_MRT0_t, series_MRT0_inf,series_Vss,series_Сmax_dev_AUC0_t], axis= 1) 
        df_total_PK_pk.index.name = 'Номер'
 
        #округление количества субъектов до целого
@@ -2044,11 +2455,35 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
     list_count_row=range(count_row)
 
+    ###N_Samples
+    list_N_Samples=[]
+    for i in range(0,count_row):
+        Sample=int(len(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_N_Samples.append(Sample)
+
+    ###Dose
+    list_Dose=[]
+    for i in range(0,count_row):
+        Dose=float(dose)
+        list_Dose.append(Dose)
+
+    ###infusion_time
+    list_infusion_time=[]
+    for i in range(0,count_row):
+        infusion_time=float(infusion_time)
+        list_infusion_time.append(infusion_time)
+
     ###Cmax_True
     list_cmax_True_pk=[]
     for i in range(0,count_row):
         cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
         list_cmax_True_pk.append(cmax)
+
+    ###Cmax_D
+    list_cmax_D_pk=[]
+    for i in range(0,count_row):
+        cmax_d =float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))/float(dose)
+        list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
     if st.session_state[f"agree_cmax2 - {selector_research}"] == True:
@@ -2277,6 +2712,29 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               
               list_AUC_0_T.append(AUC_O_T)
 
+       ###AUC0-t/D
+       list_AUC_0_T_D=[]
+       for i in list_AUC_0_T:
+           AUC_0_T_D = i/float(dose)
+           list_AUC_0_T_D.append(AUC_0_T_D)
+
+       ####AUCall
+       list_list_columns_T = []
+       list_list_concentration = []
+
+       for i in range(0,count_row):
+           list_columns_T=[]
+           for column in df_without_numer.columns:
+               list_columns_T.append(float(column))
+
+           list_list_columns_T.append(list_columns_T)
+
+           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+
+           list_list_concentration.append(list_concentration)
+
+       list_AUCall = calculate_aucall(list_list_concentration, list_list_columns_T, list_AUC_0_T)
+       
        ####Сmax/AUC0-t
        list_Сmax_division_AUC0_t_for_division=list(zip(list_cmax_True_pk,list_AUC_0_T))
        list_Сmax_division_AUC0_t=[]
@@ -2284,8 +2742,15 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
                list_Сmax_division_AUC0_t.append(i/j)
 
 
-       ####KEL
+       ####KEL,Rsq_adjusted,Rsq,Corr_XY,No_points_lambda_z,Lambda_z_intercept,Lambda_z_lower,Lambda_z_upper
        list_kel_total=[]
+       list_Rsq_adjusted=[]
+       list_Rsq = []
+       list_Corr_XY = []
+       list_No_points_lambda_z = []
+       list_Lambda_z_intercept = []
+       list_Lambda_z_lower = []
+       list_Lambda_z_upper = []
        for i in range(0,count_row):
            list_columns_T=[]
            for column in df_without_numer.columns:
@@ -2345,9 +2810,19 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
            list_kel=[]
            list_r=[]
+           list_r_orig=[]
+           list_Corr = []
+           list_n_points_used = []
+           list_intercept = []
+           list_Lambda_lower = []
+           list_Lambda_upper = []
            for i,j in list_ct_zip:
 
                n_points_r=len(i)
+               
+               list_n_points_used.append(n_points_r)
+               list_Lambda_lower.append(min(j))
+               list_Lambda_upper.append(max(j))
 
                np_c=np.asarray(i)
                np_t_1=np.asarray(j).reshape((-1,1))
@@ -2360,6 +2835,10 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
                a=np.corrcoef(np_t, np_c_log)
                cor=((a[0])[1])
                r_sq=cor**2
+
+               list_Corr.append(cor)
+               list_r_orig.append(r_sq)
+               list_intercept.append(model.intercept_)
 
                adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
 
@@ -2385,18 +2864,29 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
                if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
                   list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
+                  list_Rsq_adjusted.append(list_r1[i])
+                  list_Rsq.append(list_r_orig[i])
+                  list_Corr_XY.append(list_Corr[i])
+                  list_No_points_lambda_z.append(list_n_points_used[i])
+                  list_Lambda_z_intercept.append(list_intercept[i])
+                  list_Lambda_z_lower.append(list_Lambda_lower[i])
+                  list_Lambda_z_upper.append(list_Lambda_upper[i])
                   break #самая ранняя удовлетовряющая условию
 
            for i in list_kel_total_1:
                list_kel_total.append(i) 
-
-
+       
        ####T1/2
        list_half_live=[]
        for i in list_kel_total:
            half_live=math.log(2)/i
            list_half_live.append(half_live)
 
+       ####Span
+       list_Span=[]
+       for upper,lower,half_live in list(zip(list_Lambda_z_upper,list_Lambda_z_lower,list_half_live)):
+           Span= (upper - lower)/half_live
+           list_Span.append(Span)
 
        ###AUC0-inf 
 
@@ -2412,7 +2902,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
        list_zip_c_AUCt_inf=list(zip(list_kel_total,list_of_list_c))
 
-           #AUCt-inf 
+       #AUCt-inf 
        list_auc_t_inf=[]     
        for i,j in list_zip_c_AUCt_inf:
            for clast in j:
@@ -2428,23 +2918,35 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
            auc0_inf=i+j    
            list_auc0_inf.append(auc0_inf)
 
+       ###AUC0-inf/D
+       list_auc0_inf_D=[]
+       for i in list_auc0_inf:
+           auc0_inf_D = i/float(dose)
+           list_auc0_inf_D.append(auc0_inf_D)
 
-       ####Cl_F
-       list_Cl_F=[]
+
+       ###AUC_%Extrap
+       list_AUC_extrap=[]
+       for i,j in list(zip(list_auc0_inf,list_AUC_0_T)):
+           AUC_extrap = ((i-j)/i)*100
+           list_AUC_extrap.append(AUC_extrap)
+
+       ####Cl
+       list_Cl=[]
 
        for i in list_auc0_inf:
-           Cl_F = float(dose)/i
-           list_Cl_F.append(Cl_F) 
+           Cl = float(dose)/i
+           list_Cl.append(Cl) 
 
 
-       ####Vz_F
-       list_Vz_F=[]
+       ####Vz
+       list_Vz=[]
 
-       list_zip_kel_Cl_F=list(zip(list_kel_total,list_Cl_F))
+       list_zip_kel_Cl=list(zip(list_kel_total,list_Cl))
 
-       for i,j in list_zip_kel_Cl_F:
-           Vz_F = j/i
-           list_Vz_F.append(Vz_F)
+       for i,j in list_zip_kel_Cl:
+           Vz = j/i
+           list_Vz.append(Vz)
 
 
        ###AUMC0-t и ###AUMC0-inf
@@ -2586,6 +3088,12 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        for i,j in list_AUMC_zip:
            AUMCO_inf=i+j
            list_AUMCO_inf.append(AUMCO_inf)
+       
+       ###AUMC_%Extrap
+       list_AUMC_extrap=[]
+       for i,j in list(zip(list_AUMCO_inf,list_AUMC0_t)):
+           AUMC_extrap = ((i-j)/i)*100
+           list_AUMC_extrap.append(AUMC_extrap)
 
        ###MRT0-t
        list_MRT0_t=[]
@@ -2608,7 +3116,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        ####Vss
        list_Vss=[]
 
-       list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_Cl_F))
+       list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_Cl))
 
        for i,j in list_zip_MRT0_inf_cl:
            Vss = j*i
@@ -2619,7 +3127,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
        ### пользовательский индекс
        list_for_index=df["Номер"].tolist()
-       df_PK=pd.DataFrame(list(zip(list_cmax_True_pk,list_Tmax_float_True_pk,list_C_last,list_T_last,list_MRT0_t,list_MRT0_inf,list_half_live,list_AUC_0_T,list_auc0_inf,list_AUMC0_t,list_AUMCO_inf,list_Сmax_division_AUC0_t,list_kel_total,list_Cl_F,list_Vz_F,list_Vss)),columns=['Cmax','Tmax','Clast','Tlast','MRT0→t','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-t','AUMC0-∞','Сmax/AUC0-t','Kel','Cl/F','Vz/F','Vss'],index=list_for_index)
+       df_PK=pd.DataFrame(list(zip(list_N_Samples,list_Dose,list_infusion_time,list_cmax_True_pk,list_cmax_D_pk,list_Tmax_float_True_pk,list_C_last,list_T_last,list_MRT0_t,list_MRT0_inf,list_half_live,list_AUC_0_T,list_AUC_0_T_D,list_AUCall,list_auc0_inf,list_auc0_inf_D,list_AUC_extrap,list_AUMC0_t,list_AUMCO_inf,list_AUMC_extrap,list_Сmax_division_AUC0_t,list_kel_total,list_Rsq_adjusted,list_Rsq,list_Corr_XY,list_No_points_lambda_z,list_Lambda_z_intercept,list_Lambda_z_lower,list_Lambda_z_upper,list_Span,list_Cl,list_Vz,list_Vss)),columns=['N_Samples','Dose','Length of infusion','Cmax','Cmax/D','Tmax','Clast','Tlast','MRT0→t','MRT0→∞','T1/2','AUC0-t','AUC0-t/D','AUCall','AUC0→∞','AUC0→∞/D',f'AUC_%Extrap','AUMC0-t','AUMC0-∞',f'AUMC_%Extrap','Сmax/AUC0-t','Kel','Rsq_adjusted','Rsq','Corr_XY','No_points_lambda_z','Lambda_z_intercept','Lambda_z_lower','Lambda_z_upper','Span','Cl','Vz','Vss'],index=list_for_index)
     
     checking_condition_cmax2 = False
 
@@ -2743,10 +3251,25 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
        ###округление описательной статистики и ФК параметров
+       series_N_Samples=df_concat_PK_pk['N_Samples']
+       list_N_Samples_str_f=[v for v in series_N_Samples.tolist()]
+       series_N_Samples=pd.Series(list_N_Samples_str_f, index = df_concat_PK_pk.index.tolist(), name='N_Samples')
+
+       series_Dose=df_concat_PK_pk['Dose']
+       list_Dose_str_f=[v for v in series_Dose.tolist()]
+       series_Dose=pd.Series(list_Dose_str_f, index = df_concat_PK_pk.index.tolist(), name='Dose')
+
+       series_Length_infusion=df_concat_PK_pk['Length of infusion']
+       list_Length_infusion_str_f=[v for v in series_Length_infusion.tolist()]
+       series_Length_infusion=pd.Series(list_Length_infusion_str_f, index = df_concat_PK_pk.index.tolist(), name='Length of infusion ' +"("+measure_unit_time+")" )
 
        series_Cmax=df_concat_PK_pk['Cmax']
        list_Cmax_str_f=[v for v in series_Cmax.tolist()]
        series_Cmax=pd.Series(list_Cmax_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax ' +"("+measure_unit_concentration+")")
+
+       series_Cmax_D=df_concat_PK_pk['Cmax/D']
+       list_Cmax_D_str_f=[v for v in series_Cmax_D.tolist()]
+       series_Cmax_D=pd.Series(list_Cmax_D_str_f, index = df_concat_PK_pk.index.tolist(), name='Cmax/D ' +"("+measure_unit_concentration+'/'+'('+measure_unit_dose+')'+")")
 
        series_Tmax=df_concat_PK_pk['Tmax']
        list_Tmax_str_f=[v for v in series_Tmax.tolist()]
@@ -2775,11 +3298,27 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        series_AUC0_t= df_concat_PK_pk['AUC0-t']
        list_AUC0_t_str_f=[v for v in series_AUC0_t.tolist()]
        series_AUC0_t=pd.Series(list_AUC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
+       
+       series_AUC0_t_D= df_concat_PK_pk['AUC0-t/D']
+       list_AUC0_t_D_str_f=[v for v in series_AUC0_t_D.tolist()]
+       series_AUC0_t_D=pd.Series(list_AUC0_t_D_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0-t/D '+"("+measure_unit_concentration+f"×{measure_unit_time}"+'/('+measure_unit_dose+')' +")")
+       
+       series_AUCall= df_concat_PK_pk['AUCall']
+       list_AUCall_str_f=[v for v in series_AUCall.tolist()]
+       series_AUCall=pd.Series(list_AUCall_str_f, index = df_concat_PK_pk.index.tolist(), name='AUCall '+"("+measure_unit_concentration+f"×{measure_unit_time}"+")")
 
        series_AUC0_inf= df_concat_PK_pk['AUC0→∞']
        list_AUC0_inf_str_f=[v for v in series_AUC0_inf.tolist()]
        series_AUC0_inf=pd.Series(list_AUC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}" +")")
        
+       series_AUC0_inf_D= df_concat_PK_pk['AUC0→∞/D']
+       list_AUC0_inf_D_str_f=[v for v in series_AUC0_inf_D.tolist()]
+       series_AUC0_inf_D=pd.Series(list_AUC0_inf_D_str_f, index = df_concat_PK_pk.index.tolist(), name='AUC0→∞/D '+"("+measure_unit_concentration+f"×{measure_unit_time}"+'/('+measure_unit_dose+')' +")")
+       
+       series_AUC_extrap= df_concat_PK_pk[f'AUC_%Extrap']
+       list_AUC_extrap_str_f=[v for v in series_AUC_extrap.tolist()]
+       series_AUC_extrap=pd.Series(list_AUC_extrap_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUC_%Extrap '+"("+"%"+")")
+
        series_AUMC0_t= df_concat_PK_pk['AUMC0-t']
        list_AUMC0_t_str_f=[v for v in series_AUMC0_t.tolist()]
        series_AUMC0_t=pd.Series(list_AUMC0_t_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-t '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
@@ -2787,6 +3326,10 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        series_AUMC0_inf= df_concat_PK_pk['AUMC0-∞']
        list_AUMC0_inf_str_f=[v for v in series_AUMC0_inf.tolist()]
        series_AUMC0_inf=pd.Series(list_AUMC0_inf_str_f, index = df_concat_PK_pk.index.tolist(), name='AUMC0-∞ '+"("+measure_unit_concentration+f"×{measure_unit_time}\u00B2" +")")
+       
+       series_AUMC_extrap= df_concat_PK_pk[f'AUMC_%Extrap']
+       list_AUMC_extrap_str_f=[v for v in series_AUMC_extrap.tolist()]
+       series_AUMC_extrap=pd.Series(list_AUMC_extrap_str_f, index = df_concat_PK_pk.index.tolist(), name=f'AUMC_%Extrap '+"("+"%"+")")
 
        series_Сmax_dev_AUC0_t= df_concat_PK_pk['Сmax/AUC0-t']
        list_Сmax_dev_AUC0_t_str_f=[v for v in series_Сmax_dev_AUC0_t.tolist()]
@@ -2795,22 +3338,53 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        series_Kel= df_concat_PK_pk['Kel']
        list_Kel_str_f=[v for v in series_Kel.tolist()]
        series_Kel=pd.Series(list_Kel_str_f, index = df_concat_PK_pk.index.tolist(), name='Kel '+"("+f"{measure_unit_time}\u207B\u00B9"+")")
+       
+       series_Rsq_adjusted= df_concat_PK_pk['Rsq_adjusted']
+       list_Rsq_adjusted_str_f=[v for v in series_Rsq_adjusted.tolist()]
+       series_Rsq_adjusted=pd.Series(list_Rsq_adjusted_str_f, index = df_concat_PK_pk.index.tolist(), name='Rsq_adjusted')
 
-       series_Cl_F= df_concat_PK_pk['Cl/F']
-       list_Cl_F_str_f=[v for v in series_Cl_F.tolist()]
-       series_Cl_F=pd.Series(list_Cl_F_str_f, index = df_concat_PK_pk.index.tolist(), name='Cl/F ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})/{measure_unit_time}"+")")
+       series_Rsq= df_concat_PK_pk['Rsq']
+       list_Rsq_str_f=[v for v in series_Rsq.tolist()]
+       series_Rsq=pd.Series(list_Rsq_str_f, index = df_concat_PK_pk.index.tolist(), name='Rsq')
 
-       series_Vz_F= df_concat_PK_pk['Vz/F']
-       list_Vz_F_str_f=[v for v in series_Vz_F.tolist()]
-       series_Vz_F=pd.Series(list_Vz_F_str_f, index = df_concat_PK_pk.index.tolist(), name='Vz/F ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
+       series_Corr_XY= df_concat_PK_pk['Corr_XY']
+       list_Corr_XY_str_f=[v for v in series_Corr_XY.tolist()]
+       series_Corr_XY=pd.Series(list_Corr_XY_str_f, index = df_concat_PK_pk.index.tolist(), name='Corr_XY')
+
+       series_No_points_lambda_z= df_concat_PK_pk['No_points_lambda_z']
+       list_No_points_lambda_z_str_f=[v for v in series_No_points_lambda_z.tolist()]
+       series_No_points_lambda_z=pd.Series(list_No_points_lambda_z_str_f, index = df_concat_PK_pk.index.tolist(), name='No_points_lambda_z')
+       
+       series_Lambda_z_intercept= df_concat_PK_pk['Lambda_z_intercept']
+       list_Lambda_z_intercept_str_f=[v for v in series_Lambda_z_intercept.tolist()]
+       series_Lambda_z_intercept=pd.Series(list_Lambda_z_intercept_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_intercept')
+
+       series_Lambda_z_lower= df_concat_PK_pk['Lambda_z_lower']
+       list_Lambda_z_lower_str_f=[v for v in series_Lambda_z_lower.tolist()]
+       series_Lambda_z_lower=pd.Series(list_Lambda_z_lower_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_lower')
+
+       series_Lambda_z_upper = df_concat_PK_pk['Lambda_z_upper']
+       list_Lambda_z_upper_str_f=[v for v in series_Lambda_z_upper.tolist()]
+       series_Lambda_z_upper=pd.Series(list_Lambda_z_upper_str_f, index = df_concat_PK_pk.index.tolist(), name='Lambda_z_upper')
+
+       series_Span = df_concat_PK_pk['Span']
+       list_Span_str_f=[v for v in series_Span.tolist()]
+       series_Span=pd.Series(list_Span_str_f, index = df_concat_PK_pk.index.tolist(), name='Span')
+
+       series_Cl= df_concat_PK_pk['Cl']
+       list_Cl_str_f=[v for v in series_Cl.tolist()]
+       series_Cl=pd.Series(list_Cl_str_f, index = df_concat_PK_pk.index.tolist(), name='Cl ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})/{measure_unit_time}"+")")
+
+       series_Vz= df_concat_PK_pk['Vz']
+       list_Vz_str_f=[v for v in series_Vz.tolist()]
+       series_Vz=pd.Series(list_Vz_str_f, index = df_concat_PK_pk.index.tolist(), name='Vz ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
        
        series_Vss= df_concat_PK_pk['Vss']
        list_Vss_str_f=[v for v in series_Vss.tolist()]
        series_Vss=pd.Series(list_Vss_str_f, index = df_concat_PK_pk.index.tolist(), name='Vss ' +"("+f"({measure_unit_dose})/({measure_unit_concentration})"+")")
 
-       df_total_PK_pk = pd.concat([series_Cmax, series_Tmax, series_Clast, series_Tlast, series_MRT0_t, series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_t,series_AUMC0_inf,series_Сmax_dev_AUC0_t,series_Kel,series_Cl_F,series_Vz_F,series_Vss], axis= 1) 
-        
-       
+       df_total_PK_pk = pd.concat([series_N_Samples,series_Dose,series_Length_infusion,series_Rsq,series_Rsq_adjusted,series_Corr_XY,series_No_points_lambda_z,series_Kel,series_Lambda_z_intercept,series_Lambda_z_lower,series_Lambda_z_upper,series_half_live,series_Span,series_Tmax,series_Cmax,series_Cmax_D,series_Tlast, series_Clast,series_AUC0_t,series_AUC0_t_D,series_AUCall,series_AUC0_inf,series_AUC0_inf_D,series_AUC_extrap,series_Vz,series_Cl,series_AUMC0_t,series_AUMC0_inf,series_AUMC_extrap, series_MRT0_t, series_MRT0_inf,series_Vss,series_Сmax_dev_AUC0_t], axis= 1) 
+
        df_total_PK_pk.index.name = 'Номер'
 
        #округление количества субъектов до целого
