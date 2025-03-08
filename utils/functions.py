@@ -14,6 +14,86 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 from streamlit_option_menu import option_menu
 
+#основная радиокнопка исследования
+def main_radio_button_study(option):
+    panel = st.radio(
+            "⚙️Панель управления",
+            ("Загрузка файлов", "Таблицы","Графики"),
+            horizontal=True, key= f"Загрузка файлов - {option}"
+        )
+    
+    return panel
+
+#инициализация состояния дозы и времени инфузии
+def initialization_dose_infusion_time_session(option,file_name=None):
+    
+    if file_name is None:
+        if f"dose_{option}" not in st.session_state:
+            st.session_state[f"dose_{option}"] = ""
+
+        if f"infusion_time_{option}" not in st.session_state:
+            st.session_state[f"infusion_time_{option}"] = ""
+    else:
+        if f"dose_{option}_{file_name}" not in st.session_state:
+            st.session_state[f"dose_{option}_{file_name}"] = ""
+
+        if f"infusion_time_{option}_{file_name}" not in st.session_state:
+            st.session_state[f"infusion_time_{option}_{file_name}"] = ""
+
+def settings_additional_research_parameters(option,custom_success):
+
+    #оформительский элемент настройки дополнительных параметров исследования
+    selected = style_icon_setting_additional_parameters()
+
+    if selected == "Настройка дополнительных параметров":
+        type_parameter = st.selectbox('Выберите параметр',
+        ("Вид введения",'Двойные пики'),disabled = False, key = f"Вид параметра - {option}")
+        
+    if f"agree_cmax2 - {option}" not in st.session_state:
+            st.session_state[f"agree_cmax2 - {option}"] = False
+
+    if type_parameter == 'Двойные пики':
+
+        st.session_state[f"agree_cmax2 - {option}"] = st.checkbox('В зависимости "Концентрация-Время" отчетливо наблюдаются двойные пики', key = f"Возможность добавления Cmax2 - {option}", value = st.session_state[f"agree_cmax2 - {option}"])
+        
+        if st.session_state[f"agree_cmax2 - {option}"] == True:
+            custom_success('Параметр добавлен!')
+
+    if f"agree_injection - {option}" not in st.session_state:
+            st.session_state[f"agree_injection - {option}"] = "extravascular"
+
+    if type_parameter == "Вид введения":
+
+        # Проверка наличия значения в сессии, если его нет, устанавливаем значение по умолчанию
+        if f"injection_choice - {option}" not in st.session_state:
+            st.session_state[f"injection_choice - {option}"] = 0  # Значение по умолчанию
+
+        # Радиокнопка для выбора типа введения
+        injection_type = st.radio(
+            "Выберите тип введения:",
+            options=["Внутривенное введение", "Внесосудистое введение", "Инфузионное введение"],
+            index=st.session_state[f"injection_choice - {option}"],
+            key=f"injection_choice_{option}",  # Ключ для сохранения выбора в сессии
+        )
+
+        # Логика для обновления состояния сессии
+        if injection_type == "Внутривенное введение":
+            st.session_state[f"agree_injection - {option}"] = "intravenously"
+            st.session_state[f"injection_choice - {option}"] = 0
+        elif injection_type == "Внесосудистое введение":
+            st.session_state[f"agree_injection - {option}"] = "extravascular"
+            st.session_state[f"injection_choice - {option}"] = 1
+        else:
+            st.session_state[f"agree_injection - {option}"] = "infusion"
+            st.session_state[f"injection_choice - {option}"] = 2
+
+        # Сообщение в зависимости от выбора
+        if st.session_state[f"agree_injection - {option}"] == "intravenously":
+            custom_success("Выбрано: Внутривенное введение!")
+        elif st.session_state[f"agree_injection - {option}"] == "extravascular":
+            custom_success("Выбрано: Внесосудистое введение!")
+        else:
+            custom_success("Выбрано: Инфузионное введение!")
 
 
 #чтобы не добавлять по несколько раз в session_state
@@ -37,29 +117,17 @@ def save_session_state_measure_unit_value(measure_unit_time,measure_unit_concent
     st.session_state[f'measure_unit_{key}_time'] = measure_unit_time
     st.session_state[f'measure_unit_{key}_concentration'] = measure_unit_concentration
     st.session_state[f'measure_unit_{key}_dose'] = measure_unit_dose
-    if key == 'органы' and measure_unit_org_organs is not None:
+    if key == 'Распределение по органам' and measure_unit_org_organs is not None:
        st.session_state[f'measure_unit_{key}_organs'] = measure_unit_org_organs
 
 
 #Инизиализация состояния фреймов с результатами исследований
-def initializing_session_state_frames_research_results():
-    if "df_total_PK_pk" not in st.session_state:
-        st.session_state["df_total_PK_pk"] = None
+def initializing_session_state_frames_research_results(list_key_research):
+    
+    for key_research in list_key_research:
+        if f"df_total_PK_{key_research}" not in st.session_state:
+            st.session_state[f"df_total_PK_{key_research}"] = None
 
-    if 'df_total_PK_org' not in st.session_state:
-        st.session_state['df_total_PK_org'] = None
-
-    if 'df_total_PK_lin' not in st.session_state:
-        st.session_state['df_total_PK_lin'] = None
-
-    if 'df_total_PK_iv' not in st.session_state:
-        st.session_state["df_total_PK_iv"] = None
-
-    if 'df_total_PK_po_sub' not in st.session_state:
-        st.session_state['df_total_PK_po_sub'] = None
-
-    if 'df_total_PK_po_rdf' not in st.session_state:
-        st.session_state['df_total_PK_po_rdf'] = None
 
 def style_icon_setting_additional_parameters():
     selected = option_menu(None, ["Настройка дополнительных параметров"], 

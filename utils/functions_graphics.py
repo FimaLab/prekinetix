@@ -8,6 +8,22 @@ from cycler import cycler
 from matplotlib.ticker import LogLocator, FuncFormatter
 
 #####Общие функции
+
+def remove_first_element(kind_injection, *args):
+    if kind_injection == "extravascular":
+        return args if len(args) > 1 else args[0]
+
+    results = []
+    for obj in args:
+        if isinstance(obj, list):  # Если список
+            results.append(obj[1:] if obj else obj)
+        elif isinstance(obj, pd.DataFrame):  # Если DataFrame
+            results.append(obj.drop(index=obj.index[0]))
+        else:
+            results.append(obj)  # Оставляем неизменённые объекты
+
+    return results if len(results) > 1 else results[0]  # Если один объект, возвращаем без списка
+
 def radio_create_individual_graphics(option,list_keys_file,selected_subject=None,file_name=None):
     
     if selected_subject is not None:
@@ -382,11 +398,11 @@ def axis_settings(axis_name,graph_id,min_value,max_value,major_ticks,minor_ticks
 
 #####частные функции
 
-def checking_file_names_organ_graphs(file_name):
+def checking_file_names_organ_graphs(option,file_name):
     if file_name == "Кровь":
-        measure_unit_org = st.session_state['measure_unit_органы_concentration']
+        measure_unit_org = st.session_state[f'measure_unit_{option}_concentration']
     else:
-        measure_unit_org = st.session_state['measure_unit_органы_organs']
+        measure_unit_org = st.session_state[f'measure_unit_{option}_organs']
     
     return measure_unit_org
 
