@@ -1647,7 +1647,10 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               # добавили эксрополяцию для подсчета AUC
               AUC_0_T=np.trapz(list_C0 + list_concentration,[0] + list_columns_T)
               list_AUC_0_T.append(AUC_0_T)
-              list_AUC_Back_Ext.append(AUC_0_T-np.trapz(list_concentration,list_columns_T))
+              if list_C0[0] == 0:
+                 list_AUC_Back_Ext.append(0)
+              else:
+                 list_AUC_Back_Ext.append(AUC_0_T-np.trapz(list_concentration,list_columns_T))
 
        if method_auc == 'linear-up/log-down':
           for i in range(0,count_row):
@@ -1674,6 +1677,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               
 
               # Вычисление AUC без экстраполяции
+
               AUC_0_T_without_ext = 0
               for i in range(len(list_concentration) - 1):
                   delta_t = list_columns_T[i+1] - list_columns_T[i]
@@ -1719,8 +1723,8 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_AUC_0_T.append(AUC_0_T)
               
               ###AUC_Back_Ext
-
               list_AUC_Back_Ext.append(AUC_0_T-AUC_0_T_without_ext)
+              
        
        ###AUC0-t/D
        list_AUC_0_T_D=[]
