@@ -347,7 +347,44 @@ def visualize_table(list_heading_word,list_table_word):
     #####визуализация
     for heading, df in zip_heading_table:
         st.subheader(heading)
-        st.write(df)
+
+        # Словарь с форматированием для конкретных колонок
+        format_rules = {
+            
+        }
+
+        # Функция округления в стиле Phoenix (3–4 значащие цифры)
+        def phoenix_format(value):
+            try:
+                num = float(value)
+                if num == 0:
+                    return "0"
+                elif abs(num) < 1:
+                    return f"{num:.4g}"  # Маленькие числа → 3-4 значащие цифры
+                elif abs(num) < 1000:
+                    return f"{num:.4g}"  # Средние числа → 4 значащие цифры
+                else:
+                    return f"{num:,.0f}"  # Большие числа → Без научной нотации, с разделителями
+            except (ValueError, TypeError):
+                return value  # Оставляем строки без изменений
+            
+        # Функция, применяющая нужное форматирование к каждой ячейке
+        def safe_format(value, col):
+            if col in format_rules:
+                fmt = format_rules[col]
+                try:
+                    return fmt.format(float(value)) if isinstance(value, (int, float)) or str(value).replace('.', '', 1).isdigit() else value
+                except ValueError:
+                    return value
+            else:
+                return phoenix_format(value)  # Применяем Phoenix-форматирование
+
+        # Применяем функцию к каждой ячейке в колонках
+        # Создаём словарь форматирования для Pandas Styler
+        format_dict = {col: lambda x: safe_format(x, col) for col in df.columns}
+
+        # Отображаем DataFrame с форматированием
+        st.dataframe(df.style.format(format_dict))
 
         # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
         download_excel_button(df, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
