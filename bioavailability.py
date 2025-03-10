@@ -334,7 +334,6 @@ if option == 'Фармакокинетика':
              ###вызов функции визуализации таблиц
              visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
 
-
              with col2:
                   
                   #вызов функции оформлительского элемента сформированный отчет
@@ -1024,7 +1023,7 @@ if option == 'Биодоступность':
 
                      list_parametr_round_mean_h_po_sub= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-                     t_mean_po_sub = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
+                     t_mean_po_sub = str(np.mean(list_PK_Tmax_1_not_round))     
                      list_parametr_round_mean_h_po_sub.insert(1,t_mean_po_sub)
                  else:
                      st.session_state["df_total_PK_po_sub"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
@@ -1248,7 +1247,7 @@ if option == 'Биодоступность':
 
                      list_parametr_round_mean_h_po_rdf= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
 
-                     t_mean_po_rdf = str("%.2f" % round(np.mean(list_PK_Tmax_1_not_round),2))     
+                     t_mean_po_rdf = str(np.mean(list_PK_Tmax_1_not_round))     
                      list_parametr_round_mean_h_po_rdf.insert(1,t_mean_po_rdf)
                     
                  else:
@@ -1292,11 +1291,11 @@ if option == 'Биодоступность':
 
                   #абсолютная биодоступность
 
-                  F_po_sub_iv=round((AUCT_inf_mean_po_sub * float(dose_iv))/(AUCT_inf_mean_iv*float(dose_po_sub))*100,2)
-                  F_po_rdf_iv=round((AUCT_inf_mean_po_rdf * float(dose_iv))/(AUCT_inf_mean_iv*float(dose_po_rdf))*100,2)
+                  F_po_sub_iv=(AUCT_inf_mean_po_sub * float(dose_iv))/(AUCT_inf_mean_iv*float(dose_po_sub))*100
+                  F_po_rdf_iv=(AUCT_inf_mean_po_rdf * float(dose_iv))/(AUCT_inf_mean_iv*float(dose_po_rdf))*100
 
                   #относительная биодоступность
-                  RF_po_sub_rdf=round((AUCT_inf_mean_po_rdf*float(dose_po_sub))/(AUCT_inf_mean_po_sub*float(dose_po_rdf))*100,2)
+                  RF_po_sub_rdf=(AUCT_inf_mean_po_rdf*float(dose_po_sub))/(AUCT_inf_mean_po_sub*float(dose_po_rdf))*100
 
                   df_intravenous_substance = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
                   df_oral_substance = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
@@ -1907,7 +1906,7 @@ if option == 'Распределение по органам':
                 for i in list_aucot_for_ft:
                     ft=i/df_PK_organs_total_transpose["Кровь"].loc['AUC0-t']
                     list_ft.append(ft)
-                    list_ft_round.append("%.2f" % round(ft,2))
+                    list_ft_round.append(ft)
                 list_ft_round.insert(index_blood, "-")
 
                 df_PK_organs_total_transpose.loc[ len(df_PK_organs_total_transpose.index )] = list_ft_round
@@ -1944,7 +1943,7 @@ if option == 'Распределение по органам':
                 series_Kel= df_organs_trans_trans['Kel '+"("+f"{st.session_state[f'measure_unit_{option}_time']}\u207B\u00B9"+")"].tolist()   
                 series_Kel=pd.Series([v for v in series_Kel])
 
-                series_ft= df_organs_trans_trans['fт'].tolist() ##уже округлен
+                series_ft= df_organs_trans_trans['fт'].tolist()
                 series_ft=pd.Series(series_ft)
                 
                 df_total_total_organs = pd.concat([series_Cmax,series_Tmax,series_MRT0_inf,series_half_live,series_AUC0_t,series_AUC0_inf,series_AUMC0_inf,series_Kel,series_ft], axis= 1)
