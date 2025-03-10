@@ -144,7 +144,7 @@ def create_table_descriptive_statistics(df):
     list_gmean_processed = []
     for gmean in list_gmean:
         if gmean is None:
-            list_gmean_processed.append("-")
+            list_gmean_processed.append(None)
         else:
             list_gmean_processed.append(gmean)
 
@@ -152,7 +152,7 @@ def create_table_descriptive_statistics(df):
     list_cv_processed = []
     for cv in list_cv:
         if cv is None:
-            list_cv_processed.append("-")
+            list_cv_processed.append(None)
         else:
             list_cv_processed.append(cv)
 
@@ -249,8 +249,8 @@ def create_table_descriptive_statistics(df):
             i_round = i
             j_round = j
         else:
-            i_round = "-"
-            j_round = "-"
+            i_round = None
+            j_round = None
         list_left_CI.append(i_round)
         list_right_CI.append(j_round)
     
@@ -426,8 +426,8 @@ def rename_parametrs_descriptive_statistics(df_total_PK):
             i_round = i
             j_round = j
         else:
-            i_round = "-"
-            j_round = "-"
+            i_round = None
+            j_round = None
         list_left_CI.append(i_round)
         list_right_CI.append(j_round)
     
@@ -623,15 +623,13 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               count_list_concentration = len(list_after_cmax)
               list_range_for_remove_0 = range(0,count_list_concentration)
 
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
+              ### Обрезка только конечных нулей, а не всех после Cmax для корректной обработки также и нулей в середине
+              while list_after_cmax and list_after_cmax[-1] == 0:
+                  list_after_cmax.pop()
+                  list_after_cmax_t.pop()
 
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              list_concentration = list_before_cmax + list_after_cmax
+              list_columns_T = list_before_cmax_t + list_after_cmax_t
               ######################
 
               AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
@@ -644,62 +642,34 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
-              ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
-              cmax = max(list_concentration)
-              index_cmax = list_concentration.index(cmax)
-              list_before_cmax = list_concentration[0:index_cmax]
-              list_after_cmax = list_concentration[index_cmax:]
-              list_before_cmax_t = list_columns_T[0:index_cmax]
-              list_after_cmax_t = list_columns_T[index_cmax:]
+              
+              # Удаление нулей в конце массива
+              while list_concentration and list_concentration[-1] == 0:
+                  list_concentration.pop()
+                  list_columns_T.pop()
 
-              count_list_concentration = len(list_after_cmax)
-              list_range_for_remove_0 = range(0,count_list_concentration)
-
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
-
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
               ######################
               
-              list_c = list_concentration
-              list_t = list_columns_T
-              
-              count_i = len(list_c)
-              list_range= range(0,count_i)
-              
-              list_AUC_0_T_ascending=[]
-              list_AUC_0_T_descending = []
-              AUC_0_T_ascending=0
-              AUC_0_T_descending = 0
-              a=0
-              a1=0
-              d=0
-              d1=0
-              for i in list_range:
-                  if a1<count_i-1:
-                     if list_c[i+1] > list_c[i]:
-                        if a<count_i-1:
-                            AUC_0_T_ascending += ((list_c[i]+list_c[i+1])*(list_t[i+1]-list_t[i]))/2
-                            a+=1
-                            list_AUC_0_T_ascending.append(AUC_0_T_ascending)
-                  if d1<count_i-1:
-                     if list_c[i+1] < list_c[i]:      
-                        if d<count_i-1:
-                            AUC_0_T_descending+=(list_t[i+1]-list_t[i])/(np.log(np.asarray(list_c[i])/np.asarray(list_c[i+1]))) *(list_c[i]-list_c[i+1])
-                            d+=1
-                            list_AUC_0_T_descending.append(AUC_0_T_descending)
-                     a1+=1
-                     d1+=1
+              # Вычисление AUC
+              AUC_0_T = 0
+              for i in range(len(list_concentration) - 1):
+                  delta_t = list_columns_T[i+1] - list_columns_T[i]
+                  c_current = list_concentration[i]
+                  c_next = list_concentration[i+1]
 
-              AUC_O_T = list_AUC_0_T_ascending[-1]+list_AUC_0_T_descending[-1]
-              
-              
-              list_AUC_0_T.append(AUC_O_T)
+                  if c_next > c_current:
+                      # Линейный метод
+                      AUC_increment = ((c_current + c_next) / 2) * delta_t
+                  elif c_next < c_current and c_next > 0 and c_current > 0:
+                      # Логарифмический метод
+                      AUC_increment = (c_current - c_next) * delta_t / np.log(c_current / c_next)
+                  else:
+                      # Линейный метод для равных или нулевых концентраций
+                      AUC_increment = ((c_current + c_next) / 2) * delta_t
+
+                  AUC_0_T += AUC_increment
+
+              list_AUC_0_T.append(AUC_0_T)
        
        ###AUC0-t/D
        list_AUC_0_T_D=[]
@@ -977,15 +947,13 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               count_list_concentration = len(list_after_cmax)
               list_range_for_remove_0 = range(0,count_list_concentration)
 
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
+              ### Обрезка только конечных нулей, а не всех после Cmax для корректной обработки также и нулей в середине
+              while list_after_cmax and list_after_cmax[-1] == 0:
+                  list_after_cmax.pop()
+                  list_after_cmax_t.pop()
 
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              list_concentration = list_before_cmax + list_after_cmax
+              list_columns_T = list_before_cmax_t + list_after_cmax_t
               ######################
 
               list_C_last.append(list_concentration[-1]) 
@@ -1015,65 +983,38 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
-              ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
-              cmax = max(list_concentration)
-              index_cmax = list_concentration.index(cmax)
-              list_before_cmax = list_concentration[0:index_cmax]
-              list_after_cmax = list_concentration[index_cmax:]
-              list_before_cmax_t = list_columns_T[0:index_cmax]
-              list_after_cmax_t = list_columns_T[index_cmax:]
+             
+              ### Удаление нулей сзади массива
+              while list_concentration and list_concentration[-1] == 0:
+                  list_concentration.pop()
+                  list_columns_T.pop()
 
-              count_list_concentration = len(list_after_cmax)
-              list_range_for_remove_0 = range(0,count_list_concentration)
-
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
-
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
               ######################
-
+              # Запоминание последней концентрации и времени
               list_C_last.append(list_concentration[-1]) 
               list_T_last.append(list_columns_T[-1])
 
-              list_c = list_concentration
-              list_t = list_columns_T
+              ### AUMC расчет
+              AUMC_0_T = 0
+              for i in range(len(list_concentration) - 1):
+                  delta_t = list_columns_T[i+1] - list_columns_T[i]
+                  c_current = list_concentration[i]
+                  c_next = list_concentration[i+1]
 
-              count_i = len(list_c)
-              list_range= range(0,count_i)
+                  if c_next > c_current:
+                      # Линейный метод
+                      AUMC_increment = delta_t * ((c_next * list_columns_T[i+1] + c_current * list_columns_T[i]) / 2)
+                  elif c_next < c_current and c_next > 0 and c_current > 0:
+                      # Логарифмический метод
+                      coeff = delta_t / np.log(c_next / c_current)
+                      AUMC_increment = coeff * ((c_next * list_columns_T[i+1] - c_current * list_columns_T[i]) - coeff * (c_next - c_current))
+                  else:
+                      # Обработка равных или нулевых концентраций
+                      AUMC_increment = delta_t * ((c_next * list_columns_T[i+1] + c_current * list_columns_T[i]) / 2)
 
-              list_AUMC_0_T_ascending=[]
-              list_AUMC_0_T_descending = []
-              AUMC_0_T_ascending=0
-              AUMC_0_T_descending = 0
-              a=0
-              a1=0
-              d=0
-              d1=0
-              for i in list_range:
-                  if a1<count_i-1:
-                      if list_c[i+1] > list_c[i]:
-                          if a<count_i-1:
-                              AUMC_0_T_ascending +=(list_t[i+1] - list_t[i]) *  ((list_c[i+1] * list_t[i+1] + list_c[i] * list_t[i])/2)
-                              a+=1
-                              list_AUMC_0_T_ascending.append(AUMC_0_T_ascending)
-                  if d1<count_i-1:
-                      if list_c[i+1] < list_c[i]:      
-                          if d<count_i-1:
-                              coeff = (list_t[i+1] - list_t[i]) / np.log(np.asarray(list_c[i+1])/np.asarray(list_c[i]))
-                              AUMC_0_T_descending+= coeff * ((list_c[i+1] * list_t[i+1] - list_c[i] * list_t[i]) - coeff * (list_c[i+1] - list_c[i]))
-                              d+=1
-                              list_AUMC_0_T_descending.append(AUMC_0_T_descending)
-                      a1+=1
-                      d1+=1
+                  AUMC_0_T += AUMC_increment
 
-              AUMC_O_T = list_AUMC_0_T_ascending[-1]+list_AUMC_0_T_descending[-1]
-
-              list_AUMC0_t.append(AUMC_O_T)
+              list_AUMC0_t.append(AUMC_0_T)
 
        ########AUMC0-inf конечный подсчет
        list_zip_for_AUMC_inf=list(zip(list_kel_total,list_C_last,list_T_last))
@@ -1622,6 +1563,8 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               else:
                   C0 = list_concentration[0]
                   list_C0.append(C0)
+              
+
 
               ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
               cmax = max(list_concentration)
@@ -1634,15 +1577,16 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               count_list_concentration = len(list_after_cmax)
               list_range_for_remove_0 = range(0,count_list_concentration)
 
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
+              ### Обрезка только конечных нулей, а не всех после Cmax для корректной обработки также и нулей в середине
+              while list_after_cmax and list_after_cmax[-1] == 0:
+                  list_after_cmax.pop()
+                  list_after_cmax_t.pop()
 
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              list_concentration = list_before_cmax + list_after_cmax
+              list_columns_T = list_before_cmax_t + list_after_cmax_t
+
+
+
               ######################
               # добавили эксрополяцию для подсчета AUC
               AUC_0_T=np.trapz(list_C0 + list_concentration,[0] + list_columns_T)
@@ -2014,15 +1958,14 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               count_list_concentration = len(list_after_cmax)
               list_range_for_remove_0 = range(0,count_list_concentration)
 
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
-              
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              ### Обрезка только конечных нулей, а не всех после Cmax для корректной обработки также и нулей в середине
+              while list_after_cmax and list_after_cmax[-1] == 0:
+                  list_after_cmax.pop()
+                  list_after_cmax_t.pop()
+
+              list_concentration = list_before_cmax + list_after_cmax
+              list_columns_T = list_before_cmax_t + list_after_cmax_t
+
               #прибавляем эктрополяцию к начальным данным
               list_concentration.insert(0, list_C0[0])
               list_columns_T.insert(0, 0)
@@ -2638,15 +2581,14 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               count_list_concentration = len(list_after_cmax)
               list_range_for_remove_0 = range(0,count_list_concentration)
 
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
+              ### Обрезка только конечных нулей, а не всех после Cmax для корректной обработки также и нулей в середине
+              while list_after_cmax and list_after_cmax[-1] == 0:
+                  list_after_cmax.pop()
+                  list_after_cmax_t.pop()
 
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              list_concentration = list_before_cmax + list_after_cmax
+              list_columns_T = list_before_cmax_t + list_after_cmax_t
+
               ######################
 
               AUC_0_T=np.trapz(list_concentration,x=list_columns_T)
@@ -2659,62 +2601,32 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
-              ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
-              cmax = max(list_concentration)
-              index_cmax = list_concentration.index(cmax)
-              list_before_cmax = list_concentration[0:index_cmax]
-              list_after_cmax = list_concentration[index_cmax:]
-              list_before_cmax_t = list_columns_T[0:index_cmax]
-              list_after_cmax_t = list_columns_T[index_cmax:]
-
-              count_list_concentration = len(list_after_cmax)
-              list_range_for_remove_0 = range(0,count_list_concentration)
-
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
-
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              # Удаление нулей в конце массива
+              while list_concentration and list_concentration[-1] == 0:
+                  list_concentration.pop()
+                  list_columns_T.pop()
               ######################
               
-              list_c = list_concentration
-              list_t = list_columns_T
-              
-              count_i = len(list_c)
-              list_range= range(0,count_i)
-              
-              list_AUC_0_T_ascending=[]
-              list_AUC_0_T_descending = []
-              AUC_0_T_ascending=0
-              AUC_0_T_descending = 0
-              a=0
-              a1=0
-              d=0
-              d1=0
-              for i in list_range:
-                  if a1<count_i-1:
-                     if list_c[i+1] > list_c[i]:
-                        if a<count_i-1:
-                            AUC_0_T_ascending += ((list_c[i]+list_c[i+1])*(list_t[i+1]-list_t[i]))/2
-                            a+=1
-                            list_AUC_0_T_ascending.append(AUC_0_T_ascending)
-                  if d1<count_i-1:
-                     if list_c[i+1] < list_c[i]:      
-                        if d<count_i-1:
-                            AUC_0_T_descending+=(list_t[i+1]-list_t[i])/(np.log(np.asarray(list_c[i])/np.asarray(list_c[i+1]))) *(list_c[i]-list_c[i+1])
-                            d+=1
-                            list_AUC_0_T_descending.append(AUC_0_T_descending)
-                     a1+=1
-                     d1+=1
+              # Вычисление AUC
+              AUC_0_T = 0
+              for i in range(len(list_concentration) - 1):
+                  delta_t = list_columns_T[i+1] - list_columns_T[i]
+                  c_current = list_concentration[i]
+                  c_next = list_concentration[i+1]
 
-              AUC_O_T = list_AUC_0_T_ascending[-1]+list_AUC_0_T_descending[-1]
-              
-              
-              list_AUC_0_T.append(AUC_O_T)
+                  if c_next > c_current:
+                      # Линейный метод
+                      AUC_increment = ((c_current + c_next) / 2) * delta_t
+                  elif c_next < c_current and c_next > 0 and c_current > 0:
+                      # Логарифмический метод
+                      AUC_increment = (c_current - c_next) * delta_t / np.log(c_current / c_next)
+                  else:
+                      # Линейный метод для равных или нулевых концентраций
+                      AUC_increment = ((c_current + c_next) / 2) * delta_t
+
+                  AUC_0_T += AUC_increment
+
+              list_AUC_0_T.append(AUC_0_T)
 
        ###AUC0-t/D
        list_AUC_0_T_D=[]
@@ -2980,15 +2892,13 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               count_list_concentration = len(list_after_cmax)
               list_range_for_remove_0 = range(0,count_list_concentration)
 
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
+              ### Обрезка только конечных нулей, а не всех после Cmax для корректной обработки также и нулей в середине
+              while list_after_cmax and list_after_cmax[-1] == 0:
+                  list_after_cmax.pop()
+                  list_after_cmax_t.pop()
 
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              list_concentration = list_before_cmax + list_after_cmax
+              list_columns_T = list_before_cmax_t + list_after_cmax_t
               ######################
 
               list_C_last.append(list_concentration[-1]) 
@@ -3018,65 +2928,36 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
                   list_columns_T.append(float(column))
               list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
-              ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
-              cmax = max(list_concentration)
-              index_cmax = list_concentration.index(cmax)
-              list_before_cmax = list_concentration[0:index_cmax]
-              list_after_cmax = list_concentration[index_cmax:]
-              list_before_cmax_t = list_columns_T[0:index_cmax]
-              list_after_cmax_t = list_columns_T[index_cmax:]
-
-              count_list_concentration = len(list_after_cmax)
-              list_range_for_remove_0 = range(0,count_list_concentration)
-
-              list_conc_without_0=[]
-              list_t_without_0=[]
-              for i in list_range_for_remove_0:
-                  if list_after_cmax[i] !=0:
-                     list_conc_without_0.append(list_after_cmax[i])
-                     list_t_without_0.append(list_after_cmax_t[i])
-
-              list_concentration = list_before_cmax + list_conc_without_0
-              list_columns_T = list_before_cmax_t + list_t_without_0
+              ### Удаление нулей сзади массива
+              while list_concentration and list_concentration[-1] == 0:
+                  list_concentration.pop()
+                  list_columns_T.pop()
               ######################
 
               list_C_last.append(list_concentration[-1]) 
               list_T_last.append(list_columns_T[-1])
 
-              list_c = list_concentration
-              list_t = list_columns_T
+              ### AUMC расчет
+              AUMC_0_T = 0
+              for i in range(len(list_concentration) - 1):
+                  delta_t = list_columns_T[i+1] - list_columns_T[i]
+                  c_current = list_concentration[i]
+                  c_next = list_concentration[i+1]
 
-              count_i = len(list_c)
-              list_range= range(0,count_i)
+                  if c_next > c_current:
+                      # Линейный метод
+                      AUMC_increment = delta_t * ((c_next * list_columns_T[i+1] + c_current * list_columns_T[i]) / 2)
+                  elif c_next < c_current and c_next > 0 and c_current > 0:
+                      # Логарифмический метод
+                      coeff = delta_t / np.log(c_next / c_current)
+                      AUMC_increment = coeff * ((c_next * list_columns_T[i+1] - c_current * list_columns_T[i]) - coeff * (c_next - c_current))
+                  else:
+                      # Обработка равных или нулевых концентраций
+                      AUMC_increment = delta_t * ((c_next * list_columns_T[i+1] + c_current * list_columns_T[i]) / 2)
 
-              list_AUMC_0_T_ascending=[]
-              list_AUMC_0_T_descending = []
-              AUMC_0_T_ascending=0
-              AUMC_0_T_descending = 0
-              a=0
-              a1=0
-              d=0
-              d1=0
-              for i in list_range:
-                  if a1<count_i-1:
-                      if list_c[i+1] > list_c[i]:
-                          if a<count_i-1:
-                              AUMC_0_T_ascending +=(list_t[i+1] - list_t[i]) *  ((list_c[i+1] * list_t[i+1] + list_c[i] * list_t[i])/2)
-                              a+=1
-                              list_AUMC_0_T_ascending.append(AUMC_0_T_ascending)
-                  if d1<count_i-1:
-                      if list_c[i+1] < list_c[i]:      
-                          if d<count_i-1:
-                              coeff = (list_t[i+1] - list_t[i]) / np.log(np.asarray(list_c[i+1])/np.asarray(list_c[i]))
-                              AUMC_0_T_descending+= coeff * ((list_c[i+1] * list_t[i+1] - list_c[i] * list_t[i]) - coeff * (list_c[i+1] - list_c[i]))
-                              d+=1
-                              list_AUMC_0_T_descending.append(AUMC_0_T_descending)
-                      a1+=1
-                      d1+=1
+                  AUMC_0_T += AUMC_increment
 
-              AUMC_O_T = list_AUMC_0_T_ascending[-1]+list_AUMC_0_T_descending[-1]
-
-              list_AUMC0_t.append(AUMC_O_T)
+              list_AUMC0_t.append(AUMC_0_T)
 
        ########AUMC0-inf конечный подсчет
        list_zip_for_AUMC_inf=list(zip(list_kel_total,list_C_last,list_T_last))
