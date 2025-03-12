@@ -81,9 +81,9 @@ if option == 'Фармакокинетика':
                 #настройки дополнительных параметров исследования
                 settings_additional_research_parameters(option,custom_success)
            
-           measure_unit_pk_time  = select_time_unit(f"{option}")
-           measure_unit_pk_concentration  = select_concentration_unit(f"{option}")
-           measure_unit_pk_dose  = select_dose_unit(f"{option}")
+           measure_unit_pk_time  = select_time_unit(f"select_time_unit{option}")
+           measure_unit_pk_concentration  = select_concentration_unit(f"select_concentration_unit{option}")
+           measure_unit_pk_dose  = select_dose_unit(f"select_dose_unit{option}")
            #сохранение состояния выбора единиц измерения для данного исследования
            save_session_state_measure_unit_value(measure_unit_pk_time,measure_unit_pk_concentration,f"{option}",measure_unit_pk_dose) 
 
@@ -432,967 +432,548 @@ if option == 'Фармакокинетика':
 ######################################################################################################################################
 
 if option == 'Биодоступность':
-    
-    st.header('Изучение абсолютной и относительной биодоступности препарата')
+   
+    st.header('Исследование биодоступности')
 
     col1, col2 = st.columns([0.66, 0.34])
     
     ####### основной экран
     with col1:
         
-        panel = st.radio(
-            "⚙️Панель управления",
-            ("Загрузка файлов", "Таблицы","Графики"),
-            horizontal=True, key= "Загрузка файлов - Изучение абсолютной и относительной биодоступности препарата"
-        )
-        
-        ###инициация состояния
-        if 'first_download_bioavailability_files' not in st.session_state:
-           st.session_state['first_download_bioavailability_files'] = True
+        panel = main_radio_button_study(option)
 
-        ###создание состояния
-        if 'uploaded_file_1' not in st.session_state:
-           st.session_state['uploaded_file_1'] = None
-        if 'uploaded_file_2' not in st.session_state:   
-           st.session_state['uploaded_file_2'] = None
-        if 'uploaded_file_3' not in st.session_state:   
-           st.session_state['uploaded_file_3'] = None
+        #cписки для word-отчета
+        list_heading_word=[]
+        list_table_word=[]
+        list_graphics_word=[]
+        list_heading_graphics_word=[]
+        initializing_session_lists_tables_graphics(option,list_heading_word,list_table_word,list_graphics_word,list_heading_graphics_word)
 
-        ###создание состояния
-        if "dose_iv" not in st.session_state:
-           st.session_state["dose_iv"] = None
-        if "dose_po_sub" not in st.session_state:   
-           st.session_state["dose_po_sub"] = None
-        if "dose_po_rdf" not in st.session_state:   
-           st.session_state["dose_po_rdf"] = None
+        if f"selected_edges_{option}" not in st.session_state:
+           st.session_state[f"selected_edges_{option}"] = []
 
         if panel == "Загрузка файлов":
-           
-           ######### боковое меню справа
-           with col2:
-                 
-                 #оформительский элемент настройки дополнительных параметров исследования
-                 selected = style_icon_setting_additional_parameters()
-
-                 if selected == "Настройка дополнительных параметров":
-                    type_parameter = st.selectbox('Выберите параметр',
-                    (['Двойные пики']),disabled = False, key = "Вид параметра - ИБ")
-                    
-                 
-                 if "agree_cmax2 - ИБ" not in st.session_state:
-                       st.session_state["agree_cmax2 - ИБ"] = False
-                 
-                 if "agree_cmax2 - ИБ_iv" not in st.session_state:
-                       st.session_state["agree_cmax2 - ИБ_iv"] = False
-
-                 if "agree_cmax2 - ИБ_po_sub" not in st.session_state:
-                       st.session_state["agree_cmax2 - ИБ_po_sub"] = False
-
-                 if "agree_cmax2 - ИБ_po_rdf" not in st.session_state:
-                       st.session_state["agree_cmax2 - ИБ_po_rdf"] = False
-
-                 if type_parameter == 'Двойные пики':
-                    
-                    st.session_state["agree_cmax2 - ИБ"] = st.checkbox('В зависимости "Концентрация-Время" отчетливо наблюдаются двойные пики', key = "Возможность добавления Cmax2 - ИБ", value = st.session_state["agree_cmax2 - ИБ"])
-                    
-                    if st.session_state["agree_cmax2 - ИБ"] == True:
-                       st.session_state["agree_cmax2 - ИБ_iv"] = True
-                       st.session_state["agree_cmax2 - ИБ_po_sub"] = True
-                       st.session_state["agree_cmax2 - ИБ_po_rdf"] = True
-                       custom_success('Параметр добавлен!')
-
-           measure_unit_rb_time  = select_time_unit("ИБ")
-           measure_unit_rb_concentration = select_concentration_unit("ИБ")
-           measure_unit_rb_dose  = select_dose_unit("ИБ")
-           #сохранение состояния выбора единиц измерения для данного исследования
-           save_session_state_measure_unit_value(measure_unit_rb_time,measure_unit_rb_concentration,"ИБ",measure_unit_rb_dose)
 
            #cостояние радио-кнопки "method_auc"
-           if "index_method_auc - ИБ" not in st.session_state:
-               st.session_state["index_method_auc - ИБ"] = 0
+           if f"index_method_auc - {option}" not in st.session_state:
+               st.session_state[f"index_method_auc - {option}"] = 0
 
-           method_auc = st.radio("📈 Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = "Метод подсчёта AUC и AUMC - ИБ", index = st.session_state["index_method_auc - ИБ"])
+           method_auc = st.radio("📈 Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
            
-           if st.session_state["Метод подсчёта AUC и AUMC - ИБ"] == 'linear':
-              st.session_state["index_method_auc - ИБ"] = 0
-           if st.session_state["Метод подсчёта AUC и AUMC - ИБ"] == "linear-up/log-down":
-              st.session_state["index_method_auc - ИБ"] = 1
-           
-           #загрузка файлов
-           st.subheader('Внутривенное введение ЛС')
-           uploaded_file_1 = st.file_uploader("Выбрать файл внутривенного введения ЛС (формат XLSX)", key='Файл внутривенного введения при изучении абсолютной и относительной биодоступности препарата')
-           
-           #сохранение файла
-           if uploaded_file_1 is not None:
-              save_uploadedfile(uploaded_file_1)
-              st.session_state["uploaded_file_1"] = uploaded_file_1.name
-           
-           if st.session_state['uploaded_file_1'] is not None: 
-              custom_success(f"Файл загружен: {st.session_state['uploaded_file_1']}")
+           if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == 'linear':
+              st.session_state[f"index_method_auc - {option}"] = 0
+           if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == "linear-up/log-down":
+              st.session_state[f"index_method_auc - {option}"] = 1
 
-           dose_iv = st.text_input("Доза при внутривенном введении", key='Доза при внутривенном введении при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_iv"])
+           custom_alert("Выберите нужное количество файлов")
+           file_uploader = st.file_uploader("",accept_multiple_files=True, key=f'Файлы при исследовании {option}')
+           
+           if 'list_files_name_bioavailability' not in st.session_state:
+             st.session_state['list_files_name_bioavailability'] = []
+
+           ###сохранение файла
+           list_files_name_bioavailability = []
+           if file_uploader is not None:
+              for i in file_uploader:
+                  save_uploadedfile(i)
+                  st.session_state[str(i.name)] = i.name
+                  list_files_name_bioavailability.append(i.name)
+           
+           st.session_state['list_files_name_bioavailability'] = list_files_name_bioavailability
+           
+           if st.session_state['list_files_name_bioavailability'] != []: 
+                custom_success(f"Файлы загружены: {', '.join(st.session_state['list_files_name_bioavailability'])}")
+           
+           list_keys_file_bioavailability = []
+           for i in st.session_state.keys():
+               if i.__contains__("xlsx") and (i.__contains__("Внутривенное") or i.__contains__("Внесосудистое") or i.__contains__("Инфузионное")) and (not i.__contains__("edited_df")) and (not i.__contains__("select")) and ((not i.__contains__("del"))): ###слово био нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
+                  list_keys_file_bioavailability.append(i)
+           
+           ###создание виджетов дозы и времени введения при инфузии
+
+           if list_keys_file_bioavailability != []:
               
-           st.session_state["dose_iv"] = dose_iv
-           
-           st.subheader('Пероральное введение ЛС')
+              list_keys_file_bioavailability_name = []
+              for i in list_keys_file_bioavailability:
+                  if "." in i[-5:]: 
+                     list_keys_file_bioavailability_name.append(i[:-5])
 
-           uploaded_file_2 = st.file_uploader("Выбрать файл перорального введения ЛС (формат XLSX)", key='Файл перорального введения ЛС при изучении абсолютной и относительной биодоступности препарата')
-           
-           #сохранение файла
-           if uploaded_file_2 is not None:
-              save_uploadedfile(uploaded_file_2)
-              st.session_state["uploaded_file_2"] = uploaded_file_2.name
-           
-           if st.session_state['uploaded_file_2'] is not None: 
-              custom_success(f"Файл загружен: {st.session_state['uploaded_file_2']}")
-
-           dose_po_sub = st.text_input("Доза при пероральном введении ЛС", key='Доза при пероральном введении ЛС при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_po_sub"])  
-
-           st.session_state["dose_po_sub"] = dose_po_sub
-
-           st.subheader('Пероральное введение ГЛФ')
-
-           uploaded_file_3 = st.file_uploader("Выбрать файл перорального введения ГЛФ (формат XLSX)", key='Файл перорального введения ГЛФ при изучении абсолютной и относительной биодоступности препарата')
-           
-           #сохранение файла
-           if uploaded_file_3 is not None:
-              save_uploadedfile(uploaded_file_3)
-              st.session_state["uploaded_file_3"] = uploaded_file_3.name
-           
-           if st.session_state['uploaded_file_3'] is not None: 
-              custom_success(f"Файл загружен: {st.session_state['uploaded_file_3']}")
-           
-           dose_po_rdf = st.text_input("Доза при пероральном введении ГЛФ", key='Доза при пероральном введении ГЛФ при изучении абсолютной и относительной биодоступности препарата', value = st.session_state["dose_po_rdf"])
-           st.session_state["dose_po_rdf"] = dose_po_rdf
-
-           if st.session_state['uploaded_file_1'] is not None and st.session_state["dose_iv"] is not None and st.session_state["uploaded_file_2"] is not None and st.session_state["dose_po_sub"] is not None and st.session_state["uploaded_file_3"] is not None and st.session_state["dose_po_rdf"] is not None:
-
-              #cписки для word-отчета
-              list_heading_word=[]
-              list_table_word=[]
-              list_graphics_word=[]
-              list_heading_graphics_word=[]
-
-              if st.session_state['first_download_bioavailability_files'] == True:
-                 initializing_session_lists_tables_graphics(option,list_heading_word,list_table_word,list_graphics_word,list_heading_graphics_word)
-                 st.session_state['first_download_bioavailability_files'] = False
+              list_keys_file_bioavailability = [f"{str(name)}" for name in list_keys_file_bioavailability_name]
               
-              if "uploaded_file_1" in st.session_state and dose_iv:
-                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
-                 st.subheader('Индивидуальные значения концентраций в крови после внутривенного введения ЛС')
-                 
-                 ###интерактивная таблица
-                 df = edit_frame(df,st.session_state["uploaded_file_1"])
-              
-                 ###количество животных 
-                 count_rows_number_iv= len(df.axes[0])
-                
-                 ################
 
-                 table_heading='Индивидуальные и усредненные значения концентраций в крови после внутривенного введения ЛС'
+              for file_name in list_keys_file_bioavailability:
 
-                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                 
-                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+                   with col2:
+                        with st.container():
 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
+                             st.markdown(
+                                 """
+                                 <div style="
+                                     border: 2px solid #1f3b57; /* Толщина и цвет границы */
+                                     padding: 10px; /* Внутренний отступ */
+                                     border-radius: 10px; /* Скругление углов */
+                                     background-color: #f9f9f9; /* Цвет фона */
+                                 ">
+                                 </div>
+                                 """,
+                                 unsafe_allow_html=True
+                             )
 
-              ########### графики    
+                             #настройки дополнительных параметров исследования
+                             settings_additional_research_parameters(f"{option}_{file_name}",custom_success,f"{option}_{file_name}",file_name)
 
-              ######индивидуальные    
+                             measure_unit_bioavailability_time = select_time_unit(f"select_time_unit{option}_{file_name}",f"select_time_unit{option}_{file_name}")
+                             measure_unit_bioavailability_concentration = select_concentration_unit(f"select_concentration_unit{option}_{file_name}",f"select_time_unit{option}_{file_name}")
+                             measure_unit_dose_bioavailability = select_dose_unit(f"select_dose_unit{option}_{file_name}",f"select_time_unit{option}_{file_name}")
+                             #сохранение состояния выбора единиц измерения для данного исследования
+                             save_session_state_measure_unit_value(measure_unit_bioavailability_time,measure_unit_bioavailability_concentration,f"{option}_{file_name}",measure_unit_dose_bioavailability)
+                             
+                             if st.session_state[f"agree_injection - {option}_{file_name}"] == "intravenously":
+                                # Инициализация состояния
+                                if f"extrapolate_first_points_{option}_{file_name}" not in st.session_state:
+                                    st.session_state[f"extrapolate_first_points_{option}_{file_name}"] = False
 
-                 # в линейных координатах
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
+                                # Интерфейс чекбокса
+                                extrapolate_first_points = st.checkbox(
+                                    "Экстраполяция для первых точек",
+                                    value=st.session_state[f"extrapolate_first_points_{option}_{file_name}"],
+                                    key = "key" + f"extrapolate_first_points_{option}_{file_name}"
+                                )
 
-                 count_row_df = len(df.axes[0])
+                                st.session_state[f"extrapolate_first_points_{option}_{file_name}"] = extrapolate_first_points
 
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
+                             initialization_dose_infusion_time_session(option,file_name)
 
-                 list_number_animal = []
-
-                 for r in range(0,count_row_df):
-
-                     list_concentration=df.iloc[r].tolist()
-
-                     numer_animal=list_concentration[0]
-
-                     list_number_animal.append(numer_animal)
-
-                     list_concentration.pop(0) #удаление номера животного
-
-                     list_concentration = [float(v) for v in list_concentration]
-
-                     #переобъявляем переменную названия графика
-                     graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения ЛС,  '+numer_animal
-                     graph_id = graphic
-                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+                             dose = st.text_input(f"Доза препарата для набора данных {file_name}", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
                      
-                     first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_ИБ_time'],
-                                                               st.session_state['measure_unit_ИБ_concentration'],"lin",add_or_replace_df_graph, 
-                                                               (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-                     
-                     #в полулогарифмических координатах
-                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
+                             st.session_state[f"dose_{option}_{file_name}"] = dose
 
-                     graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения ЛС,  '+numer_animal
-                     graph_id = graphic
-                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                     
-                     first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_ИБ_time'],
-                                                               st.session_state['measure_unit_ИБ_concentration'],"log",add_or_replace_df_graph, 
-                                                               (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
-                 
-                 st.session_state[f'list_number_animal_{option}_после внутривенного введения ЛС'] = list_number_animal
-              # объединенные индивидуальные в линейных координатах
-
-                 df_for_plot_conc=df.drop(['Номер'], axis=1)
-                 df_for_plot_conc_1 = df_for_plot_conc.transpose()
-
-                 list_numer_animal_for_plot=df['Номер'].tolist()
-                 count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-
-                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
-                 
-                 graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после внутривенного введения ЛС"
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],
-                                                                  st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,
-                                                                  'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
-
-                 # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
-                 df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
-
-                 
-                 graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения ЛС"
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],
-                                                                  st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,
-                                                                  'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
-
-                  ###усредненные    
-              # в линейных координатах
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-
-                 df_averaged_concentrations=df.describe()
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                 err_y_1=df_averaged_concentrations.loc['std'].tolist()
-
-                 graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после внутривенного введения ЛС'
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                 
-                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],'lin',
-                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-
-                 #в полулогарифмических координатах
-                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
-
-                 graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после внутривенного введения ЛС'
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                  
-                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],'log',
-                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-
-                 ############ Параметры ФК
-
-                 result_PK = pk_parametrs_total_intravenously(df,"ИБ_iv",method_auc,dose_iv,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
-
-                 if result_PK is not None:
-                     if st.session_state["agree_cmax2 - ИБ"] == False:
-                        df_total_PK_iv = result_PK["df_total_PK"]
-                        df_PK = result_PK["df_PK"]
-                        df_concat_PK_iv = result_PK["df_concat_PK"]
-                        list_cmax_1_iv = result_PK["list_cmax_1"]
-                     if st.session_state["agree_cmax2 - ИБ"] == True:
-                        df_total_PK_iv = result_PK["df_total_PK"]
-                        df_PK = result_PK["df_PK"]
-                        df_concat_PK_iv = result_PK["df_concat_PK"]
-                        df_total_PK_additional_double_peaks_iv = result_PK["df_total_PK_additional_double_peaks"]
-                        list_cmax_1_iv = result_PK["list_cmax_1"]
-                        list_cmax_2_iv = result_PK["list_cmax_2"]
-                     
-                     st.session_state["df_total_PK_iv"] = df_total_PK_iv
-
-                     table_heading='Фармакокинетические показатели в крови после внутривенного введения ЛС'
-                     add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                     
-                     add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_iv)
-
-                     if st.session_state["agree_cmax2 - ИБ"] == True:
-                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
-                        add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                        
-                        add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_iv)
-
-                     ####получение интервала для средних ФК параметров
-                     list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
-                     list_PK_Tmax_1_not_round = df_PK['Tmax'].tolist() 
-                     list_PK_MRT0_inf_not_round = df_PK['MRT0→∞'].tolist() 
-                     list_PK_half_live_not_round = df_PK['T1/2'].tolist() 
-                     list_PK_AUC0_t_not_round = df_PK['AUC0-t'].tolist()
-                     list_PK_AUC0_inf_not_round = df_PK['AUC0→∞'].tolist()
-                     list_PK_AUMC0_inf_not_round = df_PK['AUMC0-∞'].tolist()
-                     list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
-                     list_PK_Kel_not_round = df_PK['Kel'].tolist()
-
-                     list_list_PK_parametr_iv=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
-                     list_parametr_mean_h_iv=[]
-                     for i in list_list_PK_parametr_iv:
-                          n=len(i)
-
-                          def confidential_interval(i):
-                              if n < 30:
-                                 h = statistics.stdev(i)
-                                 mean = np.mean(i)
-                              else:
-                                 h = statistics.stdev(i)  ### прояснить момент с n-1
-                                 mean = np.mean(i)
-                              return ([mean,h]) 
-                          func_mean_h = confidential_interval(i)
-
-                          list_parametr_mean_h_iv.append(func_mean_h)
-
-                     list_mean_h_iv_Cmax_round=[v for v in list_parametr_mean_h_iv[0]]
-                     parametr_round_mean_h_Cmax=str(list_mean_h_iv_Cmax_round[0]) +"±"+str(list_mean_h_iv_Cmax_round[1])
-
-                     list_mean_h_iv_AUC0_t_round=[v for v in list_parametr_mean_h_iv[1]] 
-                     parametr_round_mean_h_AUC0_t=str(list_mean_h_iv_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_AUC0_t_round[1]) 
-
-                     list_mean_h_iv_Kel_round=[v for v in list_parametr_mean_h_iv[2]]
-                     parametr_round_mean_h_Kel=str(list_mean_h_iv_Kel_round[0]) +"±"+str(list_mean_h_iv_Kel_round[1])
-
-                     list_mean_h_iv_AUC0_inf_round= [v for v in list_parametr_mean_h_iv[3]]
-                     parametr_round_mean_h_AUC0_inf=str(list_mean_h_iv_AUC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUC0_inf_round[1]) 
-
-                     list_mean_h_iv_half_live_round=[v for v in list_parametr_mean_h_iv[4]]
-                     parametr_round_mean_h_half_live=str(list_mean_h_iv_half_live_round[0]) +"±"+str(list_mean_h_iv_half_live_round[1])
-
-                     list_mean_h_iv_AUMC0_inf_round=[v for v in list_parametr_mean_h_iv[5]] 
-                     parametr_round_mean_h_AUMC0_inf=str(list_mean_h_iv_AUMC0_inf_round[0]) +"±"+str(list_mean_h_iv_AUMC0_inf_round[1]) 
-
-                     list_mean_h_iv_MRT0_inf_round=[v for v in list_parametr_mean_h_iv[6]]
-                     parametr_round_mean_h_MRT0_inf=str(list_mean_h_iv_MRT0_inf_round[0]) +"±"+str(list_mean_h_iv_MRT0_inf_round[1])
-
-                     list_mean_h_iv_Сmax_dev_AUC0_t_round=[v for v in list_parametr_mean_h_iv[7]]
-                     parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_iv_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_iv_Сmax_dev_AUC0_t_round[1])
-
-                     list_parametr_round_mean_h_iv= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
-
-                     t_mean_iv = str(round_to_significant_figures(np.mean(list_PK_Tmax_1_not_round), 4))     
-                     list_parametr_round_mean_h_iv.insert(1,t_mean_iv)
-
-                 else:
-                     st.session_state["df_total_PK_iv"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                     st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
-            
-              ############################################################################################################### 
-              
-              if "uploaded_file_2" in st.session_state and dose_po_sub:
-
-                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
-                 st.subheader('Индивидуальные значения концентраций в крови после перорального введения ЛС')
-                 
-                 ###интерактивная таблица
-                 df = edit_frame(df,st.session_state["uploaded_file_2"])
-
-                 ###количество животных 
-                 count_rows_number_sub= len(df.axes[0])
+                             if st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion":
+                                  
+                                  infusion_time = st.text_input(f"Время введения инфузии для набора данных {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"])
+                                  st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
            
-                 table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения ЛС'
-                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-
-                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
-
-                 ########### графики    
-                 ######индивидуальные    
-
-                 # в линейных координатах
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 count_row_df = len(df.axes[0])
-
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-
-                 list_number_animal = []
-                 for r in range(0,count_row_df):
-
-                     list_concentration=df.iloc[r].tolist()
-
-                     numer_animal=list_concentration[0]
-
-                     list_number_animal.append(numer_animal)
-
-                     list_concentration.pop(0) #удаление номера животного
-
-                     list_concentration = [float(v) for v in list_concentration]
-
-                     graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения ЛС,  '+numer_animal
-                     graph_id = graphic
-                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                     
-                     first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_ИБ_time'],
-                                                               st.session_state['measure_unit_ИБ_concentration'],"lin",add_or_replace_df_graph, 
-                                                               (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))  
-
-                     #в полулогарифмических координатах
-                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
-
-                     graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ЛС,  '+numer_animal
-                     graph_id = graphic
-                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                     
-                     first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_ИБ_time'],
-                                                               st.session_state['measure_unit_ИБ_concentration'],"log",add_or_replace_df_graph, 
-                                                               (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-                 
-                 st.session_state[f'list_number_animal_{option}_после перорального введения ЛС'] = list_number_animal
-                 # объединенные индивидуальные в линейных координатах
-
-                 df_for_plot_conc=df.drop(['Номер'], axis=1)
-                 df_for_plot_conc_1 = df_for_plot_conc.transpose()
-                 list_numer_animal_for_plot=df['Номер'].tolist()
-                 count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-
-                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
-
-                 graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после перорального введения ЛС"
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],
-                                                                  st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,
-                                                                  'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-
-                 # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
-                 df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
-
-                 graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения ЛС"
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],
-                                                                  st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,
-                                                                  'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
- 
-                ### усреденные    
-                #в линейных    
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-
-                 df_averaged_concentrations=df.describe()
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                 err_y_2=df_averaged_concentrations.loc['std'].tolist()
-
-                 graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения ЛС'
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],'lin',
-                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))   
-
-                 #в полулогарифмических координатах
-                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
-
-                 graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ЛС'
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
-                  
-                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_2,st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],'log',
-                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))  
-
-                 ############ Параметры ФК
-
-                 result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_sub",method_auc,dose_po_sub,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
-
-                 if result_PK is not None:
-                     if st.session_state["agree_cmax2 - ИБ"] == False:
-                        df_total_PK_po_sub = result_PK["df_total_PK"]
-                        df_PK = result_PK["df_PK"]
-                        df_concat_PK_po_sub = result_PK["df_concat_PK"]
-                        list_cmax_1_sub = result_PK["list_cmax_1"]
-                     if st.session_state["agree_cmax2 - ИБ"] == True:
-                        df_total_PK_po_sub = result_PK["df_total_PK"]
-                        df_PK = result_PK["df_PK"]
-                        df_concat_PK_po_sub = result_PK["df_concat_PK"]
-                        df_total_PK_additional_double_peaks_po_sub = result_PK["df_total_PK_additional_double_peaks"]
-                        list_cmax_1_sub = result_PK["list_cmax_1"]
-                        list_cmax_2_sub = result_PK["list_cmax_2"]
-                     
-                     st.session_state["df_total_PK_po_sub"] = df_total_PK_po_sub
-
-                     table_heading='Фармакокинетические показатели в крови после перорального введения ЛС'
-                     add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                     
-                     add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_po_sub)
-
-                     if st.session_state["agree_cmax2 - ИБ"] == True:
-                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
-                        add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                        
-                        add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_po_sub)
-
-                     ####получение интервала для средних ФК параметров
-                     list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
-                     list_PK_Tmax_1_not_round = df_PK['Tmax'].tolist() 
-                     list_PK_MRT0_inf_not_round = df_PK['MRT0→∞'].tolist() 
-                     list_PK_half_live_not_round = df_PK['T1/2'].tolist() 
-                     list_PK_AUC0_t_not_round = df_PK['AUC0-t'].tolist()
-                     list_PK_AUC0_inf_not_round = df_PK['AUC0→∞'].tolist()
-                     list_PK_AUMC0_inf_not_round = df_PK['AUMC0-∞'].tolist()
-                     list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
-                     list_PK_Kel_not_round = df_PK['Kel'].tolist()
-
-                     list_list_PK_parametr_po_sub=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
-                     list_parametr_mean_h_po_sub=[]
-                     for i in list_list_PK_parametr_po_sub:
-                          n=len(i)
-
-                          def confidential_interval(i):
-                              if n < 30:
-                                 h = statistics.stdev(i)
-                                 mean = np.mean(i)
-                              else:
-                                 h = statistics.stdev(i)  ### прояснить момент с n-1
-                                 mean = np.mean(i)
-                              return ([mean,h]) 
-                          func_mean_h = confidential_interval(i)
-
-                          list_parametr_mean_h_po_sub.append(func_mean_h)
-
-                     list_mean_h_po_sub_Cmax_round=[v for v in list_parametr_mean_h_po_sub[0]]
-                     parametr_round_mean_h_Cmax=str(list_mean_h_po_sub_Cmax_round[0]) +"±"+str(list_mean_h_po_sub_Cmax_round[1])
-
-                     list_mean_h_po_sub_AUC0_t_round=[v for v in list_parametr_mean_h_po_sub[1]] 
-                     parametr_round_mean_h_AUC0_t=str(list_mean_h_po_sub_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_t_round[1]) 
-
-                     list_mean_h_po_sub_Kel_round=[v for v in list_parametr_mean_h_po_sub[2]]
-                     parametr_round_mean_h_Kel=str(list_mean_h_po_sub_Kel_round[0]) +"±"+str(list_mean_h_po_sub_Kel_round[1])
-
-                     list_mean_h_po_sub_AUC0_inf_round= [v for v in list_parametr_mean_h_po_sub[3]]
-                     parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_sub_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUC0_inf_round[1]) 
-
-                     list_mean_h_po_sub_half_live_round=[v for v in list_parametr_mean_h_po_sub[4]]
-                     parametr_round_mean_h_half_live=str(list_mean_h_po_sub_half_live_round[0]) +"±"+str(list_mean_h_po_sub_half_live_round[1])
-
-                     list_mean_h_po_sub_AUMC0_inf_round=[v for v in list_parametr_mean_h_po_sub[5]] 
-                     parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_sub_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_sub_AUMC0_inf_round[1]) 
-
-                     list_mean_h_po_sub_MRT0_inf_round=[v for v in list_parametr_mean_h_po_sub[6]]
-                     parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_sub_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_sub_MRT0_inf_round[1])
-
-                     list_mean_h_po_sub_Сmax_dev_AUC0_t_round=[v for v in list_parametr_mean_h_po_sub[7]]
-                     parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_sub_Сmax_dev_AUC0_t_round[1])
-
-                     list_parametr_round_mean_h_po_sub= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
-
-                     t_mean_po_sub = str(np.mean(list_PK_Tmax_1_not_round))     
-                     list_parametr_round_mean_h_po_sub.insert(1,t_mean_po_sub)
-                 else:
-                     st.session_state["df_total_PK_po_sub"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                     st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
-
-              ##############################################################################################################
-
-              if "uploaded_file_3" in st.session_state and dose_po_rdf:
-
-                 df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_3"]))
-                 st.subheader('Индивидуальные значения концентраций в крови после перорального введения ГЛФ')
-                 
-                 ###интерактивная таблица
-                 df = edit_frame(df,st.session_state["uploaded_file_3"])
-
-                 ###количество животных 
-                 count_rows_number_rdf= len(df.axes[0])
+           if ((list_keys_file_bioavailability != []) and st.session_state[f"dose_{option}_{file_name}"] != "" and (st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "")):
+                start = True
+           elif ((list_keys_file_bioavailability != []) and st.session_state[f"dose_{option}_{file_name}"] != "" and (st.session_state[f"agree_injection - {option}_{file_name}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "")):
+              start = True
+           else:
+              start = False
            
-                 table_heading='Индивидуальные и усредненные значения концентраций в крови после перорального введения ГЛФ'
-                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-
-                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
-                 
-                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
-
-              ########### графики    
-
-              ######индивидуальные    
-
-                 # в линейных координатах
-                 col_mapping = df.columns.tolist()
-                 col_mapping.remove('Номер')
-
-                 count_row_df = len(df.axes[0])
-
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-                 
-                 list_number_animal = []
-                 for r in range(0,count_row_df):
-
-                     list_concentration=df.iloc[r].tolist()
-
-                     numer_animal=list_concentration[0]
-
-                     list_number_animal.append(numer_animal)
-
-                     list_concentration.pop(0) #удаление номера животного
-
-                     list_concentration = [float(v) for v in list_concentration]
-
-                     graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после перорального введения ГЛФ,  '+numer_animal
-                     graph_id = graphic
-                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                     
-                     first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_ИБ_time'],
-                                                               st.session_state['measure_unit_ИБ_concentration'],"lin",add_or_replace_df_graph, 
-                                                               (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
-
-                     #в полулогарифмических координатах
-                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
-
-                     graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ГЛФ,  '+numer_animal
-                     graph_id = graphic
-                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                     first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state['measure_unit_ИБ_time'],
-                                                               st.session_state['measure_unit_ИБ_concentration'],"log",add_or_replace_df_graph, 
-                                                               (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))
-                     
-                 st.session_state[f'list_number_animal_{option}_после перорального введения ГЛФ'] = list_number_animal
-              # объединенные индивидуальные в линейных координатах
-
-                 df_for_plot_conc=df.drop(['Номер'], axis=1)
-                 df_for_plot_conc_1 = df_for_plot_conc.transpose()
-                 list_numer_animal_for_plot=df['Номер'].tolist()
-                 count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
-
-                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
-                 
-                 graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после перорального введения ГЛФ"
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],
-                                                                  st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,
-                                                                  'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-
-                 # объединенные индивидуальные в полулогарифмических координатах методом замены 0 на None
-                 df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
-
-                 graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после перорального введения ГЛФ"
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                 first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state['measure_unit_ИБ_time'],
-                                                                  st.session_state['measure_unit_ИБ_concentration'],count_numer_animal,
-                                                                  'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))  
-
-              ### усреденные    
-              #в линейных    
-
-                 list_time = []
-                 for i in col_mapping:
-                     numer=float(i)
-                     list_time.append(numer)
-
-                 df_averaged_concentrations=df.describe()
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                 err_y_3=df_averaged_concentrations.loc['std'].tolist()
-
-                 graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после перорального введения ГЛФ'
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)  
-
-                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],'lin',
-                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic))  
-                 #в полулогарифмических координатах
-                 list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
-
-                 graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после перорального введения ГЛФ'
-                 graph_id = graphic
-                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
-                  
-                 first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_3,st.session_state['measure_unit_ИБ_time'],
-                                                                    st.session_state['measure_unit_ИБ_concentration'],'log',
-                                                                    add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
-                                                                                              st.session_state[f"list_graphics_word_{option}"],graphic)) 
-                 ############### Параметры ФК
-
-                 result_PK = pk_parametrs_total_extravascular(df,"ИБ_po_rdf",method_auc,dose_po_rdf,st.session_state['measure_unit_ИБ_concentration'],st.session_state['measure_unit_ИБ_time'], st.session_state['measure_unit_ИБ_dose'])
-
-                 if result_PK is not None:
-                     if st.session_state["agree_cmax2 - ИБ"] == False:
-                        df_total_PK_po_rdf = result_PK["df_total_PK"]
-                        df_PK = result_PK["df_PK"]
-                        df_concat_PK_po_rdf = result_PK["df_concat_PK"]
-                        list_cmax_1_rdf = result_PK["list_cmax_1"]
-                     if st.session_state["agree_cmax2 - ИБ"] == True:
-                        df_total_PK_po_rdf = result_PK["df_total_PK"]
-                        df_PK = result_PK["df_PK"]
-                        df_concat_PK_po_rdf = result_PK["df_concat_PK"]
-                        df_total_PK_additional_double_peaks_po_rdf = result_PK["df_total_PK_additional_double_peaks"]
-                        list_cmax_1_rdf = result_PK["list_cmax_1"]
-                        list_cmax_2_rdf = result_PK["list_cmax_2"]
-                     
-                     st.session_state["df_total_PK_po_rdf"] = df_total_PK_po_rdf
-
-                     table_heading='Фармакокинетические показатели в крови после перорального введения ГЛФ'
-                     add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                     
-                     add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_po_rdf)
-
-                     if st.session_state["agree_cmax2 - ИБ"] == True:
-                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле'
-                        add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                        
-                        add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_po_rdf)
-                     
-                     ####получение интервала для средних ФК параметров
-                     list_PK_Cmax_1_not_round = df_PK['Cmax'].tolist()
-                     list_PK_Tmax_1_not_round = df_PK['Tmax'].tolist() 
-                     list_PK_MRT0_inf_not_round = df_PK['MRT0→∞'].tolist() 
-                     list_PK_half_live_not_round = df_PK['T1/2'].tolist() 
-                     list_PK_AUC0_t_not_round = df_PK['AUC0-t'].tolist()
-                     list_PK_AUC0_inf_not_round = df_PK['AUC0→∞'].tolist()
-                     list_PK_AUMC0_inf_not_round = df_PK['AUMC0-∞'].tolist()
-                     list_PK_Сmax_dev_AUC0_t_not_round = df_PK['Сmax/AUC0-t'].tolist()
-                     list_PK_Kel_not_round = df_PK['Kel'].tolist()
-
-                     list_list_PK_parametr_po_rdf=[list_PK_Cmax_1_not_round,list_PK_AUC0_t_not_round,list_PK_Kel_not_round,list_PK_AUC0_inf_not_round,list_PK_half_live_not_round,list_PK_AUMC0_inf_not_round,list_PK_MRT0_inf_not_round,list_PK_Сmax_dev_AUC0_t_not_round]
-                     list_parametr_mean_h_po_rdf=[]
-                     for i in list_list_PK_parametr_po_rdf:
-                          n=len(i)
-
-                          def confidential_interval(i):
-                              if n < 30:
-                                 h = statistics.stdev(i)
-                                 mean = np.mean(i)
-                              else:
-                                 h = statistics.stdev(i)  ### прояснить момент с n-1
-                                 mean = np.mean(i)
-                              return ([mean,h]) 
-                          func_mean_h = confidential_interval(i)
-
-                          list_parametr_mean_h_po_rdf.append(func_mean_h)
-
-
-                     list_mean_h_po_rdf_Cmax_round=[v for v in list_parametr_mean_h_po_rdf[0]]
-                     parametr_round_mean_h_Cmax=str(list_mean_h_po_rdf_Cmax_round[0]) +"±"+str(list_mean_h_po_rdf_Cmax_round[1])
-
-                     list_mean_h_po_rdf_AUC0_t_round=[v for v in list_parametr_mean_h_po_rdf[1]] 
-                     parametr_round_mean_h_AUC0_t=str(list_mean_h_po_rdf_AUC0_t_round[0]) +"±"+str(list_mean_h_po_rdf_AUC0_t_round[1]) 
-
-                     list_mean_h_po_rdf_Kel_round=[v for v in list_parametr_mean_h_po_rdf[2]]
-                     parametr_round_mean_h_Kel=str(list_mean_h_po_rdf_Kel_round[0]) +"±"+str(list_mean_h_po_rdf_Kel_round[1])
-
-                     list_mean_h_po_rdf_AUC0_inf_round= [v for v in list_parametr_mean_h_po_rdf[3]]
-                     parametr_round_mean_h_AUC0_inf=str(list_mean_h_po_rdf_AUC0_inf_round[0]) +"±"+str(list_mean_h_po_rdf_AUC0_inf_round[1]) 
-
-                     list_mean_h_po_rdf_half_live_round=[v for v in list_parametr_mean_h_po_rdf[4]]
-                     parametr_round_mean_h_half_live=str(list_mean_h_po_rdf_half_live_round[0]) +"±"+str(list_mean_h_po_rdf_half_live_round[1])
-
-                     list_mean_h_po_rdf_AUMC0_inf_round=[v for v in list_parametr_mean_h_po_rdf[5]] 
-                     parametr_round_mean_h_AUMC0_inf=str(list_mean_h_po_rdf_AUMC0_inf_round[0]) +"±"+str(list_mean_h_po_rdf_AUMC0_inf_round[1]) 
-
-                     list_mean_h_po_rdf_MRT0_inf_round=[v for v in list_parametr_mean_h_po_rdf[6]]
-                     parametr_round_mean_h_MRT0_inf=str(list_mean_h_po_rdf_MRT0_inf_round[0]) +"±"+str(list_mean_h_po_rdf_MRT0_inf_round[1])
-
-                     list_mean_h_po_rdf_Сmax_dev_AUC0_t_round=[v for v in list_parametr_mean_h_po_rdf[7]]
-                     parametr_round_mean_h_Сmax_dev_AUC0_t=str(list_mean_h_po_rdf_Сmax_dev_AUC0_t_round[0]) +"±"+str(list_mean_h_po_rdf_Сmax_dev_AUC0_t_round[1])
-
-                     list_parametr_round_mean_h_po_rdf= [parametr_round_mean_h_Cmax,parametr_round_mean_h_AUC0_t,parametr_round_mean_h_Kel,parametr_round_mean_h_AUC0_inf,parametr_round_mean_h_half_live,parametr_round_mean_h_AUMC0_inf,parametr_round_mean_h_MRT0_inf,parametr_round_mean_h_Сmax_dev_AUC0_t]
-
-                     t_mean_po_rdf = str(np.mean(list_PK_Tmax_1_not_round))     
-                     list_parametr_round_mean_h_po_rdf.insert(1,t_mean_po_rdf)
-                    
-                 else:
-                     st.session_state["df_total_PK_po_rdf"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                     st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
-
-              ###Биодоступность
-              button_calculation_bioavailability = False
+           if start == True:
               
-              if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and st.session_state['measure_unit_ИБ_concentration'] and dose_iv and dose_po_sub and dose_po_rdf and st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
-                 
-                 condition_iv_cmax1 =  len(list_cmax_1_iv) == count_rows_number_iv
-                 condition_sub_cmax1 = len(list_cmax_1_sub) == count_rows_number_sub
-                 condition_rdf_cmax1 = len(list_cmax_1_rdf) == count_rows_number_rdf
-                 
-                 if st.session_state["agree_cmax2 - ИБ"] == True:
-                    condition_iv_cmax2 =  len(list_cmax_2_iv) == count_rows_number_iv
-                    condition_sub_cmax2 = len(list_cmax_2_sub) == count_rows_number_sub
-                    condition_rdf_cmax2 = len(list_cmax_2_rdf) == count_rows_number_rdf
-                 
-                 if st.session_state["agree_cmax2 - ИБ"] == True:
-                    if (condition_iv_cmax2 and condition_sub_cmax2 and condition_rdf_cmax2):
-                       button_calculation_bioavailability = True
-                 if st.session_state["agree_cmax2 - ИБ"] == False:
-                    if (condition_iv_cmax1 and condition_sub_cmax1 and condition_rdf_cmax1):
-                       button_calculation_bioavailability = True
+              get_color(file_name)
 
-                 if button_calculation_bioavailability == True:
-                    custom_success('Расчеты произведены!')
-                 else:   
-                    st.error('Заполните все поля ввода и загрузите файлы!')
+              selected_edges = visualize_mapping(list_keys_file_bioavailability)
 
-              if ("uploaded_file_1" in st.session_state) and ("uploaded_file_2" in st.session_state) and ("uploaded_file_3" in st.session_state) and st.session_state['measure_unit_ИБ_concentration'] and dose_iv and dose_po_sub and dose_po_rdf and button_calculation_bioavailability:
+              st.session_state[f"selected_edges_{option}"] = selected_edges
+
+              #проверяем первую связь существует ли она
+              if st.session_state[f"selected_edges_{option}"] != [] and st.session_state[f"selected_edges_{option}"] is not None:
+                  with st.expander("Итоговые связи:", True):
+                       for edge in selected_edges:
+                           st.write(f'№{selected_edges.index(edge)+1} {edge}')  # Выводит каждую связь в новом ряду
+
                   
-                  table_heading='Усредненные фармакокинетические параметры в крови после внутривенного введения ЛС, перорального введения ЛС и перорального введения ГЛФ, а также абсолютная и относительная биодоступность'
-                  add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-
-                  AUCT_inf_mean_iv = df_concat_PK_iv["AUC0-t"].loc["mean"]
-                  AUCT_inf_mean_po_sub = df_concat_PK_po_sub["AUC0-t"].loc["mean"]
-                  AUCT_inf_mean_po_rdf = df_concat_PK_po_rdf["AUC0-t"].loc["mean"]
-
-                  #абсолютная биодоступность
-
-                  F_po_sub_iv=(AUCT_inf_mean_po_sub * float(dose_iv))/(AUCT_inf_mean_iv*float(dose_po_sub))*100
-                  F_po_rdf_iv=(AUCT_inf_mean_po_rdf * float(dose_iv))/(AUCT_inf_mean_iv*float(dose_po_rdf))*100
-
-                  #относительная биодоступность
-                  RF_po_sub_rdf=(AUCT_inf_mean_po_rdf*float(dose_po_sub))/(AUCT_inf_mean_po_sub*float(dose_po_rdf))*100
-
-                  df_intravenous_substance = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_1"]))
-                  df_oral_substance = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_2"]))
-                  df_oral_rdf = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state["uploaded_file_3"]))
-
-                  df_averaged_concentrations_intravenous_substance=df_intravenous_substance.describe()
-                  list_concentration__intravenous_substance=df_averaged_concentrations_intravenous_substance.loc['mean'].tolist()
-
-                  df_averaged_concentrations_oral_substance=df_oral_substance.describe()
-                  list_concentration__oral_substance=df_averaged_concentrations_oral_substance.loc['mean'].tolist()
-
-                  df_averaged_concentrations_oral_rdf=df_oral_rdf.describe()
-                  list_concentration__oral_rdf=df_averaged_concentrations_oral_rdf.loc['mean'].tolist()
-
-              ### итоговый фрейм по PK параметрам
-
-                  list_index_for_df_total_PK_mean = ['Cmax ' +"("+st.session_state['measure_unit_ИБ_concentration']+")",'Tmax ' +"("+f"{st.session_state['measure_unit_ИБ_time']}"+")",'AUC0-t '+"("+st.session_state['measure_unit_ИБ_concentration']+f"×{st.session_state['measure_unit_ИБ_time']}" +")",'Kel '+"("+f"{st.session_state['measure_unit_ИБ_time']}\u207B\u00B9"+")",'AUC0→∞ '+"("+st.session_state['measure_unit_ИБ_concentration']+f"×{st.session_state['measure_unit_ИБ_time']}" +")",'T1/2 '+"("+f"{st.session_state['measure_unit_ИБ_time']}"+")",'AUMC0-∞ '+"("+st.session_state['measure_unit_ИБ_concentration']+f"×{st.session_state['measure_unit_ИБ_time']}\u00B2"+")",'MRT0→∞ '+"("+f"{st.session_state['measure_unit_ИБ_time']}"+")",'Сmax/AUC0-t '+"("+f"{st.session_state['measure_unit_ИБ_time']}\u207B\u00B9"+")","F(абсолютная биодоступность),%","Относительная биодоступность,% (по сравнению с пероральным введением ЛС)"]
-                  
-                  #добавление значений биодоступности
-                  list_parametr_round_mean_h_iv.append("-")
-                  list_parametr_round_mean_h_iv.append("-")
-
-                  list_parametr_round_mean_h_po_sub.append(F_po_sub_iv)
-                  list_parametr_round_mean_h_po_sub.append("-")
-
-                  list_parametr_round_mean_h_po_rdf.append(F_po_rdf_iv)
-                  list_parametr_round_mean_h_po_rdf.append(RF_po_sub_rdf)
-
-
-                  df_total_PK_mean = pd.DataFrame(list(zip(list_parametr_round_mean_h_iv,list_parametr_round_mean_h_po_sub,list_parametr_round_mean_h_po_rdf)),columns=['Внутривенное введение ЛС','Пероральное введение ЛС','Пероральное введение ГЛФ'],index=list_index_for_df_total_PK_mean)
-                  df_total_PK_mean.index.name = 'Параметры, размерность'
-                  
-                  add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_mean)
-
-                  #####объединенные графики
-
-                  ### в линейных координатах
-                  col_mapping = df_oral_substance.columns.tolist() ### можно указать только фрейм для перорального
-                  col_mapping.remove('Номер')
-                  list_time = []
-                  for i in col_mapping:
-                      numer=float(i)
-                      list_time.append(numer)
-
-                  err_y_1=df_averaged_concentrations_intravenous_substance.loc['std'].tolist()
-                  err_y_2=df_averaged_concentrations_oral_substance.loc['std'].tolist()
-                  err_y_3=df_averaged_concentrations_oral_rdf.loc['std'].tolist()
-
-                  list_concentration__intravenous_substance = [np.nan] + list_concentration__intravenous_substance #чтобы длина была одинаковая
-                  err_y_1 = [np.nan] + err_y_1 #чтобы длина была одинаковая
-
-                  graphic="Сравнение фармакокинетических профилей (в линейных координатах) после внутривенного введения ЛС, перорального введения ЛС и перорального введения ГЛФ"
-                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                  
-                  #вызов функции
-                  fig = plot_total_mean_pk_profiles_bioavailability(list_time,list_concentration__intravenous_substance,
-                                                   list_concentration__oral_substance,
-                                                   list_concentration__oral_rdf,
-                                                   err_y_1,err_y_2,err_y_3,
-                                                   st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'lin')
-
-                  add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
-
-                  ### в полулогарифмических координатах
-                  # Заменяем все значения меньше 1 на np.nan
-                  list_concentration__intravenous_substance = [np.nan if x <= 0 else x for x in list_concentration__intravenous_substance]
-                  list_concentration__oral_substance = [np.nan if x <= 0 else x for x in list_concentration__oral_substance]
-                  list_concentration__oral_rdf = [np.nan if x <= 0 else x for x in list_concentration__oral_rdf]
-
-                  graphic="Сравнение фармакокинетических профилей (в полулогарифмических координатах) после внутривенного введения ЛС, перорального введения ЛС и перорального введения ГЛФ"
-                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-
-                  #вызов функции
-                  fig = plot_total_mean_pk_profiles_bioavailability(list_time,list_concentration__intravenous_substance,
-                                                   list_concentration__oral_substance,
-                                                   list_concentration__oral_rdf,
-                                                   err_y_1,err_y_2,err_y_3,
-                                                   st.session_state['measure_unit_ИБ_time'],st.session_state['measure_unit_ИБ_concentration'],'log')
-
-                  add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig) 
+              
               else:
-                  st.write("")
+                  st.write("Нет связей для отображения")
 
-           ##############################################################################################################
-    
+              if st.session_state[f"selected_edges_{option}"] != [] and st.session_state[f"selected_edges_{option}"] is not None:
+                 
+
+                 list_keys_file_bioavailability = [f"{str(name)}.xlsx" for name in list_keys_file_bioavailability]
+                 
+                 st.session_state[f'list_keys_file_{option}'] = list_keys_file_bioavailability
+
+                 list_name_bioavailability = []
+                 list_df_unrounded=[]
+                 list_df_for_mean_unround_for_graphics=[]
+                 list_t_graph=[]
+
+                 for i in list_keys_file_bioavailability:
+                     df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
+
+                     file_name=i[:-5]
+                     list_name_bioavailability.append(file_name)
+
+                     st.subheader('Индивидуальные значения концентраций для набора данных «' +file_name+"»")
+                     
+                     ###интерактивная таблица
+                     df = edit_frame(df,i)
+
+                     ###количество животных 
+                     count_rows_number_lin= len(df.axes[0])
+
+                     table_heading='Индивидуальные и усредненные значения концентраций для набора данных «' +file_name+"»"
+                     add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
+
+                     ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                     df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+
+                     add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
+                     
+                     ########### графики    
+                     ######индивидуальные    
+                     # в линейных координатах
+
+                     col_mapping = df.columns.tolist()
+                     col_mapping.remove('Номер')
+
+                     count_row_df = len(df.axes[0])
+
+                     list_time = []
+                     for i in col_mapping:
+                         numer=float(i)
+                         list_time.append(numer)
+                     list_t_graph.append(list_time) 
+                     
+                     list_time = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_time)
+
+                     list_number_animal = []
+
+                     for r in range(0,count_row_df):
+
+                         list_concentration=df.iloc[r].tolist()
+
+                         numer_animal=list_concentration[0]
+
+                         list_number_animal.append(numer_animal)
+
+                         list_concentration.pop(0) #удаление номера животного
+
+                         list_concentration = [float(v) for v in list_concentration]
+
+                         list_concentration = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_concentration)
+
+                         graphic='График индивидуального фармакокинетического профиля в линейных координатах «'  +file_name+"» "+',  '+numer_animal
+                         graph_id = graphic
+                         add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+
+                         first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                   st.session_state[f'measure_unit_{option}_{file_name}_concentration'],"lin",add_or_replace_df_graph, 
+                                                                   (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                                  st.session_state[f"list_graphics_word_{option}"],graphic))
+
+                         #в полулогарифмических координатах методом np.nan
+                         graphic='График индивидуального фармакокинетического профиля в полулогарифмических координатах «' +file_name+"» "+',  '+numer_animal
+                         graph_id = graphic
+                         add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+
+                         # Заменяем все значения меньше 1 на np.nan
+                         list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
+                         
+                         first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                   st.session_state[f'measure_unit_{option}_{file_name}_concentration'],"log",add_or_replace_df_graph, 
+                                                                   (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                                  st.session_state[f"list_graphics_word_{option}"],graphic))
+                     
+                     st.session_state[f'list_number_animal_{option}_{f"{file_name}"}'] = list_number_animal
+
+                     # объединенные индивидуальные в линейных координатах
+
+                     df_for_plot_conc=df.drop(['Номер'], axis=1)
+                     df_for_plot_conc_1 = df_for_plot_conc.transpose()
+
+                     list_numer_animal_for_plot=df['Номер'].tolist()
+                     count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
+
+                     list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+                     
+                     df_for_plot_conc_1 = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], df_for_plot_conc_1)
+
+                     graphic="Сравнение индивидуальных фармакокинетических профилей в линейных координатах «" +file_name+"» "
+                     graph_id = graphic
+                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
+
+                     first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                      st.session_state[f'measure_unit_{option}_{file_name}_concentration'],count_numer_animal,
+                                                                      'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                                  st.session_state[f"list_graphics_word_{option}"],graphic))
+                     
+                     # объединенные индивидуальные в полулогарифмических координатах методом замены np.nan
+                     df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
+
+                     graphic="Сравнение индивидуальных фармакокинетических профилей в полулогарифмических координатах «" +file_name+"» "
+                     graph_id = graphic
+                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+
+                     first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                      st.session_state[f'measure_unit_{option}_{file_name}_concentration'],count_numer_animal,
+                                                                      'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                                  st.session_state[f"list_graphics_word_{option}"],graphic))
+
+                      ###усредненные    
+                     # в линейных координатах
+                     graphic='График усредненного фармакокинетического профиля в линейных координатах «' +file_name+"» "
+                     graph_id = graphic
+                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+
+                     list_time = []
+                     for i in col_mapping:
+                         numer=float(i)
+                         list_time.append(numer)
+                     
+                     list_time = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_time)
+
+                     df_averaged_concentrations=df.describe()
+                     list_concentration=df_averaged_concentrations.loc['mean'].tolist()
+                     err_y_1=df_averaged_concentrations.loc['std'].tolist()
+
+                     list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_concentration,err_y_1)
+
+                     first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                        st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'lin',
+                                                                        add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                                  st.session_state[f"list_graphics_word_{option}"],graphic))
+
+                     #в полулогарифмических координатах
+                     #для полулогарифм. посторим без нуля
+                     # Заменяем все значения меньше 1 на np.nan
+                     graphic='График усредненного фармакокинетического профиля в полулогарифмических координатах «' +file_name+"» "
+                     graph_id = graphic
+                     add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+
+                     list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
+
+                     first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                        st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'log',
+                                                                        add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
+                                                                                                  st.session_state[f"list_graphics_word_{option}"],graphic))
+                     
+                     ############ Параметры ФК
+
+                     if f"agree_cmax2 - {option}_{file_name}" not in st.session_state:
+                        st.session_state[f"agree_cmax2 - {option}_{file_name}"] = False
+                     
+                     if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
+                        st.session_state[f"agree_cmax2 - {option}_{file_name}"] = True
+
+                     if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
+                         result_PK = pk_parametrs_total_extravascular(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_{file_name}_concentration'],st.session_state[f'measure_unit_{option}_{file_name}_time'],st.session_state[f'measure_unit_{option}_{file_name}_dose'])
+                     elif st.session_state[f"agree_injection - {option}_{file_name}"] == "intravenously":
+                         if st.session_state[f"extrapolate_first_points_{option}_{file_name}"]:
+                            df = remove_second_column(df)
+                         result_PK = pk_parametrs_total_intravenously(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_{file_name}_concentration'],st.session_state[f'measure_unit_{option}_{file_name}_time'],st.session_state[f'measure_unit_{option}_{file_name}_dose'])
+                     else:
+                         result_PK = pk_parametrs_total_infusion(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_{file_name}_concentration'],st.session_state[f'measure_unit_{option}_{file_name}_time'],st.session_state[f'measure_unit_{option}_{file_name}_dose'],st.session_state[f"infusion_time_{option}_{file_name}"])
+
+                     if result_PK is not None:
+                         if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == False:
+                            df_total_PK_bioavailability = result_PK["df_total_PK"]
+                            df_concat_PK_bioavailability = result_PK["df_concat_PK"]
+                            list_cmax_1_bioavailability = result_PK["list_cmax_1"]
+                         if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
+                            df_total_PK_bioavailability = result_PK["df_total_PK"]
+                            df_concat_PK_bioavailability = result_PK["df_concat_PK"]
+                            list_cmax_1_bioavailability = result_PK["list_cmax_1"]
+                            list_cmax_2_bioavailability = result_PK["list_cmax_2"]
+                            df_total_PK_additional_double_peaks_bioavailability = result_PK["df_total_PK_additional_double_peaks"]
+                             
+                         st.session_state[f"df_total_PK_{option}"] = df_total_PK_bioavailability
+
+                         table_heading='Фармакокинетические показатели препарата в дозировке «' +file_name +"» "
+                         add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
+
+                         add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_bioavailability)
+
+                         if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
+                            table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле «' +file_name +"» "
+                            add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
+                            
+                            add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_bioavailability)
+
+                         #создание списков фреймов, доз и т.д.
+
+                         ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
+                         df_concat = create_table_descriptive_statistics(df)['df_concat']
+
+                         #list_name_doses.append(file_name)
+                         list_df_unrounded.append(df_concat_PK_bioavailability)
+                         list_df_for_mean_unround_for_graphics.append(df_concat)
+                     else:
+                         st.session_state[f"df_total_PK_{option}"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
+                         st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
+                 
+                 
+                    
+                    
+                 list_list_PK_par_mean=[]
+                 for i,file_name in list(zip(list_df_unrounded,list_name_bioavailability)): 
+                     mean_сmax=i['Cmax'].loc['mean']
+                     mean_tmax=i['Tmax'].loc['mean']
+                     mean_mrt0inf=i['MRT0→∞'].loc['mean']
+                     mean_thalf=i['T1/2'].loc['mean']
+                     mean_auc0t=i['AUC0-t'].loc['mean']
+                     mean_auc0inf=i['AUC0→∞'].loc['mean']
+                     mean_aumc0inf=i['AUMC0-∞'].loc['mean']
+                     mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
+                     mean_kel=i['Kel'].loc['mean']
+
+                     if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
+                        mean_cl=i['Cl/F'].loc['mean']
+                        mean_vd=i['Vz/F'].loc['mean']
+                     else:
+                        mean_cl=i['Cl'].loc['mean']
+                        mean_vd=i['Vz'].loc['mean']
+                     list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
+                 
+                 list_df_PK_bioavailability_total = []
+
+                 for list_PK_par_mean,file_name in list(zip(list_list_PK_par_mean,list_name_bioavailability)):
+                     
+                     ### получение итогового фрейма ФК параметров
+                     if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
+                        df_PK_bioavailability_total = pd.DataFrame(list_PK_par_mean, index =['Cmax ' +"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Cl/F ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})/{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'Vz/F ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})"+")"],columns=[file_name])
+                     else:
+                        df_PK_bioavailability_total = pd.DataFrame(list_PK_par_mean, index =['Cmax ' +"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Cl ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})/{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'Vz ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})"+")"],columns=[file_name])
+ 
+                     df_PK_bioavailability_total.index.name = 'Параметры, размерность'
+                     list_df_PK_bioavailability_total.append(df_PK_bioavailability_total)
+                 
+                 # Выбираем нужные колонки из каждого DataFrame
+                 selected_df_PK_bioavailability_total = [df[[col]] for df, col in zip(list_df_PK_bioavailability_total, list_name_bioavailability)]
+                 # Объединяем их в один DataFrame
+                 merged_df_PK_bioavailability_total = pd.concat(selected_df_PK_bioavailability_total, axis=1)
+  
+                 table_heading='Среднее арифметическое фармакокинетических параметров'
+                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
+
+                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,merged_df_PK_bioavailability_total)
+                 
+                 list_bioavailability_label = []
+                 list_bioavailability = []
+                 for comparison in st.session_state[f"selected_edges_{option}"]:
+
+                     # 1. Разделяем строку по " → "
+                     reference_drug, test_drug = map(str.strip, comparison.split("→"))
+
+                     # 2. Находим строку, содержащую "AUC0-t"
+                     def find_auc_value(df, column_name):
+                         auc_row = df[df["Параметры, размерность"].str.contains(r"AUC0-t", regex=True, na=False)]
+                         return auc_row[column_name].values[0] if not auc_row.empty else None
+                     
+                     def find_auc_value(df, column_name):
+                         auc_row = df[df.index.str.contains(r"AUC0-t", regex=True, na=False)]
+                         return auc_row[column_name].values[0] if not auc_row.empty else None
+
+                     # 3. Получаем значения AUC0-t из соответствующих DataFrame-ов
+                     auc_ref = find_auc_value(merged_df_PK_bioavailability_total, reference_drug)
+                     auc_test = find_auc_value(merged_df_PK_bioavailability_total, test_drug)
+                     
+                     # 4. Вычисляем биодоступность (если значения найдены)
+                     if auc_ref and auc_test:
+                         bioavailability = ((auc_test * float(st.session_state[f"dose_{option}_{test_drug}"]))/ (auc_ref * float(st.session_state[f"dose_{option}_{reference_drug}"]))) * 100
+                         list_bioavailability_label.append((f"{test_drug} относительно {reference_drug}"))
+                         list_bioavailability.append(bioavailability)
+                     else:
+                         st.write("Ошибка: Не удалось найти значения AUC0-t для одного из препаратов")
+
+                 df_bioavailability = pd.DataFrame({"Биодоступность": list_bioavailability}, index=list_bioavailability_label)
+
+                 table_heading='Таблица биодоступности'
+                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
+
+                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_bioavailability)
+                 
+                 ###построение графика "Фармакокинетический профиль при различных лек. формах"
+                 graphic='Сравнение фармакокинетических профилей (в линейных координатах) в исследовании биодоступности'
+                 graph_id= graphic
+                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
+
+                 ### в линейных координатах
+                 list_list_mean_conc=[]
+                 list_list_std_conc=[]
+                 for i in list_df_for_mean_unround_for_graphics: 
+                     mean_conc_list=i.loc['mean'].tolist()
+                     std_conc_list=i.loc['std'].tolist()
+                     list_list_mean_conc.append(mean_conc_list)
+                     list_list_std_conc.append(std_conc_list)
+
+                 list_name_bioavailability_std=[]
+                 for i in list_name_bioavailability:
+                  j= i + " std"
+                  list_name_bioavailability_std.append(j)
+
+                 list_time_new_df = list_t_graph[0]
+                 
+                 df_mean_conc_graph = pd.DataFrame(list_list_mean_conc, columns =list_time_new_df,index=list_name_bioavailability)
+                 df_mean_conc_graph_1=df_mean_conc_graph.transpose()
+                 df_std_conc_graph = pd.DataFrame(list_list_std_conc, columns =list_time_new_df,index=list_name_bioavailability_std)
+                 df_std_conc_graph_1=df_std_conc_graph.transpose()
+                 df_concat_mean_std= pd.concat([df_mean_conc_graph_1,df_std_conc_graph_1],sort=False,axis=1)
+                 
+                 
+                 # Регулярное выражение для поиска нужных колонок
+                 pattern = re.compile(r"Внутривенное|Инфузионное|Внутривенное std|Инфузионное std")
+
+                 # Проверяем все колонки и заменяем первое значение, если оно равно 0
+                 for col in df_concat_mean_std.columns:
+                     if pattern.search(col) and df_concat_mean_std[col].iloc[0] == 0:
+                         df_concat_mean_std.at[0, col] = np.nan  # Заменяем 0 на np.nan
+
+                 list_colors = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+
+                 list_t_doses=list(df_concat_mean_std.index)
+
+                 list_zip_mean_std_colors=list(zip(list_name_bioavailability,list_name_bioavailability_std,list_colors))
+                 
+                 #Инициализация состояния чекбокса параметров осей
+                 initializing_checkbox_status_graph_scaling_widgets(graph_id)
+                 
+                 #Сохранение состояний данных графика
+                 st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                 st.session_state[f"list_t_doses{graph_id}"] = list_t_doses
+                 st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
+
+                 if f"first_creating_graphic{graph_id}" not in st.session_state:
+                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+                 
+                 if st.session_state[f"first_creating_graphic{graph_id}"]:
+                    #вызов функции построения графика сравнения срединных профелей линейные
+                    fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                 st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'lin',graph_id)
+                    add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                    
+
+                 ### в полулог. координатах
+                 graphic='Сравнение фармакокинетических профилей (в полулогарифмических координатах) в исследовании биодоступности'
+                 graph_id= graphic
+                 add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+                 
+                 #замена всех нулей и значений меньше 1 на np.nan для данных концентрации для корректного отображения графика
+                 df_concat_mean_std = df_concat_mean_std.copy(deep=True)
+                 df_concat_mean_std = replace_value_less_one_plot_pk_profile_total_mean_std_doses_organs(df_concat_mean_std)
+
+                 list_zip_mean_std_colors=list(zip(list_name_bioavailability,list_name_bioavailability_std,list_colors))
+                 
+                 #Инициализация состояния чекбокса параметров осей
+                 initializing_checkbox_status_graph_scaling_widgets(graph_id) 
+
+                 #Сохранение состояний данных графика
+                 st.session_state[f"list_zip_mean_std_colors{graph_id}"] = list_zip_mean_std_colors
+                 st.session_state[f"list_t_doses{graph_id}"] = list_t_doses
+                 st.session_state[f"df_concat_mean_std{graph_id}"] = df_concat_mean_std
+                 
+                 if f"first_creating_graphic{graph_id}" not in st.session_state:
+                     st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика
+                 
+                 if st.session_state[f"first_creating_graphic{graph_id}"]:
+                    #вызов функции построения графика сравнения срединных профелей полулогарифм
+                    fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                 st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'log',graph_id)
+                    add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                    
+
     #отдельная панель, чтобы уменьшить размер вывода результатов
-
     col1, col2 = st.columns([0.66,0.34])
     
     with col1:
-     
+
        #####Создание word отчета
-       if panel == "Таблицы":
-          
-          if st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
-             
-             
+       if panel == "Таблицы": 
+          if st.session_state[f"df_total_PK_{option}"] is not None:
+
              ###вызов функции визуализации таблиц
              visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
 
@@ -1407,17 +988,15 @@ if option == 'Биодоступность':
                      if st.button("Сформировать отчет"):
                         create_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
           else:
-             st.error("Введите и загрузите все необходимые данные!")
-
+              st.error("Введите и загрузите все необходимые данные!")
+       
        if panel == "Графики":
-             
-          if st.session_state["df_total_PK_iv"] is not None and st.session_state["df_total_PK_po_sub"] is not None and st.session_state["df_total_PK_po_rdf"] is not None:
-
+          if st.session_state[f"df_total_PK_{option}"] is not None: 
              #######визуализация
 
              #классификация графиков по кнопкам
              type_graphics = st.selectbox('Выберите вид графиков',
-             ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля', "Сравнение фармакокинетических профилей при разных видах введения"),disabled = False, key = "Вид графика - ИБ" )
+       ('Индивидуальные фармакокинетические профили', 'Сравнение индивидуальных фармакокинетических профилей', 'Графики усредненного фармакокинетического профиля','Сравнение фармакокинетических профилей в исследовании биодоступности'),disabled = False, key = f"Вид графика - {option}" )
 
              count_graphics_for_visual = len(st.session_state[f"list_heading_graphics_word_{option}"])
              list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
@@ -1426,51 +1005,45 @@ if option == 'Биодоступность':
              create_session_type_graphics_checked_graphics(option,type_graphics)
 
              if type_graphics == 'Индивидуальные фармакокинетические профили' or type_graphics == 'Сравнение индивидуальных фармакокинетических профилей' or type_graphics == 'Графики усредненного фармакокинетического профиля':
-               selected_kind_individual_graphics = radio_create_individual_graphics(option,["после внутривенного введения ЛС.xlsx", "после перорального введения ЛС.xlsx","после перорального введения ГЛФ.xlsx"])
+                selected_kind_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_keys_file_{option}'])
 
-               if type_graphics == 'Индивидуальные фармакокинетические профили':
-                  selected_subject_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_number_animal_{option}_{selected_kind_individual_graphics}'],True,selected_kind_individual_graphics)
-             
+                if type_graphics == 'Индивидуальные фармакокинетические профили':
+                   selected_subject_individual_graphics = radio_create_individual_graphics(option,st.session_state[f'list_number_animal_{option}_{selected_kind_individual_graphics}'],True,selected_kind_individual_graphics)
+
              if st.session_state[f"{type_graphics}_{option}_checked_graphics"]:
                 for i in list_range_count_graphics_for_visual:
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("индивидуального"): 
                        if type_graphics == 'Индивидуальные фармакокинетические профили':
-                             
-                             graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
-
-                             match = re.match(r".*№(\S+)", graph_id)
-                             number_animal = "№" + match.group(1)
-                             
-                             pattern = r"(?<=\bпосле\b )\w+\sвведения\s(?:ЛС|ГЛФ)\b"
-                             match = re.search(pattern, graph_id)
-                             file_name = match.group()
-                             file_name = f"после {file_name}"
-
-                             if selected_kind_individual_graphics == file_name and selected_subject_individual_graphics == number_animal:
-
-                                if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
-                                   kind_graphic = 'lin'
-                                else:
-                                   kind_graphic = 'log'
-
-                                rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
-                                                                       st.session_state[f"list_concentration{graph_id}"],
-                                                                       st.session_state['measure_unit_ИБ_time'],
-                                                                       st.session_state['measure_unit_ИБ_concentration'],
-                                                                       kind_graphic,graph_id)
-
-                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
-                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
                           
                           graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
 
-                          pattern = r"(?<=\bпосле\b )\w+\sвведения\s(?:ЛС|ГЛФ)\b"
-                          match = re.search(pattern, graph_id)
-                          file_name = match.group()
-                          file_name = f"после {file_name}"
+                          match = re.findall(r'«(.*?)»', graph_id)
+                          file_name = match[0]
+
+                          match =  (re.match(r".*№(\S+)", graph_id))
+                          number_animal = "№" + match.group(1)
+
+                          if selected_kind_individual_graphics == file_name and selected_subject_individual_graphics == number_animal:
+                             if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                                kind_graphic = 'lin'
+                             else:
+                                kind_graphic = 'log'
+
+                             rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
+                                                                    st.session_state[f"list_concentration{graph_id}"],
+                                                                    st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                    st.session_state[f'measure_unit_{option}_{file_name}_concentration'],
+                                                                    kind_graphic,graph_id)
+                             
+                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
+                       if type_graphics == 'Сравнение индивидуальных фармакокинетических профилей':
+                             
+                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+
+                          match = re.findall(r'«(.*?)»', graph_id)
+                          file_name = match[0]
 
                           if selected_kind_individual_graphics == file_name:
-                          
                              if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
                                 kind_graphic = 'lin'
                              else:
@@ -1479,22 +1052,21 @@ if option == 'Биодоступность':
                              rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
                                                                        st.session_state[f"df_for_plot_conc_1{graph_id}"],
                                                                        st.session_state[f"list_numer_animal_for_plot{graph_id}"],
-                                                                       st.session_state['measure_unit_ИБ_time'],
-                                                                       st.session_state['measure_unit_ИБ_concentration'], 
+                                                                       st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                       st.session_state[f'measure_unit_{option}_{file_name}_concentration'], 
                                                                        len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
                                                                        kind_graphic,graph_id)
 
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("усредненного"):
                        if type_graphics == 'Графики усредненного фармакокинетического профиля':
+                             
                           graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
 
-                          pattern = r"(?<=\bпосле\b )\w+\sвведения\s(?:ЛС|ГЛФ)\b"
-                          match = re.search(pattern, graph_id)
-                          file_name = match.group()
-                          file_name = f"после {file_name}"
+                          match = re.findall(r'«(.*?)»', graph_id)
+                          file_name = match[0]
 
                           if selected_kind_individual_graphics == file_name:
-
+                             
                              if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
                                 kind_graphic = 'lin'
                              else:
@@ -1503,27 +1075,40 @@ if option == 'Биодоступность':
                              rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
                                                                        st.session_state[f"list_concentration{graph_id}"],
                                                                        st.session_state[f"err_y_1{graph_id}"],
-                                                                       st.session_state['measure_unit_ИБ_time'],
-                                                                       st.session_state['measure_unit_ИБ_concentration'],
+                                                                       st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                       st.session_state[f'measure_unit_{option}_{file_name}_concentration'],
                                                                        kind_graphic,graph_id)
-                          
+                             
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
-                       if type_graphics == 'Сравнение фармакокинетических профилей при разных видах введения':
-                          st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                          st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                      if type_graphics == 'Сравнение фармакокинетических профилей в исследовании биодоступности':
+                         
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                          
+                         file_name = [i[:-5] for i in st.session_state[f'list_keys_file_{option}']][0] #костыль, там вверху также только последнего вставляются значения, нужно решить как оставим
+                         
+                         if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
+                            kind_graphic = 'lin'
+                         else:
+                            kind_graphic = 'log'
 
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
+                                                                   st.session_state[f"list_t_doses{graph_id}"],
+                                                                   st.session_state[f"df_concat_mean_std{graph_id}"],
+                                                                   st.session_state[f'measure_unit_{option}_{file_name}_time'],
+                                                                   st.session_state[f'measure_unit_{option}_{file_name}_concentration'],
+                                                                   kind_graphic,graph_id)         
              with col2:
+                     
+                 #вызов функции оформлительского элемента сформированный отчет
+                 selected = style_icon_report()
                   
-                  #вызов функции оформлительского элемента сформированный отчет
-                  selected = style_icon_report()
-                   
-                  if selected == "Cформированный отчeт":
-                     ###вызов функции создания Word-отчета графиков
-                     if st.button("Сформировать отчет"):
-                        create_graphic(st.session_state[f"list_graphics_word_{option}"],st.session_state[f"list_heading_graphics_word_{option}"])
-
+                 if selected == "Cформированный отчeт":
+                    ###вызов функции создания Word-отчета графиков
+                    if st.button("Сформировать отчет"):
+                       create_graphic(st.session_state[f"list_graphics_word_{option}"],st.session_state[f"list_heading_graphics_word_{option}"])
           else:
-             st.error("Введите и загрузите все необходимые данные!")          
+              st.error("Введите и загрузите все необходимые данные!")
+
 #####################################################################        
 if option == 'Распределение по органам':
    
@@ -1536,7 +1121,7 @@ if option == 'Распределение по органам':
       panel = main_radio_button_study(option)
 
       initialization_dose_infusion_time_session(option)
-
+      
       #cписки для word-отчета
       list_heading_word=[]
       list_table_word=[]
@@ -1552,10 +1137,10 @@ if option == 'Распределение по органам':
               #настройки дополнительных параметров исследования
               settings_additional_research_parameters(option,custom_success)
 
-         measure_unit_org_time = select_time_unit(f"{option}")
-         measure_unit_org_blood = select_concentration_unit(f"{option}")
-         measure_unit_org_organs = select_organ_concentration_unit(f"{option}")
-         measure_unit_org_dose = select_dose_unit(f"{option}")
+         measure_unit_org_time = select_time_unit(f"select_time_unit{option}")
+         measure_unit_org_blood = select_concentration_unit(f"select_concentration_unit{option}")
+         measure_unit_org_organs = select_organ_concentration_unit(f"select_organ_concentration_unit{option}")
+         measure_unit_org_dose = select_dose_unit(f"select_dose_unit{option}")
          #сохранение состояния выбора единиц измерения для данного исследования
          save_session_state_measure_unit_value(measure_unit_org_time,measure_unit_org_blood,f"{option}",measure_unit_org_dose,measure_unit_org_organs=measure_unit_org_organs)
          
@@ -2235,9 +1820,9 @@ if option == 'Линейность дозирования':
               #настройки дополнительных параметров исследования
               settings_additional_research_parameters(option,custom_success)
 
-         measure_unit_lin_time = select_time_unit(f"{option}")
-         measure_unit_lin_concentration = select_concentration_unit(f"{option}")
-         measure_unit_dose_lin = select_dose_unit(f"{option}")
+         measure_unit_lin_time = select_time_unit(f"select_time_unit{option}")
+         measure_unit_lin_concentration = select_concentration_unit(f"select_concentration_unit{option}")
+         measure_unit_dose_lin = select_dose_unit(f"select_dose_unit{option}")
          #сохранение состояния выбора единиц измерения для данного исследования
          save_session_state_measure_unit_value(measure_unit_lin_time,measure_unit_lin_concentration,f"{option}",measure_unit_dose_lin)
 
@@ -2366,9 +1951,7 @@ if option == 'Линейность дозирования':
                  add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
 
                  ########### графики    
-                 
                  ######индивидуальные    
-
                  # в линейных координатах
 
                  col_mapping = df.columns.tolist()
@@ -2500,7 +2083,7 @@ if option == 'Линейность дозирования':
                  if f"agree_cmax2 - {option} {file_name}" not in st.session_state:
                     st.session_state[f"agree_cmax2 - {option} {file_name}"] = False
                  
-                 if st.session_state[f"agree_cmax2 - {option}"] == True:
+                 if st.session_state[f"agree_cmax2 - {option} {file_name}"] == True:
                     st.session_state[f"agree_cmax2 - {option} {file_name}"] = True
 
                  if st.session_state[f"agree_injection - {option}"] == "extravascular":
@@ -3089,8 +2672,8 @@ if option == 'Экскреция препарата':
 
             st.subheader('Исследование экскреции с ' + excretion_tv)
 
-            measure_unit_ex_time = select_time_unit("экскреция")
-            measure_unit_ex_concentration = select_concentration_unit("экскреция")
+            measure_unit_ex_time = select_time_unit("select_time_unitэкскреция")
+            measure_unit_ex_concentration = select_concentration_unit("select_time_unitэкскреция")
             #сохранение состояния выбора единиц измерения для данного исследования
             save_session_state_measure_unit_value(measure_unit_ex_time,measure_unit_ex_concentration,"экскреция")
 
