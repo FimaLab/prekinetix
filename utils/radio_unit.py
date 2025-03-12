@@ -20,7 +20,7 @@ organ_concentration_units = [
 ]
 
 # Функция для отображения радиокнопок с пользовательским вводом
-def radio_with_custom_input(label, options, session_key, selector_research):
+def radio_with_custom_input(label, options, session_key, selector_research, key):
     unique_key = f"{session_key}_{selector_research}"  # Объединяем сессии с уникальным идентификатором
     custom_selected_key = f"custom_{unique_key}_selected"
 
@@ -35,11 +35,16 @@ def radio_with_custom_input(label, options, session_key, selector_research):
     else:
         selected_option = st.session_state.get(unique_key, options[0])
     
-    selected_option = st.radio(label, options, index=options.index(selected_option))
+    if key is not None:
+       selected_option = st.radio(label, options, index=options.index(selected_option),key = selector_research)
+    else:
+       selected_option = st.radio(label, options, index=options.index(selected_option))
     
     if selected_option == 'другое (ввести единицы измерения)':
         st.session_state[custom_selected_key] = True
-        custom_value = st.text_input(f"Введите единицы измерения", st.session_state.get(f"custom_{unique_key}", ""))
+
+        custom_value = st.text_input(f"Введите единицы измерения", st.session_state.get(f"custom_{unique_key}", ""),key = selector_research)
+
         st.session_state[f"custom_{unique_key}"] = custom_value
         return custom_value
     else:
@@ -49,19 +54,19 @@ def radio_with_custom_input(label, options, session_key, selector_research):
     
 # Отдельные функции для каждой радиокнопки
 
-def select_time_unit(selector_research):
+def select_time_unit(selector_research,key = None):
     with st.expander("Выбрать единицы измерения времени"):
-        return radio_with_custom_input("Выберите единицу времени", time_units, 'selected_time',selector_research)
+        return radio_with_custom_input("Выберите единицу времени", time_units, 'selected_time',selector_research,key)
 
-def select_concentration_unit(selector_research):
+def select_concentration_unit(selector_research,key = None):
     with st.expander("Выбрать единицы измерения концентрации"):
-        return radio_with_custom_input("Выберите единицу концентрации", concentration_units, 'selected_concentration',selector_research)
+        return radio_with_custom_input("Выберите единицу концентрации", concentration_units, 'selected_concentration',selector_research,key)
 
-def select_dose_unit(selector_research):
+def select_dose_unit(selector_research,key = None):
     with st.expander("Выбрать единицы измерения дозы"):
-        return radio_with_custom_input("Выберите единицу дозы", dose_units, 'selected_dose',selector_research)
+        return radio_with_custom_input("Выберите единицу дозы", dose_units, 'selected_dose',selector_research,key)
 
-def select_organ_concentration_unit(selector_research):
+def select_organ_concentration_unit(selector_research,key = None):
     with st.expander("Выбрать единицы измерения концентрации в органах"):
-        return radio_with_custom_input("Выберите единицу концентрации в органах", organ_concentration_units, 'selected_organ_concentration',selector_research)
+        return radio_with_custom_input("Выберите единицу концентрации в органах", organ_concentration_units, 'selected_organ_concentration',selector_research,key)
 

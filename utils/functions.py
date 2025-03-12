@@ -14,6 +14,86 @@ from docx.oxml import parse_xml
 from docx.shared import RGBColor
 from streamlit_option_menu import option_menu
 
+import networkx as nx
+from pyvis.network import Network
+import random
+import string
+import hashlib
+
+#функция соотвествий для биодоступности
+# Функция визуализации
+# Вызов функции визуализации
+def get_color(name):
+    """Генерирует уникальный цвет на основе имени узла."""
+    hash_object = hashlib.md5(name.encode())  # Генерируем хеш на основе имени
+    random.seed(int(hash_object.hexdigest(), 16))  # Используем хеш как seed
+    return "#{:06x}".format(random.randint(0, 0xFFFFFF))  # Генерируем цвет
+
+def visualize_mapping(list_keys_file_bioavailability):
+    st.title("Дизайн исследования")
+
+    if "graph" not in st.session_state:
+        st.session_state.graph = nx.DiGraph()
+
+    # Автоматическое добавление узлов и связей
+    for drug in list_keys_file_bioavailability:
+        if drug:  # Проверяем, не пустой ли элемент
+            st.session_state.graph.add_node(drug)
+
+    # Визуализация графа
+    def render_graph():
+        net = Network(notebook=True, height="500px", width="100%", directed=True)
+
+        for node in st.session_state.graph.nodes:
+            net.add_node(node, title=node, color=get_color(node))  # Уникальный цвет для каждого узла
+
+        for edge in st.session_state.graph.edges:
+            net.add_edge(edge[0], edge[1], title=f"{edge[0]} → {edge[1]}")
+
+        net.show("graph.html")
+        with open("graph.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        st.components.v1.html(html_content, height=500)
+
+    st.subheader("Управление узлами и связями")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        new_node = st.text_input("Добавить новый элемент")
+        if st.button("Добавить узел") and new_node:
+            if new_node not in st.session_state.graph.nodes:
+                st.session_state.graph.add_node(new_node)
+
+    with col2:
+        nodes = list(st.session_state.graph.nodes)
+        if len(nodes) >= 2:
+            source = st.selectbox("Референт", nodes, key="source_node")
+            target = st.selectbox("Исследуемый", nodes, key="target_node")
+            if st.button("Добавить связь") and source and target and source != target:
+                st.session_state.graph.add_edge(source, target)
+
+    if st.button("Очистить граф"):
+        st.session_state.graph.clear()
+
+    render_graph()
+
+    # Отображение связей
+    edges = list(st.session_state.graph.edges)
+
+    if len(edges) != 0:
+       cols = st.columns(len(edges))
+       for i, edge in enumerate(edges,start=0):
+           with cols[i]:  # Каждая кнопка в своей колонке
+               if st.button(f"❌ Связь №{i+1}", key=f"del_{edge[0]}_{edge[1]}", help=f"{edge[0]} → {edge[1]}"):
+                   st.session_state.graph.remove_edge(edge[0], edge[1])
+                   st.rerun()
+
+
+        
+    selected_edges = [f"{edge[0]} → {edge[1]}" for edge in st.session_state.graph.edges]
+    return selected_edges
+
+
 #основная радиокнопка исследования
 def main_radio_button_study(option):
     panel = st.radio(
@@ -40,14 +120,22 @@ def initialization_dose_infusion_time_session(option,file_name=None):
         if f"infusion_time_{option}_{file_name}" not in st.session_state:
             st.session_state[f"infusion_time_{option}_{file_name}"] = ""
 
-def settings_additional_research_parameters(option,custom_success):
-
-    #оформительский элемент настройки дополнительных параметров исследования
-    selected = style_icon_setting_additional_parameters()
-
-    if selected == "Настройка дополнительных параметров":
-        type_parameter = st.selectbox('Выберите параметр',
-        ("Вид введения",'Двойные пики'),disabled = False, key = f"Вид параметра - {option}")
+def settings_additional_research_parameters(option,custom_success,key=None,file_name=None):
+    
+    if key is None and file_name is None:
+       #оформительский элемент настройки дополнительных параметров исследования
+       selected = style_icon_setting_additional_parameters(key,file_name)
+       
+       if selected == "Настройка дополнительных параметров":
+           type_parameter = st.selectbox('Выберите параметр',
+           ("Вид введения",'Двойные пики'),disabled = False, key = f"Вид параметра - {option}")
+    else:
+       #оформительский элемент настройки дополнительных параметров исследования
+       selected = style_icon_setting_additional_parameters(key,file_name)
+       
+       if selected == f"Настройка дополнительных параметров для «{file_name}»":
+           type_parameter = st.selectbox('Выберите параметр',
+           ('Двойные пики','-'),disabled = False, key = f"Вид параметра - {option}")
         
     if f"agree_cmax2 - {option}" not in st.session_state:
             st.session_state[f"agree_cmax2 - {option}"] = False
@@ -62,38 +150,51 @@ def settings_additional_research_parameters(option,custom_success):
     if f"agree_injection - {option}" not in st.session_state:
             st.session_state[f"agree_injection - {option}"] = "extravascular"
 
-    if type_parameter == "Вид введения":
+    if key is None and file_name is None:
+       
+       if type_parameter == "Вид введения":
 
-        # Проверка наличия значения в сессии, если его нет, устанавливаем значение по умолчанию
-        if f"injection_choice - {option}" not in st.session_state:
-            st.session_state[f"injection_choice - {option}"] = 0  # Значение по умолчанию
+           # Проверка наличия значения в сессии, если его нет, устанавливаем значение по умолчанию
+           if f"injection_choice - {option}" not in st.session_state:
+               st.session_state[f"injection_choice - {option}"] = 0  # Значение по умолчанию
 
-        # Радиокнопка для выбора типа введения
-        injection_type = st.radio(
-            "Выберите тип введения:",
-            options=["Внутривенное введение", "Внесосудистое введение", "Инфузионное введение"],
-            index=st.session_state[f"injection_choice - {option}"],
-            key=f"injection_choice_{option}",  # Ключ для сохранения выбора в сессии
-        )
+           # Радиокнопка для выбора типа введения
+           injection_type = st.radio(
+               "Выберите тип введения:",
+               options=["Внутривенное введение", "Внесосудистое введение", "Инфузионное введение"],
+               index=st.session_state[f"injection_choice - {option}"],
+               key=f"injection_choice_{option}",  # Ключ для сохранения выбора в сессии
+           )
 
-        # Логика для обновления состояния сессии
-        if injection_type == "Внутривенное введение":
-            st.session_state[f"agree_injection - {option}"] = "intravenously"
-            st.session_state[f"injection_choice - {option}"] = 0
-        elif injection_type == "Внесосудистое введение":
-            st.session_state[f"agree_injection - {option}"] = "extravascular"
-            st.session_state[f"injection_choice - {option}"] = 1
-        else:
-            st.session_state[f"agree_injection - {option}"] = "infusion"
-            st.session_state[f"injection_choice - {option}"] = 2
+           # Логика для обновления состояния сессии
+           if injection_type == "Внутривенное введение":
+               st.session_state[f"agree_injection - {option}"] = "intravenously"
+               st.session_state[f"injection_choice - {option}"] = 0
+           elif injection_type == "Внесосудистое введение":
+               st.session_state[f"agree_injection - {option}"] = "extravascular"
+               st.session_state[f"injection_choice - {option}"] = 1
+           else:
+               st.session_state[f"agree_injection - {option}"] = "infusion"
+               st.session_state[f"injection_choice - {option}"] = 2
 
-        # Сообщение в зависимости от выбора
-        if st.session_state[f"agree_injection - {option}"] == "intravenously":
-            custom_success("Выбрано: Внутривенное введение!")
-        elif st.session_state[f"agree_injection - {option}"] == "extravascular":
-            custom_success("Выбрано: Внесосудистое введение!")
-        else:
-            custom_success("Выбрано: Инфузионное введение!")
+           # Сообщение в зависимости от выбора
+           if st.session_state[f"agree_injection - {option}"] == "intravenously":
+               custom_success("Выбрано: Внутривенное введение!")
+           elif st.session_state[f"agree_injection - {option}"] == "extravascular":
+               custom_success("Выбрано: Внесосудистое введение!")
+           else:
+               custom_success("Выбрано: Инфузионное введение!")
+    else:  
+          # Логика для обновления состояния сессии
+           if file_name.__contains__("Внутривенное"):
+              st.session_state[f"agree_injection - {option}"] = "intravenously"
+
+           elif file_name.__contains__("Внесосудистое"):
+               st.session_state[f"agree_injection - {option}"] = "extravascular"
+
+           else:
+               st.session_state[f"agree_injection - {option}"] = "infusion"
+
 
 
 #чтобы не добавлять по несколько раз в session_state
@@ -129,16 +230,27 @@ def initializing_session_state_frames_research_results(list_key_research):
             st.session_state[f"df_total_PK_{key_research}"] = None
 
 
-def style_icon_setting_additional_parameters():
-    selected = option_menu(None, ["Настройка дополнительных параметров"], 
-               icons=['menu-button'], 
-               menu_icon="cast", default_index=0, orientation="vertical",
-               styles={
-                 "container": {"padding": "0!important", "background-color": "#1f3b57"},
-                 "icon": {"color": "#cbe4de", "font-size": "16px"}, 
-                 "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
-                 "nav-link-selected": {"background-color": "#73b5f2"},
-               })
+def style_icon_setting_additional_parameters(key,file_name):
+    if key is None and file_name is None:
+       selected = option_menu(None, ["Настройка дополнительных параметров"], 
+                  icons=['menu-button'], 
+                  menu_icon="cast", default_index=0, orientation="vertical",
+                  styles={
+                    "container": {"padding": "0!important", "background-color": "#1f3b57"},
+                    "icon": {"color": "#cbe4de", "font-size": "16px"}, 
+                    "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
+                    "nav-link-selected": {"background-color": "#73b5f2"},
+                  })
+    else:
+      selected = option_menu(None, [f"Настройка дополнительных параметров для «{file_name}»"], 
+                 icons=['menu-button'], 
+                 menu_icon="cast", default_index=0, orientation="vertical",
+                 styles={
+                   "container": {"padding": "0!important", "background-color": "#1f3b57"},
+                   "icon": {"color": "#cbe4de", "font-size": "12px"}, 
+                   "nav-link": {"font-size": "12px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
+                   "nav-link-selected": {"background-color": "#73b5f2"},
+                 }, key = key)
     
     return selected
 
@@ -174,11 +286,12 @@ def to_excel_results(df):
 def download_excel_button(df, label, key, file_name):
     excel_data = to_excel_results(df)
     st.download_button(
-        label=label,
+        label="Скачать",
         data=excel_data,
         file_name=file_name,
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        key=key  # Добавлен параметр key
+        key=key,# Добавлен параметр key
+        help = f"{label}"
     )
 
 #округление до определенного значения значищих цифр
