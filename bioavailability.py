@@ -16,6 +16,8 @@ from utils.radio_unit import *
 from style_python.style import *
 import re
 
+from streamlit_sortables import sort_items
+
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -453,6 +455,12 @@ if option == 'Биодоступность':
            st.session_state[f"selected_edges_{option}"] = []
 
         if panel == "Загрузка файлов":
+           
+           measure_unit_bioavailability_time = select_time_unit(f"select_time_unit{option}")
+           measure_unit_bioavailability_concentration = select_concentration_unit(f"select_concentration_unit{option}")
+           measure_unit_dose_bioavailability = select_dose_unit(f"select_dose_unit{option}")
+           #сохранение состояния выбора единиц измерения для данного исследования
+           save_session_state_measure_unit_value(measure_unit_bioavailability_time,measure_unit_bioavailability_concentration,f"{option}",measure_unit_dose_bioavailability)
 
            #cостояние радио-кнопки "method_auc"
            if f"index_method_auc - {option}" not in st.session_state:
@@ -486,9 +494,18 @@ if option == 'Биодоступность':
            
            list_keys_file_bioavailability = []
            for i in st.session_state.keys():
-               if i.__contains__("xlsx") and (i.__contains__("Внутривенное") or i.__contains__("Внесосудистое") or i.__contains__("Инфузионное")) and (not i.__contains__("edited_df")) and (not i.__contains__("select")) and ((not i.__contains__("del"))): ###слово био нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
+               if i.__contains__("xlsx") and (i.__contains__("Болюс") or i.__contains__("Внесосудистое") or i.__contains__("Инфузионное")) and (not i.__contains__("edited_df")) and (not i.__contains__("select")) and ((not i.__contains__("del"))): ###слово био нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
                   list_keys_file_bioavailability.append(i)
+         
+           if 'sorted_list_keys_file_bioavailability' not in st.session_state and st.session_state['list_files_name_bioavailability'] != []:
+              st.session_state['sorted_list_keys_file_bioavailability'] = st.session_state['list_files_name_bioavailability']
            
+           if 'sorted_list_keys_file_bioavailability' in st.session_state:
+              #сортировка по алфавиту
+              list_keys_file_bioavailability = sort_items(st.session_state['sorted_list_keys_file_bioavailability'],direction="vertical")
+              st.session_state['sorted_list_keys_file_bioavailability'] = list_keys_file_bioavailability
+           
+                                                        
            ###создание виджетов дозы и времени введения при инфузии
 
            if list_keys_file_bioavailability != []:
@@ -520,13 +537,7 @@ if option == 'Биодоступность':
                              )
 
                              #настройки дополнительных параметров исследования
-                             settings_additional_research_parameters(f"{option}_{file_name}",custom_success,f"{option}_{file_name}",file_name)
-
-                             measure_unit_bioavailability_time = select_time_unit(f"select_time_unit{option}_{file_name}",f"select_time_unit{option}_{file_name}")
-                             measure_unit_bioavailability_concentration = select_concentration_unit(f"select_concentration_unit{option}_{file_name}",f"select_time_unit{option}_{file_name}")
-                             measure_unit_dose_bioavailability = select_dose_unit(f"select_dose_unit{option}_{file_name}",f"select_time_unit{option}_{file_name}")
-                             #сохранение состояния выбора единиц измерения для данного исследования
-                             save_session_state_measure_unit_value(measure_unit_bioavailability_time,measure_unit_bioavailability_concentration,f"{option}_{file_name}",measure_unit_dose_bioavailability)
+                             settings_additional_research_parameters(f"{option}",custom_success,f"{option}",file_name)
                              
                              if st.session_state[f"agree_injection - {option}_{file_name}"] == "intravenously":
                                 # Инициализация состояния
@@ -573,8 +584,6 @@ if option == 'Биодоступность':
                   with st.expander("Итоговые связи:", True):
                        for edge in selected_edges:
                            st.write(f'№{selected_edges.index(edge)+1} {edge}')  # Выводит каждую связь в новом ряду
-
-                  
               
               else:
                   st.write("Нет связей для отображения")
@@ -650,8 +659,8 @@ if option == 'Биодоступность':
                          graph_id = graphic
                          add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                         first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                   st.session_state[f'measure_unit_{option}_{file_name}_concentration'],"lin",add_or_replace_df_graph, 
+                         first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_time'],
+                                                                   st.session_state[f'measure_unit_{option}_concentration'],"lin",add_or_replace_df_graph, 
                                                                    (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -663,8 +672,8 @@ if option == 'Биодоступность':
                          # Заменяем все значения меньше 1 на np.nan
                          list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
                          
-                         first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                   st.session_state[f'measure_unit_{option}_{file_name}_concentration'],"log",add_or_replace_df_graph, 
+                         first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_time'],
+                                                                   st.session_state[f'measure_unit_{option}_concentration'],"log",add_or_replace_df_graph, 
                                                                    (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
                      
@@ -686,8 +695,8 @@ if option == 'Биодоступность':
                      graph_id = graphic
                      add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
 
-                     first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                      st.session_state[f'measure_unit_{option}_{file_name}_concentration'],count_numer_animal,
+                     first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state[f'measure_unit_{option}_time'],
+                                                                      st.session_state[f'measure_unit_{option}_concentration'],count_numer_animal,
                                                                       'lin',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
                      
@@ -698,8 +707,8 @@ if option == 'Биодоступность':
                      graph_id = graphic
                      add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                     first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                      st.session_state[f'measure_unit_{option}_{file_name}_concentration'],count_numer_animal,
+                     first_creating_plot_total_individual_pk_profiles(graph_id,list_color,df_for_plot_conc_1,list_numer_animal_for_plot,st.session_state[f'measure_unit_{option}_time'],
+                                                                      st.session_state[f'measure_unit_{option}_concentration'],count_numer_animal,
                                                                       'log',add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -722,8 +731,8 @@ if option == 'Биодоступность':
 
                      list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_concentration,err_y_1)
 
-                     first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                        st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'lin',
+                     first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
+                                                                        st.session_state[f'measure_unit_{option}_concentration'],'lin',
                                                                         add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -736,8 +745,8 @@ if option == 'Биодоступность':
 
                      list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
-                     first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                        st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'log',
+                     first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
+                                                                        st.session_state[f'measure_unit_{option}_concentration'],'log',
                                                                         add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
                      
@@ -750,13 +759,13 @@ if option == 'Биодоступность':
                         st.session_state[f"agree_cmax2 - {option}_{file_name}"] = True
 
                      if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
-                         result_PK = pk_parametrs_total_extravascular(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_{file_name}_concentration'],st.session_state[f'measure_unit_{option}_{file_name}_time'],st.session_state[f'measure_unit_{option}_{file_name}_dose'])
+                         result_PK = pk_parametrs_total_extravascular(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'])
                      elif st.session_state[f"agree_injection - {option}_{file_name}"] == "intravenously":
                          if st.session_state[f"extrapolate_first_points_{option}_{file_name}"]:
                             df = remove_second_column(df)
-                         result_PK = pk_parametrs_total_intravenously(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_{file_name}_concentration'],st.session_state[f'measure_unit_{option}_{file_name}_time'],st.session_state[f'measure_unit_{option}_{file_name}_dose'])
+                         result_PK = pk_parametrs_total_intravenously(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'])
                      else:
-                         result_PK = pk_parametrs_total_infusion(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_{file_name}_concentration'],st.session_state[f'measure_unit_{option}_{file_name}_time'],st.session_state[f'measure_unit_{option}_{file_name}_dose'],st.session_state[f"infusion_time_{option}_{file_name}"])
+                         result_PK = pk_parametrs_total_infusion(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'],st.session_state[f"infusion_time_{option}_{file_name}"])
 
                      if result_PK is not None:
                          if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == False:
@@ -824,9 +833,9 @@ if option == 'Биодоступность':
                      
                      ### получение итогового фрейма ФК параметров
                      if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
-                        df_PK_bioavailability_total = pd.DataFrame(list_PK_par_mean, index =['Cmax ' +"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Cl/F ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})/{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'Vz/F ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})"+")"],columns=[file_name])
+                        df_PK_bioavailability_total = pd.DataFrame(list_PK_par_mean, index =['Cmax ' +"("+st.session_state[f'measure_unit_{option}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state[f'measure_unit_{option}_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_time']}\u207B\u00B9"+")",'Cl/F ' +"("+f"({st.session_state[f'measure_unit_{option}_dose']})/({st.session_state[f'measure_unit_{option}_concentration']})/{st.session_state[f'measure_unit_{option}_time']}"+")",'Vz/F ' +"("+f"({st.session_state[f'measure_unit_{option}_dose']})/({st.session_state[f'measure_unit_{option}_concentration']})"+")"],columns=[file_name])
                      else:
-                        df_PK_bioavailability_total = pd.DataFrame(list_PK_par_mean, index =['Cmax ' +"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_{file_name}_concentration']+f"×{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_{file_name}_time']}\u207B\u00B9"+")",'Cl ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})/{st.session_state[f'measure_unit_{option}_{file_name}_time']}"+")",'Vz ' +"("+f"({st.session_state[f'measure_unit_{option}_{file_name}_dose']})/({st.session_state[f'measure_unit_{option}_{file_name}_concentration']})"+")"],columns=[file_name])
+                        df_PK_bioavailability_total = pd.DataFrame(list_PK_par_mean, index =['Cmax ' +"("+st.session_state[f'measure_unit_{option}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}\u00B2" +")",'Сmax/AUC0-t '+"("+f"{st.session_state[f'measure_unit_{option}_time']}\u207B\u00B9"+")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_time']}\u207B\u00B9"+")",'Cl ' +"("+f"({st.session_state[f'measure_unit_{option}_dose']})/({st.session_state[f'measure_unit_{option}_concentration']})/{st.session_state[f'measure_unit_{option}_time']}"+")",'Vz ' +"("+f"({st.session_state[f'measure_unit_{option}_dose']})/({st.session_state[f'measure_unit_{option}_concentration']})"+")"],columns=[file_name])
  
                      df_PK_bioavailability_total.index.name = 'Параметры, размерность'
                      list_df_PK_bioavailability_total.append(df_PK_bioavailability_total)
@@ -931,8 +940,8 @@ if option == 'Биодоступность':
                  
                  if st.session_state[f"first_creating_graphic{graph_id}"]:
                     #вызов функции построения графика сравнения срединных профелей линейные
-                    fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                 st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'lin',graph_id)
+                    fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_time'],
+                                                                 st.session_state[f'measure_unit_{option}_concentration'],'lin',graph_id)
                     add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
                     
 
@@ -960,8 +969,8 @@ if option == 'Биодоступность':
                  
                  if st.session_state[f"first_creating_graphic{graph_id}"]:
                     #вызов функции построения графика сравнения срединных профелей полулогарифм
-                    fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                 st.session_state[f'measure_unit_{option}_{file_name}_concentration'],'log',graph_id)
+                    fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_time'],
+                                                                 st.session_state[f'measure_unit_{option}_concentration'],'log',graph_id)
                     add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
                     
 
@@ -973,6 +982,10 @@ if option == 'Биодоступность':
        #####Создание word отчета
        if panel == "Таблицы": 
           if st.session_state[f"df_total_PK_{option}"] is not None:
+             
+             list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
+             st.session_state[f"list_heading_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_word_{option}"], list_keys)
+             st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
 
              ###вызов функции визуализации таблиц
              visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
@@ -993,6 +1006,9 @@ if option == 'Биодоступность':
        if panel == "Графики":
           if st.session_state[f"df_total_PK_{option}"] is not None: 
              #######визуализация
+             list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
+             st.session_state[f"list_heading_graphics_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_graphics_word_{option}"], list_keys)
+             st.session_state[f"list_graphics_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_graphics_word_{option}"], index_mapping)
 
              #классификация графиков по кнопкам
              type_graphics = st.selectbox('Выберите вид графиков',
@@ -1031,8 +1047,8 @@ if option == 'Биодоступность':
 
                              rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,create_individual_graphics, st.session_state[f"list_time{graph_id}"],
                                                                     st.session_state[f"list_concentration{graph_id}"],
-                                                                    st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_{file_name}_concentration'],
+                                                                    st.session_state[f'measure_unit_{option}_time'],
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],
                                                                     kind_graphic,graph_id)
                              
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение индивидуальных"):   
@@ -1052,8 +1068,8 @@ if option == 'Биодоступность':
                              rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_total_individual_pk_profiles, st.session_state[f"list_color{graph_id}"],
                                                                        st.session_state[f"df_for_plot_conc_1{graph_id}"],
                                                                        st.session_state[f"list_numer_animal_for_plot{graph_id}"],
-                                                                       st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                       st.session_state[f'measure_unit_{option}_{file_name}_concentration'], 
+                                                                       st.session_state[f'measure_unit_{option}_time'],
+                                                                       st.session_state[f'measure_unit_{option}_concentration'], 
                                                                        len(st.session_state[f"list_numer_animal_for_plot{graph_id}"]),
                                                                        kind_graphic,graph_id)
 
@@ -1075,8 +1091,8 @@ if option == 'Биодоступность':
                              rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_individual_mean_std, st.session_state[f"list_time{graph_id}"],
                                                                        st.session_state[f"list_concentration{graph_id}"],
                                                                        st.session_state[f"err_y_1{graph_id}"],
-                                                                       st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                       st.session_state[f'measure_unit_{option}_{file_name}_concentration'],
+                                                                       st.session_state[f'measure_unit_{option}_time'],
+                                                                       st.session_state[f'measure_unit_{option}_concentration'],
                                                                        kind_graphic,graph_id)
                              
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
@@ -1094,8 +1110,8 @@ if option == 'Биодоступность':
                          rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_pk_profile_total_mean_std_doses_organs, st.session_state[f"list_zip_mean_std_colors{graph_id}"],
                                                                    st.session_state[f"list_t_doses{graph_id}"],
                                                                    st.session_state[f"df_concat_mean_std{graph_id}"],
-                                                                   st.session_state[f'measure_unit_{option}_{file_name}_time'],
-                                                                   st.session_state[f'measure_unit_{option}_{file_name}_concentration'],
+                                                                   st.session_state[f'measure_unit_{option}_time'],
+                                                                   st.session_state[f'measure_unit_{option}_concentration'],
                                                                    kind_graphic,graph_id)         
              with col2:
                      
@@ -1195,13 +1211,22 @@ if option == 'Распределение по органам':
          st.session_state['list_files_name_organs'] = list_files_name_organs
          
          if st.session_state['list_files_name_organs'] != []:
-              custom_success(f"Файлы загружены: {', '.join(st.session_state['list_files_name_organs'])}") 
-              
+              custom_success(f"Файлы загружены: {', '.join(st.session_state['list_files_name_organs'])}")       
          
          list_keys_file_org = []
          for i in st.session_state.keys():
-             if i.__contains__("xlsx") and (not i.__contains__("Дозировка")) and (not i.__contains__("edited_df")):### чтобы не перекрывалось с lin; #обрезаем фразу ненужного добавления названия "edited_df"
+             if i.__contains__("xlsx") and (not i.__contains__("Дозировка")) and (not i.__contains__("Болюс")) and (not i.__contains__("Инфузионное")) and (not i.__contains__("Внесосудистое")) and (not i.__contains__("edited_df")):### чтобы не перекрывалось с lin; #обрезаем фразу ненужного добавления названия "edited_df"
                 list_keys_file_org.append(i)
+
+         if 'sorted_list_keys_file_organs' not in st.session_state and st.session_state['list_files_name_organs'] != []:
+                  st.session_state['sorted_list_keys_file_organs'] = st.session_state['list_files_name_organs']
+               
+         if 'sorted_list_keys_file_organs' in st.session_state:
+            #сортировка по алфавиту
+            list_keys_file_org = sort_items(st.session_state['sorted_list_keys_file_organs'],direction="vertical")
+            st.session_state['sorted_list_keys_file_organs'] = list_keys_file_org
+
+         st.session_state[f"list_keys_file_{option}"] = list_keys_file_org
          
          if ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != "") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
               start = True
@@ -1217,18 +1242,6 @@ if option == 'Распределение по органам':
              list_df_for_mean_unround_for_graphics=[]
              list_t_graph=[]
              
-
-             # Значение, которое нужно переместить
-             blood_file_name = 'Кровь.xlsx'
-
-             # Проверка, существует ли значение в списке
-             if blood_file_name in list_keys_file_org:
-                 # Удаляем значение из списка и добавляем его в начало
-                 list_keys_file_org.remove(blood_file_name)
-                 list_keys_file_org.insert(0, blood_file_name)
-             
-             st.session_state[f"list_keys_file_{option}"] = list_keys_file_org
-
              for i in list_keys_file_org:
                  df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
 
@@ -1241,8 +1254,9 @@ if option == 'Распределение по органам':
 
                  ###количество животных 
                  count_rows_number_org = len(df.axes[0])
-
+                 
                  table_heading='Индивидуальные и усредненные значения концентраций ' + "("+file_name+")"
+                 
                  add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
                  ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -1637,7 +1651,7 @@ if option == 'Распределение по органам':
                 fig = plot_tissue_accessibility(list_name_organs,list_ft)
 
                 add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
-   
+                
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
    col1, col2 = st.columns([0.66,0.34])
@@ -1647,6 +1661,10 @@ if option == 'Распределение по органам':
       #####Создание word отчета
       if panel == "Таблицы": 
          if st.session_state[f"df_total_PK_{option}"] is not None:
+            
+            list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
+            st.session_state[f"list_heading_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_word_{option}"], list_keys)
+            st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
 
             ###вызов функции визуализации таблиц
             visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
@@ -1666,7 +1684,11 @@ if option == 'Распределение по органам':
 
       if panel == "Графики":
          if st.session_state[f"df_total_PK_{option}"] is not None:
- 
+            
+            list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
+            st.session_state[f"list_heading_graphics_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_graphics_word_{option}"], list_keys)
+            st.session_state[f"list_graphics_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_graphics_word_{option}"], index_mapping)
+
             #######визуализация
 
             #классификация графиков по кнопкам
