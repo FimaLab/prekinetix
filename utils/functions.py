@@ -20,6 +20,21 @@ import random
 import string
 import hashlib
 
+def sort_by_keys_with_indices(list_data, list_keys):
+    indexed_list = [(i, item) for i, item in enumerate(list_data)]  # Сохраняем изначальные индексы
+    sorted_list = sorted(indexed_list, key=lambda x: next((i for i, key in enumerate(list_keys) if key in x[1]), float('inf')))
+    
+    sorted_data = [item[1] for item in sorted_list]  # Отсортированные строки
+    index_mapping = {old_idx: new_idx for new_idx, (old_idx, _) in enumerate(sorted_list)}  # Сопоставление индексов
+    
+    return sorted_data, index_mapping
+
+def reorder_list_by_mapping(original_list, index_mapping):
+    reordered_list = [None] * len(original_list)  # Создаем пустой список нужного размера
+    for old_idx, new_idx in index_mapping.items():
+        reordered_list[new_idx] = original_list[old_idx]  # Переставляем элементы
+    return reordered_list
+
 #функция соотвествий для биодоступности
 # Функция визуализации
 # Вызов функции визуализации
@@ -57,23 +72,22 @@ def visualize_mapping(list_keys_file_bioavailability):
 
     st.subheader("Управление узлами и связями")
     col1, col2 = st.columns(2)
+    col3, col4 = st.columns([0.30,0.70])
 
-    with col1:
-        new_node = st.text_input("Добавить новый элемент")
-        if st.button("Добавить узел") and new_node:
-            if new_node not in st.session_state.graph.nodes:
-                st.session_state.graph.add_node(new_node)
 
-    with col2:
-        nodes = list(st.session_state.graph.nodes)
-        if len(nodes) >= 2:
-            source = st.selectbox("Референт", nodes, key="source_node")
-            target = st.selectbox("Исследуемый", nodes, key="target_node")
-            if st.button("Добавить связь") and source and target and source != target:
-                st.session_state.graph.add_edge(source, target)
-
-    if st.button("Очистить граф"):
-        st.session_state.graph.clear()
+    nodes = list(st.session_state.graph.nodes)
+    if len(nodes) >= 2:
+       with col1:
+          source = st.selectbox("Референт", nodes, key="source_node")
+          target = st.selectbox("Исследуемый", nodes, key="target_node")
+       with col2:
+             
+             with col3:
+                 if st.button("Добавить связь") and source and target and source != target:
+                     st.session_state.graph.add_edge(source, target)
+             with col4:
+                 if st.button("Очистить граф"):
+                     st.session_state.graph.clear()
 
     render_graph()
 
@@ -135,20 +149,40 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
        
        if selected == f"Настройка дополнительных параметров для «{file_name}»":
            type_parameter = st.selectbox('Выберите параметр',
-           ('Двойные пики','-'),disabled = False, key = f"Вид параметра - {option}")
+           ('Двойные пики','-'),disabled = False, key = f"Вид параметра - {option}_{file_name}")
         
-    if f"agree_cmax2 - {option}" not in st.session_state:
-            st.session_state[f"agree_cmax2 - {option}"] = False
+    
 
-    if type_parameter == 'Двойные пики':
+    if key is None and file_name is None:
 
-        st.session_state[f"agree_cmax2 - {option}"] = st.checkbox('В зависимости "Концентрация-Время" отчетливо наблюдаются двойные пики', key = f"Возможность добавления Cmax2 - {option}", value = st.session_state[f"agree_cmax2 - {option}"])
+       if f"agree_cmax2 - {option}" not in st.session_state:
+               st.session_state[f"agree_cmax2 - {option}"] = False
+       
+       if type_parameter == 'Двойные пики':
+
+           st.session_state[f"agree_cmax2 - {option}"] = st.checkbox('В зависимости "Концентрация-Время" отчетливо наблюдаются двойные пики', key = f"Возможность добавления Cmax2 - {option}", value = st.session_state[f"agree_cmax2 - {option}"])
+           
+           if st.session_state[f"agree_cmax2 - {option}"] == True:
+               custom_success('Параметр добавлен!')
+
+       if f"agree_injection - {option}" not in st.session_state:
+               st.session_state[f"agree_injection - {option}"] = "extravascular"
+
+    else:
         
-        if st.session_state[f"agree_cmax2 - {option}"] == True:
-            custom_success('Параметр добавлен!')
+       if f"agree_cmax2 - {option}_{file_name}" not in st.session_state:
+               st.session_state[f"agree_cmax2 - {option}_{file_name}"] = False
+       
+       if type_parameter == 'Двойные пики':
 
-    if f"agree_injection - {option}" not in st.session_state:
-            st.session_state[f"agree_injection - {option}"] = "extravascular"
+           st.session_state[f"agree_cmax2 - {option}_{file_name}"] = st.checkbox('В зависимости "Концентрация-Время" отчетливо наблюдаются двойные пики', key = f"Возможность добавления Cmax2 - {option}_{file_name}", value = st.session_state[f"agree_cmax2 - {option}_{file_name}"])
+           
+           if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
+               custom_success('Параметр добавлен!')
+
+       if f"agree_injection - {option}_{file_name}" not in st.session_state:
+               st.session_state[f"agree_injection - {option}_{file_name}"] = "extravascular"
+
 
     if key is None and file_name is None:
        
@@ -186,14 +220,14 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
                custom_success("Выбрано: Инфузионное введение!")
     else:  
           # Логика для обновления состояния сессии
-           if file_name.__contains__("Внутривенное"):
-              st.session_state[f"agree_injection - {option}"] = "intravenously"
+           if file_name.__contains__("Болюс"):
+              st.session_state[f"agree_injection - {option}_{file_name}"] = "intravenously"
 
            elif file_name.__contains__("Внесосудистое"):
-               st.session_state[f"agree_injection - {option}"] = "extravascular"
+               st.session_state[f"agree_injection - {option}_{file_name}"] = "extravascular"
 
            else:
-               st.session_state[f"agree_injection - {option}"] = "infusion"
+               st.session_state[f"agree_injection - {option}_{file_name}"] = "infusion"
 
 
 
@@ -250,7 +284,7 @@ def style_icon_setting_additional_parameters(key,file_name):
                    "icon": {"color": "#cbe4de", "font-size": "12px"}, 
                    "nav-link": {"font-size": "12px", "text-align": "left", "margin":"0px", "--hover-color": "#92c4e6","color": "#ffffff"},
                    "nav-link-selected": {"background-color": "#73b5f2"},
-                 }, key = key)
+                 }, key = f"Настройка дополнительных параметров для {key} «{file_name}»")
     
     return selected
 
