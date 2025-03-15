@@ -145,12 +145,7 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
            ("Вид введения",'Двойные пики'),disabled = False, key = f"Вид параметра - {option}")
     else:
        #оформительский элемент настройки дополнительных параметров исследования
-       selected = style_icon_setting_additional_parameters(key,file_name)
-       
-       if selected == f"Настройка дополнительных параметров для «{file_name}»":
-           type_parameter = st.selectbox('Выберите параметр',
-           ('Двойные пики','-'),disabled = False, key = f"Вид параметра - {option}_{file_name}")
-        
+       selected = style_icon_setting_additional_parameters(key,file_name)   
     
 
     if key is None and file_name is None:
@@ -170,16 +165,6 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
 
     else:
         
-       if f"agree_cmax2 - {option}_{file_name}" not in st.session_state:
-               st.session_state[f"agree_cmax2 - {option}_{file_name}"] = False
-       
-       if type_parameter == 'Двойные пики':
-
-           st.session_state[f"agree_cmax2 - {option}_{file_name}"] = st.checkbox('В зависимости "Концентрация-Время" отчетливо наблюдаются двойные пики', key = f"Возможность добавления Cmax2 - {option}_{file_name}", value = st.session_state[f"agree_cmax2 - {option}_{file_name}"])
-           
-           if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
-               custom_success('Параметр добавлен!')
-
        if f"agree_injection - {option}_{file_name}" not in st.session_state:
                st.session_state[f"agree_injection - {option}_{file_name}"] = "extravascular"
 
