@@ -77,6 +77,13 @@ if option == 'Фармакокинетика':
 
         if panel == "Загрузка файлов":
            
+           if f"file_name_{option}" not in st.session_state:
+            st.session_state[f"file_name_{option}"] = '«Название файла»'
+
+           file_name = st.text_input("Введите название файла для оформления графиков и подписей:", st.session_state[f"file_name_{option}"], key = f"key_file_name_{option}")
+           
+           st.session_state[f"file_name_{option}"] = file_name
+           
            ######### боковое меню справа
            with col2:
                 
@@ -114,7 +121,7 @@ if option == 'Фармакокинетика':
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points
 
-           uploaded_file_pk = st.file_uploader("Выбрать файл концентраций ЛС (формат XLSX)", key=f'Файл введения ЛС при расчете {option}')
+           uploaded_file_pk = st.file_uploader(f"Выбрать файл концентраций {file_name} (формат XLSX)", key=f'Файл введения {file_name} при расчете {option}')
            
            #сохранение файла
            if uploaded_file_pk is not None:
@@ -125,7 +132,7 @@ if option == 'Фармакокинетика':
               custom_success(f"Файл загружен: {st.session_state[f'uploaded_file_{option}']}")
               
 
-           dose_pk = st.text_input("Доза при введении ЛС", key=f'Доза при введении ЛС при расчете {option}', value = st.session_state[f"dose_{option}"])
+           dose_pk = st.text_input(f"Доза при введении {file_name}", key=f'Доза при введении {file_name} при расчете {option}', value = st.session_state[f"dose_{option}"])
            
            st.session_state[f"dose_{option}"] = dose_pk
 
@@ -145,7 +152,7 @@ if option == 'Фармакокинетика':
 
               df = pd.read_excel(os.path.join("Папка для сохранения файлов",st.session_state[f"uploaded_file_{option}"]))
 
-              st.subheader('Индивидуальные значения концентраций в крови после введения ЛС')
+              st.subheader(f'Индивидуальные значения концентраций в крови после введения {file_name}')
               
               ###интерактивная таблица
               df = edit_frame(df,st.session_state[f"uploaded_file_{option}"])
@@ -153,7 +160,7 @@ if option == 'Фармакокинетика':
               ###количество животных 
               count_rows_number_pk= len(df.axes[0])
         
-              table_heading='Индивидуальные и усредненные значения концентраций в крови после введения ЛС'
+              table_heading=f'Индивидуальные и усредненные значения концентраций в крови после введения {file_name}'
               add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
               ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
@@ -195,10 +202,10 @@ if option == 'Фармакокинетика':
 
                   list_concentration = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration)
 
-                  graphic='График индивидуального фармакокинетического профиля в крови (в линейных координатах) после введения ЛС,  '+numer_animal
+                  graphic=f'График индивидуального фармакокинетического профиля в крови (в линейных координатах) после введения {file_name},  '+numer_animal
                   graph_id = graphic
                   add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
-                  
+
                   first_creating_create_individual_graphics(graph_id,list_time,list_concentration,st.session_state[f'measure_unit_{option}_time'],
                                                             st.session_state[f'measure_unit_{option}_concentration'],"lin",add_or_replace_df_graph, 
                                                             (st.session_state[f"list_heading_graphics_word_{option}"],
@@ -207,7 +214,7 @@ if option == 'Фармакокинетика':
                   #в полулогарифмических координатах методом удаления точек
                   list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
-                  graphic='График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС,  '+numer_animal
+                  graphic=f'График индивидуального фармакокинетического профиля в крови (в полулогарифмических координатах) после введения {file_name},  '+numer_animal
                   graph_id = graphic
                   add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
                   
@@ -226,11 +233,18 @@ if option == 'Фармакокинетика':
               list_numer_animal_for_plot=df['Номер'].tolist()
               count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
-              list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+              list_color = [
+                   "blue", "green", "red", "#D6870C", "violet", "gold", "indigo", "magenta", "lime", "tan", 
+                   "teal", "coral", "pink", "#510099", "lightblue", "yellowgreen", "cyan", "salmon", "brown", "black",
+                   "darkblue", "darkgreen", "darkred", "navy", "purple", "orangered", "darkgoldenrod", "slateblue", 
+                   "deepskyblue", "mediumseagreen", "chocolate", "peru", "crimson", "olive", "cadetblue", "chartreuse", 
+                   "darkcyan", "lightcoral", "mediumvioletred", "midnightblue", "sienna", "tomato", "turquoise", 
+                   "wheat", "plum", "thistle", "aquamarine", "dodgerblue", "lawngreen", "rosybrown", "seagreen"
+               ]
               
               df_for_plot_conc_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], df_for_plot_conc_1)
 
-              graphic="Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после введения ЛС"
+              graphic=f"Сравнение индивидуальных фармакокинетических профилей (в линейных координатах) после введения {file_name}"
               graph_id = graphic
               add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
@@ -242,7 +256,7 @@ if option == 'Фармакокинетика':
               # объединенные индивидуальные в полулогарифмических координатах методом замены  np.nan
               df_for_plot_conc_1 = replace_value_less_one_plot_total_individual_pk_profiles(df_for_plot_conc_1)
 
-              graphic="Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после введения ЛС"
+              graphic=f"Сравнение индивидуальных фармакокинетических профилей (в полулогарифмических координатах) после введения {file_name}"
               graph_id = graphic
               add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
@@ -266,24 +280,24 @@ if option == 'Фармакокинетика':
               
               list_concentration,err_y_pk = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration,err_y_pk)
 
-              graphic='График усредненного фармакокинетического профиля в крови (в линейных координатах) после введения ЛС'
+              graphic=f'График усредненного фармакокинетического профиля в крови (в линейных координатах) после введения {file_name}'
               graph_id = graphic
               add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)  
 
               first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_pk,st.session_state[f'measure_unit_{option}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_concentration'],'lin',
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],'lin',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
               #в полулогарифмических координатах
               list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
-              graphic='График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после введения ЛС'
+              graphic=f'График усредненного фармакокинетического профиля в крови (в полулогарифмических координатах) после введения {file_name}'
               graph_id = graphic
               add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
               first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_pk,st.session_state[f'measure_unit_{option}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_concentration'],'log',
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],'log',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic)) 
 
@@ -306,7 +320,7 @@ if option == 'Фармакокинетика':
                   
                   st.session_state[f"df_total_PK_{option}"] = df_total_PK_pk
 
-                  table_heading='Фармакокинетические показатели в крови после введения ЛС'
+                  table_heading=f'Фармакокинетические показатели в крови после введения {file_name}'
                   add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
                   
                   add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_pk)
@@ -418,7 +432,7 @@ if option == 'Фармакокинетика':
                                                                     st.session_state[f"err_y_1{graph_id}"],
                                                                     st.session_state[f'measure_unit_{option}_time'],
                                                                     st.session_state[f'measure_unit_{option}_concentration'],
-                                                                    kind_graphic,graph_id)
+                                                                    kind_graphic,graph_id,st.session_state[f"file_name_{option}"])
 
              with col2:
                   
@@ -687,7 +701,14 @@ if option == 'Биодоступность':
                      list_numer_animal_for_plot=df['Номер'].tolist()
                      count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
-                     list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+                     list_color = [
+                         "blue", "green", "red", "#D6870C", "violet", "gold", "indigo", "magenta", "lime", "tan", 
+                         "teal", "coral", "pink", "#510099", "lightblue", "yellowgreen", "cyan", "salmon", "brown", "black",
+                         "darkblue", "darkgreen", "darkred", "navy", "purple", "orangered", "darkgoldenrod", "slateblue", 
+                         "deepskyblue", "mediumseagreen", "chocolate", "peru", "crimson", "olive", "cadetblue", "chartreuse", 
+                         "darkcyan", "lightcoral", "mediumvioletred", "midnightblue", "sienna", "tomato", "turquoise", 
+                         "wheat", "plum", "thistle", "aquamarine", "dodgerblue", "lawngreen", "rosybrown", "seagreen"
+                     ]
                      
                      df_for_plot_conc_1 = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], df_for_plot_conc_1)
 
@@ -732,7 +753,7 @@ if option == 'Биодоступность':
                      list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_concentration,err_y_1)
 
                      first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                        st.session_state[f'measure_unit_{option}_concentration'],'lin',
+                                                                        st.session_state[f'measure_unit_{option}_concentration'],'lin',file_name,
                                                                         add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -746,7 +767,7 @@ if option == 'Биодоступность':
                      list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                      first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                        st.session_state[f'measure_unit_{option}_concentration'],'log',
+                                                                        st.session_state[f'measure_unit_{option}_concentration'],'log',file_name,
                                                                         add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
                      
@@ -1093,7 +1114,7 @@ if option == 'Биодоступность':
                                                                        st.session_state[f"err_y_1{graph_id}"],
                                                                        st.session_state[f'measure_unit_{option}_time'],
                                                                        st.session_state[f'measure_unit_{option}_concentration'],
-                                                                       kind_graphic,graph_id)
+                                                                       kind_graphic,graph_id,file_name)
                              
                     if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                       if type_graphics == 'Сравнение фармакокинетических профилей в исследовании биодоступности':
@@ -1332,7 +1353,14 @@ if option == 'Распределение по органам':
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
-                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+                 list_color = [
+                   "blue", "green", "red", "#D6870C", "violet", "gold", "indigo", "magenta", "lime", "tan", 
+                   "teal", "coral", "pink", "#510099", "lightblue", "yellowgreen", "cyan", "salmon", "brown", "black",
+                   "darkblue", "darkgreen", "darkred", "navy", "purple", "orangered", "darkgoldenrod", "slateblue", 
+                   "deepskyblue", "mediumseagreen", "chocolate", "peru", "crimson", "olive", "cadetblue", "chartreuse", 
+                   "darkcyan", "lightcoral", "mediumvioletred", "midnightblue", "sienna", "tomato", "turquoise", 
+                   "wheat", "plum", "thistle", "aquamarine", "dodgerblue", "lawngreen", "rosybrown", "seagreen"
+                 ]
                  
                  df_for_plot_conc_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], df_for_plot_conc_1)
 
@@ -1377,7 +1405,7 @@ if option == 'Распределение по органам':
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                    measure_unit_org,'lin',
+                                                                    measure_unit_org,'lin',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
                  #в полулогарифмических координатах
@@ -1390,7 +1418,7 @@ if option == 'Распределение по органам':
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                    measure_unit_org,'log',
+                                                                    measure_unit_org,'log',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
                  ############ Параметры ФК
@@ -1780,7 +1808,7 @@ if option == 'Распределение по органам':
                                                                       st.session_state[f"err_y_1{graph_id}"],
                                                                       st.session_state[f'measure_unit_{option}_time'],
                                                                       measure_unit_org,
-                                                                      kind_graphic,graph_id)
+                                                                      kind_graphic,graph_id,file_name)
                          
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
                       if type_graphics == 'Сравнение фармакокинетических профилей в различных органах':
@@ -2037,7 +2065,14 @@ if option == 'Линейность дозирования':
                  list_numer_animal_for_plot=df['Номер'].tolist()
                  count_numer_animal = len(list_numer_animal_for_plot) ### для регулирования пропорции легенды
 
-                 list_color = ["blue","green","red","#D6870C","violet","gold","indigo","magenta","lime","tan","teal","coral","pink","#510099","lightblue","yellowgreen","cyan","salmon","brown","black"]
+                 list_color = [
+                   "blue", "green", "red", "#D6870C", "violet", "gold", "indigo", "magenta", "lime", "tan", 
+                   "teal", "coral", "pink", "#510099", "lightblue", "yellowgreen", "cyan", "salmon", "brown", "black",
+                   "darkblue", "darkgreen", "darkred", "navy", "purple", "orangered", "darkgoldenrod", "slateblue", 
+                   "deepskyblue", "mediumseagreen", "chocolate", "peru", "crimson", "olive", "cadetblue", "chartreuse", 
+                   "darkcyan", "lightcoral", "mediumvioletred", "midnightblue", "sienna", "tomato", "turquoise", 
+                   "wheat", "plum", "thistle", "aquamarine", "dodgerblue", "lawngreen", "rosybrown", "seagreen"
+                 ]
                  
                  df_for_plot_conc_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], df_for_plot_conc_1)
 
@@ -2082,7 +2117,7 @@ if option == 'Линейность дозирования':
                  list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration,err_y_1)
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_concentration'],'lin',
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],'lin',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -2096,7 +2131,7 @@ if option == 'Линейность дозирования':
                  list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_concentration'],'log',
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],'log',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -2562,7 +2597,7 @@ if option == 'Линейность дозирования':
                                                                       st.session_state[f"err_y_1{graph_id}"],
                                                                       st.session_state[f'measure_unit_{option}_time'],
                                                                       st.session_state[f'measure_unit_{option}_concentration'],
-                                                                      kind_graphic,graph_id)
+                                                                      kind_graphic,graph_id,file_name)
      
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
