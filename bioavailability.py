@@ -772,12 +772,8 @@ if option == 'Биодоступность':
                                                                                                   st.session_state[f"list_graphics_word_{option}"],graphic))
                      
                      ############ Параметры ФК
-
                      if f"agree_cmax2 - {option}_{file_name}" not in st.session_state:
                         st.session_state[f"agree_cmax2 - {option}_{file_name}"] = False
-                     
-                     if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
-                        st.session_state[f"agree_cmax2 - {option}_{file_name}"] = True
 
                      if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
                          result_PK = pk_parametrs_total_extravascular(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'])
@@ -789,29 +785,17 @@ if option == 'Биодоступность':
                          result_PK = pk_parametrs_total_infusion(df,f"{option}_{file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'],st.session_state[f"infusion_time_{option}_{file_name}"])
 
                      if result_PK is not None:
-                         if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == False:
-                            df_total_PK_bioavailability = result_PK["df_total_PK"]
-                            df_concat_PK_bioavailability = result_PK["df_concat_PK"]
-                            list_cmax_1_bioavailability = result_PK["list_cmax_1"]
-                         if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
-                            df_total_PK_bioavailability = result_PK["df_total_PK"]
-                            df_concat_PK_bioavailability = result_PK["df_concat_PK"]
-                            list_cmax_1_bioavailability = result_PK["list_cmax_1"]
-                            list_cmax_2_bioavailability = result_PK["list_cmax_2"]
-                            df_total_PK_additional_double_peaks_bioavailability = result_PK["df_total_PK_additional_double_peaks"]
-                             
+
+                         df_total_PK_bioavailability = result_PK["df_total_PK"]
+                         df_concat_PK_bioavailability = result_PK["df_concat_PK"]
+                         list_cmax_1_bioavailability = result_PK["list_cmax_1"]
+                         
                          st.session_state[f"df_total_PK_{option}"] = df_total_PK_bioavailability
 
                          table_heading='Фармакокинетические показатели препарата в дозировке «' +file_name +"» "
                          add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
                          add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_bioavailability)
-
-                         if st.session_state[f"agree_cmax2 - {option}_{file_name}"] == True:
-                            table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле «' +file_name +"» "
-                            add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                            
-                            add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_bioavailability)
 
                          #создание списков фреймов, доз и т.д.
 
@@ -821,13 +805,8 @@ if option == 'Биодоступность':
                          #list_name_doses.append(file_name)
                          list_df_unrounded.append(df_concat_PK_bioavailability)
                          list_df_for_mean_unround_for_graphics.append(df_concat)
-                     else:
-                         st.session_state[f"df_total_PK_{option}"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                         st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
-                 
-                 
-                    
-                    
+
+
                  list_list_PK_par_mean=[]
                  for i,file_name in list(zip(list_df_unrounded,list_name_bioavailability)): 
                      mean_сmax=i['Cmax'].loc['mean']
@@ -1421,15 +1400,12 @@ if option == 'Распределение по органам':
                                                                     measure_unit_org,'log',file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
-                 ############ Параметры ФК
                  
-                 if f"agree_cmax2 - {option} {file_name}" not in st.session_state:
-                    st.session_state[f"agree_cmax2 - {option} {file_name}"] = False
-                 
-                 if st.session_state[f"agree_cmax2 - {option}"] == True:
-                    st.session_state[f"agree_cmax2 - {option} {file_name}"] = True
 
                  ############ Параметры ФК
+                 if f"agree_cmax2 - {option} {file_name}" not in st.session_state:
+                    st.session_state[f"agree_cmax2 - {option} {file_name}"] = False
+
                  if st.session_state[f"agree_injection - {option}"] == "extravascular":
                      result_PK = pk_parametrs_total_extravascular(df,f"{option} {file_name}",method_auc,dose,measure_unit_org,st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'])
                  elif st.session_state[f"agree_injection - {option}"] == "intravenously":
@@ -1441,17 +1417,11 @@ if option == 'Распределение по органам':
                  
 
                  if result_PK is not None:
-                     if st.session_state[f"agree_cmax2 - {option}"] == False:
-                        df_total_PK_org = result_PK["df_total_PK"]
-                        df_concat_PK_org = result_PK["df_concat_PK"]
-                        list_cmax_1_org = result_PK["list_cmax_1"]
-                     if st.session_state[f"agree_cmax2 - {option}"] == True:
-                        df_total_PK_org = result_PK["df_total_PK"]
-                        df_concat_PK_org = result_PK["df_concat_PK"]
-                        list_cmax_1_org = result_PK["list_cmax_1"]
-                        list_cmax_2_org = result_PK["list_cmax_2"]
-                        df_total_PK_additional_double_peaks_org = result_PK["df_total_PK_additional_double_peaks"]
-                         
+
+                     df_total_PK_org = result_PK["df_total_PK"]
+                     df_concat_PK_org = result_PK["df_concat_PK"]
+                     list_cmax_1_org = result_PK["list_cmax_1"]
+
                      st.session_state[f"df_total_PK_{option}"] = df_total_PK_org
 
                      table_heading='Фармакокинетические показатели ' + "("+file_name+")"
@@ -1459,23 +1429,13 @@ if option == 'Распределение по органам':
                      
                      add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_org)
                      
-                     if st.session_state[f"agree_cmax2 - {option}"] == True:
-                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле '  + "("+file_name+")"
-                        add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                        
-                        add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_org)
-
                      #создание списков фреймов, названий органов и т.д.
-
                      ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
                      df_concat = create_table_descriptive_statistics(df)['df_concat']
 
                      list_name_organs.append(file_name)
                      list_df_unrounded.append(df_concat_PK_org)
                      list_df_for_mean_unround_for_graphics.append(df_concat)
-                 else:
-                     st.session_state[f"df_total_PK_{option}"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                     st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
 
              ###Кнопка активации дальнейших действий
              button_calculation = False
@@ -1483,17 +1443,9 @@ if option == 'Распределение по органам':
              if (list_keys_file_org != []) and dose and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and result_PK is not None:
               
                 condition_cmax1 =  len(list_cmax_1_org) == count_rows_number_org
-                
-                if st.session_state[f"agree_cmax2 - {option}"] == True:
-                   condition_cmax2 =  len(list_cmax_2_org) == count_rows_number_org
-                
-                if st.session_state[f"agree_cmax2 - {option}"] == True:
-                   if (condition_cmax2):
-                      button_calculation = True
-                if st.session_state[f"agree_cmax2 - {option}"] == False:
-                   if (condition_cmax1):
-                      button_calculation = True
 
+                button_calculation = True
+                
                 if button_calculation == True:
                    custom_success('Расчеты произведены!')
                 else:   
@@ -1581,7 +1533,7 @@ if option == 'Распределение по органам':
                 df_total_total_organs_total= df_total_total_organs.transpose()
                 df_total_total_organs_total.index.name = 'Параметры, размерность'
 
-                table_heading='Фармакокинетические параметры в различных тканях'
+                table_heading='Среднее арифметическое фармакокинетических параметров в различных тканях'
                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading) 
 
                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_total_organs_total) 
@@ -2139,9 +2091,6 @@ if option == 'Линейность дозирования':
 
                  if f"agree_cmax2 - {option} {file_name}" not in st.session_state:
                     st.session_state[f"agree_cmax2 - {option} {file_name}"] = False
-                 
-                 if st.session_state[f"agree_cmax2 - {option} {file_name}"] == True:
-                    st.session_state[f"agree_cmax2 - {option} {file_name}"] = True
 
                  if st.session_state[f"agree_injection - {option}"] == "extravascular":
                      result_PK = pk_parametrs_total_extravascular(df,f"{option} {file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'])
@@ -2153,16 +2102,10 @@ if option == 'Линейность дозирования':
                      result_PK = pk_parametrs_total_infusion(df,f"{option} {file_name}",method_auc,st.session_state[f"dose_{option}_{file_name}"],st.session_state[f'measure_unit_{option}_concentration'],st.session_state[f'measure_unit_{option}_time'],st.session_state[f'measure_unit_{option}_dose'],st.session_state[f"infusion_time_{option}_{file_name}"])
 
                  if result_PK is not None:
-                     if st.session_state[f"agree_cmax2 - {option}"] == False:
-                        df_total_PK_lin = result_PK["df_total_PK"]
-                        df_concat_PK_lin = result_PK["df_concat_PK"]
-                        list_cmax_1_lin = result_PK["list_cmax_1"]
-                     if st.session_state[f"agree_cmax2 - {option}"] == True:
-                        df_total_PK_lin = result_PK["df_total_PK"]
-                        df_concat_PK_lin = result_PK["df_concat_PK"]
-                        list_cmax_1_lin = result_PK["list_cmax_1"]
-                        list_cmax_2_lin = result_PK["list_cmax_2"]
-                        df_total_PK_additional_double_peaks_lin = result_PK["df_total_PK_additional_double_peaks"]
+
+                     df_total_PK_lin = result_PK["df_total_PK"]
+                     df_concat_PK_lin = result_PK["df_concat_PK"]
+                     list_cmax_1_lin = result_PK["list_cmax_1"]
                          
                      st.session_state[f"df_total_PK_{option}"] = df_total_PK_lin
 
@@ -2170,12 +2113,6 @@ if option == 'Линейность дозирования':
                      add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
                      add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_lin)
-
-                     if st.session_state[f"agree_cmax2 - {option}"] == True:
-                        table_heading='Дополнительные фармакокинетические показатели при наличии двух пиков в ФК профиле ' +file_name +" "+ st.session_state[f'measure_unit_{option}_dose']
-                        add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
-                        
-                        add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_lin)
 
                      #создание списков фреймов, доз и т.д.
 
@@ -2185,9 +2122,6 @@ if option == 'Линейность дозирования':
                      list_name_doses.append(file_name)
                      list_df_unrounded.append(df_concat_PK_lin)
                      list_df_for_mean_unround_for_graphics.append(df_concat)
-                 else:
-                     st.session_state[f"df_total_PK_{option}"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                     st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
 
              ###Кнопка активации дальнейших действий
              button_calculation = False
@@ -2195,17 +2129,9 @@ if option == 'Линейность дозирования':
              if (list_keys_file_lin != []) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_dose']  and result_PK is not None:
               
                 condition_cmax1 =  len(list_cmax_1_lin) == count_rows_number_lin
-                
-                if st.session_state[f"agree_cmax2 - {option}"] == True:
-                   condition_cmax2 =  len(list_cmax_2_lin) == count_rows_number_lin
-                
-                if st.session_state[f"agree_cmax2 - {option}"] == True:
-                   if (condition_cmax2):
-                      button_calculation = True
-                if st.session_state[f"agree_cmax2 - {option}"] == False:
-                   if (condition_cmax1):
-                      button_calculation = True
 
+                button_calculation = True
+                
                 if button_calculation == True:
                    custom_success('Расчеты произведены!')
                 else:   
@@ -2298,7 +2224,7 @@ if option == 'Линейность дозирования':
                 df_total_total_doses_total= df_total_total_doses.transpose()
                 df_total_total_doses_total.index.name = 'Параметры, размерность'
              
-                table_heading='Фармакокинетические параметры препарата в различных дозировках'
+                table_heading='Среднее арифметическое фармакокинетических параметров в различных дозировках'
                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_total_doses_total)
@@ -2398,7 +2324,7 @@ if option == 'Линейность дозирования':
 
                 # Создаем правильный список дозировок, повторяя каждый элемент нужное количество раз
                 list_name_doses_lin_float = [float(dose) for dose in list_name_doses for _ in range(len(mean_auc0inf))]
-
+                
                 # Убедимся, что данные организованы правильно
                 # Создаем DataFrame для анализа
                 df_for_lin = pd.DataFrame({
