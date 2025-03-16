@@ -145,7 +145,11 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
            ("Вид введения",'Двойные пики'),disabled = False, key = f"Вид параметра - {option}")
     else:
        #оформительский элемент настройки дополнительных параметров исследования
-       selected = style_icon_setting_additional_parameters(key,file_name)   
+       selected = style_icon_setting_additional_parameters(key,file_name)
+
+       if selected == f"Настройка дополнительных параметров для «{file_name}»":
+            type_parameter = st.selectbox('Выберите параметр',
+            ('Вид введения','-'),disabled = False, key = f"Вид параметра - {option}_{file_name}")   
     
 
     if key is None and file_name is None:
@@ -180,13 +184,13 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
            # Радиокнопка для выбора типа введения
            injection_type = st.radio(
                "Выберите тип введения:",
-               options=["Внутривенное введение", "Внесосудистое введение", "Инфузионное введение"],
+               options=["Внутривенный болюс", "Внесосудистое введение", "Инфузионное введение"],
                index=st.session_state[f"injection_choice - {option}"],
                key=f"injection_choice_{option}",  # Ключ для сохранения выбора в сессии
            )
 
            # Логика для обновления состояния сессии
-           if injection_type == "Внутривенное введение":
+           if injection_type == "Внутривенный болюс":
                st.session_state[f"agree_injection - {option}"] = "intravenously"
                st.session_state[f"injection_choice - {option}"] = 0
            elif injection_type == "Внесосудистое введение":
@@ -198,21 +202,45 @@ def settings_additional_research_parameters(option,custom_success,key=None,file_
 
            # Сообщение в зависимости от выбора
            if st.session_state[f"agree_injection - {option}"] == "intravenously":
-               custom_success("Выбрано: Внутривенное введение!")
+               custom_success("Выбрано: Внутривенный болюс!")
            elif st.session_state[f"agree_injection - {option}"] == "extravascular":
                custom_success("Выбрано: Внесосудистое введение!")
            else:
                custom_success("Выбрано: Инфузионное введение!")
-    else:  
-          # Логика для обновления состояния сессии
-           if file_name.__contains__("Болюс"):
-              st.session_state[f"agree_injection - {option}_{file_name}"] = "intravenously"
+    else: 
+       
+      if type_parameter == "Вид введения":
 
-           elif file_name.__contains__("Внесосудистое"):
+           # Проверка наличия значения в сессии, если его нет, устанавливаем значение по умолчанию
+           if f"injection_choice - {option}_{file_name}" not in st.session_state:
+               st.session_state[f"injection_choice - {option}_{file_name}"] = 0  # Значение по умолчанию
+
+           # Радиокнопка для выбора типа введения
+           injection_type = st.radio(
+               "Выберите тип введения:",
+               options=["Внутривенный болюс", "Внесосудистое введение", "Инфузионное введение"],
+               index=st.session_state[f"injection_choice - {option}_{file_name}"],
+               key=f"injection_choice_{option}_{file_name}",  # Ключ для сохранения выбора в сессии
+           )
+
+           # Логика для обновления состояния сессии
+           if injection_type == "Внутривенный болюс":
+               st.session_state[f"agree_injection - {option}_{file_name}"] = "intravenously"
+               st.session_state[f"injection_choice - {option}_{file_name}"] = 0
+           elif injection_type == "Внесосудистое введение":
                st.session_state[f"agree_injection - {option}_{file_name}"] = "extravascular"
-
+               st.session_state[f"injection_choice - {option}_{file_name}"] = 1
            else:
                st.session_state[f"agree_injection - {option}_{file_name}"] = "infusion"
+               st.session_state[f"injection_choice - {option}_{file_name}"] = 2
+
+           # Сообщение в зависимости от выбора
+           if st.session_state[f"agree_injection - {option}_{file_name}"] == "intravenously":
+               custom_success("Выбрано: Внутривенный болюс!")
+           elif st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
+               custom_success("Выбрано: Внесосудистое введение!")
+           else:
+               custom_success("Выбрано: Инфузионное введение!")
 
 
 
