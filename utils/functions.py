@@ -502,52 +502,98 @@ def create_table(list_heading_word, list_table_word):
     )
 
 #визуализация и выгрузка в excel
-def visualize_table(list_heading_word,list_table_word):
+def visualize_table(list_heading_word,list_table_word,option):
     zip_heading_table = list(zip(list_heading_word,list_table_word)) ###еще раз объявляем, иначе не видит zip-объект
     #####визуализация
     for heading, df in zip_heading_table:
-        st.subheader(heading)
+        
+        if heading == "Таблица биодоступности": 
+          width = 500
+        else:
+          width = None
 
-        # Словарь с форматированием для конкретных колонок
-        format_rules = {
-            
-        }
+        with st.container(border=True,key= f"container_PK{heading}",height=500):
+             
+             st.subheader(heading)
 
-        # Функция округления в стиле Phoenix (3–4 значащие цифры)
-        def phoenix_format(value):
-            try:
-                num = float(value)
-                if num == 0:
-                    return "0"
-                elif abs(num) < 1:
-                    return f"{num:.4g}"  # Маленькие числа → 3-4 значащие цифры
-                elif abs(num) < 1000:
-                    return f"{num:.4g}"  # Средние числа → 4 значащие цифры
-                else:
-                    return f"{num:,.0f}"  # Большие числа → Без научной нотации, с разделителями
-            except (ValueError, TypeError):
-                return value  # Оставляем строки без изменений
-            
-        # Функция, применяющая нужное форматирование к каждой ячейке
-        def safe_format(value, col):
-            if col in format_rules:
-                fmt = format_rules[col]
-                try:
-                    return fmt.format(float(value)) if isinstance(value, (int, float)) or str(value).replace('.', '', 1).isdigit() else value
-                except ValueError:
-                    return value
-            else:
-                return phoenix_format(value)  # Применяем Phoenix-форматирование
+             # Словарь с форматированием для конкретных колонок
+             format_rules = {
+                 
+             }
 
-        # Применяем функцию к каждой ячейке в колонках
-        # Создаём словарь форматирования для Pandas Styler
-        format_dict = {col: lambda x: safe_format(x, col) for col in df.columns}
+             # Функция округления в стиле Phoenix (3–4 значащие цифры)
+             def phoenix_format(value):
+                 try:
+                     num = float(value)
+                     if num == 0:
+                         return "0"
+                     elif abs(num) < 1:
+                         return f"{num:.4g}"  # Маленькие числа → 3-4 значащие цифры
+                     elif abs(num) < 1000:
+                         return f"{num:.4g}"  # Средние числа → 4 значащие цифры
+                     else:
+                         return f"{num:,.0f}"  # Большие числа → Без научной нотации, с разделителями
+                 except (ValueError, TypeError):
+                     return value  # Оставляем строки без изменений
+                 
+             # Функция, применяющая нужное форматирование к каждой ячейке
+             def safe_format(value, col):
+                 if col in format_rules:
+                     fmt = format_rules[col]
+                     try:
+                         return fmt.format(float(value)) if isinstance(value, (int, float)) or str(value).replace('.', '', 1).isdigit() else value
+                     except ValueError:
+                         return value
+                 else:
+                     return phoenix_format(value)  # Применяем Phoenix-форматирование
 
-        # Отображаем DataFrame с форматированием
-        st.dataframe(df.style.format(format_dict))
+             # Применяем функцию к каждой ячейке в колонках
+             # Создаём словарь форматирования для Pandas Styler
+             format_dict = {col: lambda x: safe_format(x, col) for col in df.columns}
 
-        # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-        download_excel_button(df, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
+             # Инициализируем состояние, если оно ещё не задано
+             if f"selected_columns{heading}_{option}" not in st.session_state:
+                 columns = [str(col) for col in list(df.columns)]
+                 st.session_state[f"selected_columns{heading}_{option}"] = columns   # По умолчанию все колонки
+                 
+             if f"selected_rows{heading}_{option}" not in st.session_state:
+                 rows = [str(row) for row in list(df.index)]
+                 st.session_state[f"selected_rows{heading}_{option}"] = rows  # По умолчанию все колонки    
+             
+             # Отображаем DataFrame с форматированием
+             selection = st.dataframe(df.style.format(format_dict),on_select = "rerun",selection_mode=["multi-row", "multi-column"],width=width)
+             # Проверяем, были ли выбраны колонки
+             if selection:
+                 selected_row_indices = selection["selection"]["rows"]  # Получаем номера выбранных строк
+                 selected_rows = df.index[selected_row_indices]  # Получаем пользовательские индексы
+                 selected_rows = [str(row) for row in selected_rows]  # Приведение выбранных колонок к строкам
+
+                 selected_columns = selection["selection"]["columns"]
+                 selected_columns = [str(col) for col in selected_columns]  # Приведение выбранных колонок к строкам
+
+                 # Обновляем состояние только если выбор изменился
+                 if selected_columns != st.session_state[f"selected_columns{heading}_{option}"] and selected_columns != []:
+                     st.session_state[f"selected_columns{heading}_{option}"] = selected_columns
+
+                 # Обновляем состояние только если выбор изменился
+                 if selected_rows != st.session_state[f"selected_rows{heading}_{option}"] and selected_rows != []:
+                     st.session_state[f"selected_rows{heading}_{option}"] = selected_rows
+
+             st.subheader("Выбранные данные:")
+             df.index = df.index.astype(str)  # Приведение к строковому типу
+             df.columns = df.columns.astype(str)  # Приведение к строковому типу
+
+             choice_columns = df.loc[st.session_state[f"selected_rows{heading}_{option}"], st.session_state[f"selected_columns{heading}_{option}"]]
+             st.dataframe(choice_columns.style.format(format_dict),width=width)
+             col1,col2 = st.columns([0.2,0.8])
+             with col1:
+                  if st.button("Очистить выбор",key = f"Clear_selection_{heading}_{option}"):
+                     st.session_state[f"selected_columns{heading}_{option}"] = []
+                     st.session_state[f"selected_rows{heading}_{option}"] = []
+             with col2:
+                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+                  download_excel_button(choice_columns, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
+
 
 ## функция создания отчета графиков
 def create_graphic(list_graphics_word,list_heading_graphics_word):
