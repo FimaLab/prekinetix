@@ -168,7 +168,7 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
                 fig = child_func_create_graphic(*args, **new_kwargs)         
                 st.session_state[f"list_graphics_word_{option}"][i] = fig
                 st.session_state[f"first_creating_graphic{graph_id}"] = False
-                st.experimental_rerun()
+                st.rerun()
         else:
             # Значения осей по умолчанию
             x_settings = {
