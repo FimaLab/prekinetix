@@ -332,36 +332,29 @@ if option == 'Фармакокинетика':
                      add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_pk)
               else:
                   st.session_state[f"df_total_PK_{option}"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                  st.error("Выберете необходимое количество значений Cmax и Cmax(2)")
+                  st.error("Выберите необходимое количество значений Cmax и Cmax(2)")
 
-           else:
-               st.write("")
+              custom_success('Расчеты произведены!')
+                 
+           else:   
+              st.error('🔧Заполните все поля ввода и загрузите файлы!') 
           
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
     col1, col2 = st.columns([0.66,0.34])
-    
+
+    #####Создание word отчета
+    if panel == "Таблицы":
+       if st.session_state[f"df_total_PK_{option}"] is not None:
+          
+          ###вызов функции визуализации таблиц
+          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+
+       else:
+          st.error("Введите и загрузите все необходимые данные!")
+
     with col1:
-     
-       #####Создание word отчета
-       if panel == "Таблицы":
-          if st.session_state[f"df_total_PK_{option}"] is not None:
-             
-             ###вызов функции визуализации таблиц
-             visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-
-             with col2:
-                  
-                  #вызов функции оформлительского элемента сформированный отчет
-                  selected = style_icon_report()
-
-                  if selected == "Cформированный отчeт":
-                     if st.button("Сформировать отчет"):
-                        ###вызов функции создания Word-отчета таблиц
-                        create_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-          else:
-             st.error("Введите и загрузите все необходимые данные!")
-
+       
        if panel == "Графики":
           if st.session_state[f"df_total_PK_{option}"] is not None:
              #######визуализация
@@ -487,8 +480,7 @@ if option == 'Биодоступность':
            if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == "linear-up/log-down":
               st.session_state[f"index_method_auc - {option}"] = 1
 
-           custom_alert("Выберите нужное количество файлов")
-           file_uploader = st.file_uploader("",accept_multiple_files=True, key=f'Файлы при исследовании {option}')
+           file_uploader = st.file_uploader("",accept_multiple_files=True, key=f'Файлы при исследовании {option}',help = "Выберите нужное количество файлов. В названии файла обязательно должны присутствовать слово с нижним подчеркиванием «Биодоступность_» в верхнем регистре, после этого текстовая часть, которая будет использована для оформления легенды графиков, названий таблиц и прочего.")
            
            if 'list_files_name_bioavailability' not in st.session_state:
              st.session_state['list_files_name_bioavailability'] = []
@@ -508,14 +500,14 @@ if option == 'Биодоступность':
            
            list_keys_file_bioavailability = []
            for i in st.session_state.keys():
-               if i.__contains__("xlsx") and (i.__contains__("Болюс") or i.__contains__("Внесосудистое") or i.__contains__("Инфузионное")) and (not i.__contains__("edited_df")) and (not i.__contains__("select")) and ((not i.__contains__("del"))): ###слово био нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
+               if i.__contains__("xlsx") and (i.__contains__("Биодоступность")) and (not i.__contains__("edited_df")) and (not i.__contains__("select")) and ((not i.__contains__("del"))): ###слово био нужно, чтобы отличать файлы от других xlsx органов, т.к там тоже ключи имя файла; #обрезаем фразу ненужного добавления названия "edited_df"
                   list_keys_file_bioavailability.append(i)
          
            if 'sorted_list_keys_file_bioavailability' not in st.session_state and st.session_state['list_files_name_bioavailability'] != []:
               st.session_state['sorted_list_keys_file_bioavailability'] = st.session_state['list_files_name_bioavailability']
            
            if 'sorted_list_keys_file_bioavailability' in st.session_state:
-              #сортировка по алфавиту
+              #сортировка
               list_keys_file_bioavailability = sort_items(st.session_state['sorted_list_keys_file_bioavailability'],direction="vertical")
               st.session_state['sorted_list_keys_file_bioavailability'] = list_keys_file_bioavailability
            
@@ -526,29 +518,14 @@ if option == 'Биодоступность':
               
               list_keys_file_bioavailability_name = []
               for i in list_keys_file_bioavailability:
-                  if "." in i[-5:]: 
-                     list_keys_file_bioavailability_name.append(i[:-5])
+                   list_keys_file_bioavailability_name.append(i[15:-5])
 
               list_keys_file_bioavailability = [f"{str(name)}" for name in list_keys_file_bioavailability_name]
               
-
               for file_name in list_keys_file_bioavailability:
 
                    with col2:
-                        with st.container():
-
-                             st.markdown(
-                                 """
-                                 <div style="
-                                     border: 2px solid #1f3b57; /* Толщина и цвет границы */
-                                     padding: 10px; /* Внутренний отступ */
-                                     border-radius: 10px; /* Скругление углов */
-                                     background-color: #f9f9f9; /* Цвет фона */
-                                 ">
-                                 </div>
-                                 """,
-                                 unsafe_allow_html=True
-                             )
+                        with st.container(border=True):
 
                              #настройки дополнительных параметров исследования
                              settings_additional_research_parameters(f"{option}",custom_success,f"{option}",file_name)
@@ -568,8 +545,8 @@ if option == 'Биодоступность':
                                 st.session_state[f"extrapolate_first_points_{option}_{file_name}"] = extrapolate_first_points
 
                              initialization_dose_infusion_time_session(option,file_name)
-
-                             dose = st.text_input(f"Доза препарата для набора данных {file_name}", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
+                             
+                             dose = st.text_input(f"Доза препарата для набора данных «{file_name}»", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
                      
                              st.session_state[f"dose_{option}_{file_name}"] = dose
 
@@ -577,10 +554,22 @@ if option == 'Биодоступность':
                                   
                                   infusion_time = st.text_input(f"Время введения инфузии для набора данных {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"])
                                   st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
+
+           # Проверка, заполнены ли все необходимые дозы
+           missing_doses = []
+           for file_name in list_keys_file_bioavailability:
+               dose = st.session_state[f"dose_{option}_{file_name}"]
+               if dose != '':
+                  missing_doses.append(dose)
            
-           if ((list_keys_file_bioavailability != []) and st.session_state[f"dose_{option}_{file_name}"] != "" and (st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "")):
+           if len(missing_doses) == len(list_keys_file_bioavailability):
+              cheking_doses = True
+           else:
+              cheking_doses = False
+
+           if ((list_keys_file_bioavailability != []) and cheking_doses and (st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "")):
                 start = True
-           elif ((list_keys_file_bioavailability != []) and st.session_state[f"dose_{option}_{file_name}"] != "" and (st.session_state[f"agree_injection - {option}_{file_name}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "")):
+           elif ((list_keys_file_bioavailability != []) and cheking_doses and (st.session_state[f"agree_injection - {option}_{file_name}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "")):
               start = True
            else:
               start = False
@@ -604,11 +593,12 @@ if option == 'Биодоступность':
 
               if st.session_state[f"selected_edges_{option}"] != [] and st.session_state[f"selected_edges_{option}"] is not None:
                  
+                 list_keys_file_bioavailability_without_bioavailability = [f"{str(name)}.xlsx" for name in list_keys_file_bioavailability]
 
-                 list_keys_file_bioavailability = [f"{str(name)}.xlsx" for name in list_keys_file_bioavailability]
+                 st.session_state[f'list_keys_file_{option}'] = list_keys_file_bioavailability_without_bioavailability
+
+                 list_keys_file_bioavailability = [f"Биодоступность_{str(name)}.xlsx" for name in list_keys_file_bioavailability]
                  
-                 st.session_state[f'list_keys_file_{option}'] = list_keys_file_bioavailability
-
                  list_name_bioavailability = []
                  list_df_unrounded=[]
                  list_df_for_mean_unround_for_graphics=[]
@@ -617,7 +607,7 @@ if option == 'Биодоступность':
                  for i in list_keys_file_bioavailability:
                      df = pd.read_excel(os.path.join("Папка для сохранения файлов",i))
 
-                     file_name=i[:-5]
+                     file_name=i[15:-5]
                      list_name_bioavailability.append(file_name)
 
                      st.subheader('Индивидуальные значения концентраций для набора данных «' +file_name+"»")
@@ -972,37 +962,31 @@ if option == 'Биодоступность':
                     fig = plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t_doses,df_concat_mean_std,st.session_state[f'measure_unit_{option}_time'],
                                                                  st.session_state[f'measure_unit_{option}_concentration'],'log',graph_id)
                     add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
-                    
+
+                 custom_success('Расчеты произведены!')
+                 
+              else:   
+                 st.error('🔧Выберите дизайн исследования!')      
 
     #отдельная панель, чтобы уменьшить размер вывода результатов
     col1, col2 = st.columns([0.66,0.34])
     
+    #####Создание word отчета
+    if panel == "Таблицы": 
+       if st.session_state[f"df_total_PK_{option}"] is not None:
+          
+          list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
+          st.session_state[f"list_heading_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_word_{option}"], list_keys)
+          st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
+
+          ###вызов функции визуализации таблиц
+          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+
+       else:
+           st.error("Введите и загрузите все необходимые данные!")
+
     with col1:
-
-       #####Создание word отчета
-       if panel == "Таблицы": 
-          if st.session_state[f"df_total_PK_{option}"] is not None:
-             
-             list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
-             st.session_state[f"list_heading_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_word_{option}"], list_keys)
-             st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
-
-             ###вызов функции визуализации таблиц
-             visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-
-             with col2:
-                  
-                  #вызов функции оформлительского элемента сформированный отчет
-                  selected = style_icon_report()
-
-                  if selected == "Cформированный отчeт":
-
-                     ###вызов функции создания Word-отчета таблиц
-                     if st.button("Сформировать отчет"):
-                        create_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-          else:
-              st.error("Введите и загрузите все необходимые данные!")
-       
+          
        if panel == "Графики":
           if st.session_state[f"df_total_PK_{option}"] is not None: 
              #######визуализация
@@ -1100,7 +1084,7 @@ if option == 'Биодоступность':
                          
                          graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
                           
-                         file_name = [i[:-5] for i in st.session_state[f'list_keys_file_{option}']][0] #костыль, там вверху также только последнего вставляются значения, нужно решить как оставим
+                         file_name = [i[15:-5] for i in st.session_state[f'list_keys_file_{option}']][0] #костыль, там вверху также только последнего вставляются значения, нужно решить как оставим
                          
                          if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("линейных"):
                             kind_graphic = 'lin'
@@ -1194,8 +1178,7 @@ if option == 'Распределение по органам':
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points
 
-         custom_alert("Выберите нужное количество файлов соответственно количеству исследуемых органов; файл должен быть назван соотвественно органу; исходный файл крови должен быть назван 'Кровь'")
-         file_uploader = st.file_uploader("",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных')
+         file_uploader = st.file_uploader("",accept_multiple_files=True, key='Файлы при изучении фармакокинетики в органах животных',help = "Выберите нужное количество файлов соответственно количеству исследуемых органов; файл должен быть назван соотвественно органу; исходный файл крови должен быть назван 'Кровь'")
 
          if 'list_files_name_organs' not in st.session_state:
              st.session_state['list_files_name_organs'] = []
@@ -1449,7 +1432,7 @@ if option == 'Распределение по органам':
                 if button_calculation == True:
                    custom_success('Расчеты произведены!')
                 else:   
-                   st.error('Заполните все поля ввода и загрузите файлы!')
+                   st.error('🔧Заполните все поля ввода и загрузите файлы!')
              
              if (list_keys_file_org != []) and dose and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and button_calculation:
                 
@@ -1636,32 +1619,21 @@ if option == 'Распределение по органам':
 
    col1, col2 = st.columns([0.66,0.34])
    
+   #####Создание word отчета
+   if panel == "Таблицы": 
+      if st.session_state[f"df_total_PK_{option}"] is not None:
+         
+         list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
+         st.session_state[f"list_heading_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_word_{option}"], list_keys)
+         st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
+
+         ###вызов функции визуализации таблиц
+         visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+
+      else:
+          st.error("Введите и загрузите все необходимые данные!")
+
    with col1:
-
-      #####Создание word отчета
-      if panel == "Таблицы": 
-         if st.session_state[f"df_total_PK_{option}"] is not None:
-            
-            list_keys = [x[:-5] for x in st.session_state[f"list_keys_file_{option}"]]
-            st.session_state[f"list_heading_word_{option}"], index_mapping = sort_by_keys_with_indices(st.session_state[f"list_heading_word_{option}"], list_keys)
-            st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
-
-            ###вызов функции визуализации таблиц
-            visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-
-            with col2:
-                 
-                 #вызов функции оформлительского элемента сформированный отчет
-                 selected = style_icon_report()
-
-                 if selected == "Cформированный отчeт":
-
-                    ###вызов функции создания Word-отчета таблиц
-                    if st.button("Сформировать отчет"):
-                       create_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-         else:
-             st.error("Введите и загрузите все необходимые данные!")
-
       if panel == "Графики":
          if st.session_state[f"df_total_PK_{option}"] is not None:
             
@@ -1853,8 +1825,7 @@ if option == 'Линейность дозирования':
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points   
             
-         custom_alert("Выберите нужное количество файлов соответственно количеству исследуемых дозировок (не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через точку. Слово 'Дозировка' обязательно в верхнем регистре!")
-         file_uploader = st.file_uploader("",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования')
+         file_uploader = st.file_uploader("",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования', help = "Выберите нужное количество файлов соответственно количеству исследуемых дозировок (не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через точку. Слово 'Дозировка' обязательно в верхнем регистре!")
          
          if 'list_files_name_doses' not in st.session_state:
              st.session_state['list_files_name_doses'] = []
@@ -1896,19 +1867,39 @@ if option == 'Линейность дозирования':
                  file_name=i[10:-5]
 
                  initialization_dose_infusion_time_session(option,file_name)
+                 
+                 col3, col4 = st.columns([0.34,0.66])
 
-                 dose = st.text_input(f"Доза препарата для набора данных с дозировкой {file_name}", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
-         
-                 st.session_state[f"dose_{option}_{file_name}"] = dose
+                 with col2:
+                     
+                     with st.container(border=True):
 
-                 if st.session_state[f"agree_injection - {option}"] == "infusion":
-                      
-                      infusion_time = st.text_input(f"Время введения инфузии для набора данных с дозировкой {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"])
-                      st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
+                          dose = st.text_input(f"Доза препарата для набора данных с дозировкой {file_name}", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
+                  
+                          st.session_state[f"dose_{option}_{file_name}"] = dose
+
+                          if st.session_state[f"agree_injection - {option}"] == "infusion":
+                               
+                               infusion_time = st.text_input(f"Время введения инфузии для набора данных с дозировкой {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"])
+                               st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
          
-         if ((list_keys_file_lin != []) and st.session_state[f"dose_{option}_{file_name}"] != "" and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "") and st.session_state[f'measure_unit_{option}_concentration']):
+         
+         # Проверка, заполнены ли все необходимые дозы
+         missing_doses = []
+         for file_name in list_keys_file_lin:
+             file_name=file_name[10:-5]
+             dose = st.session_state[f"dose_{option}_{file_name}"]
+             if dose != '':
+                missing_doses.append(dose)
+
+         if len(missing_doses) == len(list_keys_file_lin):
+            cheking_doses = True
+         else:
+            cheking_doses = False
+
+         if ((list_keys_file_lin != []) and cheking_doses and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "") and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
-         elif ((list_keys_file_lin != []) and st.session_state[f"dose_{option}_{file_name}"] != "" and (st.session_state[f"agree_injection - {option}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "") and st.session_state[f'measure_unit_{option}_concentration']):
+         elif ((list_keys_file_lin != []) and cheking_doses and (st.session_state[f"agree_injection - {option}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "") and st.session_state[f'measure_unit_{option}_concentration']):
             start = True
          else:
             start = False
@@ -2067,9 +2058,12 @@ if option == 'Линейность дозирования':
                  err_y_1=df_averaged_concentrations.loc['std'].tolist()
 
                  list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration,err_y_1)
+                 
+                 special_file_name = file_name.replace("Дозировка", "") + " " + st.session_state[f'measure_unit_{option}_dose']
+                 
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_concentration'],'lin',file_name,
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],'lin',special_file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -2081,9 +2075,11 @@ if option == 'Линейность дозирования':
                  add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
                  list_concentration = [np.nan if x <= 0 else x for x in list_concentration]
+                 
+                 special_file_name = file_name.replace("Дозировка", "") + " " + st.session_state[f'measure_unit_{option}_dose']
 
                  first_creating_plot_pk_profile_individual_mean_std(graph_id,list_time,list_concentration,err_y_1,st.session_state[f'measure_unit_{option}_time'],
-                                                                    st.session_state[f'measure_unit_{option}_concentration'],'log',file_name,
+                                                                    st.session_state[f'measure_unit_{option}_concentration'],'log',special_file_name,
                                                                     add_or_replace_df_graph, (st.session_state[f"list_heading_graphics_word_{option}"],
                                                                                               st.session_state[f"list_graphics_word_{option}"],graphic))
 
@@ -2410,29 +2406,18 @@ if option == 'Линейность дозирования':
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
    col1, col2 = st.columns([0.66,0.34])
-   
-   with col1:      
-      
-      #####Создание word отчета
-      if panel == "Таблицы":
-         if st.session_state[f"df_total_PK_{option}"] is not None: 
+         
+   #####Создание word отчета
+   if panel == "Таблицы":
+      if st.session_state[f"df_total_PK_{option}"] is not None: 
 
-            ###вызов функции визуализации таблиц
-            visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+         ###вызов функции визуализации таблиц
+         visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
 
-            with col2:
-                 
-                 #вызов функции оформлительского элемента сформированный отчет
-                 selected = style_icon_report()
+      else:
+          st.error("Введите и загрузите все необходимые данные!")
 
-                 if selected == "Cформированный отчeт":
-
-                    ###вызов функции создания Word-отчета таблиц
-                    if st.button("Сформировать отчет"):
-                       create_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-         else:
-             st.error("Введите и загрузите все необходимые данные!")
-
+   with col1:
       if panel == "Графики":
          if st.session_state[f"df_total_PK_{option}"] is not None: 
             #######визуализация
@@ -2510,6 +2495,7 @@ if option == 'Линейность дозирования':
                          match = re.search(r'\bдозировке\s+(\d+(?:[.,]\d+)*)', graph_id)
                          number = match.group(1)
                          file_name = f"Дозировка {number}"
+                         special_file_name = file_name.replace("Дозировка", "") + " " + st.session_state[f'measure_unit_{option}_dose']
 
                          if selected_kind_individual_graphics == file_name:
                             
@@ -2523,7 +2509,7 @@ if option == 'Линейность дозирования':
                                                                       st.session_state[f"err_y_1{graph_id}"],
                                                                       st.session_state[f'measure_unit_{option}_time'],
                                                                       st.session_state[f'measure_unit_{option}_concentration'],
-                                                                      kind_graphic,graph_id,file_name)
+                                                                      kind_graphic,graph_id,special_file_name)
      
 
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Сравнение фармакокинетических"):
@@ -2702,25 +2688,13 @@ if option == 'Экскреция препарата':
 
     col1, col2 = st.columns([0.66,0.34])
     
+    #####Создание word отчета
+    if panel == "Таблицы":
+
+          ###вызов функции визуализации таблиц
+          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+
     with col1:
-
-       #####Создание word отчета
-       if panel == "Таблицы":
-
-             ###вызов функции визуализации таблиц
-             visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-
-             with col2:
-                  
-                  #вызов функции оформлительского элемента сформированный отчет
-                  selected = style_icon_report()
-
-                  if selected == "Cформированный отчeт":
-
-                     ###вызов функции создания Word-отчета таблиц
-                     if st.button("Сформировать отчет"):
-                        create_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
-
        if panel == "Графики":
 
              #######визуализация

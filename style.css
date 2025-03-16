@@ -1,11 +1,11 @@
 /*st.title*//*e16nr0p33 для deploy*/
-div.css-zt5igj.e1nzilvr4  {
+[class="st-emotion-cache-1p9ibxm e1icttdg2"]  {
   font-weight: 600;
   font-size: 30px;
 }
 
 /*main container*//*egzxvld4*/
-[data-testid="stAppViewBlockContainer"] {
+[data-testid="stMainBlockContainer"] {
   padding-top: 30px;
   padding-left: 20px;
   padding-right: 20px;
@@ -19,16 +19,24 @@ h1 {
 }
 
 /*sidebar*/
-div.css-10oheav.eczjsme4 {
+[data-testid="stSidebarContent"] {
   padding-top: 15px;
 }
 
-/* селектор по значению атрибута логотипа*/
-[style="width: 110px;"] {
+/* селектор логотипа*/
+[class="st-emotion-cache-7czcpc evl31sl1"] {
   margin-bottom: 20px;
   margin-left: 40px;
 }
 
-[class="st-emotion-cache-saxznz e1nzilvr4"] {
-  color: white;
+[class="st-aj st-ak st-bc st-bd st-be st-ar st-bf st-bg st-aq st-bh st-bi st-bj st-bk"] {
+  background-color: white;
+}
+
+.st-emotion-cache-ll3k8d input {
+  background-color: white;
+}
+
+[data-testid="stBaseButton-secondary"] {
+  background-color: white;
 }
