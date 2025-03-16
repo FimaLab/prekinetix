@@ -348,7 +348,7 @@ if option == 'Фармакокинетика':
        if st.session_state[f"df_total_PK_{option}"] is not None:
           
           ###вызов функции визуализации таблиц
-          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
        else:
           st.error("Введите и загрузите все необходимые данные!")
@@ -980,7 +980,7 @@ if option == 'Биодоступность':
           st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
 
           ###вызов функции визуализации таблиц
-          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
        else:
            st.error("Введите и загрузите все необходимые данные!")
@@ -1628,7 +1628,7 @@ if option == 'Распределение по органам':
          st.session_state[f"list_table_word_{option}"] = reorder_list_by_mapping(st.session_state[f"list_table_word_{option}"], index_mapping)
 
          ###вызов функции визуализации таблиц
-         visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+         visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
       else:
           st.error("Введите и загрузите все необходимые данные!")
@@ -2412,7 +2412,7 @@ if option == 'Линейность дозирования':
       if st.session_state[f"df_total_PK_{option}"] is not None: 
 
          ###вызов функции визуализации таблиц
-         visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+         visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
       else:
           st.error("Введите и загрузите все необходимые данные!")
@@ -2692,7 +2692,7 @@ if option == 'Экскреция препарата':
     if panel == "Таблицы":
 
           ###вызов функции визуализации таблиц
-          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"])
+          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
     with col1:
        if panel == "Графики":
