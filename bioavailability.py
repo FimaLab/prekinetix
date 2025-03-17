@@ -1447,31 +1447,52 @@ if option == 'Распределение по органам':
                     mean_aumc0inf=i['AUMC0-∞'].loc['mean']
                     mean_kel=i['Kel'].loc['mean']
                     list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_kel])
+                
+                list_list_PK_par_std=[]
+                for i in list_df_unrounded: 
+                    std_сmax=i['Cmax'].loc['std']
+                    std_tmax=i['Tmax'].loc['std']
+                    std_mrt0inf=i['MRT0→∞'].loc['std']
+                    std_thalf=i['T1/2'].loc['std']
+                    std_auc0t=i['AUC0-t'].loc['std']
+                    std_auc0inf=i['AUC0→∞'].loc['std']
+                    std_aumc0inf=i['AUMC0-∞'].loc['std']
+                    std_kel=i['Kel'].loc['std']
+                    list_list_PK_par_std.append([std_сmax,std_tmax,std_mrt0inf,std_thalf,std_auc0t,std_auc0inf,std_aumc0inf,std_kel])
 
                 ### получение итогового фрейма ФК параметров органов
                 
                 df_PK_organs_total = pd.DataFrame(list_list_PK_par_mean, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Kel'],index=list_name_organs) 
-                
                 df_PK_organs_total_transpose=df_PK_organs_total.transpose()
-
-                index_blood = list_name_organs.index("Кровь")
+                
+                df_PK_organs_total_std = pd.DataFrame(list_list_PK_par_std, columns =['Cmax','Tmax','MRT0→∞','T1/2','AUC0-t','AUC0→∞','AUMC0-∞','Kel'],index=list_name_organs) 
+                df_PK_organs_total_std_transpose=df_PK_organs_total_std.transpose()
+                
                 ###ft
                 list_aucot_for_ft=[]
                 list_columns_df_PK_organs_total_transpose=df_PK_organs_total_transpose.columns.tolist()
-                list_columns_df_PK_organs_total_transpose.remove('Кровь') #исходный файл крови должен быть назван так "Кровь"
                 for i in list_columns_df_PK_organs_total_transpose:
                     aucot=df_PK_organs_total_transpose[i].loc['AUC0-t']
                     list_aucot_for_ft.append(aucot)
 
-                list_ft=[] ## для диаграммы
-                list_ft_round=[]
+                list_ft=[]
                 for i in list_aucot_for_ft:
                     ft=i/df_PK_organs_total_transpose["Кровь"].loc['AUC0-t']
                     list_ft.append(ft)
-                    list_ft_round.append(ft)
-                list_ft_round.insert(index_blood, "-")
 
-                df_PK_organs_total_transpose.loc[ len(df_PK_organs_total_transpose.index )] = list_ft_round
+                ###ft
+                list_aucot_for_ft_std=[]
+                list_columns_df_PK_organs_total_std_transpose=df_PK_organs_total_std_transpose.columns.tolist()
+                for i in list_columns_df_PK_organs_total_std_transpose:
+                    aucot_std=df_PK_organs_total_std_transpose[i].loc['AUC0-t']
+                    list_aucot_for_ft_std.append(aucot_std)
+
+                list_ft_std=[]
+                for i in list_aucot_for_ft_std:
+                    ft_std=i/df_PK_organs_total_std_transpose["Кровь"].loc['AUC0-t']
+                    list_ft_std.append(ft_std)
+
+                df_PK_organs_total_transpose.loc[ len(df_PK_organs_total_transpose.index )] = list_ft
 
 
                 df_PK_organs_total_transpose.index=['Cmax ' +"("+st.session_state[f'measure_unit_{option}_concentration']+")",'Tmax ' +"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'MRT0→∞ '+"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'T1/2 '+"("+f"{st.session_state[f'measure_unit_{option}_time']}"+")",'AUC0-t '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}" +")",'AUC0→∞ '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}" +")",'AUMC0-∞ '+"("+st.session_state[f'measure_unit_{option}_concentration']+f"×{st.session_state[f'measure_unit_{option}_time']}\u00B2" +")",'Kel '+"("+f"{st.session_state[f'measure_unit_{option}_time']}\u207B\u00B9"+")",'fт']
@@ -1609,11 +1630,24 @@ if option == 'Распределение по органам':
 
                 ###построение диаграммы для тканевой доступности
                 graphic='Тканевая доступность в органах'
-                add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic) 
+                graph_id = graphic
+                add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
+            
+                #Инициализация состояния чекбокса параметров осей
+                initializing_checkbox_status_graph_scaling_widgets(graph_id)
 
-                fig = plot_tissue_accessibility(list_name_organs,list_ft)
+                #Сохранение состояний данных графика 
+                st.session_state[f"list_name_organs{graph_id}"] = list_name_organs
+                st.session_state[f"list_ft{graph_id}"] = list_ft
+                st.session_state[f"list_ft_std{graph_id}"] = list_ft_std
 
-                add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                if f"first_creating_graphic{graph_id}" not in st.session_state:
+                    st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика 
+                
+                if st.session_state[f"first_creating_graphic{graph_id}"]:
+                   fig = plot_tissue_accessibility(list_name_organs,list_ft,list_ft_std,graph_id)
+
+                   add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
                 
    #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -1753,8 +1787,13 @@ if option == 'Распределение по органам':
                          
                    if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Тканевая"):
                       if type_graphics == 'Тканевая доступность в органах':
-                         st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                         st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                         graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                         
+                         kind_graphic = 'lin'
+
+                         rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,plot_tissue_accessibility, st.session_state[f"list_name_organs{graph_id}"],
+                                                                   st.session_state[f"list_ft{graph_id}"],st.session_state[f"list_ft_std{graph_id}"],
+                                                                  graph_id)
             
             with col2:
                      
