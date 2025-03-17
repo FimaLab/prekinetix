@@ -128,8 +128,9 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
                 #st.session_state[f'handleheight_{graph_id}'] = st.session_state[f'default_handleheight_{graph_id}']
             
             with st.expander(f"Настройка легенды"):
-                legend_x = st.slider("X-позиция легенды", 0.0, 1.0, st.session_state[f'legend_x{graph_id}'], key = f'key_legend_x{graph_id}')
-                legend_y = st.slider("Y-позиция легенды", 0.0, 1.0, st.session_state[f'legend_y{graph_id}'], key = f'key_legend_y{graph_id}')
+                if graph_id != "Тканевая доступность в органах":
+                   legend_x = st.slider("X-позиция легенды", 0.0, 1.0, st.session_state[f'legend_x{graph_id}'], key = f'key_legend_x{graph_id}')
+                   legend_y = st.slider("Y-позиция легенды", 0.0, 1.0, st.session_state[f'legend_y{graph_id}'], key = f'key_legend_y{graph_id}')
 
                 #fontsize = st.slider("Размер шрифта", 1, 20, st.session_state[f'fontsize_{graph_id}'])
                 #markerscale = st.slider("Размер маркеров", 0.1, 3.0, st.session_state[f'markerscale_{graph_id}'])
@@ -141,24 +142,36 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
                 #st.session_state[f'markerscale_{graph_id}'] = markerscale
                 #st.session_state[f'handlelength_{graph_id}'] = handlelength
                 #st.session_state[f'handleheight_{graph_id}'] = handleheight
+            
+            if graph_id != "Тканевая доступность в органах":
+               # Настройка осей через виджеты
+               x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
+                                           f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
+            else:
+               x_settings = {
+                   "min": 0.0,
+                   "max": 0.0,
+                   "major": 0.0,
+                   "minor": 0.0,
+               }
 
-            # Настройка осей через виджеты
-            x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
-                                        f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
             y_settings = axis_settings("Y",graph_id,f"Y_graphic_min_value_{graph_id}",f"Y_graphic_max_value_{graph_id}",
                                         f"Y_graphic_major_ticks_{graph_id}",f"Y_graphic_minor_ticks_{graph_id}")  # Виджет для оси Y
             
+
             new_kwargs["x_settings"] = x_settings
             new_kwargs["y_settings"] = y_settings
-
-            new_kwargs["legend_x"] = legend_x
-            new_kwargs["legend_y"] = legend_y
+            
+            if graph_id != "Тканевая доступность в органах":
+               new_kwargs["legend_x"] = legend_x
+               new_kwargs["legend_y"] = legend_y
             
             #new_kwargs["fontsize"] = fontsize
             #new_kwargs["markerscale"] = markerscale
             #new_kwargs["handlelength"] = handlelength
             #new_kwargs["handleheight"] = handleheight
             
+
             st.session_state[f'x_settings_{graph_id}'] = x_settings
 
             st.session_state[f'y_settings_{graph_id}'] = y_settings
@@ -806,14 +819,44 @@ def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,
 
     return fig
 
-def plot_tissue_accessibility(list_name_organs,list_ft):
+def plot_tissue_accessibility(list_name_organs,list_ft,list_ft_std,graph_id,x_settings=None,y_settings=None,legend_x=None,legend_y=None):
     ###построение диаграммы для тканевой доступности
-    list_name_organs.remove("Кровь")
 
     fig, ax = plt.subplots()
-    sns.barplot(x=list_name_organs, y=list_ft,color='blue',width=0.3)
+    sns.barplot(x=list_name_organs, y=list_ft,color='#42aaff',width=0.3)
+    # Добавление усов вручную через errorbar
+    plt.errorbar(x=np.arange(len(list_name_organs)), y=list_ft, yerr=list_ft_std, fmt='.', ecolor='black', elinewidth=0.7,capsize=1.9,capthick=0.9)
     plt.ylabel("Тканевая доступность")
     ax.set_xticklabels(list_name_organs,fontdict={'fontsize': 6.0})
+
+    # Убираем рамку вокруг графика
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    # Убираем основные и дополнительные насечки
+    ax.tick_params(axis='both', which='both', length=0)
+
+    ax.spines['bottom'].set_color('grey') # Ось X
+    ax.spines['left'].set_color('grey') # Ось Y
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+
+    kind_graphic = 'lin'
+
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+        applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
+
+    #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+    else:
+        get_parameters_axis(graph_id, ax)
+
+    if (st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None) ==  False:
+       ymin, ymax = ax.get_ylim()
+       padding_y_lin = (np.nanmax(list_ft) - np.nanmin(list_ft)) * 0.02 #игнорировать Nan для полулогарифм
+
+       ax.set_ylim(ymin,ymax)
+    
+
+    # Фиксация оси X (указав границы)
+    ax.set_xlim(-0.5, len(list_name_organs) - 0.5)  # Подбирайте под количество категорий
 
     return fig
 
