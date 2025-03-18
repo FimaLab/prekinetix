@@ -5,6 +5,7 @@ from scipy import stats
 import math
 import pandas as pd
 import streamlit as st
+from utils.des_stat import *
 
 import numpy as np
 
@@ -61,319 +62,12 @@ def remove_second_column(df: pd.DataFrame) -> pd.DataFrame:
 ## функция подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
 def create_table_descriptive_statistics(df):
     col_mapping = df.columns.tolist()
-    col_mapping.remove('Номер')
+    if 'Номер' in col_mapping:
+       col_mapping.remove('Номер')
 
-    list_gmean=[]
-    list_cv=[]
-    list_q1=[]
-    list_q3=[]
-    list_interquartile_range =[]
-    list_confidence_interval = []
-    for i in col_mapping:
+    stats_df = pd.DataFrame({col: calculate_statistics(df[col].tolist()) for col in col_mapping}).T
 
-        list_ser=df[i].tolist()
-        list_ser_cv = list_ser#нужно с нулями для CV
-
-        #убрать нули, т.к нули будут давать нулевое gmean
-        count_for_range_ser=len(list_ser)
-        list_range_ser=range(0,count_for_range_ser)
-        
-        list_ser_without_0=[]
-        for i in list_range_ser:
-            if list_ser[i] !=0:
-               list_ser_without_0.append(list_ser[i])
-
-        list_ser = list_ser_without_0
-
-        def g_mean(list_ser):
-            a=np.log(list_ser)
-            return np.exp(a.mean())
-        Gmean=g_mean(list_ser)
-        list_gmean.append(Gmean)
-
-        ###подсчет квартилей
-        def quantile_exc(data, n):  # Where data is the data group, n is the quartile
-            if n<1 or n>3:
-                return False
-            data.sort()
-            position = (len(data) + 1)*n/4
-            pos_integer = int(math.modf(position)[1])
-            pos_decimal = position - pos_integer
-            quartile = data[pos_integer - 1] + (data[pos_integer] - data[pos_integer - 1])*pos_decimal
-            return quartile
-        
-        #ограничение в 4 точки минимум для q1,q3,мкд
-        if len(list_ser_cv)>3:
-            q1=quantile_exc(list_ser_cv, 1)
-            q3=quantile_exc(list_ser_cv, 3)
-            interquartile_range = q3 - q1
-        else:
-            q1=None
-            q3=None
-            interquartile_range = None
-
-        list_q1.append(q1)
-        list_q3.append(q3)
-        list_interquartile_range.append(interquartile_range)
-
-        ###расчет 95% интревала
-        def confidence_interval(data):
-            if len(data) <= 30:
-                с_i = stat.t.interval(alpha=0.95, df=len(data)-1, 
-                    loc=np.mean(data), ### или медиана
-                    scale=stat.sem(data))
-            else:
-                с_i = stat.norm.interval(alpha=0.95, 
-                 loc=np.mean(data), ### или медиана
-                 scale=stat.sem(data))
-            return с_i
-        с_i=confidence_interval(list_ser_cv)
-
-        list_confidence_interval.append(с_i)
-
-        ####CV
-        cv_std=lambda x: np.std(x, ddof= 1 )
-        cv_mean=lambda x: np.mean(x)
-        CV_std=cv_std(list_ser_cv)
-        CV_mean=cv_mean(list_ser_cv)
-        CV=CV_std/CV_mean * 100
-        list_cv.append(CV)
-        
-    #для устранения None из фрейма
-    # Обработка списка геометрического среднего
-    list_gmean_processed = []
-    for gmean in list_gmean:
-        if gmean is None:
-            list_gmean_processed.append(None)
-        else:
-            list_gmean_processed.append(gmean)
-
-    # Обработка списка коэффициента вариации
-    list_cv_processed = []
-    for cv in list_cv:
-        if cv is None:
-            list_cv_processed.append(None)
-        else:
-            list_cv_processed.append(cv)
-
-    list_gmean = list_gmean_processed
-    list_cv = list_cv_processed
-    
-    df_averaged_concentrations=df.describe()
-    df_averaged_concentrations_1= df_averaged_concentrations.drop(['25%','75%'],axis=0)
-    df_averaged_concentrations_2= df_averaged_concentrations_1.rename(index={"50%": "median"})
-    df_averaged_concentrations_2.loc[len(df_averaged_concentrations_2.index )] = list_gmean
-    df_averaged_3 = df_averaged_concentrations_2.rename(index={6 : "Gmean"})
-    df_averaged_3.loc[len(df_averaged_3.index )] = list_cv
-    df_averaged_3 = df_averaged_3.rename(index={7 : "CV, %"})
-    df_averaged_3.loc[len(df_averaged_3.index )] = list_q1
-    df_averaged_3 = df_averaged_3.rename(index={8 : "25% квартиль"})
-    df_averaged_3.loc[len(df_averaged_3.index )] = list_q3
-    df_averaged_3 = df_averaged_3.rename(index={9 : "75% квартиль"})
-    df_averaged_3.loc[len(df_averaged_3.index )] = list_interquartile_range
-    df_averaged_3 = df_averaged_3.rename(index={10 : "МКД"})
-
-    df_index=df.set_index('Номер')
-    df_concat = pd.concat([df_index,df_averaged_3],sort=False,axis=0)
-    
-    df_concat_round=df_concat
-    
-    ###визуализация фрейма с нулями после округления
-    col_mapping = df_concat_round.columns.tolist()
-
-    list_list_series=[]
-    for i in col_mapping:
-        list_series = df_concat_round[i].tolist()
-         
-        list_series_round = []
-        for i in list_series:
-            value = i
-            list_series_round.append(value)
-             
-        list_list_series.append(list_series_round)
-
-    df_concat_round_str = pd.DataFrame(list_list_series, columns = df_concat_round.index.tolist(),index=col_mapping) 
-    df_concat_round_str_transpose = df_concat_round_str.transpose()
-    df_concat_round_str_transpose.index.name = 'Номер'
-    
-    #округление времени в качестве названий стоблцов
-    list_time_round =[v for v in df_concat_round_str_transpose.columns.tolist()]
-    df_concat_round_str_transpose.columns = list_time_round
-
-    #округление количества субъектов до целого
-    list_count_subjects_round =[float(v) for v in df_concat_round_str_transpose.loc["count"].tolist()]
-    list_count_subjects_round =[int(v) for v in list_count_subjects_round]
-    df_concat_round_str_transpose.loc["count"] = list_count_subjects_round
-
-    ###добавление в таблицу доверительного интервала
-    df_concat_round_str_transpose.loc[len(df_concat_round_str_transpose.index )] = list_confidence_interval
-    index_c_i = df_concat_round_str_transpose.index.values.tolist()[-1]
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename(index={index_c_i : "95% ДИ"})
-
-    ##изменение названий параметров описательной статистики
-
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-9,:],df_concat_round_str_transpose1.iloc[-1,:]=df_concat_round_str_transpose.iloc[-1,:],df_concat_round_str_transpose.iloc[-9,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-8,:],df_concat_round_str_transpose1.iloc[-6,:]=df_concat_round_str_transpose.iloc[-6,:],df_concat_round_str_transpose.iloc[-8,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-7,:],df_concat_round_str_transpose1.iloc[-5,:]=df_concat_round_str_transpose.iloc[-5,:],df_concat_round_str_transpose.iloc[-7,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-5,:],df_concat_round_str_transpose1.iloc[-4,:]=df_concat_round_str_transpose.iloc[-4,:],df_concat_round_str_transpose.iloc[-5,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-4,:],df_concat_round_str_transpose1.iloc[-3,:]=df_concat_round_str_transpose.iloc[-3,:],df_concat_round_str_transpose.iloc[-4,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-3,:],df_concat_round_str_transpose1.iloc[-2,:]=df_concat_round_str_transpose.iloc[-2,:],df_concat_round_str_transpose.iloc[-3,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose1=df_concat_round_str_transpose.copy()
-    df_concat_round_str_transpose1.iloc[-2,:],df_concat_round_str_transpose1.iloc[-1,:]=df_concat_round_str_transpose.iloc[-1,:],df_concat_round_str_transpose.iloc[-2,:]
-    df_concat_round_str_transpose=df_concat_round_str_transpose1
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'min': "95% CI","95% ДИ": 'Минимум','median': "Gmean",'Gmean': "Медиана",'max': 'CV, %','CV, %': 'Максимум'}, axis='index')
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': 'Q1','25% квартиль': 'Максимум',}, axis='index')
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': 'Q3','75% квартиль': 'Максимум',}, axis='index')
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': 'IQR','МКД': 'Максимум',}, axis='index')
-    df_concat_round_str_transpose = df_concat_round_str_transpose.rename({'Максимум': 'Минимум','Минимум': 'Максимум','count': 'N','std': 'SD','mean': 'Mean',}, axis='index')
-    
-    list_CI = df_concat_round_str_transpose.loc["95% CI"].tolist()
-
-    list_left_CI = []
-    list_right_CI = []
-    for i,j in list_CI:
-        
-        if i and not pd.isna(i) and i != 'None':
-            i_round = i
-            j_round = j
-        else:
-            i_round = None
-            j_round = None
-        list_left_CI.append(i_round)
-        list_right_CI.append(j_round)
-    
-    # Добавление новых строк с нижней и верхней границей доверительного интервала
-    df_concat_round_str_transpose.loc['Lower 95% CI'] = list_left_CI
-    df_concat_round_str_transpose.loc['Upper 95% CI'] = list_right_CI
-
-    # Удаление строки 95% CI, если больше не нужно
-    df_concat_round_str_transpose = df_concat_round_str_transpose.drop("95% CI")
-    
-    list_zero_time_zero_new = []
-    if 0.0 in col_mapping:
-       list_zero_time_zero = df_concat_round_str_transpose[0.0].tolist()
-       for i in list_zero_time_zero:
-           if i == 0.0 and i == 0:
-              list_zero_time_zero_new.append(int(i))
-           else:
-              list_zero_time_zero_new.append(i)
-       
-       # Перезапись существующей колонки или добавление новой
-       df_concat_round_str_transpose[0.0] = list_zero_time_zero_new
-    
-    #list_column_time_round = []
-    #for i in col_mapping:
-          # i = round_to_significant_figures(i, 4)
-          # list_column_time_round.append(i)
-    
-    #df_concat_round_str_transpose.columns = list_column_time_round 
-    
-    #st.write(list_column_time_round)#
-
-    #возвращение двух таблиц округленной и нет
-    dict_descriptive_statistics = {'df_concat_round_str_transpose': df_concat_round_str_transpose,'df_concat': df_concat}
-    return dict_descriptive_statistics
-
-## функция подсчета опистательной статистики до ДИ 95% для ФК параметров
-def create_table_descriptive_statistics_before_95CI_pk(df_PK):
-    col_mapping_PK = df_PK.columns.tolist()
-
-    list_gmean_PK=[]
-    list_cv_PK=[]
-    list_q1_PK=[]
-    list_q3_PK=[]
-    list_interquartile_range_PK =[]
-    list_confidence_interval_PK = [] 
-
-    for i in col_mapping_PK:
-
-       list_ser_PK=df_PK[i].tolist()
-
-       def g_mean(list_ser_PK):
-             a=np.log(list_ser_PK)
-             return np.exp(a.mean())
-       Gmean_PK=g_mean(list_ser_PK)
-       list_gmean_PK.append(Gmean_PK)
-
-       ###подсчет квартилей
-       def quantile_exc(data, n):  # Where data is the data group, n is the quartile
-             if n<1 or n>3:
-                return False
-             data.sort()
-             position = (len(data) + 1)*n/4
-             pos_integer = int(math.modf(position)[1])
-             pos_decimal = position - pos_integer
-             quartile = data[pos_integer - 1] + (data[pos_integer] - data[pos_integer - 1])*pos_decimal
-             return quartile
-       
-       #ограничение в 4 точки минимум для q1,q3,мкд
-       if len(list_ser_PK)>3:
-             q1=quantile_exc(list_ser_PK, 1)
-             q3=quantile_exc(list_ser_PK, 3)
-             interquartile_range = q3 - q1
-       else:
-             q1=None
-             q3=None
-             interquartile_range = None
-
-       list_q1_PK.append(q1)
-       list_q3_PK.append(q3)
-       list_interquartile_range_PK.append(interquartile_range)
-
-       ###расчет 95% интревала
-       def confidence_interval(data):
-             if len(data) <= 30:
-                с_i = stat.t.interval(alpha=0.95, df=len(data)-1, 
-                   loc=np.mean(data), ### или медиана
-                   scale=stat.sem(data))
-             else:
-                с_i = stat.norm.interval(alpha=0.95, 
-                loc=np.mean(data), ### или медиана
-                scale=stat.sem(data))
-             return с_i
-       с_i=confidence_interval(list_ser_PK)
-
-       list_confidence_interval_PK.append(с_i)
-
-       ####CV
-       cv_std_PK=lambda x: np.std(x, ddof= 1 )
-       cv_mean_PK=lambda x: np.mean(x)
-
-       CV_std_PK=cv_std_PK(list_ser_PK)
-       CV_mean_PK=cv_mean_PK(list_ser_PK)
-
-       CV_PK=(CV_std_PK/CV_mean_PK * 100)
-       list_cv_PK.append(CV_PK)
-
-
-    df_averaged_concentrations_PK=df_PK.describe()
-    df_averaged_concentrations_1_PK= df_averaged_concentrations_PK.drop(['25%','75%'],axis=0)
-    df_averaged_concentrations_2_PK= df_averaged_concentrations_1_PK.rename(index={"50%": "median"})
-    df_averaged_concentrations_2_PK.loc[len(df_averaged_concentrations_2_PK.index )] = list_gmean_PK
-    df_averaged_3_PK = df_averaged_concentrations_2_PK.rename(index={6 : "Gmean"})
-    df_averaged_3_PK.loc[len(df_averaged_3_PK.index )] = list_cv_PK
-    df_averaged_3_PK = df_averaged_3_PK.rename(index={7 : "CV, %"})
-    df_averaged_3_PK.loc[len(df_averaged_3_PK.index )] = list_q1_PK
-    df_averaged_3_PK = df_averaged_3_PK.rename(index={8 : "25% квартиль"})
-    df_averaged_3_PK.loc[len(df_averaged_3_PK.index )] = list_q3_PK
-    df_averaged_3_PK = df_averaged_3_PK.rename(index={9 : "75% квартиль"})
-    df_averaged_3_PK.loc[len(df_averaged_3_PK.index )] = list_interquartile_range_PK
-    df_averaged_3_PK = df_averaged_3_PK.rename(index={10 : "МКД"})
-
-    return {"df_averaged_3_PK": df_averaged_3_PK,
-              "list_confidence_interval_PK": list_confidence_interval_PK}
+    return stats_df.T
 
 #округление количества субъектов до целого
 def round_subjects_count(df_total_PK):
@@ -381,64 +75,6 @@ def round_subjects_count(df_total_PK):
    list_count_subjects_round =[int(v) for v in list_count_subjects_round]
    df_total_PK.loc["count"] = list_count_subjects_round
 
-###добавление в таблицу доверительного интервала
-def add_ci_in_table(df_total_PK,list_confidence_interval_PK):
-    df_total_PK.loc[len(df_total_PK.index )] = list_confidence_interval_PK
-    index_c_i = df_total_PK.index.values.tolist()[-1]
-    df_total_PK = df_total_PK.rename(index={index_c_i : "95% ДИ"})
-    return df_total_PK
-
-##изменение названий параметров описательной статистики
-def rename_parametrs_descriptive_statistics(df_total_PK):
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-9,:],df_total_PK1.iloc[-1,:]=df_total_PK.iloc[-1,:],df_total_PK.iloc[-9,:]
-    df_total_PK=df_total_PK1
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-8,:],df_total_PK1.iloc[-6,:]=df_total_PK.iloc[-6,:],df_total_PK.iloc[-8,:]
-    df_total_PK=df_total_PK1
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-7,:],df_total_PK1.iloc[-5,:]=df_total_PK.iloc[-5,:],df_total_PK.iloc[-7,:]
-    df_total_PK=df_total_PK1
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-5,:],df_total_PK1.iloc[-4,:]=df_total_PK.iloc[-4,:],df_total_PK.iloc[-5,:]
-    df_total_PK=df_total_PK1
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-4,:],df_total_PK1.iloc[-3,:]=df_total_PK.iloc[-3,:],df_total_PK.iloc[-4,:]
-    df_total_PK=df_total_PK1
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-3,:],df_total_PK1.iloc[-2,:]=df_total_PK.iloc[-2,:],df_total_PK.iloc[-3,:]
-    df_total_PK=df_total_PK1
-    df_total_PK1=df_total_PK.copy()
-    df_total_PK1.iloc[-2,:],df_total_PK1.iloc[-1,:]=df_total_PK.iloc[-1,:],df_total_PK.iloc[-2,:]
-    df_total_PK=df_total_PK1
-    df_total_PK = df_total_PK.rename({'min': "95% CI","95% ДИ": 'Минимум','median': "Gmean",'Gmean': "Медиана",'max': 'CV, %','CV, %': 'Максимум'}, axis='index')
-    df_total_PK = df_total_PK.rename({'Максимум': 'Q1','25% квартиль': 'Максимум',}, axis='index')
-    df_total_PK = df_total_PK.rename({'Максимум': 'Q3','75% квартиль': 'Максимум',}, axis='index')
-    df_total_PK = df_total_PK.rename({'Максимум': 'IQR','МКД': 'Максимум',}, axis='index')
-    df_total_PK = df_total_PK.rename({'Максимум': 'Минимум','Минимум': 'Максимум','count': 'N','std': 'SD','mean': 'Mean',}, axis='index')
-
-    list_CI = df_total_PK.loc["95% CI"].tolist()
-    list_left_CI = []
-    list_right_CI = []
-    for i,j in list_CI:
-        
-        if i and not pd.isna(i) and i != 'None':
-            i_round = i
-            j_round = j
-        else:
-            i_round = None
-            j_round = None
-        list_left_CI.append(i_round)
-        list_right_CI.append(j_round)
-    
-    # Добавление новых строк с нижней и верхней границей доверительного интервала
-    df_total_PK.loc['Lower 95% CI'] = list_left_CI
-    df_total_PK.loc['Upper 95% CI'] = list_right_CI
-
-    # Удаление строки 95% CI, если больше не нужно
-    df_total_PK = df_total_PK.drop("95% CI")
-
-    return df_total_PK
 
 
 def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measure_unit_concentration,measure_unit_time,measure_unit_dose):
@@ -1179,9 +815,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
     
        ###описательная статистика
 
-       dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
-       df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
-
+       df_averaged_3_PK = create_table_descriptive_statistics(df_PK)
        df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
        ###округление описательной статистики и ФК параметров
@@ -1317,19 +951,6 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        df_total_PK_pk = pd.concat([series_N_Samples,series_Dose,series_Rsq,series_Rsq_adjusted,series_Corr_XY,series_No_points_lambda_z,series_Kel,series_Lambda_z_intercept,series_Lambda_z_lower,series_Lambda_z_upper,series_half_live,series_Span,series_Tlag,series_Tmax,series_Cmax,series_Cmax_D,series_Tlast, series_Clast,series_AUC0_t,series_AUC0_t_D,series_AUCall,series_AUC0_inf,series_AUC0_inf_D,series_AUC_extrap,series_Vz_F,series_Cl_F,series_AUMC0_t,series_AUMC0_inf,series_AUMC_extrap, series_MRT0_t, series_MRT0_inf,series_Сmax_dev_AUC0_t], axis= 1) 
        
        df_total_PK_pk.index.name = 'Номер'
-
-       #округление количества субъектов до целого
-       round_subjects_count(df_total_PK_pk)
-       
-       #получение списка значений доверительного интервала
-       list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
-
-       ###добавление в таблицу доверительного интервала
-       df_total_PK_pk = add_ci_in_table(df_total_PK_pk,list_confidence_interval_PK)
-
-       ##изменение названий параметров описательной статистики
-
-       df_total_PK_pk = rename_parametrs_descriptive_statistics(df_total_PK_pk)
 
        if st.session_state[f"agree_cmax2 - {selector_research}"] == False:
           dict_PK_parametrs = {
@@ -2214,8 +1835,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
     
        ###описательная статистика
 
-       dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
-       df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
+       df_averaged_3_PK = create_table_descriptive_statistics(df_PK)
 
        df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
@@ -2359,19 +1979,6 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        
        df_total_PK_pk = pd.concat([series_N_Samples,series_Dose,series_Rsq,series_Rsq_adjusted,series_Corr_XY,series_No_points_lambda_z,series_Kel,series_Lambda_z_intercept,series_Lambda_z_lower,series_Lambda_z_upper,series_half_live,series_Span,series_Tmax,series_Cmax,series_Cmax_D,series_C0,series_Tlast, series_Clast,series_AUC0_t,series_AUC0_t_D,series_AUCall,series_AUC0_inf,series_AUC0_inf_D,series_AUC_extrap,series_AUC_perc_Back_Ext,series_Vz,series_Cl,series_AUMC0_t,series_AUMC0_inf,series_AUMC_extrap, series_MRT0_t, series_MRT0_inf,series_Vss,series_Сmax_dev_AUC0_t], axis= 1) 
        df_total_PK_pk.index.name = 'Номер'
-
-       #округление количества субъектов до целого
-       round_subjects_count(df_total_PK_pk)
-       
-       #получение списка значений доверительного интервала
-       list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
-
-       ###добавление в таблицу доверительного интервала
-       df_total_PK_pk = add_ci_in_table(df_total_PK_pk,list_confidence_interval_PK)
-
-       ##изменение названий параметров описательной статистики
-
-       df_total_PK_pk = rename_parametrs_descriptive_statistics(df_total_PK_pk)
 
        if st.session_state[f"agree_cmax2 - {selector_research}"] == False:
            dict_PK_parametrs = {
@@ -3130,9 +2737,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
     
        ###описательная статистика
 
-       dict_df_averaged_3_PK = create_table_descriptive_statistics_before_95CI_pk(df_PK)
-       df_averaged_3_PK = dict_df_averaged_3_PK.get("df_averaged_3_PK")
-
+       df_averaged_3_PK = create_table_descriptive_statistics(df_PK)
        df_concat_PK_pk= pd.concat([df_PK,df_averaged_3_PK],sort=False,axis=0)
 
        ###округление описательной статистики и ФК параметров
@@ -3271,19 +2876,6 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        df_total_PK_pk = pd.concat([series_N_Samples,series_Dose,series_Length_infusion,series_Rsq,series_Rsq_adjusted,series_Corr_XY,series_No_points_lambda_z,series_Kel,series_Lambda_z_intercept,series_Lambda_z_lower,series_Lambda_z_upper,series_half_live,series_Span,series_Tmax,series_Cmax,series_Cmax_D,series_Tlast, series_Clast,series_AUC0_t,series_AUC0_t_D,series_AUCall,series_AUC0_inf,series_AUC0_inf_D,series_AUC_extrap,series_Vz,series_Cl,series_AUMC0_t,series_AUMC0_inf,series_AUMC_extrap, series_MRT0_t, series_MRT0_inf,series_Vss,series_Сmax_dev_AUC0_t], axis= 1) 
 
        df_total_PK_pk.index.name = 'Номер'
-
-       #округление количества субъектов до целого
-       round_subjects_count(df_total_PK_pk)
-       
-       #получение списка значений доверительного интервала
-       list_confidence_interval_PK = dict_df_averaged_3_PK.get("list_confidence_interval_PK")
-
-       ###добавление в таблицу доверительного интервала
-       df_total_PK_pk = add_ci_in_table(df_total_PK_pk,list_confidence_interval_PK)
-
-       ##изменение названий параметров описательной статистики
-
-       df_total_PK_pk = rename_parametrs_descriptive_statistics(df_total_PK_pk)
 
        if st.session_state[f"agree_cmax2 - {selector_research}"] == False:
           dict_PK_parametrs = {

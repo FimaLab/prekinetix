@@ -582,8 +582,16 @@ def visualize_table(list_heading_word,list_table_word,option):
              st.subheader("Выбранные данные:")
              df.index = df.index.astype(str)  # Приведение к строковому типу
              df.columns = df.columns.astype(str)  # Приведение к строковому типу
+             
+             try:
+               choice_columns = df.loc[st.session_state[f"selected_rows{heading}_{option}"], st.session_state[f"selected_columns{heading}_{option}"]]
+             except KeyError as e:
+               columns = [str(col) for col in list(df.columns)]
+               st.session_state[f"selected_columns{heading}_{option}"] = columns
+               rows = [str(row) for row in list(df.index)]
+               st.session_state[f"selected_rows{heading}_{option}"] = rows
+               st.rerun()
 
-             choice_columns = df.loc[st.session_state[f"selected_rows{heading}_{option}"], st.session_state[f"selected_columns{heading}_{option}"]]
              st.dataframe(choice_columns.style.format(format_dict),width=width)
              col1,col2 = st.columns([0.2,0.8])
              with col1:
