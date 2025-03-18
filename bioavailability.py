@@ -156,7 +156,7 @@ if option == 'Фармакокинетика':
               
               ###интерактивная таблица
               df = edit_frame(df,st.session_state[f"uploaded_file_{option}"])
-
+           
               ###количество животных 
               count_rows_number_pk= len(df.axes[0])
         
@@ -164,7 +164,16 @@ if option == 'Фармакокинетика':
               add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
               ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-              df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+              df_stats = create_table_descriptive_statistics(df)
+              # Сбрасываем индекс статистики, чтобы перенести в колонку "Номер"
+              df_stats_reset = df_stats.reset_index()
+              # Переименовываем колонку индекса
+              df_stats_reset.rename(columns={'index': 'Номер'}, inplace=True)
+              # Продолжаем индексы (начинаем после последнего индекса df)
+              df_stats_reset.index = range(df.index.max() + 1, df.index.max() + 1 + len(df_stats_reset))
+              # Объединяем таблицы
+              df_concat_round_str_transpose = pd.concat([df, df_stats_reset], axis=0, ignore_index=False)
+
               
               add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
 
@@ -274,9 +283,9 @@ if option == 'Фармакокинетика':
               
               list_time = remove_first_element(st.session_state[f"agree_injection - {option}"], list_time)
 
-              df_averaged_concentrations=df.describe()
-              list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-              err_y_pk=df_averaged_concentrations.loc['std'].tolist()
+              df_averaged_concentrations=df_stats
+              list_concentration=df_averaged_concentrations.loc['Mean'].tolist()
+              err_y_pk=df_averaged_concentrations.loc['SD'].tolist()
               
               list_concentration,err_y_pk = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration,err_y_pk)
 
@@ -622,7 +631,15 @@ if option == 'Биодоступность':
                      add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
                      ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                     df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+                     df_stats = create_table_descriptive_statistics(df)
+                     # Сбрасываем индекс статистики, чтобы перенести в колонку "Номер"
+                     df_stats_reset = df_stats.reset_index()
+                     # Переименовываем колонку индекса
+                     df_stats_reset.rename(columns={'index': 'Номер'}, inplace=True)
+                     # Продолжаем индексы (начинаем после последнего индекса df)
+                     df_stats_reset.index = range(df.index.max() + 1, df.index.max() + 1 + len(df_stats_reset))
+                     # Объединяем таблицы
+                     df_concat_round_str_transpose = pd.concat([df, df_stats_reset], axis=0, ignore_index=False)
 
                      add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
                      
@@ -736,9 +753,9 @@ if option == 'Биодоступность':
                      
                      list_time = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_time)
 
-                     df_averaged_concentrations=df.describe()
-                     list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                     err_y_1=df_averaged_concentrations.loc['std'].tolist()
+                     df_averaged_concentrations=df_stats
+                     list_concentration=df_averaged_concentrations.loc['Mean'].tolist()
+                     err_y_1=df_averaged_concentrations.loc['SD'].tolist()
 
                      list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}_{file_name}"], list_concentration,err_y_1)
 
@@ -788,33 +805,27 @@ if option == 'Биодоступность':
                          add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_bioavailability)
 
                          #создание списков фреймов, доз и т.д.
-
-                         ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                         df_concat = create_table_descriptive_statistics(df)['df_concat']
-
-                         #list_name_doses.append(file_name)
                          list_df_unrounded.append(df_concat_PK_bioavailability)
-                         list_df_for_mean_unround_for_graphics.append(df_concat)
-
+                         list_df_for_mean_unround_for_graphics.append(df_stats)
 
                  list_list_PK_par_mean=[]
                  for i,file_name in list(zip(list_df_unrounded,list_name_bioavailability)): 
-                     mean_сmax=i['Cmax'].loc['mean']
-                     mean_tmax=i['Tmax'].loc['mean']
-                     mean_mrt0inf=i['MRT0→∞'].loc['mean']
-                     mean_thalf=i['T1/2'].loc['mean']
-                     mean_auc0t=i['AUC0-t'].loc['mean']
-                     mean_auc0inf=i['AUC0→∞'].loc['mean']
-                     mean_aumc0inf=i['AUMC0-∞'].loc['mean']
-                     mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
-                     mean_kel=i['Kel'].loc['mean']
+                     mean_сmax=i['Cmax'].loc['Mean']
+                     mean_tmax=i['Tmax'].loc['Mean']
+                     mean_mrt0inf=i['MRT0→∞'].loc['Mean']
+                     mean_thalf=i['T1/2'].loc['Mean']
+                     mean_auc0t=i['AUC0-t'].loc['Mean']
+                     mean_auc0inf=i['AUC0→∞'].loc['Mean']
+                     mean_aumc0inf=i['AUMC0-∞'].loc['Mean']
+                     mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['Mean']
+                     mean_kel=i['Kel'].loc['Mean']
 
                      if st.session_state[f"agree_injection - {option}_{file_name}"] == "extravascular":
-                        mean_cl=i['Cl/F'].loc['mean']
-                        mean_vd=i['Vz/F'].loc['mean']
+                        mean_cl=i['Cl/F'].loc['Mean']
+                        mean_vd=i['Vz/F'].loc['Mean']
                      else:
-                        mean_cl=i['Cl'].loc['mean']
-                        mean_vd=i['Vz'].loc['mean']
+                        mean_cl=i['Cl'].loc['Mean']
+                        mean_vd=i['Vz'].loc['Mean']
                      list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd])
                  
                  list_df_PK_bioavailability_total = []
@@ -884,8 +895,8 @@ if option == 'Биодоступность':
                  list_list_mean_conc=[]
                  list_list_std_conc=[]
                  for i in list_df_for_mean_unround_for_graphics: 
-                     mean_conc_list=i.loc['mean'].tolist()
-                     std_conc_list=i.loc['std'].tolist()
+                     mean_conc_list=i.loc['Mean'].tolist()
+                     std_conc_list=i.loc['SD'].tolist()
                      list_list_mean_conc.append(mean_conc_list)
                      list_list_std_conc.append(std_conc_list)
 
@@ -1242,8 +1253,15 @@ if option == 'Распределение по органам':
                  
                  add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
-                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+                 df_stats = create_table_descriptive_statistics(df)
+                 # Сбрасываем индекс статистики, чтобы перенести в колонку "Номер"
+                 df_stats_reset = df_stats.reset_index()
+                 # Переименовываем колонку индекса
+                 df_stats_reset.rename(columns={'index': 'Номер'}, inplace=True)
+                 # Продолжаем индексы (начинаем после последнего индекса df)
+                 df_stats_reset.index = range(df.index.max() + 1, df.index.max() + 1 + len(df_stats_reset))
+                 # Объединяем таблицы
+                 df_concat_round_str_transpose = pd.concat([df, df_stats_reset], axis=0, ignore_index=False)
 
                  add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
                  
@@ -1356,9 +1374,9 @@ if option == 'Распределение по органам':
                  
                  list_time = remove_first_element(st.session_state[f"agree_injection - {option}"], list_time)
 
-                 df_averaged_concentrations=df.describe()
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                 err_y_1=df_averaged_concentrations.loc['std'].tolist()
+                 df_averaged_concentrations=df_stats
+                 list_concentration=df_averaged_concentrations.loc['Mean'].tolist()
+                 err_y_1=df_averaged_concentrations.loc['SD'].tolist()
                  
                  list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration,err_y_1)
 
@@ -1413,12 +1431,10 @@ if option == 'Распределение по органам':
                      add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_org)
                      
                      #создание списков фреймов, названий органов и т.д.
-                     ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                     df_concat = create_table_descriptive_statistics(df)['df_concat']
 
                      list_name_organs.append(file_name)
                      list_df_unrounded.append(df_concat_PK_org)
-                     list_df_for_mean_unround_for_graphics.append(df_concat)
+                     list_df_for_mean_unround_for_graphics.append(df_stats)
 
              ###Кнопка активации дальнейших действий
              button_calculation = False
@@ -1438,26 +1454,26 @@ if option == 'Распределение по органам':
                 
                 list_list_PK_par_mean=[]
                 for i in list_df_unrounded: 
-                    mean_сmax=i['Cmax'].loc['mean']
-                    mean_tmax=i['Tmax'].loc['mean']
-                    mean_mrt0inf=i['MRT0→∞'].loc['mean']
-                    mean_thalf=i['T1/2'].loc['mean']
-                    mean_auc0t=i['AUC0-t'].loc['mean']
-                    mean_auc0inf=i['AUC0→∞'].loc['mean']
-                    mean_aumc0inf=i['AUMC0-∞'].loc['mean']
-                    mean_kel=i['Kel'].loc['mean']
+                    mean_сmax=i['Cmax'].loc['Mean']
+                    mean_tmax=i['Tmax'].loc['Mean']
+                    mean_mrt0inf=i['MRT0→∞'].loc['Mean']
+                    mean_thalf=i['T1/2'].loc['Mean']
+                    mean_auc0t=i['AUC0-t'].loc['Mean']
+                    mean_auc0inf=i['AUC0→∞'].loc['Mean']
+                    mean_aumc0inf=i['AUMC0-∞'].loc['Mean']
+                    mean_kel=i['Kel'].loc['Mean']
                     list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_kel])
                 
                 list_list_PK_par_std=[]
                 for i in list_df_unrounded: 
-                    std_сmax=i['Cmax'].loc['std']
-                    std_tmax=i['Tmax'].loc['std']
-                    std_mrt0inf=i['MRT0→∞'].loc['std']
-                    std_thalf=i['T1/2'].loc['std']
-                    std_auc0t=i['AUC0-t'].loc['std']
-                    std_auc0inf=i['AUC0→∞'].loc['std']
-                    std_aumc0inf=i['AUMC0-∞'].loc['std']
-                    std_kel=i['Kel'].loc['std']
+                    std_сmax=i['Cmax'].loc['SD']
+                    std_tmax=i['Tmax'].loc['SD']
+                    std_mrt0inf=i['MRT0→∞'].loc['SD']
+                    std_thalf=i['T1/2'].loc['SD']
+                    std_auc0t=i['AUC0-t'].loc['SD']
+                    std_auc0inf=i['AUC0→∞'].loc['SD']
+                    std_aumc0inf=i['AUMC0-∞'].loc['SD']
+                    std_kel=i['Kel'].loc['SD']
                     list_list_PK_par_std.append([std_сmax,std_tmax,std_mrt0inf,std_thalf,std_auc0t,std_auc0inf,std_aumc0inf,std_kel])
 
                 ### получение итогового фрейма ФК параметров органов
@@ -1552,8 +1568,8 @@ if option == 'Распределение по органам':
                 list_list_mean_conc=[]
                 list_list_std_conc=[]
                 for i in list_df_for_mean_unround_for_graphics: 
-                    mean_conc_list=i.loc['mean'].tolist()
-                    std_conc_list=i.loc['std'].tolist()
+                    mean_conc_list=i.loc['Mean'].tolist()
+                    std_conc_list=i.loc['SD'].tolist()
                     list_list_mean_conc.append(mean_conc_list)
                     list_list_std_conc.append(std_conc_list)
 
@@ -1977,8 +1993,15 @@ if option == 'Линейность дозирования':
                  table_heading='Индивидуальные и усредненные значения концентраций в дозировке ' +file_name+" "+ st.session_state[f'measure_unit_{option}_dose']
                  add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading)
 
-                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                 df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+                 df_stats = create_table_descriptive_statistics(df)
+                 # Сбрасываем индекс статистики, чтобы перенести в колонку "Номер"
+                 df_stats_reset = df_stats.reset_index()
+                 # Переименовываем колонку индекса
+                 df_stats_reset.rename(columns={'index': 'Номер'}, inplace=True)
+                 # Продолжаем индексы (начинаем после последнего индекса df)
+                 df_stats_reset.index = range(df.index.max() + 1, df.index.max() + 1 + len(df_stats_reset))
+                 # Объединяем таблицы
+                 df_concat_round_str_transpose = pd.concat([df, df_stats_reset], axis=0, ignore_index=False)
 
                  add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
 
@@ -2092,9 +2115,9 @@ if option == 'Линейность дозирования':
                  
                  list_time = remove_first_element(st.session_state[f"agree_injection - {option}"], list_time)
 
-                 df_averaged_concentrations=df.describe()
-                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-                 err_y_1=df_averaged_concentrations.loc['std'].tolist()
+                 df_averaged_concentrations=df_stats
+                 list_concentration=df_averaged_concentrations.loc['Mean'].tolist()
+                 err_y_1=df_averaged_concentrations.loc['SD'].tolist()
 
                  list_concentration,err_y_1 = remove_first_element(st.session_state[f"agree_injection - {option}"], list_concentration,err_y_1)
                  
@@ -2151,12 +2174,9 @@ if option == 'Линейность дозирования':
 
                      #создание списков фреймов, доз и т.д.
 
-                     ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                     df_concat = create_table_descriptive_statistics(df)['df_concat']
-
                      list_name_doses.append(file_name)
                      list_df_unrounded.append(df_concat_PK_lin)
-                     list_df_for_mean_unround_for_graphics.append(df_concat)
+                     list_df_for_mean_unround_for_graphics.append(df_stats)
 
              ###Кнопка активации дальнейших действий
              button_calculation = False
@@ -2177,21 +2197,21 @@ if option == 'Линейность дозирования':
                 
                 list_list_PK_par_mean=[]
                 for i in list_df_unrounded: 
-                    mean_сmax=i['Cmax'].loc['mean']
-                    mean_tmax=i['Tmax'].loc['mean']
-                    mean_mrt0inf=i['MRT0→∞'].loc['mean']
-                    mean_thalf=i['T1/2'].loc['mean']
-                    mean_auc0t=i['AUC0-t'].loc['mean']
-                    mean_auc0inf=i['AUC0→∞'].loc['mean']
-                    mean_aumc0inf=i['AUMC0-∞'].loc['mean']
-                    mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['mean']
-                    mean_kel=i['Kel'].loc['mean']
+                    mean_сmax=i['Cmax'].loc['Mean']
+                    mean_tmax=i['Tmax'].loc['Mean']
+                    mean_mrt0inf=i['MRT0→∞'].loc['Mean']
+                    mean_thalf=i['T1/2'].loc['Mean']
+                    mean_auc0t=i['AUC0-t'].loc['Mean']
+                    mean_auc0inf=i['AUC0→∞'].loc['Mean']
+                    mean_aumc0inf=i['AUMC0-∞'].loc['Mean']
+                    mean_сmaxdevaucot=i['Сmax/AUC0-t'].loc['Mean']
+                    mean_kel=i['Kel'].loc['Mean']
                     if st.session_state[f"agree_injection - {option}"] == "extravascular":
-                       mean_cl=i['Cl/F'].loc['mean']
-                       mean_vd=i['Vz/F'].loc['mean']
+                       mean_cl=i['Cl/F'].loc['Mean']
+                       mean_vd=i['Vz/F'].loc['Mean']
                     else:
-                       mean_cl=i['Cl'].loc['mean']
-                       mean_vd=i['Vz'].loc['mean']
+                       mean_cl=i['Cl'].loc['Mean']
+                       mean_vd=i['Vz'].loc['Mean']
                     list_list_PK_par_mean.append([mean_сmax,mean_tmax,mean_mrt0inf,mean_thalf,mean_auc0t,mean_auc0inf,mean_aumc0inf,mean_сmaxdevaucot,mean_kel,mean_cl,mean_vd]) 
 
                 list_name_doses_with_measure_unit=[]
@@ -2274,8 +2294,8 @@ if option == 'Линейность дозирования':
                 list_list_mean_conc=[]
                 list_list_std_conc=[]
                 for i in list_df_for_mean_unround_for_graphics: 
-                    mean_conc_list=i.loc['mean'].tolist()
-                    std_conc_list=i.loc['std'].tolist()
+                    mean_conc_list=i.loc['Mean'].tolist()
+                    std_conc_list=i.loc['SD'].tolist()
                     list_list_mean_conc.append(mean_conc_list)
                     list_list_std_conc.append(std_conc_list)
 
@@ -2354,7 +2374,7 @@ if option == 'Линейность дозирования':
                 list_AUC0_inf_lin = []
                 for i in list_df_unrounded: 
                     # Получаем значения AUC0→∞ для каждой дозы и добавляем в список
-                    mean_auc0inf = i['AUC0→∞'][:'count'].iloc[:-1].to_list()
+                    mean_auc0inf = i['AUC0→∞'][:'N'].iloc[:-1].to_list()
                     list_AUC0_inf_lin.extend(mean_auc0inf)  # Используем extend, чтобы создать плоский список
 
                 # Создаем правильный список дозировок, повторяя каждый элемент нужное количество раз
@@ -2392,8 +2412,8 @@ if option == 'Линейность дозирования':
                 list_AUC0_inf_lin_std = []
                 for i in list_df_unrounded: 
                     # Получаем значения AUC0→∞ для каждой дозы и добавляем в список
-                    mean_auc0_inf = i['AUC0→∞'].loc['mean']
-                    std_auc0_inf = i['AUC0→∞'].loc['std']
+                    mean_auc0_inf = i['AUC0→∞'].loc['Mean']
+                    std_auc0_inf = i['AUC0→∞'].loc['SD']
                     list_AUC0_inf_lin_mean.append(mean_auc0_inf)
                     list_AUC0_inf_lin_std.append(std_auc0_inf)
                 
@@ -2706,7 +2726,15 @@ if option == 'Экскреция препарата':
                 add_or_replace(st.session_state[f"list_heading_word_{option}"], table_heading) 
 
                 ## вызов функции подсчета опистательной статистики и создания соотвествующей таблицы с округлениями
-                df_concat_round_str_transpose = create_table_descriptive_statistics(df)['df_concat_round_str_transpose']
+                df_stats = create_table_descriptive_statistics(df)
+                # Сбрасываем индекс статистики, чтобы перенести в колонку "Номер"
+                df_stats_reset = df_stats.reset_index()
+                # Переименовываем колонку индекса
+                df_stats_reset.rename(columns={'index': 'Номер'}, inplace=True)
+                # Продолжаем индексы (начинаем после последнего индекса df)
+                df_stats_reset.index = range(df.index.max() + 1, df.index.max() + 1 + len(df_stats_reset))
+                # Объединяем таблицы
+                df_concat_round_str_transpose = pd.concat([df, df_stats_reset], axis=0, ignore_index=False)
 
                 add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
 
