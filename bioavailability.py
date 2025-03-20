@@ -177,7 +177,6 @@ if option == 'Фармакокинетика':
               
               add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_concat_round_str_transpose)
 
-              
               ########### графики    
 
               ######индивидуальные    
