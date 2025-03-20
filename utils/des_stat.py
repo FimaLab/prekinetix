@@ -7,18 +7,22 @@ def calculate_statistics(data):
 
     data = np.array(data, dtype=np.float64)
     data_nonan = data[~np.isnan(data)]  # Удаляем NaN
-    n = len(data)
-    n_obs = len(data_nonan)
-    n_miss = n - n_obs
-    
-    if n_obs == 0:
-        return {"N": n, "NMiss": n_miss, "NObs": 0}
-    
+    n = len(data_nonan)
+    n_obs = len(data)
+    n_miss = n_obs - n
+
+    if n == 0:
+        return {"N": 0, "NMiss": n_miss, "NObs": n_obs}
+
     mean = np.mean(data_nonan)
-    sd = np.std(data_nonan, ddof=1) if n_obs > 1 else 0
-    se = sd / np.sqrt(n_obs) if n_obs > 1 else 0
-    variance = np.var(data_nonan, ddof=1) if n_obs > 1 else 0
-    cv_percent = (sd / mean * 100) if mean != 0 else np.nan
+    if n > 1:
+        sd = np.std(data_nonan, ddof=1)
+        se = sd / np.sqrt(n)
+        variance = np.var(data_nonan, ddof=1)
+        cv_percent = (sd / mean * 100) if mean != 0 else np.nan
+    else:
+        sd = se = variance = cv_percent = None
+
     min_val, median, max_val = np.min(data_nonan), np.median(data_nonan), np.max(data_nonan)
     range_val = max_val - min_val
 
@@ -35,29 +39,29 @@ def calculate_statistics(data):
             geometric_cv_percent = (np.sqrt(np.exp(sd_log**2) - 1)) * 100
         elif len(data_pos) == 1:
             mean_log = np.log(data_pos[0])
-            sd_log = 0
+            sd_log = geometric_sd = geometric_cv_percent = None
             geometric_mean = np.exp(mean_log)
-            geometric_sd = 0
-            geometric_cv_percent = 0
         else:
             mean_log = sd_log = geometric_mean = geometric_sd = geometric_cv_percent = None
 
-    if n_obs > 1:
+    if n > 1:
         if sd == 0:
             ci_95_ind_lower = ci_95_ind_upper = mean
             ci_95_mean_lower = ci_95_mean_upper = mean
         else:
-            ci_95_ind = stats.t.interval(0.95, df=n_obs - 1, loc=mean, scale=sd)
-            ci_95_ind_lower = ci_95_ind[0]
-            ci_95_ind_upper = ci_95_ind[1]
+            ci_95_ind = stats.t.interval(0.95, df=n - 1, loc=mean, scale=sd)
+            ci_95_ind_lower, ci_95_ind_upper = ci_95_ind
 
-            ci_95_mean = stats.t.interval(0.95, df=n_obs - 1, loc=mean, scale=se)
-            ci_95_mean_lower = ci_95_mean[0]
-            ci_95_mean_upper = ci_95_mean[1]
-        
+            ci_95_mean = stats.t.interval(0.95, df=n - 1, loc=mean, scale=se)
+            ci_95_mean_lower, ci_95_mean_upper = ci_95_mean
+    else:
+        ci_95_ind_lower = ci_95_ind_upper = None
+        ci_95_mean_lower = ci_95_mean_upper = None
+
+    if n > 1:
         alpha = 0.05
-        df = n_obs - 1
-        
+        df = n - 1
+
         chi2_upper = stats.chi2.ppf(1 - alpha / 2, df)
         chi2_lower = stats.chi2.ppf(alpha / 2, df)
 
@@ -65,22 +69,26 @@ def calculate_statistics(data):
         ci_95_var_upper = (df * variance) / chi2_lower if chi2_lower > 0 else np.nan
 
         t_value = stats.t.ppf(1 - alpha / 2, df)
-        
+
         if mean_log is not None and sd_log is not None:
             ci_95_geo = (np.exp(mean_log - t_value * sd_log), np.exp(mean_log + t_value * sd_log)) if sd_log > 0 else (geometric_mean, geometric_mean)
-            ci_95_geo_mean_lower = np.exp(mean_log - t_value * sd_log / np.sqrt(n_obs)) if sd_log > 0 else geometric_mean
-            ci_95_geo_mean_upper = np.exp(mean_log + t_value * sd_log / np.sqrt(n_obs)) if sd_log > 0 else geometric_mean
+            ci_95_geo_mean_lower = np.exp(mean_log - t_value * sd_log / np.sqrt(n)) if sd_log > 0 else geometric_mean
+            ci_95_geo_mean_upper = np.exp(mean_log + t_value * sd_log / np.sqrt(n)) if sd_log > 0 else geometric_mean
         else:
             ci_95_geo = (None, None)
             ci_95_geo_mean_lower = ci_95_geo_mean_upper = None
     else:
-        ci_95_ind_lower = ci_95_ind_upper = mean
-        ci_95_mean_lower = ci_95_mean_upper = mean
         ci_95_var_lower = ci_95_var_upper = np.nan
         ci_95_geo = (None, None)
         ci_95_geo_mean_lower = ci_95_geo_mean_upper = None
-    
-    percentiles = np.percentile(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99], method="nearest")
+
+    # Коррекция вычисления percentiles
+    if n < 3:
+        percentiles = np.percentile(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99], method="nearest")
+        percentiles[5] = np.median(data_nonan)  # P50 вычисляем отдельно
+    else:
+        percentiles = np.percentile(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99], method="nearest")
+
     iqr = percentiles[6] - percentiles[4]  # P75 - P25
 
     return {
@@ -97,20 +105,3 @@ def calculate_statistics(data):
         "P25": percentiles[4], "P50": percentiles[5], "P75": percentiles[6], "P90": percentiles[7],
         "P95": percentiles[8], "P97.5": percentiles[9], "P99": percentiles[10], "IQR": iqr
     }
-
-
-    # Дополнительные параметры
-    #sum_val = np.sum(data_nonan)
-    #harmonic_mean = stats.hmean(data_pos) if len(data_pos) > 0 else np.nan
-    #skewness = stats.skew(data_nonan) if n_obs > 2 else np.nan
-    #skewness_pop = stats.skew(data_nonan, bias=False) if n_obs > 2 else np.nan
-    #kurtosis = stats.kurtosis(data_nonan) if n_obs > 2 else np.nan
-    #kurtosis_pop = stats.kurtosis(data_nonan, fisher=False) if n_obs > 2 else np.nan
-    #pseudo_sd = np.sqrt(variance) if n_obs > 1 else np.nan
-    #ks_pvalue = stats.kstest(data_nonan, 'norm').pvalue if n_obs > 3 else np.nan
-    
-
-
-        #"Sum": sum_val, "HarmonicMean": harmonic_mean, "Skewness": skewness, "SkewnessPop": skewness_pop,
-        #"Kurtosis": kurtosis, "KurtosisPop": kurtosis_pop, "PseudoSD": pseudo_sd, "KSPValue": ks_pvalue
-    

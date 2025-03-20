@@ -9,6 +9,26 @@ from utils.des_stat import *
 
 import numpy as np
 
+def remove_none_values(concentrations, time_points=None):
+    """
+    Удаляет все None и NaN из списка концентраций и соответствующие элементы из списка временных точек,
+    если список временных точек передан.
+    
+    :param concentrations: список концентраций (может содержать None или NaN)
+    :param time_points: список временных точек (необязательный параметр)
+    :return: кортеж из отфильтрованных списков (концентрации, временные точки, если переданы)
+    """
+    def is_valid(value):
+        return value is not None and not (isinstance(value, float) and math.isnan(value))
+    
+    if time_points is None:
+        return [c for c in concentrations if is_valid(c)], None
+    
+    filtered_data = [(c, t) for c, t in zip(concentrations, time_points) if is_valid(c)]
+    filtered_concentrations, filtered_time_points = zip(*filtered_data) if filtered_data else ([], [])
+    
+    return list(filtered_concentrations), list(filtered_time_points)
+
 #Для Tlag
 def find_first_positive_index(lst):
     for i, num in enumerate(lst):
@@ -85,11 +105,12 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
     count_row=df_without_numer.shape[0]
 
     list_count_row=range(count_row)
-    
+
     ###N_Samples
     list_N_Samples=[]
     for i in range(0,count_row):
-        Sample=int(len(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        Sample=int(len(list_concentration))
         list_N_Samples.append(Sample)
 
     ###Dose
@@ -101,13 +122,15 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
     ###Cmax_True
     list_cmax_True_pk=[]
     for i in range(0,count_row):
-        cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        cmax=float(max(list_concentration))
         list_cmax_True_pk.append(cmax)
 
     ###Cmax_D
     list_cmax_D_pk=[]
     for i in range(0,count_row):
-        cmax_d =float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))/float(dose)
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        cmax_d =float(max(list_concentration))/float(dose)
         list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
@@ -246,7 +269,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
               cmax = max(list_concentration)
@@ -276,7 +299,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               
               # Удаление нулей в конце массива
@@ -321,10 +344,9 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
-
+           
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
            list_list_columns_T.append(list_columns_T)
-
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
            list_list_concentration.append(list_concentration)
 
@@ -337,7 +359,8 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
-           Tlag = list_columns_T[find_first_positive_index(df_without_numer.iloc[[i]].iloc[0].tolist())-1]
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
+           Tlag = list_columns_T[find_first_positive_index(list_concentration)-1]
            
            list_Tlag.append(Tlag)
 
@@ -361,11 +384,11 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
            list_concentration.remove(0)
            list_c=list_concentration
 
-           list_time=df_without_numer.columns.tolist()
+           list_time=list_columns_T
            list_time.remove(0) 
 
            list_t=[]
@@ -501,7 +524,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
        list_of_list_c=[]
        for i in range(0,count_row):
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+           list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
            list_concentration.remove(0)
            list_c = list_concentration
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
@@ -570,7 +593,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
               cmax = max(list_concentration)
@@ -617,7 +640,7 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
              
               ### Удаление нулей сзади массива
@@ -983,7 +1006,8 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
     ###N_Samples
     list_N_Samples=[]
     for i in range(0,count_row):
-        Sample=int(len(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        Sample=int(len(list_concentration))
         list_N_Samples.append(Sample)
 
     ###Dose
@@ -995,13 +1019,15 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
     ###Cmax_True
     list_cmax_True_pk=[]
     for i in range(0,count_row):
-        cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        cmax=float(max(list_concentration))
         list_cmax_True_pk.append(cmax)
 
     ###Cmax_D
     list_cmax_D_pk=[]
     for i in range(0,count_row):
-        cmax_d =float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))/float(dose)
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        cmax_d =float(max(list_concentration))/float(dose)
         list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
@@ -1137,7 +1163,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
              list_columns_T=[]
              for column in df_without_numer.columns:
                  list_columns_T.append(float(column))
-             list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+             list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
              
              # Оценка C₀ через логарифмическую линейную регрессию для первых двух точек
              if list_concentration[0] > 0 and list_concentration[1] > 0:
@@ -1164,7 +1190,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ###C0
               list_C0 = []
@@ -1222,7 +1248,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               # Оценка C₀ через логарифмическую линейную регрессию для первых двух точек
               if list_concentration[0] > 0 and list_concentration[1] > 0:
@@ -1305,10 +1331,8 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
-
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
            list_list_columns_T.append(list_columns_T)
-
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
            list_list_concentration.append(list_concentration)
 
@@ -1334,10 +1358,10 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
            list_c=list_concentration
 
-           list_time=df_without_numer.columns.tolist()
+           list_time=list_columns_T
 
            list_t=[]
            for i in list_time:
@@ -1348,8 +1372,8 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
            max_value_c=max(list_c)
            index_cmax=list_c.index(max_value_c)
 
-           list_c_without_cmax=list_c[index_cmax+1:]
-           list_t_without_cmax=list_t[index_cmax+1:]
+           list_c_without_cmax=list_c#[index_cmax+1:] - в болюсе cmax может быть включен, во внесосудистом и в инфузии нет
+           list_t_without_cmax=list_t#[index_cmax+1:]
 
            #удаление всех нулей из массивов
            count_for_0_1=len(list_c_without_cmax)
@@ -1472,7 +1496,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        list_of_list_c=[]
        
        for i in range(0,count_row):
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+           list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
 
            list_c = list_concentration
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
@@ -1547,7 +1571,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ###C0
               list_C0 = []
@@ -1617,7 +1641,7 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ### C₀
               if list_concentration[0] > 0 and list_concentration[1] > 0:
@@ -2012,7 +2036,8 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
     ###N_Samples
     list_N_Samples=[]
     for i in range(0,count_row):
-        Sample=int(len(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        Sample=int(len(list_concentration))
         list_N_Samples.append(Sample)
 
     ###Dose
@@ -2030,13 +2055,15 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
     ###Cmax_True
     list_cmax_True_pk=[]
     for i in range(0,count_row):
-        cmax=float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        cmax=float(max(list_concentration))
         list_cmax_True_pk.append(cmax)
 
     ###Cmax_D
     list_cmax_D_pk=[]
     for i in range(0,count_row):
-        cmax_d =float(max(df_without_numer.iloc[[i]].iloc[0].tolist()))/float(dose)
+        list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
+        cmax_d =float(max(list_concentration))/float(dose)
         list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
@@ -2175,7 +2202,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ###удаление всех нулей сзади массива, т.к. AUC0-t это AUClast (до последней определяемой точки, а не наблюдаемой)
               cmax = max(list_concentration)
@@ -2206,7 +2233,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               # Удаление нулей в конце массива
               while list_concentration and list_concentration[-1] == 0:
@@ -2249,10 +2276,10 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
+           
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
            list_list_columns_T.append(list_columns_T)
-
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
 
            list_list_concentration.append(list_concentration)
 
@@ -2278,11 +2305,11 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
            list_columns_T=[]
            for column in df_without_numer.columns:
                list_columns_T.append(float(column))
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
            list_concentration.remove(0)
            list_c=list_concentration
 
-           list_time=df_without_numer.columns.tolist()
+           list_time=list_columns_T
            list_time.remove(0) 
 
            list_t=[]
@@ -2417,7 +2444,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
        list_of_list_c=[]
        for i in range(0,count_row):
-           list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+           list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
            list_concentration.remove(0)
            list_c = list_concentration
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
@@ -2486,7 +2513,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ###удаление всех нулей сзади массива, т.к. AUMC0-t это AUMClast (до последней определяемой точки, а не наблюдаемой)
               cmax = max(list_concentration)
@@ -2533,7 +2560,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
               list_columns_T=[]
               for column in df_without_numer.columns:
                   list_columns_T.append(float(column))
-              list_concentration=df_without_numer.iloc[[i]].iloc[0].tolist()
+              list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
 
               ### Удаление нулей сзади массива
               while list_concentration and list_concentration[-1] == 0:
