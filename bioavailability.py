@@ -87,8 +87,9 @@ if option == 'Фармакокинетика':
            ######### боковое меню справа
            with col2:
                 
-                #настройки дополнительных параметров исследования
-                settings_additional_research_parameters(option,custom_success)
+                with st.container(border=True):
+                     #настройки дополнительных параметров исследования
+                     settings_additional_research_parameters(option,custom_success)
            
            measure_unit_pk_time  = select_time_unit(f"select_time_unit{option}")
            measure_unit_pk_concentration  = select_concentration_unit(f"select_concentration_unit{option}")
@@ -112,11 +113,11 @@ if option == 'Фармакокинетика':
               if f"extrapolate_first_points_{option}" not in st.session_state:
                   st.session_state[f"extrapolate_first_points_{option}"] = False
 
-              # Интерфейс чекбокса
-              extrapolate_first_points = st.checkbox(
+              # Интерфейс переключателя (toggle)
+              extrapolate_first_points = st.toggle(
                   "Экстраполяция для первых точек",
                   value=st.session_state[f"extrapolate_first_points_{option}"],
-                  key = "key" + f"extrapolate_first_points_{option}"
+                  key=f"toggle_extrapolate_{option}"
               )
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points
@@ -540,13 +541,13 @@ if option == 'Биодоступность':
                              if st.session_state[f"agree_injection - {option}_{file_name}"] == "intravenously":
                                 # Инициализация состояния
                                 if f"extrapolate_first_points_{option}_{file_name}" not in st.session_state:
-                                    st.session_state[f"extrapolate_first_points_{option}_{file_name}"] = False
-
-                                # Интерфейс чекбокса
-                                extrapolate_first_points = st.checkbox(
+                                     st.session_state[f"extrapolate_first_points_{option}_{file_name}"] = False
+                                 
+                                # Интерфейс переключателя (toggle)
+                                extrapolate_first_points = st.toggle(
                                     "Экстраполяция для первых точек",
                                     value=st.session_state[f"extrapolate_first_points_{option}_{file_name}"],
-                                    key = "key" + f"extrapolate_first_points_{option}_{file_name}"
+                                    key=f"toggle_extrapolate_{option}_{file_name}"
                                 )
 
                                 st.session_state[f"extrapolate_first_points_{option}_{file_name}"] = extrapolate_first_points
@@ -1157,9 +1158,9 @@ if option == 'Распределение по органам':
          
          ######### боковое меню справа
          with col2:
-              
-              #настройки дополнительных параметров исследования
-              settings_additional_research_parameters(option,custom_success)
+              with st.container(border=True):
+                  #настройки дополнительных параметров исследования
+                  settings_additional_research_parameters(option,custom_success)
 
          measure_unit_org_time = select_time_unit(f"select_time_unit{option}")
          measure_unit_org_blood = select_concentration_unit(f"select_concentration_unit{option}")
@@ -1193,11 +1194,11 @@ if option == 'Распределение по органам':
               if f"extrapolate_first_points_{option}" not in st.session_state:
                   st.session_state[f"extrapolate_first_points_{option}"] = False
 
-              # Интерфейс чекбокса
-              extrapolate_first_points = st.checkbox(
+              # Интерфейс переключателя (toggle)
+              extrapolate_first_points = st.toggle(
                   "Экстраполяция для первых точек",
                   value=st.session_state[f"extrapolate_first_points_{option}"],
-                  key = "key" + f"extrapolate_first_points_{option}"
+                  key=f"toggle_extrapolate_{option}"
               )
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points
@@ -1858,9 +1859,9 @@ if option == 'Линейность дозирования':
          
          ######### боковое меню справа
          with col2:
-              
-              #настройки дополнительных параметров исследования
-              settings_additional_research_parameters(option,custom_success)
+              with st.container(border=True):
+                   #настройки дополнительных параметров исследования
+                   settings_additional_research_parameters(option,custom_success)
 
          measure_unit_lin_time = select_time_unit(f"select_time_unit{option}")
          measure_unit_lin_concentration = select_concentration_unit(f"select_concentration_unit{option}")
@@ -1884,11 +1885,11 @@ if option == 'Линейность дозирования':
               if f"extrapolate_first_points_{option}" not in st.session_state:
                   st.session_state[f"extrapolate_first_points_{option}"] = False
 
-              # Интерфейс чекбокса
-              extrapolate_first_points = st.checkbox(
+              # Интерфейс переключателя (toggle)
+              extrapolate_first_points = st.toggle(
                   "Экстраполяция для первых точек",
                   value=st.session_state[f"extrapolate_first_points_{option}"],
-                  key = "key" + f"extrapolate_first_points_{option}"
+                  key=f"toggle_extrapolate_{option}"
               )
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points   
