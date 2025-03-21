@@ -137,13 +137,12 @@ if option == 'Фармакокинетика':
            st.session_state[f"dose_{option}"] = dose_pk
 
            if st.session_state[f"agree_injection - {option}"] == "infusion":
-              
               infusion_time = st.text_input("Время введения инфузии", key=f'Время введения инфузии при расчете {option}', value = st.session_state[f"infusion_time_{option}"])
               st.session_state[f"infusion_time_{option}"] = infusion_time
            
            if (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != "") and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
-           elif (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] != "infusion" and st.session_state[f"infusion_time_{option}"] == "") and st.session_state[f'measure_unit_{option}_concentration']):
+           elif (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] != "infusion") and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
            else:
               start = False
@@ -488,7 +487,7 @@ if option == 'Биодоступность':
            if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == "linear-up/log-down":
               st.session_state[f"index_method_auc - {option}"] = 1
 
-           file_uploader = st.file_uploader("",accept_multiple_files=True, key=f'Файлы при исследовании {option}',help = "Выберите нужное количество файлов. В названии файла обязательно должны присутствовать слово с нижним подчеркиванием «Биодоступность_» в верхнем регистре, после этого текстовая часть, которая будет использована для оформления легенды графиков, названий таблиц и прочего.")
+           file_uploader = st.file_uploader("",accept_multiple_files=True, key=f'Файлы при исследовании {option}',help = "Выберите нужное количество файлов (минимум два). В названии файла обязательно должно присутствовать слово с нижним подчеркиванием «Биодоступность_» в верхнем регистре, после этого текстовая часть, которая будет использована для оформления легенды графиков, названий таблиц и прочего.")
            
            if 'list_files_name_bioavailability' not in st.session_state:
              st.session_state['list_files_name_bioavailability'] = []
@@ -575,9 +574,24 @@ if option == 'Биодоступность':
            else:
               cheking_doses = False
 
-           if ((list_keys_file_bioavailability != []) and cheking_doses and (st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "")):
+           # Проверка, заполнены ли все необходимые времена инфузии
+           missing_infusion_time = []
+           missing_infusion_time_file = []
+           for file_name in list_keys_file_bioavailability:
+               if st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion":
+                  missing_infusion_time_file.append(file_name)
+                  infusion_time = st.session_state[f"infusion_time_{option}_{file_name}"]
+                  if infusion_time != '':
+                     missing_infusion_time.append(infusion_time)
+           
+           if len(missing_infusion_time) == len(missing_infusion_time_file):
+              cheking_infusion_time = True
+           else:
+              cheking_infusion_time = False
+
+           if ((list_keys_file_bioavailability != []) and cheking_doses and cheking_infusion_time):
                 start = True
-           elif ((list_keys_file_bioavailability != []) and cheking_doses and (st.session_state[f"agree_injection - {option}_{file_name}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "")):
+           elif ((list_keys_file_bioavailability != []) and cheking_doses and cheking_infusion_time):
               start = True
            else:
               start = False
@@ -1223,7 +1237,7 @@ if option == 'Распределение по органам':
          
          if ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != "") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
               start = True
-         elif ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] != "infusion" and st.session_state[f"infusion_time_{option}"] == "") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
+         elif ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] != "infusion") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
             start = True
          else:
             start = False
@@ -1951,9 +1965,25 @@ if option == 'Линейность дозирования':
          else:
             cheking_doses = False
 
-         if ((list_keys_file_lin != []) and cheking_doses and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] != "") and st.session_state[f'measure_unit_{option}_concentration']):
+         # Проверка, заполнены ли все необходимые времена инфузии
+         missing_infusion_time = []
+         missing_infusion_time_file = []
+         for file_name in list_keys_file_lin:
+            file_name = file_name[10:-5]
+            if st.session_state[f"agree_injection - {option}"] == "infusion":
+               missing_infusion_time_file.append(file_name)
+               infusion_time = st.session_state[f"infusion_time_{option}_{file_name}"]
+               if infusion_time != '':
+                  missing_infusion_time.append(infusion_time)
+         
+         if len(missing_infusion_time) == len(missing_infusion_time_file):
+            cheking_infusion_time = True
+         else:
+            cheking_infusion_time = False
+
+         if ((list_keys_file_lin != []) and cheking_doses and cheking_infusion_time and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
-         elif ((list_keys_file_lin != []) and cheking_doses and (st.session_state[f"agree_injection - {option}"] != "infusion" and st.session_state[f"infusion_time_{option}_{file_name}"] == "") and st.session_state[f'measure_unit_{option}_concentration']):
+         elif ((list_keys_file_lin != []) and cheking_doses and cheking_infusion_time and st.session_state[f'measure_unit_{option}_concentration']):
             start = True
          else:
             start = False
