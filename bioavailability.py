@@ -40,7 +40,7 @@ option = st.sidebar.selectbox('',
 
 df_example_file = pd.read_excel("server_example_file.xlsx")
 df_example_file_xlsx = to_excel(df_example_file)
-st.sidebar.download_button(label='Примеры файлов 🗂️', data=df_example_file_xlsx , file_name= 'example_file.xlsx')
+st.sidebar.download_button(label='Пример файла', data=df_example_file_xlsx , file_name= 'example_file.xlsx',icon=":material/description:")
 
 ############ памятка
 
@@ -49,7 +49,7 @@ text_contents = '''1)Оглавлять колонку с номерами жи�
 3) Не ставить в ячейки знак «-» в случае нулевого значения. Ставить число «0» для корректной работы приложения.
 4)Ни в каком исследовании загружаемые файлы не должны называться одинаково.
 '''
-st.sidebar.download_button('Инструкция по заполнению 📝', text_contents)
+st.sidebar.download_button('Инструкция', text_contents,icon=":material/draft:")
 
 #Инизиализация состояния фреймов с результатами исследований
 initializing_session_state_frames_research_results(['Фармакокинетика','Биодоступность', 'Распределение по органам', 'Линейность дозирования'])
@@ -78,7 +78,7 @@ if option == 'Фармакокинетика':
         if panel == "Загрузка файлов":
            
            if f"file_name_{option}" not in st.session_state:
-            st.session_state[f"file_name_{option}"] = '«Название файла»'
+            st.session_state[f"file_name_{option}"] = ''
 
            file_name = st.text_input("Введите название файла для оформления графиков и подписей:", st.session_state[f"file_name_{option}"], key = f"key_file_name_{option}")
            
@@ -101,7 +101,7 @@ if option == 'Фармакокинетика':
            if f"index_method_auc - {option}" not in st.session_state:
                st.session_state[f"index_method_auc - {option}"] = 0
 
-           method_auc = st.radio("📈 Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
+           method_auc = st.radio("Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
            
            if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == 'linear':
               st.session_state[f"index_method_auc - {option}"] = 0
@@ -481,7 +481,7 @@ if option == 'Биодоступность':
            if f"index_method_auc - {option}" not in st.session_state:
                st.session_state[f"index_method_auc - {option}"] = 0
 
-           method_auc = st.radio("📈 Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
+           method_auc = st.radio("Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
            
            if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == 'linear':
               st.session_state[f"index_method_auc - {option}"] = 0
@@ -1182,7 +1182,7 @@ if option == 'Распределение по органам':
          if f"index_method_auc - {option}" not in st.session_state:
              st.session_state[f"index_method_auc - {option}"] = 0
 
-         method_auc = st.radio("📈 Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
+         method_auc = st.radio("Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
          
          if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == 'linear':
             st.session_state[f"index_method_auc - {option}"] = 0
@@ -1873,7 +1873,7 @@ if option == 'Линейность дозирования':
          if f"index_method_auc - {option}" not in st.session_state:
              st.session_state[f"index_method_auc - {option}"] = 0
 
-         method_auc = st.radio("📈 Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
+         method_auc = st.radio("Метод подсчёта AUC и AUMC",('linear',"linear-up/log-down"),key = f"Метод подсчёта AUC и AUMC - {option}", index = st.session_state[f"index_method_auc - {option}"])
          
          if st.session_state[f"Метод подсчёта AUC и AUMC - {option}"] == 'linear':
             st.session_state[f"index_method_auc - {option}"] = 0
