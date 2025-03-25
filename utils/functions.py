@@ -19,6 +19,7 @@ from pyvis.network import Network
 import random
 import string
 import hashlib
+from style_python.style import *
 
 def sort_by_keys_with_indices(list_data, list_keys):
     indexed_list = [(i, item) for i, item in enumerate(list_data)]  # Сохраняем изначальные индексы
@@ -110,12 +111,27 @@ def visualize_mapping(list_keys_file_bioavailability):
 
 #основная радиокнопка исследования
 def main_radio_button_study(option):
-    panel = st.radio(
-            "⚙️Панель управления",
-            ("Загрузка файлов", "Таблицы","Графики"),
-            horizontal=True, key= f"Загрузка файлов - {option}"
-        )
-    
+    panel = option_menu(
+        "",
+        ["Загрузка файлов", "Таблицы", "Графики"],
+        icons=["cloud-upload", "table", "bar-chart"],
+        menu_icon="cast",
+        default_index=0,
+        orientation="horizontal",
+        key=f"menu-{option}",
+        styles = {
+    "container": {"padding": "0px", "background-color": "#73b5f2"},  # Светло-голубой фон
+    "icon": {"color": "#ffff", "font-size": "18px"},  # Голубые иконки
+    "nav-link": {
+        "font-size": "16px",
+        "text-align": "center",
+        "margin": "0px",
+        "--hover-color": "#138abd",
+        "color": "#ffff",
+    },
+    "nav-link-selected": {"background-color": "#4985c1", 'color': '#ffff',"font-weight": "normal","font-size": "18px"},  # Голубой активный пункт
+}
+    )
     return panel
 
 #инициализация состояния дозы и времени инфузии
@@ -338,7 +354,8 @@ def download_excel_button(df, label, key, file_name):
         file_name=file_name,
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         key=key,# Добавлен параметр key
-        help = f"{label}"
+        help = f"{label}",
+        icon=":material/download:"
     )
 
 #округление до определенного значения значищих цифр
@@ -498,7 +515,8 @@ def create_table(list_heading_word, list_table_word):
         label="Сохранить таблицы 📃",
         data=bio.getvalue(),
         file_name="Таблицы.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        icon=":material/download:"
     )
 
 #визуализация и выгрузка в excel
@@ -512,7 +530,7 @@ def visualize_table(list_heading_word,list_table_word,option):
         else:
           width = None
 
-        with st.container(border=True,key= f"container_PK{heading}",height=500):
+        with st.container(border=True,key= f"container_PK{heading}"):
              
              st.subheader(heading)
 
@@ -550,57 +568,247 @@ def visualize_table(list_heading_word,list_table_word,option):
              # Применяем функцию к каждой ячейке в колонках
              # Создаём словарь форматирования для Pandas Styler
              format_dict = {col: lambda x: safe_format(x, col) for col in df.columns}
-
-             # Инициализируем состояние, если оно ещё не задано
-             if f"selected_columns{heading}_{option}" not in st.session_state:
-                 columns = [str(col) for col in list(df.columns)]
-                 st.session_state[f"selected_columns{heading}_{option}"] = columns   # По умолчанию все колонки
-                 
-             if f"selected_rows{heading}_{option}" not in st.session_state:
-                 rows = [str(row) for row in list(df.index)]
-                 st.session_state[f"selected_rows{heading}_{option}"] = rows  # По умолчанию все колонки    
              
-             # Отображаем DataFrame с форматированием
-             selection = st.dataframe(df.style.format(format_dict),on_select = "rerun",selection_mode=["multi-row", "multi-column"],width=width)
-             # Проверяем, были ли выбраны колонки
-             if selection:
-                 selected_row_indices = selection["selection"]["rows"]  # Получаем номера выбранных строк
-                 selected_rows = df.index[selected_row_indices]  # Получаем пользовательские индексы
-                 selected_rows = [str(row) for row in selected_rows]  # Приведение выбранных колонок к строкам
 
-                 selected_columns = selection["selection"]["columns"]
-                 selected_columns = [str(col) for col in selected_columns]  # Приведение выбранных колонок к строкам
-
-                 # Обновляем состояние только если выбор изменился
-                 if selected_columns != st.session_state[f"selected_columns{heading}_{option}"] and selected_columns != []:
-                     st.session_state[f"selected_columns{heading}_{option}"] = selected_columns
-
-                 # Обновляем состояние только если выбор изменился
-                 if selected_rows != st.session_state[f"selected_rows{heading}_{option}"] and selected_rows != []:
-                     st.session_state[f"selected_rows{heading}_{option}"] = selected_rows
-
-             st.subheader("Выбранные данные:")
-             df.index = df.index.astype(str)  # Приведение к строковому типу
-             df.columns = df.columns.astype(str)  # Приведение к строковому типу
+             col1,col2 = st.columns([0.7,0.3])
              
-             try:
-               choice_columns = df.loc[st.session_state[f"selected_rows{heading}_{option}"], st.session_state[f"selected_columns{heading}_{option}"]]
-             except KeyError as e:
-               columns = [str(col) for col in list(df.columns)]
-               st.session_state[f"selected_columns{heading}_{option}"] = columns
-               rows = [str(row) for row in list(df.index)]
-               st.session_state[f"selected_rows{heading}_{option}"] = rows
-               st.rerun()
-
-             st.dataframe(choice_columns.style.format(format_dict),width=width)
-             col1,col2 = st.columns([0.2,0.8])
-             with col1:
-                  if st.button("Очистить выбор",key = f"Clear_selection_{heading}_{option}"):
-                     st.session_state[f"selected_columns{heading}_{option}"] = []
-                     st.session_state[f"selected_rows{heading}_{option}"] = []
+             
              with col2:
-                  # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
-                  download_excel_button(choice_columns, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
+                if heading.__contains__("Фармакокинетические показатели"):
+                    # Инициализируем состояние, если оно ещё не задано
+                    if f"selected_columns{heading}_{option}" not in st.session_state:
+                        columns = [str(col) for col in list(df.columns)]
+                        st.session_state[f"selected_columns{heading}_{option}"] = columns   # По умолчанию все колонки
+
+                    columns = [str(col) for col in list(df.columns)]
+                    # Создаем DataFrame с параметрами и булевыми значениями (по умолчанию False)
+                    data_df = pd.DataFrame({"ФК параметр": columns, "Выбранный": [False] * len(columns)})
+                    
+                    # Функция для обновления состояния
+                    def update_data_data_editor_columns():
+                        changes = st.session_state[f"columns_data_editor_{option}_{heading}"]
+                        
+                        # Исходный DataFrame
+                        df = st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"]
+                        
+                        # Обновление изменённых строк
+                        for idx, updated_values in changes.get("edited_rows", {}).items():
+                            for col, new_value in updated_values.items():
+                                df.at[idx, col] = new_value
+                        
+                        # Сохранение обновлённого DataFrame в состояние
+                        st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"] = df
+                    
+
+                    # Инициализация состояния, если оно ещё не задано
+                    if f"saved_data_columns_data_editor_{option}_{heading}" not in st.session_state:
+                        st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"] = data_df
+
+                    with st.expander("Выбрать столбцы"):
+                         # Рендерим таблицу с чекбоксами
+                         edited_df = st.data_editor(
+                             st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"],
+                             column_config={
+                                 "Выбранный": st.column_config.CheckboxColumn(
+                                     "Выбранный параметр",
+                                     help="Выберите колонки",
+                                     default=False,
+                                 )
+                             },
+                             disabled=["ФК параметр"],  # Делаем столбец с параметрами нередактируемым
+                             hide_index=True,  # Скрываем индекс DataFrame
+                             key=f"columns_data_editor_{option}_{heading}",  # Уникальный ключ
+                         )
+
+                         col3,col4 = st.columns([0.5,0.5])
+                         with col3:
+                             if st.button("Сохранить",key=f'key_save_button_columns_data_editor_{option}_{heading}',icon=":material/check_circle:"):
+                                update_data_data_editor_columns()
+                                custom_success("Выбор сохранен!")
+
+                         with col4:       
+                             if st.button("Очистить",key = f"key_сlear_button_columns_selection_{heading}_{option}",
+                                 icon=":material/delete:"):
+                                st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"] = data_df
+                                st.session_state[f"selected_columns{heading}_{option}"] = columns
+                                custom_success("Выбор успешно сброшен!")
+
+                    # Получаем список выбранных параметров
+                    selected_params = edited_df[edited_df["Выбранный"]]["ФК параметр"].tolist()
+
+                    selected_columns = selected_params
+                    selected_columns = [str(col) for col in selected_columns]  # Приведение выбранных колонок к строкам
+
+                    # Обновляем состояние только если выбор изменился
+                    if selected_columns != st.session_state[f"selected_columns{heading}_{option}"] and selected_columns != []:
+                        st.session_state[f"selected_columns{heading}_{option}"] = selected_columns
+                    
+                    #######################
+                    if f"selected_rows{heading}_{option}" not in st.session_state:
+                        rows = [str(row) for row in list(df.index)]
+                        st.session_state[f"selected_rows{heading}_{option}"] = rows  # По умолчанию все колонки
+                    
+                    rows = [str(row) for row in list(df.index)]
+                    # Создаем DataFrame с параметрами и булевыми значениями (по умолчанию False)
+                    data_df = pd.DataFrame({"Строка": rows, "Выбранный": [True if "№" in row else False for row in rows]})
+
+                    # Функция для обновления состояния
+                    def update_data_data_editor():
+                        changes = st.session_state[f"rows_data_editor_{option}_{heading}"]
+                        
+                        # Исходный DataFrame
+                        df = st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"]
+                        
+                        # Обновление изменённых строк
+                        for idx, updated_values in changes.get("edited_rows", {}).items():
+                            for col, new_value in updated_values.items():
+                                df.at[idx, col] = new_value
+
+                        # Сохранение обновлённого DataFrame в состояние
+                        st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = df
+
+                    # Инициализация состояния, если оно ещё не задано
+                    if f"saved_data_rows_data_editor_{option}_{heading}" not in st.session_state:
+                        st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
+        
+                    
+                    with st.expander("Выбрать строки"):
+                         # Рендерим таблицу с чекбоксами
+                         edited_df = st.data_editor(
+                             st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"],
+                             column_config={
+                                 "Выбранный": st.column_config.CheckboxColumn(
+                                     "Выбранный параметр",
+                                     help="Выберите строки",
+                                     default=False,
+                                 )
+                             },
+                             disabled=["Строка"],  # Делаем столбец с параметрами нередактируемым
+                             hide_index=True,  # Скрываем индекс DataFrame
+                             key=f"rows_data_editor_{option}_{heading}",  # Уникальный ключ
+                         )
+                         
+                         col3,col4 = st.columns([0.5,0.5])
+                         with col3:
+                             if st.button("Сохранить",key=f'key_save_button_rows_data_editor_{option}_{heading}',icon=":material/check_circle:"):
+                                update_data_data_editor()
+                                custom_success("Выбор сохранен!")
+                         with col4:
+                             if st.button("Очистить",key = f"key_сlear_button_rows_selection_{heading}_{option}",icon=":material/delete:"):
+                                st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
+                                st.session_state[f"selected_rows{heading}_{option}"] = rows
+
+                                custom_success("Выбор успешно сброшен!")
+
+                    # Получаем список выбранных параметров
+                    selected_params = edited_df[edited_df["Выбранный"]]["Строка"].tolist()
+                    
+                    selected_row_indices = selected_params  # Получаем номера выбранных строк
+                    selected_rows = selected_row_indices  # Получаем пользовательские индексы
+                    selected_rows = [str(row) for row in selected_rows]  # Приведение выбранных колонок к строкам
+
+                    # Обновляем состояние только если выбор изменился
+                    if selected_rows != st.session_state[f"selected_rows{heading}_{option}"] and selected_rows != []:
+                        st.session_state[f"selected_rows{heading}_{option}"] = selected_rows
+
+                elif heading.__contains__("Индивидуальные"):
+                    df = df.set_index('Номер')
+                    if f"selected_rows{heading}_{option}" not in st.session_state:
+                        rows = [str(row) for row in list(df.index)]
+                        st.session_state[f"selected_rows{heading}_{option}"] = rows  # По умолчанию все колонки
+                    
+                    rows = [str(row) for row in list(df.index)]
+                                        
+                    # Создаем DataFrame с параметрами и булевыми значениями (по умолчанию False)
+                    data_df = pd.DataFrame({"Строка": rows, "Выбранный": [True if "№" in row else False for row in rows]})
+
+                    # Функция для обновления состояния
+                    def update_data_data_editor():
+                        changes = st.session_state[f"rows_data_editor_{option}_{heading}"]
+                        
+                        # Исходный DataFrame
+                        df = st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"]
+                        
+                        # Обновление изменённых строк
+                        for idx, updated_values in changes.get("edited_rows", {}).items():
+                            for col, new_value in updated_values.items():
+                                df.at[idx, col] = new_value
+
+                        # Сохранение обновлённого DataFrame в состояние
+                        st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = df
+
+                    # Инициализация состояния, если оно ещё не задано
+                    if f"saved_data_rows_data_editor_{option}_{heading}" not in st.session_state:
+                        st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
+
+                    with st.expander("Выбрать строки"):
+                         # Рендерим таблицу с чекбоксами
+                         edited_df = st.data_editor(
+                             st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"],
+                             column_config={
+                                 "Выбранный": st.column_config.CheckboxColumn(
+                                     "Выбранный параметр",
+                                     help="Выберите строки",
+                                     default=False,
+                                 )
+                             },
+                             disabled=["Строка"],  # Делаем столбец с параметрами нередактируемым
+                             hide_index=True,  # Скрываем индекс DataFrame
+                             key=f"rows_data_editor_{option}_{heading}",  # Уникальный ключ
+                         )
+                         
+                         col3,col4 = st.columns([0.5,0.5])
+                         with col3:
+                            if st.button("Сохранить",key=f'key_save_button_rows_data_editor_{option}_{heading}',icon=":material/check_circle:"):
+                               update_data_data_editor()
+                               custom_success("Выбор сохранен!")
+                         with col4:
+                            if st.button("Очистить",key = f"key_сlear_button_rows_selection_{heading}_{option}",icon=":material/delete:"):
+                               st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
+                               st.session_state[f"selected_rows{heading}_{option}"] = rows
+                               custom_success("Выбор успешно сброшен!")
+                    
+                    # Получаем список выбранных параметров
+                    selected_params = edited_df[edited_df["Выбранный"]]["Строка"].tolist()
+
+                    selected_row_indices = selected_params  # Получаем номера выбранных строк
+
+                    selected_rows = selected_row_indices  # Получаем пользовательские индексы
+                    selected_rows = [str(row) for row in selected_rows]  # Приведение выбранных колонок к строкам
+                    
+                    # Обновляем состояние только если выбор изменился
+                    if selected_rows != st.session_state[f"selected_rows{heading}_{option}"] and selected_rows != []:
+                        st.session_state[f"selected_rows{heading}_{option}"] = selected_rows
+                    
+                with col1:
+                        
+                    # Отображаем DataFrame с форматированием
+                    st.dataframe(df.style.format(format_dict),width=width)
+ 
+                    df.index = df.index.astype(str)  # Приведение к строковому типу
+
+                    df.columns = df.columns.astype(str)  # Приведение к строковому типу
+                    
+                    try:
+                      choice_columns = df.loc[st.session_state[f"selected_rows{heading}_{option}"], st.session_state[f"selected_columns{heading}_{option}"]]
+                    except KeyError as e:
+                      columns = [str(col) for col in list(df.columns)]
+                      st.session_state[f"selected_columns{heading}_{option}"] = columns
+                      rows = [str(row) for row in list(df.index)]
+                      st.session_state[f"selected_rows{heading}_{option}"] = rows
+                      
+                      #обновление при изменении способа введения или загрузке другого файла для виджетов выбора колонок и строк
+                      data_df = pd.DataFrame({"Строка": rows, "Выбранный": [True if "№" in row else False for row in rows]})
+                      st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
+
+                      if heading.__contains__("Фармакокинетические показатели"):
+                         data_df = pd.DataFrame({"ФК параметр": columns, "Выбранный": [False] * len(columns)})
+                         st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"] = data_df
+
+                      st.rerun()
+
+             # Используем кастомные виджеты с уникальными ключами для выгрузки Excel
+             download_excel_button(choice_columns, f"Cкачать файл {heading}", heading,f"{heading}.xlsx")
 
 
 ## функция создания отчета графиков
@@ -628,9 +836,10 @@ def create_graphic(list_graphics_word,list_heading_graphics_word):
     doc.save(buf)
     if doc:
         st.download_button(
-            label="Сохранить графики 📈",
+            label="Скачать графики",
             data=buf.getvalue(),
             file_name="Графики.docx",
             mime="docx",
-            key = "graphics"
+            key = "graphics",
+            icon=":material/download:"
         )
