@@ -128,7 +128,7 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
                 #st.session_state[f'handleheight_{graph_id}'] = st.session_state[f'default_handleheight_{graph_id}']
             
             with st.expander(f"Настройка легенды"):
-                if graph_id != "Тканевая доступность в органах":
+                if graph_id != "Тканевая доступность в органах" and graph_id.__contains__("Выведение") == False:
                    legend_x = st.slider("X-позиция легенды", 0.0, 1.0, st.session_state[f'legend_x{graph_id}'], key = f'key_legend_x{graph_id}')
                    legend_y = st.slider("Y-позиция легенды", 0.0, 1.0, st.session_state[f'legend_y{graph_id}'], key = f'key_legend_y{graph_id}')
 
@@ -143,7 +143,7 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
                 #st.session_state[f'handlelength_{graph_id}'] = handlelength
                 #st.session_state[f'handleheight_{graph_id}'] = handleheight
             
-            if graph_id != "Тканевая доступность в органах":
+            if graph_id != "Тканевая доступность в органах" and graph_id.__contains__("Выведение") == False:
                # Настройка осей через виджеты
                x_settings = axis_settings("X",graph_id,f"X_graphic_min_value_{graph_id}",f"X_graphic_max_value_{graph_id}",
                                            f"X_graphic_major_ticks_{graph_id}",f"X_graphic_minor_ticks_{graph_id}")  # Виджет для оси X
@@ -162,7 +162,7 @@ def rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,child_fun
             new_kwargs["x_settings"] = x_settings
             new_kwargs["y_settings"] = y_settings
             
-            if graph_id != "Тканевая доступность в органах":
+            if graph_id != "Тканевая доступность в органах" and graph_id.__contains__("Выведение") == False:
                new_kwargs["legend_x"] = legend_x
                new_kwargs["legend_y"] = legend_y
             
@@ -979,26 +979,40 @@ def format_pvalue(pval, threshold=0.001):
     return "< .001" if pval < threshold else f"{pval:.3f}"#нужно добавить инструмент округления
 
 ###диаграмма экскреции
-def excretion_diagram(df,measure_unit_ex_time,measure_unit_ex_concentration):
-
-    col_mapping = df.columns.tolist()
-    col_mapping.remove('Номер')
-
-    list_time = []
-    for i in col_mapping:
-        numer=float(i)
-        list_time.append(numer)
-    
-    df_averaged_concentrations=df.describe()
-    list_concentration=df_averaged_concentrations.loc['mean'].tolist()
-
-    list_concentration.remove(0)
-    list_time.remove(0)
+def excretion_diagram(list_concentration,list_time,measure_unit_ex_time,measure_unit_ex_concentration,graph_id,x_settings=None,y_settings=None,legend_x=None,legend_y=None):
 
     fig, ax = plt.subplots()
 
-    sns.barplot(x=list_time, y=list_concentration,color='blue',width=0.5)
+    sns.barplot(x=list_time, y=list_concentration,color='#42aaff',width=0.5)
     plt.xlabel(f"Время, {measure_unit_ex_time}")
     plt.ylabel("Концентрация, "+measure_unit_ex_concentration)
+
+    # Убираем рамку вокруг графика
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    # Убираем основные и дополнительные насечки
+    ax.tick_params(axis='both', which='both', length=0)
+
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+    ax.axhline(0, color='grey', linewidth=1.1, zorder=2)  # Ось X
+    ax.axvline(-0.5, color='grey', linewidth=0.9, zorder=2)  # Ось Y
+    # Добавляем пользовательские оси (чтобы маркеры не обрезались)
+
+    kind_graphic = 'lin'
+    
+
+    if st.session_state[f'checkbox_status_graph_scaling_widgets_{graph_id}'] and x_settings is not None:
+        applying_axis_settings(ax, x_settings, y_settings,kind_graphic)
+
+    #Установка значений из автомат подобранных библиотекой состояния виджетов масштабирования графиков
+    else:
+        get_parameters_axis(graph_id, ax)
+
+
+
+    # Фиксация оси X (указав границы)
+    ax.set_xlim(-0.5, len(list_time) - 0.5)  # Подбирайте под количество категорий
 
     return fig
