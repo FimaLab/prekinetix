@@ -2777,11 +2777,36 @@ if option == 'Экскреция препарата':
 
                 ########### диаграмма экскреции
                 graphic='Выведение с ' + excretion_tv
-                add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)   
-                
-                fig = excretion_diagram(df,st.session_state['measure_unit_экскреция_time'],st.session_state['measure_unit_экскреция_concentration'])
+                graph_id = graphic
+                add_or_replace(st.session_state[f"list_heading_graphics_word_{option}"], graphic)
 
-                add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
+                #Инициализация состояния чекбокса параметров осей
+                initializing_checkbox_status_graph_scaling_widgets(graph_id)
+
+                col_mapping = df.columns.tolist()
+                col_mapping.remove('Номер')
+
+                list_time = []
+                for i in col_mapping:
+                    numer=float(i)
+                    list_time.append(numer)
+                
+                df_averaged_concentrations=df.describe()
+                list_concentration=df_averaged_concentrations.loc['mean'].tolist()
+
+                list_concentration.remove(0)
+                list_time.remove(0)
+
+                st.session_state[f"list_concentration{graph_id}"] = list_concentration
+                st.session_state[f"list_time{graph_id}"] = list_time
+
+                if f"first_creating_graphic{graph_id}" not in st.session_state:
+                    st.session_state[f"first_creating_graphic{graph_id}"] = True  # первое построение графика   
+
+                if st.session_state[f"first_creating_graphic{graph_id}"]:
+                  fig = excretion_diagram(list_concentration,list_time,st.session_state['measure_unit_экскреция_time'],st.session_state['measure_unit_экскреция_concentration'],graph_id)
+
+                  add_or_replace_df_graph(st.session_state[f"list_heading_graphics_word_{option}"],st.session_state[f"list_graphics_word_{option}"],graphic,fig)
 
             else:
                st.write("")    
@@ -2807,9 +2832,14 @@ if option == 'Экскреция препарата':
              list_range_count_graphics_for_visual = range(0,count_graphics_for_visual)
              
              for i in list_range_count_graphics_for_visual:
+
                  if st.session_state[f"list_heading_graphics_word_{option}"][i].__contains__("Выведение"):
-                    st.pyplot(st.session_state[f"list_graphics_word_{option}"][i])
-                    st.subheader(st.session_state[f"list_heading_graphics_word_{option}"][i])
+                    graph_id = st.session_state[f"list_heading_graphics_word_{option}"][i]
+                    
+                    kind_graphic = 'lin'
+
+                    rendering_graphs_with_scale_widgets(graph_id,option,i,kind_graphic,excretion_diagram, st.session_state[f"list_concentration{graph_id}"],st.session_state[f"list_time{graph_id}"],
+                                                        st.session_state['measure_unit_экскреция_time'],st.session_state['measure_unit_экскреция_concentration'],graph_id)
                     
              with col2:
              
