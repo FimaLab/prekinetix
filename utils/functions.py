@@ -21,6 +21,30 @@ import string
 import hashlib
 from style_python.style import *
 
+# Функция для удаления выбранных ключей (не используеться, но может пригодиться)
+def delete_file_session():
+    
+    def delete_selected_keys():
+        selected_keys = st.session_state.get("selected_keys", [])
+        for key in selected_keys:
+            del st.session_state[key]
+        st.session_state["selected_keys"] = []  # Очистка списка после удаления
+        st.success(f"Удалено {len(selected_keys)} ключ(ей)")
+
+    st.sidebar.title("Управление .xlsx ключами")
+
+    # Находим все ключи, содержащие .xlsx
+    xlsx_keys = {key: value for key, value in st.session_state.items() if isinstance(value, str) and ".xlsx" in value}
+
+    if xlsx_keys:
+        st.sidebar.write("🔍 Найдены следующие .xlsx ключи:")
+        selected_keys = st.sidebar.multiselect("Выберите ключи для удаления", options=list(xlsx_keys.keys()), format_func=lambda k: f"{k}: {xlsx_keys[k]}", key="selected_keys")
+
+        if st.sidebar.button("Удалить выбранные ключи", on_click=delete_selected_keys):
+            st.rerun()
+    else:
+        st.sidebar.write("✅ Нет ключей с .xlsx в значении")
+
 def sort_by_keys_with_indices(list_data, list_keys):
     indexed_list = [(i, item) for i, item in enumerate(list_data)]  # Сохраняем изначальные индексы
     sorted_list = sorted(indexed_list, key=lambda x: next((i for i, key in enumerate(list_keys) if key in x[1]), float('inf')))
@@ -586,7 +610,7 @@ def visualize_table(list_heading_word,list_table_word,option):
                     
                     # Функция для обновления состояния
                     def update_data_data_editor_columns():
-                        changes = st.session_state[f"columns_data_editor_{option}_{heading}"]
+                        changes = st.session_state[f"columns_data_editor_{option}_{heading}_{reset_counter}"]
                         
                         # Исходный DataFrame
                         df = st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"]
@@ -605,6 +629,10 @@ def visualize_table(list_heading_word,list_table_word,option):
                         st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"] = data_df
 
                     with st.expander("Выбрать столбцы"):
+                         
+                         # Используем ключ для принудительного сброса
+                         reset_counter = st.session_state.get(f"columns_reset_counter_{option}_{heading}", 0)
+
                          # Рендерим таблицу с чекбоксами
                          edited_df = st.data_editor(
                              st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"],
@@ -617,7 +645,7 @@ def visualize_table(list_heading_word,list_table_word,option):
                              },
                              disabled=["ФК параметр"],  # Делаем столбец с параметрами нередактируемым
                              hide_index=True,  # Скрываем индекс DataFrame
-                             key=f"columns_data_editor_{option}_{heading}",  # Уникальный ключ
+                             key=f"columns_data_editor_{option}_{heading}_{reset_counter}",
                          )
 
                          col3,col4 = st.columns([0.5,0.5])
@@ -632,6 +660,13 @@ def visualize_table(list_heading_word,list_table_word,option):
                                 st.session_state[f"saved_data_columns_data_editor_{option}_{heading}"] = data_df
                                 st.session_state[f"selected_columns{heading}_{option}"] = columns
                                 custom_success("Выбор успешно сброшен!")
+                                # Инкрементируем счетчик сброса
+                                st.session_state[f"columns_reset_counter_{option}_{heading}"] = reset_counter + 1
+                                
+                                # Используем трюк с временным элементом для форсирования обновления
+                                st.empty().markdown("")  # Пустой элемент
+                                custom_success("Выбор успешно сброшен!")
+                                st.rerun()
 
                     # Получаем список выбранных параметров
                     selected_params = edited_df[edited_df["Выбранный"]]["ФК параметр"].tolist()
@@ -654,7 +689,7 @@ def visualize_table(list_heading_word,list_table_word,option):
 
                     # Функция для обновления состояния
                     def update_data_data_editor():
-                        changes = st.session_state[f"rows_data_editor_{option}_{heading}"]
+                        changes = st.session_state[f"rows_data_editor_{option}_{heading}_{reset_counter}"]
                         
                         # Исходный DataFrame
                         df = st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"]
@@ -673,6 +708,10 @@ def visualize_table(list_heading_word,list_table_word,option):
         
                     
                     with st.expander("Выбрать строки"):
+                         
+                         # Используем ключ для принудительного сброса
+                         reset_counter = st.session_state.get(f"rows_reset_counter_{option}_{heading}", 0)
+
                          # Рендерим таблицу с чекбоксами
                          edited_df = st.data_editor(
                              st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"],
@@ -685,7 +724,7 @@ def visualize_table(list_heading_word,list_table_word,option):
                              },
                              disabled=["Строка"],  # Делаем столбец с параметрами нередактируемым
                              hide_index=True,  # Скрываем индекс DataFrame
-                             key=f"rows_data_editor_{option}_{heading}",  # Уникальный ключ
+                             key=f"rows_data_editor_{option}_{heading}_{reset_counter}",  # Уникальный ключ
                          )
                          
                          col3,col4 = st.columns([0.5,0.5])
@@ -698,7 +737,13 @@ def visualize_table(list_heading_word,list_table_word,option):
                                 st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
                                 st.session_state[f"selected_rows{heading}_{option}"] = rows
 
+                                # Инкрементируем счетчик сброса
+                                st.session_state[f"rows_reset_counter_{option}_{heading}"] = reset_counter + 1
+                                
+                                # Используем трюк с временным элементом для форсирования обновления
+                                st.empty().markdown("")  # Пустой элемент
                                 custom_success("Выбор успешно сброшен!")
+                                st.rerun()
 
                     # Получаем список выбранных параметров
                     selected_params = edited_df[edited_df["Выбранный"]]["Строка"].tolist()
@@ -724,7 +769,7 @@ def visualize_table(list_heading_word,list_table_word,option):
 
                     # Функция для обновления состояния
                     def update_data_data_editor():
-                        changes = st.session_state[f"rows_data_editor_{option}_{heading}"]
+                        changes = st.session_state[f"rows_data_editor_{option}_{heading}_{reset_counter}"]
                         
                         # Исходный DataFrame
                         df = st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"]
@@ -740,8 +785,13 @@ def visualize_table(list_heading_word,list_table_word,option):
                     # Инициализация состояния, если оно ещё не задано
                     if f"saved_data_rows_data_editor_{option}_{heading}" not in st.session_state:
                         st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
+                    
 
                     with st.expander("Выбрать строки"):
+                         
+                         # Используем ключ для принудительного сброса
+                         reset_counter = st.session_state.get(f"rows_reset_counter_{option}_{heading}", 0)
+                         
                          # Рендерим таблицу с чекбоксами
                          edited_df = st.data_editor(
                              st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"],
@@ -754,7 +804,7 @@ def visualize_table(list_heading_word,list_table_word,option):
                              },
                              disabled=["Строка"],  # Делаем столбец с параметрами нередактируемым
                              hide_index=True,  # Скрываем индекс DataFrame
-                             key=f"rows_data_editor_{option}_{heading}",  # Уникальный ключ
+                             key=f"rows_data_editor_{option}_{heading}_{reset_counter}",  # Уникальный ключ
                          )
                          
                          col3,col4 = st.columns([0.5,0.5])
@@ -766,7 +816,14 @@ def visualize_table(list_heading_word,list_table_word,option):
                             if st.button("Очистить",key = f"key_сlear_button_rows_selection_{heading}_{option}",icon=":material/delete:"):
                                st.session_state[f"saved_data_rows_data_editor_{option}_{heading}"] = data_df
                                st.session_state[f"selected_rows{heading}_{option}"] = rows
+                               # Инкрементируем счетчик сброса
+                               st.session_state[f"rows_reset_counter_{option}_{heading}"] = reset_counter + 1
+                               
+                               # Используем трюк с временным элементом для форсирования обновления
+                               st.empty().markdown("")  # Пустой элемент
                                custom_success("Выбор успешно сброшен!")
+                               st.rerun()
+                               
                     
                     # Получаем список выбранных параметров
                     selected_params = edited_df[edited_df["Выбранный"]]["Строка"].tolist()
