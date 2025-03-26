@@ -84,10 +84,10 @@ def visualize_mapping(list_keys_file_bioavailability):
        with col2:
              
              with col3:
-                 if st.button("Добавить связь") and source and target and source != target:
+                 if st.button("Добавить связь",icon = ":material/add_circle:") and source and target and source != target:
                      st.session_state.graph.add_edge(source, target)
              with col4:
-                 if st.button("Очистить граф"):
+                 if st.button("Очистить граф",icon=":material/delete:"):
                      st.session_state.graph.clear()
 
     render_graph()
@@ -99,7 +99,7 @@ def visualize_mapping(list_keys_file_bioavailability):
        cols = st.columns(len(edges))
        for i, edge in enumerate(edges,start=0):
            with cols[i]:  # Каждая кнопка в своей колонке
-               if st.button(f"❌ Связь №{i+1}", key=f"del_{edge[0]}_{edge[1]}", help=f"{edge[0]} → {edge[1]}"):
+               if st.button(f"Связь №{i+1}", key=f"del_{edge[0]}_{edge[1]}", help=f"{edge[0]} → {edge[1]}",icon=":material/delete:"):
                    st.session_state.graph.remove_edge(edge[0], edge[1])
                    st.rerun()
 
