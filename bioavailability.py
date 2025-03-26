@@ -36,11 +36,18 @@ st.sidebar.markdown('<h3 style="color:white; padding-bottom: 0; padding-left: 5p
 option = st.sidebar.selectbox('',
     ('Фармакокинетика','Биодоступность', 'Распределение по органам', 'Линейность дозирования','Экскреция препарата'),disabled = False, key = "Вид исследования")
 
-############### файл пример
+############### файлы примеры
 
-df_example_file = pd.read_excel("server_example_file.xlsx")
-df_example_file_xlsx = to_excel(df_example_file)
-st.sidebar.download_button(label='Пример файла', data=df_example_file_xlsx , file_name= 'example_file.xlsx',icon=":material/description:")
+with open("Архив примеров.rar", "rb") as file:
+    archive_bytes = file.read()
+
+st.sidebar.download_button(
+    label='Примеры файлов',
+    data=archive_bytes,
+    file_name='Архив примеров.rar',
+    mime='application/x-rar-compressed',
+    icon=":material/description:"
+)
 
 ############ памятка
 
