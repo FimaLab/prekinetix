@@ -140,15 +140,15 @@ if option == 'Фармакокинетика':
               custom_success(f"Файл загружен: {st.session_state[f'uploaded_file_{option}']}")
               
 
-           dose_pk = st.text_input(f"Доза при введении {file_name}", key=f'Доза при введении {file_name} при расчете {option}', value = st.session_state[f"dose_{option}"])
+           dose_pk = st.number_input(f"Доза при введении {file_name}", key=f'Доза при введении {file_name} при расчете {option}', value = st.session_state[f"dose_{option}"],step=0.1)
            
            st.session_state[f"dose_{option}"] = dose_pk
 
            if st.session_state[f"agree_injection - {option}"] == "infusion":
-              infusion_time = st.text_input("Время введения инфузии", key=f'Время введения инфузии при расчете {option}', value = st.session_state[f"infusion_time_{option}"])
+              infusion_time = st.number_input("Время введения инфузии", key=f'Время введения инфузии при расчете {option}', value = st.session_state[f"infusion_time_{option}"],step=0.1)
               st.session_state[f"infusion_time_{option}"] = infusion_time
            
-           if (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != "") and st.session_state[f'measure_unit_{option}_concentration']):
+           if (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != 0.0) and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
            elif (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] != "infusion") and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
@@ -561,20 +561,20 @@ if option == 'Биодоступность':
 
                              initialization_dose_infusion_time_session(option,file_name)
                              
-                             dose = st.text_input(f"Доза препарата для набора данных «{file_name}»", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
-                     
+                             dose = st.number_input(f"Доза препарата для набора данных «{file_name}»", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"],step=0.1)
+
                              st.session_state[f"dose_{option}_{file_name}"] = dose
 
                              if st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion":
                                   
-                                  infusion_time = st.text_input(f"Время введения инфузии для набора данных {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"])
+                                  infusion_time = st.number_input(f"Время введения инфузии для набора данных {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"],step=0.1)
                                   st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
 
            # Проверка, заполнены ли все необходимые дозы
            missing_doses = []
            for file_name in list_keys_file_bioavailability:
                dose = st.session_state[f"dose_{option}_{file_name}"]
-               if dose != '':
+               if dose != 0.0:
                   missing_doses.append(dose)
            
            if len(missing_doses) == len(list_keys_file_bioavailability):
@@ -589,7 +589,7 @@ if option == 'Биодоступность':
                if st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion":
                   missing_infusion_time_file.append(file_name)
                   infusion_time = st.session_state[f"infusion_time_{option}_{file_name}"]
-                  if infusion_time != '':
+                  if infusion_time != 0.0:
                      missing_infusion_time.append(infusion_time)
            
            if len(missing_infusion_time) == len(missing_infusion_time_file):
@@ -1176,13 +1176,13 @@ if option == 'Распределение по органам':
          #сохранение состояния выбора единиц измерения для данного исследования
          save_session_state_measure_unit_value(measure_unit_org_time,measure_unit_org_blood,f"{option}",measure_unit_org_dose,measure_unit_org_organs=measure_unit_org_organs)
          
-         dose = st.text_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных', value = st.session_state[f"dose_{option}"])
-         
+         dose = st.number_input("Доза препарата", key='Доза препарата при изучении фармакокинетики в органах животных', value = st.session_state[f"dose_{option}"],step=0.1)
+
          st.session_state[f"dose_{option}"] = dose
 
          if st.session_state[f"agree_injection - {option}"] == "infusion":
               
-              infusion_time = st.text_input("Время введения инфузии", key=f'Время введения инфузии при расчете {option}', value = st.session_state[f"infusion_time_{option}"])
+              infusion_time = st.number_input("Время введения инфузии", key=f'Время введения инфузии при расчете {option}', value = st.session_state[f"infusion_time_{option}"],step=0.1)
               st.session_state[f"infusion_time_{option}"] = infusion_time
 
          #cостояние радио-кнопки "method_auc"
@@ -1243,7 +1243,7 @@ if option == 'Распределение по органам':
 
          st.session_state[f"list_keys_file_{option}"] = list_keys_file_org
          
-         if ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != "") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
+         if ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != 0.0) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
               start = True
          elif ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] != "infusion") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
             start = True
@@ -1950,13 +1950,13 @@ if option == 'Линейность дозирования':
                      
                      with st.container(border=True):
 
-                          dose = st.text_input(f"Доза препарата для набора данных с дозировкой {file_name}", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"])
-                  
+                          dose = st.number_input(f"Доза препарата для набора данных с дозировкой {file_name}", key='Доза препарата ' + f"dose_{option}_{file_name}", value = st.session_state[f"dose_{option}_{file_name}"],step=0.1)
+                          
                           st.session_state[f"dose_{option}_{file_name}"] = dose
 
                           if st.session_state[f"agree_injection - {option}"] == "infusion":
                                
-                               infusion_time = st.text_input(f"Время введения инфузии для набора данных с дозировкой {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"])
+                               infusion_time = st.number_input(f"Время введения инфузии для набора данных с дозировкой {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"],step=0.1)
                                st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
          
          
@@ -1965,7 +1965,7 @@ if option == 'Линейность дозирования':
          for file_name in list_keys_file_lin:
              file_name=file_name[10:-5]
              dose = st.session_state[f"dose_{option}_{file_name}"]
-             if dose != '':
+             if dose != 0.0:
                 missing_doses.append(dose)
 
          if len(missing_doses) == len(list_keys_file_lin):
@@ -1981,7 +1981,7 @@ if option == 'Линейность дозирования':
             if st.session_state[f"agree_injection - {option}"] == "infusion":
                missing_infusion_time_file.append(file_name)
                infusion_time = st.session_state[f"infusion_time_{option}_{file_name}"]
-               if infusion_time != '':
+               if infusion_time != 0.0:
                   missing_infusion_time.append(infusion_time)
          
          if len(missing_infusion_time) == len(missing_infusion_time_file):
