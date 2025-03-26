@@ -139,16 +139,16 @@ def initialization_dose_infusion_time_session(option,file_name=None):
     
     if file_name is None:
         if f"dose_{option}" not in st.session_state:
-            st.session_state[f"dose_{option}"] = ""
+            st.session_state[f"dose_{option}"] = 0.0
 
         if f"infusion_time_{option}" not in st.session_state:
-            st.session_state[f"infusion_time_{option}"] = ""
+            st.session_state[f"infusion_time_{option}"] = 0.0
     else:
         if f"dose_{option}_{file_name}" not in st.session_state:
-            st.session_state[f"dose_{option}_{file_name}"] = ""
+            st.session_state[f"dose_{option}_{file_name}"] = 0.0
 
         if f"infusion_time_{option}_{file_name}" not in st.session_state:
-            st.session_state[f"infusion_time_{option}_{file_name}"] = ""
+            st.session_state[f"infusion_time_{option}_{file_name}"] = 0.0
 
 def settings_additional_research_parameters(option,custom_success,key=None,file_name=None):
     
