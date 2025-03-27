@@ -148,9 +148,7 @@ if option == 'Фармакокинетика':
               infusion_time = st.number_input("Время введения инфузии", key=f'Время введения инфузии при расчете {option}', value = st.session_state[f"infusion_time_{option}"],step=0.1)
               st.session_state[f"infusion_time_{option}"] = infusion_time
            
-           if (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != 0.0) and st.session_state[f'measure_unit_{option}_concentration']):
-              start = True
-           elif (f"uploaded_file_{option}" in st.session_state and dose_pk and (st.session_state[f"agree_injection - {option}"] != "infusion") and st.session_state[f'measure_unit_{option}_concentration']):
+           if (f"uploaded_file_{option}" in st.session_state and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
            else:
               start = False
@@ -347,12 +345,12 @@ if option == 'Фармакокинетика':
                      add_or_replace_df_graph(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],table_heading,df_total_PK_additional_double_peaks_pk)
               else:
                   st.session_state[f"df_total_PK_{option}"] = None #данный сброс нужен для того, чтобы если пользователь вначале загрузил данные без выбора cmax2, а потом решил все такие добавить функцию выбора данного параметра
-                  st.error("Выберите необходимое количество значений Cmax и Cmax(2)")
+                  st.error("Выберите необходимое количество значений Cmax и Cmax(2)",icon=":material/warning:")
 
               custom_success('Расчеты произведены!')
                  
            else:   
-              st.error('🔧Заполните все поля ввода и загрузите файлы!') 
+              st.error('Заполните все поля ввода и загрузите файлы!',icon=":material/warning:") 
           
     #отдельная панель, чтобы уменьшить размер вывода результатов
 
@@ -366,7 +364,7 @@ if option == 'Фармакокинетика':
           visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
        else:
-          st.error("Введите и загрузите все необходимые данные!")
+          st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 
     with col1:
        
@@ -452,7 +450,7 @@ if option == 'Фармакокинетика':
                      if st.button("Сформировать отчет"):
                         create_graphic(st.session_state[f"list_graphics_word_{option}"],st.session_state[f"list_heading_graphics_word_{option}"]) 
           else:
-              st.error("Введите и загрузите все необходимые данные!")
+              st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 ######################################################################################################################################
 
 if option == 'Биодоступность':
@@ -570,37 +568,9 @@ if option == 'Биодоступность':
                                   infusion_time = st.number_input(f"Время введения инфузии для набора данных {file_name}", key='Время введения инфузии ' + f"infusion_time_{option}_{file_name}", value = st.session_state[f"infusion_time_{option}_{file_name}"],step=0.1)
                                   st.session_state[f"infusion_time_{option}_{file_name}"] = infusion_time
 
-           # Проверка, заполнены ли все необходимые дозы
-           missing_doses = []
-           for file_name in list_keys_file_bioavailability:
-               dose = st.session_state[f"dose_{option}_{file_name}"]
-               if dose != 0.0:
-                  missing_doses.append(dose)
-           
-           if len(missing_doses) == len(list_keys_file_bioavailability):
-              cheking_doses = True
-           else:
-              cheking_doses = False
 
-           # Проверка, заполнены ли все необходимые времена инфузии
-           missing_infusion_time = []
-           missing_infusion_time_file = []
-           for file_name in list_keys_file_bioavailability:
-               if st.session_state[f"agree_injection - {option}_{file_name}"] == "infusion":
-                  missing_infusion_time_file.append(file_name)
-                  infusion_time = st.session_state[f"infusion_time_{option}_{file_name}"]
-                  if infusion_time != 0.0:
-                     missing_infusion_time.append(infusion_time)
-           
-           if len(missing_infusion_time) == len(missing_infusion_time_file):
-              cheking_infusion_time = True
-           else:
-              cheking_infusion_time = False
-
-           if ((list_keys_file_bioavailability != []) and cheking_doses and cheking_infusion_time):
+           if ((list_keys_file_bioavailability != [])):
                 start = True
-           elif ((list_keys_file_bioavailability != []) and cheking_doses and cheking_infusion_time):
-              start = True
            else:
               start = False
            
@@ -894,7 +864,10 @@ if option == 'Биодоступность':
                      
                      # 4. Вычисляем биодоступность (если значения найдены)
                      if auc_ref and auc_test:
-                         bioavailability = ((auc_test * float(st.session_state[f"dose_{option}_{test_drug}"]))/ (auc_ref * float(st.session_state[f"dose_{option}_{reference_drug}"]))) * 100
+                         if float(st.session_state[f"dose_{option}_{test_drug}"]) != 0 and float(st.session_state[f"dose_{option}_{reference_drug}"]) != 0:
+                            bioavailability = ((auc_test * float(st.session_state[f"dose_{option}_{test_drug}"]))/ (auc_ref * float(st.session_state[f"dose_{option}_{reference_drug}"]))) * 100
+                         else:
+                            bioavailability = (auc_test/auc_ref) * 100
                          list_bioavailability_label.append((f"{test_drug} относительно {reference_drug}"))
                          list_bioavailability.append(bioavailability)
                      else:
@@ -998,7 +971,7 @@ if option == 'Биодоступность':
                  custom_success('Расчеты произведены!')
                  
               else:   
-                 st.error('🔧Выберите дизайн исследования!')      
+                 st.error('Выберите дизайн исследования!',icon=":material/warning:")      
 
     #отдельная панель, чтобы уменьшить размер вывода результатов
     col1, col2 = st.columns([0.66,0.34])
@@ -1015,7 +988,7 @@ if option == 'Биодоступность':
           visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
        else:
-           st.error("Введите и загрузите все необходимые данные!")
+           st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 
     with col1:
           
@@ -1139,7 +1112,7 @@ if option == 'Биодоступность':
                     if st.button("Сформировать отчет"):
                        create_graphic(st.session_state[f"list_graphics_word_{option}"],st.session_state[f"list_heading_graphics_word_{option}"])
           else:
-              st.error("Введите и загрузите все необходимые данные!")
+              st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 
 #####################################################################        
 if option == 'Распределение по органам':
@@ -1243,10 +1216,8 @@ if option == 'Распределение по органам':
 
          st.session_state[f"list_keys_file_{option}"] = list_keys_file_org
          
-         if ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] == "infusion" and st.session_state[f"infusion_time_{option}"] != 0.0) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
+         if ((list_keys_file_org != []) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
               start = True
-         elif ((list_keys_file_org != []) and dose and (st.session_state[f"agree_injection - {option}"] != "infusion") and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs']):
-            start = True
          else:
             start = False
 
@@ -1469,7 +1440,7 @@ if option == 'Распределение по органам':
                 if button_calculation == True:
                    custom_success('Расчеты произведены!')
                 else:   
-                   st.error('🔧Заполните все поля ввода и загрузите файлы!')
+                   st.error('Заполните все поля ввода и загрузите файлы!',icon=":material/warning:")
              
              if (list_keys_file_org != []) and dose and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and button_calculation:
                 
@@ -1702,7 +1673,7 @@ if option == 'Распределение по органам':
          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
       else:
-          st.error("Введите и загрузите все необходимые данные!")
+          st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 
    with col1:
       if panel == "Графики":
@@ -1842,7 +1813,7 @@ if option == 'Распределение по органам':
                     if st.button("Сформировать отчет"):
                        create_graphic(st.session_state[f"list_graphics_word_{option}"],st.session_state[f"list_heading_graphics_word_{option}"])
          else:
-             st.error("Введите и загрузите все необходимые данные!")
+             st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 ################################################################################################
 
 if option == 'Линейность дозирования':
@@ -1901,7 +1872,7 @@ if option == 'Линейность дозирования':
 
               st.session_state[f"extrapolate_first_points_{option}"] = extrapolate_first_points   
             
-         file_uploader = st.file_uploader("",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования', help = "Выберите нужное количество файлов соответственно количеству исследуемых дозировок (не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Если дозировка предcтавляет из себя дробное число, дробь писать через точку. Слово 'Дозировка' обязательно в верхнем регистре!")
+         file_uploader = st.file_uploader("",accept_multiple_files=True, key='Файлы при исследовании линейности дозирования', help = "Выберите нужное количество файлов соответственно количеству исследуемых дозировок (не менее 3-х файлов); файл должен быть назван соотвественно своей дозировке, например: 'Дозировка 50'. Слово 'Дозировка' обязательно в верхнем регистре!")
          
          if 'list_files_name_doses' not in st.session_state:
              st.session_state['list_files_name_doses'] = []
@@ -1973,26 +1944,8 @@ if option == 'Линейность дозирования':
          else:
             cheking_doses = False
 
-         # Проверка, заполнены ли все необходимые времена инфузии
-         missing_infusion_time = []
-         missing_infusion_time_file = []
-         for file_name in list_keys_file_lin:
-            file_name = file_name[10:-5]
-            if st.session_state[f"agree_injection - {option}"] == "infusion":
-               missing_infusion_time_file.append(file_name)
-               infusion_time = st.session_state[f"infusion_time_{option}_{file_name}"]
-               if infusion_time != 0.0:
-                  missing_infusion_time.append(infusion_time)
-         
-         if len(missing_infusion_time) == len(missing_infusion_time_file):
-            cheking_infusion_time = True
-         else:
-            cheking_infusion_time = False
-
-         if ((list_keys_file_lin != []) and cheking_doses and cheking_infusion_time and st.session_state[f'measure_unit_{option}_concentration']):
+         if ((list_keys_file_lin != []) and cheking_doses and st.session_state[f'measure_unit_{option}_concentration']):
               start = True
-         elif ((list_keys_file_lin != []) and cheking_doses and cheking_infusion_time and st.session_state[f'measure_unit_{option}_concentration']):
-            start = True
          else:
             start = False
 
@@ -2227,7 +2180,7 @@ if option == 'Линейность дозирования':
                 if button_calculation == True:
                    custom_success('Расчеты произведены!')
                 else:   
-                   st.error('🔧Заполните все поля ввода и загрузите файлы!')
+                   st.error('Заполните все поля ввода и загрузите файлы!',icon=":material/warning:")
              
              if (list_keys_file_lin != []) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_dose'] and button_calculation:
                 
@@ -2511,7 +2464,7 @@ if option == 'Линейность дозирования':
          visualize_table(st.session_state[f"list_heading_word_{option}"],st.session_state[f"list_table_word_{option}"],option)
 
       else:
-          st.error("Введите и загрузите все необходимые данные!")
+          st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 
    with col1:
       if panel == "Графики":
@@ -2689,7 +2642,7 @@ if option == 'Линейность дозирования':
                     if st.button("Сформировать отчет"):
                        create_graphic(st.session_state[f"list_graphics_word_{option}"],st.session_state[f"list_heading_graphics_word_{option}"])
          else:
-             st.error("Введите и загрузите все необходимые данные!")
+             st.error("Введите и загрузите все необходимые данные!",icon=":material/warning:")
 
 ###########################################################################################
 if option == 'Экскреция препарата':
@@ -2853,3 +2806,5 @@ if option == 'Экскреция препарата':
 
 
 st.sidebar.caption('© 2025. Центр биофармацевтического анализа и метаболомных исследований (Сеченовский университет)')
+
+
