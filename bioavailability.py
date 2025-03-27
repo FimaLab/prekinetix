@@ -1431,7 +1431,7 @@ if option == 'Распределение по органам':
              ###Кнопка активации дальнейших действий
              button_calculation = False
              
-             if (list_keys_file_org != []) and dose and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and result_PK is not None:
+             if (list_keys_file_org != []) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and result_PK is not None:
               
                 condition_cmax1 =  len(list_cmax_1_org) == count_rows_number_org
 
@@ -1442,7 +1442,7 @@ if option == 'Распределение по органам':
                 else:   
                    st.error('Заполните все поля ввода и загрузите файлы!',icon=":material/warning:")
              
-             if (list_keys_file_org != []) and dose and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and button_calculation:
+             if (list_keys_file_org != []) and st.session_state[f'measure_unit_{option}_concentration'] and st.session_state[f'measure_unit_{option}_organs'] and button_calculation:
                 
                 list_list_PK_par_mean=[]
                 for i in list_df_unrounded: 
