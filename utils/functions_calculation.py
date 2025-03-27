@@ -130,7 +130,10 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
     list_cmax_D_pk=[]
     for i in range(0,count_row):
         list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
-        cmax_d =float(max(list_concentration))/float(dose)
+        if dose != 0.0:
+           cmax_d =float(max(list_concentration))/float(dose)
+        else:
+           cmax_d = None
         list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
@@ -1027,9 +1030,12 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
     list_cmax_D_pk=[]
     for i in range(0,count_row):
         list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
-        cmax_d =float(max(list_concentration))/float(dose)
+        if dose != 0.0:
+           cmax_d =float(max(list_concentration))/float(dose)
+        else:
+           cmax_d = None
         list_cmax_D_pk.append(cmax_d)
-    
+
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
     if st.session_state[f"agree_cmax2 - {selector_research}"] == True:
        ###создание состояния
@@ -2063,7 +2069,10 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
     list_cmax_D_pk=[]
     for i in range(0,count_row):
         list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
-        cmax_d =float(max(list_concentration))/float(dose)
+        if dose != 0.0:
+           cmax_d =float(max(list_concentration))/float(dose)
+        else:
+           cmax_d = None
         list_cmax_D_pk.append(cmax_d)
     
     #выбор метода подсчета Сmax в зависимости от надобности Cmax2 (вкл)
