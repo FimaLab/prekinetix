@@ -49,14 +49,14 @@ st.sidebar.download_button(
     icon=":material/description:"
 )
 
-############ памятка
+############ Руководство пользователя
 
-text_contents = '''1)Оглавлять колонку с номерами животных должно слово «Номер» (в верхнем регистре).
-2)Знак «№» обязательно должен присутствовать при указании номера животного, иначе приложение выдаст ошибку. 
-3) Не ставить в ячейки знак «-» в случае нулевого значения. Ставить число «0» для корректной работы приложения.
-4)Ни в каком исследовании загружаемые файлы не должны называться одинаково.
-'''
-st.sidebar.download_button('Инструкция', text_contents,icon=":material/draft:")
+# Путь к файлу
+file_path = 'Руководство пользователя_v1.docx'
+
+# Открываем файл для чтения в бинарном режиме
+with open(file_path, 'rb') as file:
+    st.sidebar.download_button('Руководство пользователя', file, file_name='Руководство пользователя_v1.docx', mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document', icon=":material/draft:")
 
 #Инизиализация состояния фреймов с результатами исследований
 initializing_session_state_frames_research_results(['Фармакокинетика','Биодоступность', 'Распределение по органам', 'Линейность дозирования'])
@@ -2669,7 +2669,7 @@ if option == 'Экскреция препарата':
             if "index_type_ex" not in st.session_state:
                 st.session_state["index_type_ex"] = 0
 
-            type_excretion = st.radio('🧴 Выберите вид экскреции',('Фекалии', 'Моча', 'Желчь'), key = "Вид экскреции",index = st.session_state["index_type_ex"])
+            type_excretion = st.radio('Выберите вид экскреции',('Фекалии', 'Моча', 'Желчь'), key = "Вид экскреции",index = st.session_state["index_type_ex"])
             
             if st.session_state["Вид экскреции"] == 'Фекалии':
                st.session_state["index_type_ex"] = 0
@@ -2747,8 +2747,10 @@ if option == 'Экскреция препарата':
                 df_averaged_concentrations=df.describe()
                 list_concentration=df_averaged_concentrations.loc['mean'].tolist()
 
-                list_concentration.remove(0)
-                list_time.remove(0)
+                if 0 in list_concentration:
+                   list_concentration.remove(0)
+                if 0 in list_time:
+                   list_time.remove(0)
 
                 st.session_state[f"list_concentration{graph_id}"] = list_concentration
                 st.session_state[f"list_time{graph_id}"] = list_time
