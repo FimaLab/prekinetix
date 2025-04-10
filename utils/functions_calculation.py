@@ -9,6 +9,152 @@ from utils.des_stat import *
 
 import numpy as np
 
+def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route):
+    """
+    Оценивает Lambda Z (константу скорости элиминации) по методу Best Fit из Phoenix.
+
+    Parameters:
+        conc_values_raw (list): список концентраций (может содержать нули и None)
+        time_values_raw (list): список соответствующих времен
+        admin_route (str): 'extravascular', 'intravenously', 'infusion'
+
+    Returns:
+        tuple из списков:
+        (Lambda_z, R2_adj, R2, Corr, N_points, Intercept, Time_lower, Time_upper)
+    """
+
+    list_kel_total = []
+    list_Rsq_adjusted = []
+    list_Rsq = []
+    list_Corr_XY = []
+    list_No_points_lambda_z = []
+    list_Lambda_z_intercept = []
+    list_Lambda_z_lower = []
+    list_Lambda_z_upper = []
+
+    # Удаляем None
+    time_values = [float(t) for t, c in zip(time_values_raw, conc_values_raw) if c is not None]
+    conc_values = [float(c) for c in conc_values_raw if c is not None]
+
+    if len(conc_values) != len(time_values):
+        raise ValueError("Длины временных и концентрационных данных не совпадают")
+
+    # Удаляем нули (log нельзя взять от 0)
+    time_nonzero = [t for t, c in zip(time_values, conc_values) if c > 0]
+    conc_nonzero = [c for c in conc_values if c > 0]
+
+    if len(conc_nonzero) < 3:
+        return ([[None],[None],[None],[None],[0],[None],[None],[None]])
+
+    # Определяем Cmax и отсекаем всё до него (для extravascular и infusion)
+    if admin_route in ['extravascular', 'infusion']:
+        cmax = max(conc_nonzero)
+        index_cmax = conc_nonzero.index(cmax)
+        conc_after_cmax = conc_nonzero[index_cmax+1:]
+        time_after_cmax = time_nonzero[index_cmax+1:]
+    else:  # intravenously: после времени Cmax можно использовать 2 точки
+        conc_after_cmax = conc_nonzero
+        time_after_cmax = time_nonzero
+
+    if admin_route == 'infusion':
+        # Отсекаем только точки после окончания инфузии
+        infusion_end_time = time_nonzero[index_cmax]  # условно Cmax — конец инфузии
+        conc_after_cmax = [c for t, c in zip(time_after_cmax, conc_after_cmax) if t >= infusion_end_time]
+        time_after_cmax = [t for t in time_after_cmax if t >= infusion_end_time]
+
+    # Финальная фильтрация: убираем 0 и проверка количества точек
+    conc_filtered = []
+    time_filtered = []
+    for t, c in zip(time_after_cmax, conc_after_cmax):
+        if c > 0:
+            conc_filtered.append(c)
+            time_filtered.append(t)
+
+    if len(conc_filtered) < 3:
+        return ([[None],[None],[None],[None],[0],[None],[None],[None]])
+
+    # Генерируем всевозможные срезы от 3 до N точек с конца
+    list_for_kel_c = []
+    list_for_kel_t = []
+    n_points = len(conc_filtered)
+    for i in range(n_points - 2):
+        c_slice = conc_filtered[i:]
+        t_slice = time_filtered[i:]
+        if len(c_slice) >= 3:
+            list_for_kel_c.append(c_slice)
+            list_for_kel_t.append(t_slice)
+
+    list_ct_zip = list(zip(list_for_kel_c, list_for_kel_t))
+
+    list_kel = []
+    list_r_adj = []
+    list_r = []
+    list_corr = []
+    list_n_points_used = []
+    list_intercepts = []
+    list_t_lowers = []
+    list_t_uppers = []
+
+    for c_slice, t_slice in list_ct_zip:
+        if len(c_slice) < 3:
+            continue
+
+        if abs(t_slice[-1] - t_slice[0]) < 1e-10:
+            continue  # слишком маленький временной интервал
+
+        np_c = np.array(c_slice)
+        np_t = np.array(t_slice).reshape(-1, 1)
+        log_c = np.log(np_c)
+
+        model = LinearRegression().fit(np_t, log_c)
+        slope = model.coef_[0]
+
+        if slope >= 0:
+            continue  # игнорируем положительные наклоны
+
+        intercept = model.intercept_
+        corr = np.corrcoef(t_slice, log_c)[0, 1]
+        r_sq = corr ** 2
+        adj_r_sq = 1 - ((1 - r_sq) * (len(c_slice) - 1) / (len(c_slice) - 2))
+
+        list_kel.append(-slope)
+        list_r_adj.append(adj_r_sq)
+        list_r.append(r_sq)
+        list_corr.append(corr)
+        list_n_points_used.append(len(c_slice))
+        list_intercepts.append(intercept)
+        list_t_lowers.append(min(t_slice))
+        list_t_uppers.append(max(t_slice))
+
+    # Если ни одна регрессия не подошла
+    if len(list_r_adj) == 0:
+        return ([[None],[None],[None],[None],[0],[None],[None],[None]])
+
+    max_r = max(list_r_adj)
+    for i in range(len(list_r_adj)):
+        if abs(max_r - list_r_adj[i]) < 0.0001:
+            # первая удовлетворяющая — как в Phoenix
+            list_kel_total.append(list_kel[i])
+            list_Rsq_adjusted.append(list_r_adj[i])
+            list_Rsq.append(list_r[i])
+            list_Corr_XY.append(list_corr[i])
+            list_No_points_lambda_z.append(list_n_points_used[i])
+            list_Lambda_z_intercept.append(list_intercepts[i])
+            list_Lambda_z_lower.append(list_t_lowers[i])
+            list_Lambda_z_upper.append(list_t_uppers[i])
+            break
+
+    return (
+        list_kel_total,
+        list_Rsq_adjusted,
+        list_Rsq,
+        list_Corr_XY,
+        list_No_points_lambda_z,
+        list_Lambda_z_intercept,
+        list_Lambda_z_lower,
+        list_Lambda_z_upper
+    )
+
 def remove_none_values(concentrations, time_points=None):
     """
     Удаляет все None и NaN из списка концентраций и соответствующие элементы из списка временных точек,
@@ -375,151 +521,67 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
 
        ####KEL,Rsq_adjusted,Rsq,Corr_XY,No_points_lambda_z,Lambda_z_intercept,Lambda_z_lower,Lambda_z_upper
-       list_kel_total=[]
-       list_Rsq_adjusted=[]
+
+       # Глобальные списки — собираем всё по всем субъектам
+       list_kel_total = []
+       list_Rsq_adjusted = []
        list_Rsq = []
        list_Corr_XY = []
        list_No_points_lambda_z = []
        list_Lambda_z_intercept = []
        list_Lambda_z_lower = []
        list_Lambda_z_upper = []
-       for i in range(0,count_row):
-           list_columns_T=[]
-           for column in df_without_numer.columns:
-               list_columns_T.append(float(column))
-           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
-           list_concentration.remove(0)
-           list_c=list_concentration
 
-           list_time=list_columns_T
-           list_time.remove(0) 
+       for i in range(count_row):
+           # Получаем временные значения времени
+           list_columns_T = [float(column) for column in df_without_numer.columns]
 
-           list_t=[]
-           for i in list_time:
-               i=float(i)
-               list_t.append(i)
+           # Получаем концентрации и соответствующие им времена (без None)
+           list_concentration, list_columns_T = remove_none_values(
+               df_without_numer.iloc[i].tolist(),
+               list_columns_T
+           )
 
-           #срез_без_cmax
-           max_value_c=max(list_c)
-           index_cmax=list_c.index(max_value_c)
+           # Вызов функции
+           (
+               kel_list,
+               rsq_adj_list,
+               rsq_list,
+               corr_list,
+               n_points_list,
+               intercept_list,
+               t_lower_list,
+               t_upper_list
+           ) = estimate_lambda_z(list_concentration, list_columns_T, 'extravascular')  # или bolus / infusion
 
-           list_c_without_cmax=list_c[index_cmax+1:]
-           list_t_without_cmax=list_t[index_cmax+1:]
-
-           #удаление всех нулей из массивов
-           count_for_0_1=len(list_c_without_cmax)
-           list_range_for_0_1=range(0,count_for_0_1)
-
-           list_time_0=[]
-           list_conc_0=[]
-           for i in list_range_for_0_1:
-               if list_c_without_cmax[i] !=0:
-                  list_conc_0.append(list_c_without_cmax[i])
-                  list_time_0.append(list_t_without_cmax[i]) 
-           ################################
-
-           n_points=len(list_conc_0)
-           list_n_points = range(0,n_points)
-
-           #создание списков с поочередно уменьщающемся кол, точек
-           list_for_kel_c=[]
-           for j in list_n_points:
-               if j<n_points:
-                  list_c_new=list_conc_0[j:n_points]
-                  list_for_kel_c.append(list_c_new)
-           list_for_kel_c.pop(-1) #удаление списка с одной точкой
-           list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
-
-           list_for_kel_t=[]
-           for j in list_n_points:
-               if j<n_points:
-                  list_t_new=list_time_0[j:n_points]
-                  list_for_kel_t.append(list_t_new)
-           list_for_kel_t.pop(-1) #удаление списка с одной точкой
-           list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
-           list_ct_zip=list(zip(list_for_kel_c,list_for_kel_t))
-
-           list_kel=[]
-           list_r=[]
-           list_r_orig=[]
-           list_Corr = []
-           list_n_points_used = []
-           list_intercept = []
-           list_Lambda_lower = []
-           list_Lambda_upper = []
-           for i,j in list_ct_zip:
-
-               n_points_r=len(i)
-               
-               list_n_points_used.append(n_points_r)
-               list_Lambda_lower.append(min(j))
-               list_Lambda_upper.append(max(j))
-
-               np_c=np.asarray(i)
-               np_t_1=np.asarray(j).reshape((-1,1))
-
-               np_c_log=np.log(np_c)
-
-               model = LinearRegression().fit(np_t_1,np_c_log)
-
-               np_t=np.asarray(j)
-               a=np.corrcoef(np_t, np_c_log)
-               cor=((a[0])[1])
-               r_sq=cor**2
-
-               list_Corr.append(cor)
-               list_r_orig.append(r_sq)
-               list_intercept.append(model.intercept_)
-
-               adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
-
-               ########################################
-               kel=abs(model.coef_[0])
-               list_kel.append(kel)
-               list_r.append(adjusted_r_sq)
-
-           #делаем срезы списоков до rmax
-           max_r=max(list_r)
-
-           index_max_r= list_r.index(max_r)
-
-           list_r1=list_r
-           list_kel1=list_kel
-
-           number_elem_list_r1=len(list_r1)
-
-           list_range_kel=range(0,number_elem_list_r1) 
-
-           list_kel_total_1=[]
-           for i in list_range_kel:
-
-               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
-                  list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
-                  list_Rsq_adjusted.append(list_r1[i])
-                  list_Rsq.append(list_r_orig[i])
-                  list_Corr_XY.append(list_Corr[i])
-                  list_No_points_lambda_z.append(list_n_points_used[i])
-                  list_Lambda_z_intercept.append(list_intercept[i])
-                  list_Lambda_z_lower.append(list_Lambda_lower[i])
-                  list_Lambda_z_upper.append(list_Lambda_upper[i])
-                  break #самая ранняя удовлетовряющая условию
-
-           for i in list_kel_total_1:
-               list_kel_total.append(i)  
+           # Расширяем глобальные списки
+           list_kel_total.extend(kel_list)
+           list_Rsq_adjusted.extend(rsq_adj_list)
+           list_Rsq.extend(rsq_list)
+           list_Corr_XY.extend(corr_list)
+           list_No_points_lambda_z.extend(n_points_list)
+           list_Lambda_z_intercept.extend(intercept_list)
+           list_Lambda_z_lower.extend(t_lower_list)
+           list_Lambda_z_upper.extend(t_upper_list)
 
 
        ####T1/2
        list_half_live=[]
        for i in list_kel_total:
-           half_live=math.log(2)/i
-           list_half_live.append(half_live)
+           if i is not None:
+              half_live=math.log(2)/i
+              list_half_live.append(half_live)
+           else:
+              list_half_live.append(None)
        
        ####Span
        list_Span=[]
        for upper,lower,half_live in list(zip(list_Lambda_z_upper,list_Lambda_z_lower,list_half_live)):
-           Span= (upper - lower)/half_live
-           list_Span.append(Span)
+           if half_live is not None:
+              Span= (upper - lower)/half_live
+              list_Span.append(Span)
+           else:
+              list_Span.append(None)
 
        ###AUC0-inf 
 
@@ -528,7 +590,8 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        list_of_list_c=[]
        for i in range(0,count_row):
            list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
-           list_concentration.remove(0)
+           if 0 in list_concentration:
+              list_concentration.remove(0)
            list_c = list_concentration
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
            list_of_list_c.append(list_c)
@@ -538,39 +601,52 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        #AUCt-inf 
        list_auc_t_inf=[]     
        for i,j in list_zip_c_AUCt_inf:
-           for clast in j:
-               if clast != 0:
-                  clast_true=clast
-                  break
-           auc_t_inf=clast_true/i
-           list_auc_t_inf.append(auc_t_inf)
+           if i is not None:
+              for clast in j:
+                  if clast != 0:
+                     clast_true=clast
+                     break
+              auc_t_inf=clast_true/i
+              list_auc_t_inf.append(auc_t_inf)
+           else:
+             list_auc_t_inf.append(None)
 
        list_auc_t_inf_and_AUC_0_T_zip=list(zip(list_AUC_0_T,list_auc_t_inf))
 
        for i,j in list_auc_t_inf_and_AUC_0_T_zip:
-           auc0_inf=i+j    
-           list_auc0_inf.append(auc0_inf)
+           if j is not None:
+              auc0_inf=i+j    
+              list_auc0_inf.append(auc0_inf)
+           else:
+              list_auc0_inf.append(None)
        
        ###AUC0-inf/D
        list_auc0_inf_D=[]
        for i in list_auc0_inf:
-           auc0_inf_D = i/float(dose)
-           list_auc0_inf_D.append(auc0_inf_D)
-
+           if i is not None:
+              auc0_inf_D = i/float(dose)
+              list_auc0_inf_D.append(auc0_inf_D)
+           else:
+              list_auc0_inf_D.append(None)
 
        ###AUC_%Extrap
        list_AUC_extrap=[]
        for i,j in list(zip(list_auc0_inf,list_AUC_0_T)):
-           AUC_extrap = ((i-j)/i)*100
-           list_AUC_extrap.append(AUC_extrap)
+           if i is not None:
+              AUC_extrap = ((i-j)/i)*100
+              list_AUC_extrap.append(AUC_extrap)
+           else:
+              list_AUC_extrap.append(None)
  
        ####Cl_F
        list_Cl_F=[]
 
        for i in list_auc0_inf:
-           Cl_F = float(dose)/i
-           list_Cl_F.append(Cl_F) 
-
+           if i is not None:
+              Cl_F = float(dose)/i
+              list_Cl_F.append(Cl_F)
+           else: 
+              list_Cl_F.append(None)
 
        ####Vz_F
        list_Vz_F=[]
@@ -578,8 +654,11 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        list_zip_kel_Cl_F=list(zip(list_kel_total,list_Cl_F))
 
        for i,j in list_zip_kel_Cl_F:
-           Vz_F = j/i
-           list_Vz_F.append(Vz_F)
+           if i is not None:
+              Vz_F = j/i
+              list_Vz_F.append(Vz_F)
+           else:
+              list_Vz_F.append(None)
 
 
        ###AUMC0-t и ###AUMC0-inf
@@ -683,21 +762,31 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
 
        list_AUMCt_inf=[]
        for k,c,t in list_zip_for_AUMC_inf:
-           AUMCt_inf=c*t/k+c/(k*k)
-           list_AUMCt_inf.append(AUMCt_inf)
+           if k is not None:
+              AUMCt_inf=c*t/k+c/(k*k)
+              list_AUMCt_inf.append(AUMCt_inf)
+           else:
+              list_AUMCt_inf.append(None)
 
 
        list_AUMC_zip=list(zip(list_AUMC0_t,list_AUMCt_inf))
 
        for i,j in list_AUMC_zip:
-           AUMCO_inf=i+j
-           list_AUMCO_inf.append(AUMCO_inf)
+           if j is not None:
+              AUMCO_inf=i+j
+              list_AUMCO_inf.append(AUMCO_inf)
+           else:
+              list_AUMCO_inf.append(None)
        
        ###AUMC_%Extrap
        list_AUMC_extrap=[]
        for i,j in list(zip(list_AUMCO_inf,list_AUMC0_t)):
-           AUMC_extrap = ((i-j)/i)*100
-           list_AUMC_extrap.append(AUMC_extrap)
+           if i is not None:
+              AUMC_extrap = ((i-j)/i)*100
+              list_AUMC_extrap.append(AUMC_extrap)
+           else:
+              list_AUMC_extrap.append(None)
+              
 
        ###MRT0-t
        list_MRT0_t=[]
@@ -714,8 +803,11 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
        list_zip_AUMCO_inf_auc0_inf = list(zip(list_AUMCO_inf,list_auc0_inf))
 
        for i,j in list_zip_AUMCO_inf_auc0_inf:
-           MRT0_inf=i/j
-           list_MRT0_inf.append(MRT0_inf)
+           if i is not None:
+              MRT0_inf=i/j
+              list_MRT0_inf.append(MRT0_inf)
+           else:
+              list_MRT0_inf.append(None)
        
 
     
@@ -1352,158 +1444,76 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
 
 
        ####KEL,Rsq_adjusted,Rsq,Corr_XY,No_points_lambda_z,Lambda_z_intercept,Lambda_z_lower,Lambda_z_upper
-       list_kel_total=[]
-       list_Rsq_adjusted=[]
+
+       # Глобальные списки — собираем всё по всем субъектам
+       list_kel_total = []
+       list_Rsq_adjusted = []
        list_Rsq = []
        list_Corr_XY = []
        list_No_points_lambda_z = []
        list_Lambda_z_intercept = []
        list_Lambda_z_lower = []
        list_Lambda_z_upper = []
-       for i in range(0,count_row):
-           list_columns_T=[]
-           for column in df_without_numer.columns:
-               list_columns_T.append(float(column))
-           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
-           list_c=list_concentration
 
-           list_time=list_columns_T
+       for i in range(count_row):
+           # Получаем временные значения времени
+           list_columns_T = [float(column) for column in df_without_numer.columns]
 
-           list_t=[]
-           for i in list_time:
-               i=float(i)
-               list_t.append(i)
+           # Получаем концентрации и соответствующие им времена (без None)
+           list_concentration, list_columns_T = remove_none_values(
+               df_without_numer.iloc[i].tolist(),
+               list_columns_T
+           )
 
-           #срез_без_cmax
-           max_value_c=max(list_c)
-           index_cmax=list_c.index(max_value_c)
+           # Вызов функции
+           (
+               kel_list,
+               rsq_adj_list,
+               rsq_list,
+               corr_list,
+               n_points_list,
+               intercept_list,
+               t_lower_list,
+               t_upper_list
+           ) = estimate_lambda_z(list_concentration, list_columns_T, 'intravenously')  # или bolus / infusion
 
-           list_c_without_cmax=list_c#[index_cmax+1:] - в болюсе cmax может быть включен, во внесосудистом и в инфузии нет
-           list_t_without_cmax=list_t#[index_cmax+1:]
-
-           #удаление всех нулей из массивов
-           count_for_0_1=len(list_c_without_cmax)
-           list_range_for_0_1=range(0,count_for_0_1)
-
-           list_time_0=[]
-           list_conc_0=[]
-           for i in list_range_for_0_1:
-               if list_c_without_cmax[i] !=0:
-                  list_conc_0.append(list_c_without_cmax[i])
-                  list_time_0.append(list_t_without_cmax[i]) 
-           ################################
-
-           n_points=len(list_conc_0)
-           list_n_points = range(0,n_points)
-
-           #создание списков с поочередно уменьщающемся кол, точек
-           list_for_kel_c=[]
-           for j in list_n_points:
-               if j<n_points:
-                  list_c_new=list_conc_0[j:n_points]
-                  list_for_kel_c.append(list_c_new)
-           list_for_kel_c.pop(-1) #удаление списка с одной точкой
-           list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
-
-           list_for_kel_t=[]
-           for j in list_n_points:
-               if j<n_points:
-                  list_t_new=list_time_0[j:n_points]
-                  list_for_kel_t.append(list_t_new)
-           list_for_kel_t.pop(-1) #удаление списка с одной точкой
-           list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
-           list_ct_zip=list(zip(list_for_kel_c,list_for_kel_t))
-
-           list_kel=[]
-           list_r=[]
-           list_r_orig=[]
-           list_Corr = []
-           list_n_points_used = []
-           list_intercept = []
-           list_Lambda_lower = []
-           list_Lambda_upper = []
-           for i,j in list_ct_zip:
-
-               n_points_r=len(i)
-               
-               list_n_points_used.append(n_points_r)
-               list_Lambda_lower.append(min(j))
-               list_Lambda_upper.append(max(j))
-
-               np_c=np.asarray(i)
-               np_t_1=np.asarray(j).reshape((-1,1))
-
-               np_c_log=np.log(np_c)
-
-               model = LinearRegression().fit(np_t_1,np_c_log)
-
-               np_t=np.asarray(j)
-               a=np.corrcoef(np_t, np_c_log)
-               cor=((a[0])[1])
-               r_sq=cor**2
-
-               list_Corr.append(cor)
-               list_r_orig.append(r_sq)
-               list_intercept.append(model.intercept_)
-
-               adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
-
-               ########################################
-               kel=abs(model.coef_[0])
-               list_kel.append(kel)
-               list_r.append(adjusted_r_sq)
-
-           #делаем срезы списоков до rmax
-           max_r=max(list_r)
-
-           index_max_r= list_r.index(max_r)
-
-           list_r1=list_r
-           list_kel1=list_kel
-
-           number_elem_list_r1=len(list_r1)
-
-           list_range_kel=range(0,number_elem_list_r1) 
-
-           list_kel_total_1=[]
-           for i in list_range_kel:
-
-               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
-                  list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
-                  list_Rsq_adjusted.append(list_r1[i])
-                  list_Rsq.append(list_r_orig[i])
-                  list_Corr_XY.append(list_Corr[i])
-                  list_No_points_lambda_z.append(list_n_points_used[i])
-                  list_Lambda_z_intercept.append(list_intercept[i])
-                  list_Lambda_z_lower.append(list_Lambda_lower[i])
-                  list_Lambda_z_upper.append(list_Lambda_upper[i])
-                  break #самая ранняя удовлетовряющая условию
-
-           for i in list_kel_total_1:
-               list_kel_total.append(i) 
+           # Расширяем глобальные списки
+           list_kel_total.extend(kel_list)
+           list_Rsq_adjusted.extend(rsq_adj_list)
+           list_Rsq.extend(rsq_list)
+           list_Corr_XY.extend(corr_list)
+           list_No_points_lambda_z.extend(n_points_list)
+           list_Lambda_z_intercept.extend(intercept_list)
+           list_Lambda_z_lower.extend(t_lower_list)
+           list_Lambda_z_upper.extend(t_upper_list)
 
        ####T1/2
        list_half_live=[]
        for i in list_kel_total:
-           half_live=math.log(2)/i
-           list_half_live.append(half_live)
+           if i is not None:
+              half_live=math.log(2)/i
+              list_half_live.append(half_live)
+           else:
+              list_half_live.append(None)
        
        ####Span
        list_Span=[]
        for upper,lower,half_live in list(zip(list_Lambda_z_upper,list_Lambda_z_lower,list_half_live)):
-           Span= (upper - lower)/half_live
-           list_Span.append(Span)
+           if half_live is not None:
+              Span= (upper - lower)/half_live
+              list_Span.append(Span)
+           else:
+              list_Span.append(None)
 
        ###AUC0-inf 
 
        list_auc0_inf=[] 
 
        list_of_list_c=[]
-       
        for i in range(0,count_row):
            list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
-
+           if 0 in list_concentration:
+              list_concentration.remove(0)
            list_c = list_concentration
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
            list_of_list_c.append(list_c)
@@ -1513,44 +1523,61 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        #AUCt-inf 
        list_auc_t_inf=[]     
        for i,j in list_zip_c_AUCt_inf:
-           for clast in j:
-               if clast != 0:
-                  clast_true=clast
-                  break
-           auc_t_inf=clast_true/i
-           list_auc_t_inf.append(auc_t_inf)
+           if i is not None:
+              for clast in j:
+                  if clast != 0:
+                     clast_true=clast
+                     break
+              auc_t_inf=clast_true/i
+              list_auc_t_inf.append(auc_t_inf)
+           else:
+             list_auc_t_inf.append(None)
 
        list_auc_t_inf_and_AUC_0_T_zip=list(zip(list_AUC_0_T,list_auc_t_inf))
 
        for i,j in list_auc_t_inf_and_AUC_0_T_zip:
-           auc0_inf=i+j    
-           list_auc0_inf.append(auc0_inf)
+           if j is not None:
+              auc0_inf=i+j    
+              list_auc0_inf.append(auc0_inf)
+           else:
+              list_auc0_inf.append(None)
 
        ###AUC0-inf/D
        list_auc0_inf_D=[]
        for i in list_auc0_inf:
-           auc0_inf_D = i/float(dose)
-           list_auc0_inf_D.append(auc0_inf_D)
-
+           if i is not None:
+              auc0_inf_D = i/float(dose)
+              list_auc0_inf_D.append(auc0_inf_D)
+           else:
+              list_auc0_inf_D.append(None)
 
        ###AUC_%Extrap
        list_AUC_extrap=[]
        for i,j in list(zip(list_auc0_inf,list_AUC_0_T)):
-           AUC_extrap = ((i-j)/i)*100
-           list_AUC_extrap.append(AUC_extrap)
+           if i is not None:
+              AUC_extrap = ((i-j)/i)*100
+              list_AUC_extrap.append(AUC_extrap)
+           else:
+              list_AUC_extrap.append(None)
        
        ###AUC_%Back_Ext
        list_AUC_perc_Back_Ext=[]
        for i,j in list(zip(list_AUC_Back_Ext,list_auc0_inf)):
-           AUC_perc_Back_Ext = i/j*100
-           list_AUC_perc_Back_Ext.append(AUC_perc_Back_Ext)
+           if j is not None:
+              AUC_perc_Back_Ext = i/j*100
+              list_AUC_perc_Back_Ext.append(AUC_perc_Back_Ext)
+           else:
+              list_AUC_perc_Back_Ext.append(None)
 
        ####Cl
        list_Cl=[]
 
        for i in list_auc0_inf:
-           Cl = float(dose)/i
-           list_Cl.append(Cl) 
+           if i is not None:
+              Cl = float(dose)/i
+              list_Cl.append(Cl)
+           else:
+              list_Cl.append(None)
 
 
        ####Vz
@@ -1559,8 +1586,11 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        list_zip_kel_cl=list(zip(list_kel_total,list_Cl))
 
        for i,j in list_zip_kel_cl:
-           Vz = j/i
-           list_Vz.append(Vz)
+           if i is not None:
+              Vz = j/i
+              list_Vz.append(Vz)
+           else:
+              list_Vz.append(None)
 
 
        ###AUMC0-t и ###AUMC0-inf
@@ -1700,21 +1730,30 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
 
        list_AUMCt_inf=[]
        for k,c,t in list_zip_for_AUMC_inf:
-           AUMCt_inf=c*t/k+c/(k*k)
-           list_AUMCt_inf.append(AUMCt_inf)
+           if k is not None:
+              AUMCt_inf=c*t/k+c/(k*k)
+              list_AUMCt_inf.append(AUMCt_inf)
+           else:
+              list_AUMCt_inf.append(None)
 
 
        list_AUMC_zip=list(zip(list_AUMC0_t,list_AUMCt_inf))
 
        for i,j in list_AUMC_zip:
-           AUMCO_inf=i+j
-           list_AUMCO_inf.append(AUMCO_inf)
+           if j is not None:
+              AUMCO_inf=i+j
+              list_AUMCO_inf.append(AUMCO_inf)
+           else:
+              list_AUMCO_inf.append(None)
        
        ###AUMC_%Extrap
        list_AUMC_extrap=[]
        for i,j in list(zip(list_AUMCO_inf,list_AUMC0_t)):
-           AUMC_extrap = ((i-j)/i)*100
-           list_AUMC_extrap.append(AUMC_extrap)
+           if i is not None:
+              AUMC_extrap = ((i-j)/i)*100
+              list_AUMC_extrap.append(AUMC_extrap)
+           else:
+              list_AUMC_extrap.append(None)
        
        ###MRT0-t
        list_MRT0_t=[]
@@ -1731,8 +1770,11 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        list_zip_AUMCO_inf_auc0_inf = list(zip(list_AUMCO_inf,list_auc0_inf))
 
        for i,j in list_zip_AUMCO_inf_auc0_inf:
-           MRT0_inf=i/j
-           list_MRT0_inf.append(MRT0_inf)
+           if i is not None:
+              MRT0_inf=i/j
+              list_MRT0_inf.append(MRT0_inf)
+           else:
+              list_MRT0_inf.append(None)
 
        ####Vss
        list_Vss=[]
@@ -1740,8 +1782,11 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
        list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_Cl))
 
        for i,j in list_zip_MRT0_inf_cl:
-           Vss = j*i
-           list_Vss.append(Vss)
+           if i is not None:
+              Vss = j*i
+              list_Vss.append(Vss)
+           else:
+              list_Vss.append(None)
     
        ##################### Фрейм ФК параметров
 
@@ -2302,150 +2347,66 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
 
        ####KEL,Rsq_adjusted,Rsq,Corr_XY,No_points_lambda_z,Lambda_z_intercept,Lambda_z_lower,Lambda_z_upper
-       list_kel_total=[]
-       list_Rsq_adjusted=[]
+
+       # Глобальные списки — собираем всё по всем субъектам
+       list_kel_total = []
+       list_Rsq_adjusted = []
        list_Rsq = []
        list_Corr_XY = []
        list_No_points_lambda_z = []
        list_Lambda_z_intercept = []
        list_Lambda_z_lower = []
        list_Lambda_z_upper = []
-       for i in range(0,count_row):
-           list_columns_T=[]
-           for column in df_without_numer.columns:
-               list_columns_T.append(float(column))
-           list_concentration, list_columns_T = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist(),list_columns_T)
-           list_concentration.remove(0)
-           list_c=list_concentration
 
-           list_time=list_columns_T
-           list_time.remove(0) 
+       for i in range(count_row):
+           # Получаем временные значения времени
+           list_columns_T = [float(column) for column in df_without_numer.columns]
 
-           list_t=[]
-           for i in list_time:
-               i=float(i)
-               list_t.append(i)
+           # Получаем концентрации и соответствующие им времена (без None)
+           list_concentration, list_columns_T = remove_none_values(
+               df_without_numer.iloc[i].tolist(),
+               list_columns_T
+           )
 
-           #срез_без_cmax
-           max_value_c=max(list_c)
-           index_cmax=list_c.index(max_value_c)
+           # Вызов функции
+           (
+               kel_list,
+               rsq_adj_list,
+               rsq_list,
+               corr_list,
+               n_points_list,
+               intercept_list,
+               t_lower_list,
+               t_upper_list
+           ) = estimate_lambda_z(list_concentration, list_columns_T, 'intravenously')  # или bolus / infusion
 
-           list_c_without_cmax=list_c[index_cmax+1:]
-           list_t_without_cmax=list_t[index_cmax+1:]
+           # Расширяем глобальные списки
+           list_kel_total.extend(kel_list)
+           list_Rsq_adjusted.extend(rsq_adj_list)
+           list_Rsq.extend(rsq_list)
+           list_Corr_XY.extend(corr_list)
+           list_No_points_lambda_z.extend(n_points_list)
+           list_Lambda_z_intercept.extend(intercept_list)
+           list_Lambda_z_lower.extend(t_lower_list)
+           list_Lambda_z_upper.extend(t_upper_list)
 
-           #удаление всех нулей из массивов
-           count_for_0_1=len(list_c_without_cmax)
-           list_range_for_0_1=range(0,count_for_0_1)
-
-           list_time_0=[]
-           list_conc_0=[]
-           for i in list_range_for_0_1:
-               if list_c_without_cmax[i] !=0:
-                  list_conc_0.append(list_c_without_cmax[i])
-                  list_time_0.append(list_t_without_cmax[i]) 
-           ################################
-
-           n_points=len(list_conc_0)
-           list_n_points = range(0,n_points)
-
-           #создание списков с поочередно уменьщающемся кол, точек
-           list_for_kel_c=[]
-           for j in list_n_points:
-               if j<n_points:
-                  list_c_new=list_conc_0[j:n_points]
-                  list_for_kel_c.append(list_c_new)
-           list_for_kel_c.pop(-1) #удаление списка с одной точкой
-           list_for_kel_c.pop(-1)  #удаление списка с двумя точками     
-
-           list_for_kel_t=[]
-           for j in list_n_points:
-               if j<n_points:
-                  list_t_new=list_time_0[j:n_points]
-                  list_for_kel_t.append(list_t_new)
-           list_for_kel_t.pop(-1) #удаление списка с одной точкой
-           list_for_kel_t.pop(-1) #удаление списка с двумя точками 
-
-           list_ct_zip=list(zip(list_for_kel_c,list_for_kel_t))
-
-           list_kel=[]
-           list_r=[]
-           list_r_orig=[]
-           list_Corr = []
-           list_n_points_used = []
-           list_intercept = []
-           list_Lambda_lower = []
-           list_Lambda_upper = []
-           for i,j in list_ct_zip:
-
-               n_points_r=len(i)
-               
-               list_n_points_used.append(n_points_r)
-               list_Lambda_lower.append(min(j))
-               list_Lambda_upper.append(max(j))
-
-               np_c=np.asarray(i)
-               np_t_1=np.asarray(j).reshape((-1,1))
-
-               np_c_log=np.log(np_c)
-
-               model = LinearRegression().fit(np_t_1,np_c_log)
-
-               np_t=np.asarray(j)
-               a=np.corrcoef(np_t, np_c_log)
-               cor=((a[0])[1])
-               r_sq=cor**2
-
-               list_Corr.append(cor)
-               list_r_orig.append(r_sq)
-               list_intercept.append(model.intercept_)
-
-               adjusted_r_sq=1-((1-r_sq)*((n_points_r-1))/(n_points_r-2))
-
-               ########################################
-               kel=abs(model.coef_[0])
-               list_kel.append(kel)
-               list_r.append(adjusted_r_sq)
-
-           #делаем срезы списоков до rmax
-           max_r=max(list_r)
-
-           index_max_r= list_r.index(max_r)
-
-           list_r1=list_r
-           list_kel1=list_kel
-
-           number_elem_list_r1=len(list_r1)
-
-           list_range_kel=range(0,number_elem_list_r1) 
-
-           list_kel_total_1=[]
-           for i in list_range_kel:
-
-               if abs(list_r[index_max_r] - list_r1[i]) < 0.0001: #проверяем все точки слева и справа от rmax
-                  list_kel_total.append(list_kel1[i]*math.log(math.exp(1))) #отдаю предпочтение rmax с большим количеством точек
-                  list_Rsq_adjusted.append(list_r1[i])
-                  list_Rsq.append(list_r_orig[i])
-                  list_Corr_XY.append(list_Corr[i])
-                  list_No_points_lambda_z.append(list_n_points_used[i])
-                  list_Lambda_z_intercept.append(list_intercept[i])
-                  list_Lambda_z_lower.append(list_Lambda_lower[i])
-                  list_Lambda_z_upper.append(list_Lambda_upper[i])
-                  break #самая ранняя удовлетовряющая условию
-
-           for i in list_kel_total_1:
-               list_kel_total.append(i) 
-       
        ####T1/2
        list_half_live=[]
        for i in list_kel_total:
-           half_live=math.log(2)/i
-           list_half_live.append(half_live)
-
+           if i is not None:
+              half_live=math.log(2)/i
+              list_half_live.append(half_live)
+           else:
+              list_half_live.append(None)
+       
        ####Span
        list_Span=[]
        for upper,lower,half_live in list(zip(list_Lambda_z_upper,list_Lambda_z_lower,list_half_live)):
-           Span= (upper - lower)/half_live
-           list_Span.append(Span)
+           if half_live is not None:
+              Span= (upper - lower)/half_live
+              list_Span.append(Span)
+           else:
+              list_Span.append(None)
 
        ###AUC0-inf 
 
@@ -2454,7 +2415,8 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        list_of_list_c=[]
        for i in range(0,count_row):
            list_concentration, _ = remove_none_values(df_without_numer.iloc[[i]].iloc[0].tolist())
-           list_concentration.remove(0)
+           if 0 in list_concentration:
+              list_concentration.remove(0)
            list_c = list_concentration
            list_c.reverse() ### переворачиваем, для дальнейшей итерации с конца списка и поиска Clast не равное нулю
            list_of_list_c.append(list_c)
@@ -2464,38 +2426,52 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        #AUCt-inf 
        list_auc_t_inf=[]     
        for i,j in list_zip_c_AUCt_inf:
-           for clast in j:
-               if clast != 0:
-                  clast_true=clast
-                  break
-           auc_t_inf=clast_true/i
-           list_auc_t_inf.append(auc_t_inf)
+           if i is not None:
+              for clast in j:
+                  if clast != 0:
+                     clast_true=clast
+                     break
+              auc_t_inf=clast_true/i
+              list_auc_t_inf.append(auc_t_inf)
+           else:
+             list_auc_t_inf.append(None)
 
        list_auc_t_inf_and_AUC_0_T_zip=list(zip(list_AUC_0_T,list_auc_t_inf))
 
        for i,j in list_auc_t_inf_and_AUC_0_T_zip:
-           auc0_inf=i+j    
-           list_auc0_inf.append(auc0_inf)
+           if j is not None:
+              auc0_inf=i+j    
+              list_auc0_inf.append(auc0_inf)
+           else:
+              list_auc0_inf.append(None)
 
        ###AUC0-inf/D
        list_auc0_inf_D=[]
        for i in list_auc0_inf:
-           auc0_inf_D = i/float(dose)
-           list_auc0_inf_D.append(auc0_inf_D)
-
+           if i is not None:
+              auc0_inf_D = i/float(dose)
+              list_auc0_inf_D.append(auc0_inf_D)
+           else:
+              list_auc0_inf_D.append(None)
 
        ###AUC_%Extrap
        list_AUC_extrap=[]
        for i,j in list(zip(list_auc0_inf,list_AUC_0_T)):
-           AUC_extrap = ((i-j)/i)*100
-           list_AUC_extrap.append(AUC_extrap)
+           if i is not None:
+              AUC_extrap = ((i-j)/i)*100
+              list_AUC_extrap.append(AUC_extrap)
+           else:
+              list_AUC_extrap.append(None)
 
        ####Cl
        list_Cl=[]
 
        for i in list_auc0_inf:
-           Cl = float(dose)/i
-           list_Cl.append(Cl) 
+           if i is not None:
+              Cl = float(dose)/i
+              list_Cl.append(Cl)
+           else:
+              list_Cl.append(None)
 
 
        ####Vz
@@ -2504,8 +2480,11 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        list_zip_kel_Cl=list(zip(list_kel_total,list_Cl))
 
        for i,j in list_zip_kel_Cl:
-           Vz = j/i
-           list_Vz.append(Vz)
+           if i is not None:
+              Vz = j/i
+              list_Vz.append(Vz)
+           else:
+              list_Vz.append(None)
 
 
        ###AUMC0-t и ###AUMC0-inf
@@ -2607,21 +2586,30 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
 
        list_AUMCt_inf=[]
        for k,c,t in list_zip_for_AUMC_inf:
-           AUMCt_inf=c*t/k+c/(k*k)
-           list_AUMCt_inf.append(AUMCt_inf)
+           if k is not None:
+              AUMCt_inf=c*t/k+c/(k*k)
+              list_AUMCt_inf.append(AUMCt_inf)
+           else:
+              list_AUMCt_inf.append(None)
 
 
        list_AUMC_zip=list(zip(list_AUMC0_t,list_AUMCt_inf))
 
        for i,j in list_AUMC_zip:
-           AUMCO_inf=i+j
-           list_AUMCO_inf.append(AUMCO_inf)
+           if j is not None:
+              AUMCO_inf=i+j
+              list_AUMCO_inf.append(AUMCO_inf)
+           else:
+              list_AUMCO_inf.append(None)
        
        ###AUMC_%Extrap
        list_AUMC_extrap=[]
        for i,j in list(zip(list_AUMCO_inf,list_AUMC0_t)):
-           AUMC_extrap = ((i-j)/i)*100
-           list_AUMC_extrap.append(AUMC_extrap)
+           if i is not None:
+              AUMC_extrap = ((i-j)/i)*100
+              list_AUMC_extrap.append(AUMC_extrap)
+           else:
+              list_AUMC_extrap.append(None)
 
        ###MRT0-t
        list_MRT0_t=[]
@@ -2638,8 +2626,11 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        list_zip_AUMCO_inf_auc0_inf = list(zip(list_AUMCO_inf,list_auc0_inf))
 
        for i,j in list_zip_AUMCO_inf_auc0_inf:
-           MRT0_inf=i/j - float(infusion_time)/2
-           list_MRT0_inf.append(MRT0_inf)
+           if i is not None:
+              MRT0_inf=i/j  - float(infusion_time)/2
+              list_MRT0_inf.append(MRT0_inf)
+           else:
+              list_MRT0_inf.append(None)
 
        ####Vss
        list_Vss=[]
@@ -2647,8 +2638,11 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
        list_zip_MRT0_inf_cl=list(zip(list_MRT0_inf,list_Cl))
 
        for i,j in list_zip_MRT0_inf_cl:
-           Vss = j*i
-           list_Vss.append(Vss)
+           if i is not None:
+              Vss = j*i
+              list_Vss.append(Vss)
+           else:
+              list_Vss.append(None)
        
     
        ##################### Фрейм ФК параметров
