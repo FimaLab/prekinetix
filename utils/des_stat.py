@@ -1,6 +1,41 @@
 import numpy as np
 import scipy.stats as stats
 
+def percentile_phoenix(data, probs):
+    """
+    Вычисляет percentiles по методу Phoenix (PCTLDEF=4).
+    
+    :param data: список или массив чисел
+    :param probs: список percentiles от 0 до 100 (например, [1, 2.5, 50])
+    :return: список значений percentiles
+    """
+    data_sorted = np.sort(np.array(data)[~np.isnan(data)])
+    n = len(data_sorted)
+    result = []
+
+    for p in probs:
+        if not (0 <= p <= 100):
+            raise ValueError(f"Процентиль {p} вне допустимого диапазона 0-100.")
+        if n == 0:
+            result.append(np.nan)
+            continue
+
+        p_frac = p / 100
+        pos = p_frac * (n + 1)
+        j = int(np.floor(pos))
+        f = pos - j
+
+        if j <= 0:
+            value = data_sorted[0]
+        elif j >= n:
+            value = data_sorted[-1]
+        else:
+            value = (1 - f) * data_sorted[j - 1] + f * data_sorted[j]
+
+        result.append(value)
+
+    return result
+
 def calculate_statistics(data):
     import numpy as np
     from scipy import stats
@@ -84,10 +119,10 @@ def calculate_statistics(data):
 
     # Коррекция вычисления percentiles
     if n < 3:
-        percentiles = np.percentile(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99], method="nearest")
+        percentiles = percentile_phoenix(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99])
         percentiles[5] = np.median(data_nonan)  # P50 вычисляем отдельно
     else:
-        percentiles = np.percentile(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99], method="nearest")
+        percentiles = percentile_phoenix(data_nonan, [1, 2.5, 5, 10, 25, 50, 75, 90, 95, 97.5, 99])
 
     iqr = percentiles[6] - percentiles[4]  # P75 - P25
 
