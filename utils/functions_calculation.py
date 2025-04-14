@@ -370,17 +370,13 @@ def pk_parametrs_total_extravascular(df,selector_research,method_auc,dose,measur
           st.session_state[f"feature_disable_selected_value_{selector_research}_2"] = False
        
     ###Tmax_True   
-    list_Tmax_True_pk=[]
-    for cmax in list_cmax_True_pk:
-        for column in df.columns:
-            for num, row in df.iterrows():
-                if df.iloc[num][column] == cmax:
-                   list_Tmax_True_pk.append(f"{column}")
-   
-    list_Tmax_float_True_pk=[]           
-    for i in list_Tmax_True_pk:
-        Tmax=float(i)
-        list_Tmax_float_True_pk.append(Tmax)
+    list_Tmax_float_True_pk = []
+
+    for idx, row in df.iterrows():
+        row = row.drop(labels="Номер", errors="ignore")
+        cmax = row.max()
+        tmax = row[row == cmax].index[0]  # первая временная точка, где достигнут Cmax
+        list_Tmax_float_True_pk.append(float(tmax))
 
     if (len(list_cmax_1_pk) == len(df.index.tolist())) and (st.session_state[f"agree_cmax2 - {selector_research}"] == True):
        
@@ -1214,17 +1210,13 @@ def pk_parametrs_total_intravenously(df,selector_research,method_auc,dose,measur
           st.session_state[f"feature_disable_selected_value_{selector_research}_2"] = False
 
     ###Tmax_True   
-    list_Tmax_True_pk=[]
-    for cmax in list_cmax_True_pk:
-        for column in df.columns:
-            for num, row in df.iterrows():
-                if df.iloc[num][column] == cmax:
-                   list_Tmax_True_pk.append(f"{column}")
-   
-    list_Tmax_float_True_pk=[]           
-    for i in list_Tmax_True_pk:
-        Tmax=float(i)
-        list_Tmax_float_True_pk.append(Tmax)
+    list_Tmax_float_True_pk = []
+
+    for idx, row in df.iterrows():
+        row = row.drop(labels="Номер", errors="ignore")
+        cmax = row.max()
+        tmax = row[row == cmax].index[0]  # первая временная точка, где достигнут Cmax
+        list_Tmax_float_True_pk.append(float(tmax))
 
     if (len(list_cmax_1_pk) == len(df.index.tolist())) and (st.session_state[f"agree_cmax2 - {selector_research}"] == True):
        
@@ -2208,17 +2200,13 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
           st.session_state[f"feature_disable_selected_value_{selector_research}_2"] = False
        
     ###Tmax_True   
-    list_Tmax_True_pk=[]
-    for cmax in list_cmax_True_pk:
-        for column in df.columns:
-            for num, row in df.iterrows():
-                if df.iloc[num][column] == cmax:
-                   list_Tmax_True_pk.append(f"{column}")
-   
-    list_Tmax_float_True_pk=[]           
-    for i in list_Tmax_True_pk:
-        Tmax=float(i)
-        list_Tmax_float_True_pk.append(Tmax)
+    list_Tmax_float_True_pk = []
+
+    for idx, row in df.iterrows():
+        row = row.drop(labels="Номер", errors="ignore")
+        cmax = row.max()
+        tmax = row[row == cmax].index[0]  # первая временная точка, где достигнут Cmax
+        list_Tmax_float_True_pk.append(float(tmax))
 
     if (len(list_cmax_1_pk) == len(df.index.tolist())) and (st.session_state[f"agree_cmax2 - {selector_research}"] == True):
        
