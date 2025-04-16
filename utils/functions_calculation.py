@@ -9,7 +9,7 @@ from utils.des_stat import *
 
 import numpy as np
 
-def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route):
+def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route,infusion_time=None):
     """
     Оценивает Lambda Z (константу скорости элиминации) по методу Best Fit из Phoenix.
 
@@ -55,12 +55,25 @@ def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route):
     else:  # intravenously: после времени Cmax можно использовать 2 точки
         conc_after_cmax = conc_nonzero
         time_after_cmax = time_nonzero
-
+    
     if admin_route == 'infusion':
-        # Отсекаем только точки после окончания инфузии
-        infusion_end_time = time_nonzero[index_cmax]  # условно Cmax — конец инфузии
-        conc_after_cmax = [c for t, c in zip(time_after_cmax, conc_after_cmax) if t >= infusion_end_time]
-        time_after_cmax = [t for t in time_after_cmax if t >= infusion_end_time]
+        if infusion_time is not None:
+            infusion_end_time = infusion_time #гпт предупреждал, что здесь лучше по сложению от первой точки (в моих конфигурациях всегда есть нулевая точка). Поэтому не вижу поповода для смещения, если он вообще происходит.
+
+            # Проверим: Cmax наступил до окончания инфузии?
+            if time_nonzero[index_cmax] < infusion_end_time:
+                # Тогда именно конец инфузии — точка отсечения
+                cutoff_time = infusion_end_time
+            else:
+                # Cmax позже инфузии → отсекать после Cmax
+                cutoff_time = time_nonzero[index_cmax]
+        else:
+            # Нет информации о длительности — используем Cmax как конец инфузии
+            cutoff_time = time_nonzero[index_cmax]
+
+        # Применяем отсечение
+        conc_after_cmax = [c for t, c in zip(time_after_cmax, conc_after_cmax) if t >= cutoff_time]
+        time_after_cmax = [t for t in time_after_cmax if t >= cutoff_time]
 
     # Финальная фильтрация: убираем 0 и проверка количества точек
     conc_filtered = []
@@ -2366,7 +2379,7 @@ def pk_parametrs_total_infusion(df,selector_research,method_auc,dose,measure_uni
                intercept_list,
                t_lower_list,
                t_upper_list
-           ) = estimate_lambda_z(list_concentration, list_columns_T, 'intravenously')  # или bolus / infusion
+           ) = estimate_lambda_z(list_concentration, list_columns_T, 'infusion',infusion_time)  # infusion
 
            # Расширяем глобальные списки
            list_kel_total.extend(kel_list)
