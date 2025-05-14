@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.stats as stat
 from sklearn.linear_model import LinearRegression
 from scipy import stats
 import math
@@ -43,18 +42,24 @@ def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route,infusion_tim
     time_nonzero = [t for t, c in zip(time_values, conc_values) if c > 0]
     conc_nonzero = [c for c in conc_values if c > 0]
 
-    if len(conc_nonzero) < 3:
+    # Минимальное количество точек зависит от способа введения
+    min_points_required = 2 if admin_route == 'intravenously' else 3
+
+    if len(conc_nonzero) < min_points_required:
         return ([[None],[None],[None],[None],[0],[None],[None],[None]])
+    
+    cmax = max(conc_nonzero)
+    index_cmax = conc_nonzero.index(cmax)
 
     # Определяем Cmax и отсекаем всё до него (для extravascular и infusion)
     if admin_route in ['extravascular', 'infusion']:
-        cmax = max(conc_nonzero)
-        index_cmax = conc_nonzero.index(cmax)
+        
         conc_after_cmax = conc_nonzero[index_cmax+1:]
         time_after_cmax = time_nonzero[index_cmax+1:]
-    else:  # intravenously: после времени Cmax можно использовать 2 точки
-        conc_after_cmax = conc_nonzero
-        time_after_cmax = time_nonzero
+    else:  # intravenously: включая Cmax
+
+        conc_after_cmax = conc_nonzero[index_cmax:]
+        time_after_cmax = time_nonzero[index_cmax:]
     
     if admin_route == 'infusion':
         if infusion_time is not None:
@@ -83,17 +88,17 @@ def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route,infusion_tim
             conc_filtered.append(c)
             time_filtered.append(t)
 
-    if len(conc_filtered) < 3:
+    if len(conc_filtered) < min_points_required:
         return ([[None],[None],[None],[None],[0],[None],[None],[None]])
 
     # Генерируем всевозможные срезы от 3 до N точек с конца
     list_for_kel_c = []
     list_for_kel_t = []
     n_points = len(conc_filtered)
-    for i in range(n_points - 2):
+    for i in range(n_points - (min_points_required - 1)):
         c_slice = conc_filtered[i:]
         t_slice = time_filtered[i:]
-        if len(c_slice) >= 3:
+        if len(c_slice) >= min_points_required:
             list_for_kel_c.append(c_slice)
             list_for_kel_t.append(t_slice)
 
@@ -109,7 +114,7 @@ def estimate_lambda_z(conc_values_raw, time_values_raw, admin_route,infusion_tim
     list_t_uppers = []
 
     for c_slice, t_slice in list_ct_zip:
-        if len(c_slice) < 3:
+        if len(c_slice) < min_points_required:
             continue
 
         if abs(t_slice[-1] - t_slice[0]) < 1e-10:
