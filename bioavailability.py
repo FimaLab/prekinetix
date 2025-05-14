@@ -5,8 +5,7 @@ import streamlit as st
 st.set_page_config(page_title="Доклинические исследования", page_icon="favicon.png", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
 import pandas as pd
-import numpy as np
-import statistics  
+import numpy as np 
 import statsmodels.api as sm
 import os
 from utils.functions import *
