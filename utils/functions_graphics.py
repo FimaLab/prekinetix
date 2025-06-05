@@ -288,7 +288,10 @@ def applying_axis_settings(ax, x_settings, y_settings,kind_graphic):
     if kind_graphic == 'log':
        
        if y_settings["min"] < y_settings["max"]:
-          ax.set_ylim(ymin, y_settings["max"])
+          if not (ymin <= 1 <= ymax):
+             ax.set_ylim(1, y_settings["max"])  # Гарантированно включает 1
+          else:        
+             ax.set_ylim(ymin, y_settings["max"])
           ax.yaxis.set_major_locator(LogLocator(base=10.0))
           ax.yaxis.set_minor_locator(LogLocator(base=10.0))
           # Используем ScalarFormatter для отображения чисел в обычном формате
@@ -516,7 +519,10 @@ def create_individual_graphics(list_time,list_concentration,measure_unit_time, m
 
        ax.set_xlim(0 - padding_x_1, max(list_time) + padding_x_2)
        if kind_graphic == 'log':       
-          ax.set_ylim(ymin, ymax)
+          if not (ymin <= 1 <= ymax):
+             ax.set_ylim(1, ymax)  # Гарантированно включает 1
+          else:        
+             ax.set_ylim(ymin, ymax)
           ax.yaxis.set_major_locator(LogLocator(base=10.0))
           ax.yaxis.set_minor_locator(LogLocator(base=10.0))
           # Используем ScalarFormatter для отображения чисел в обычном формате
@@ -633,7 +639,10 @@ def plot_total_individual_pk_profiles(list_color,df_for_plot_conc_1,list_numer_a
 
        ax.set_xlim(0 - padding_x_1, max(df_for_plot_conc_1.index.tolist()) + padding_x_2)
        if kind_graphic == 'log':       
-          ax.set_ylim(ymin, ymax)
+          if not (ymin <= 1 <= ymax):
+             ax.set_ylim(1, ymax)  # Гарантированно включает 1
+          else:        
+             ax.set_ylim(ymin, ymax)
           ax.yaxis.set_major_locator(LogLocator(base=10.0))
           ax.yaxis.set_minor_locator(LogLocator(base=10.0))
           # Используем ScalarFormatter для отображения чисел в обычном формате
@@ -716,7 +725,10 @@ def plot_pk_profile_individual_mean_std(list_time,list_concentration,err_y_1,mea
 
        ax.set_xlim(0 - padding_x_1, max(list_time) + padding_x_2)
        if kind_graphic == 'log':       
-          ax.set_ylim(ymin, ymax)
+          if not (ymin <= 1 <= ymax):
+             ax.set_ylim(1, ymax)  # Гарантированно включает 1
+          else:        
+             ax.set_ylim(ymin, ymax)
           ax.yaxis.set_major_locator(LogLocator(base=10.0))
           ax.yaxis.set_minor_locator(LogLocator(base=10.0))
           # Используем ScalarFormatter для отображения чисел в обычном формате
@@ -807,7 +819,10 @@ def plot_pk_profile_total_mean_std_doses_organs(list_zip_mean_std_colors,list_t,
 
        ax.set_xlim(0 - padding_x_1, max(list_t) + padding_x_2)
        if kind_graphic == 'log':       
-          ax.set_ylim(ymin, ymax)
+          if not (ymin <= 1 <= ymax):
+             ax.set_ylim(1, ymax)  # Гарантированно включает 1
+          else:        
+             ax.set_ylim(ymin, ymax)
           ax.yaxis.set_major_locator(LogLocator(base=10.0))
           ax.yaxis.set_minor_locator(LogLocator(base=10.0))
           # Используем ScalarFormatter для отображения чисел в обычном формате
